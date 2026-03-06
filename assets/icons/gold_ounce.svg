@@ -1,0 +1,57 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Shadow -->
+  <ellipse cx="256" cy="480" rx="120" ry="20" fill="url(#shadowGradient)" opacity="0.3"/>
+  
+  <!-- Gold Bar Base -->
+  <path d="M180 200 L332 200 L356 380 L156 380 Z" fill="url(#goldGradient1)"/>
+  
+  <!-- Gold Bar Top Face -->
+  <path d="M156 200 L180 200 L332 200 L356 200 L336 180 L176 180 Z" fill="url(#goldGradient2)"/>
+  
+  <!-- Gold Bar Side -->
+  <path d="M332 200 L356 200 L356 380 L332 380 Z" fill="url(#goldGradient3)"/>
+  
+  <!-- Shine Effect -->
+  <path d="M200 220 Q250 240 280 220" stroke="url(#shineGradient)" stroke-width="3" fill="none" opacity="0.6"/>
+  <path d="M200 260 Q250 280 280 260" stroke="url(#shineGradient)" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <!-- Text: 999.9 -->
+  <text x="256" y="300" text-anchor="middle" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#8B4513">999.9</text>
+  <text x="256" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="600" fill="#8B4513">FINE GOLD</text>
+  
+  <!-- Gradients -->
+  <defs>
+    <!-- Gold Gradient 1 (Front) -->
+    <linearGradient id="goldGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Gold Gradient 2 (Top) -->
+    <linearGradient id="goldGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFE0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Gold Gradient 3 (Side) -->
+    <linearGradient id="goldGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFA500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shine Gradient -->
+    <linearGradient id="shineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFFFE0;stop-opacity:0.2" />
+      <stop offset="50%" style="stop-color:#FFFFFF;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FFFFE0;stop-opacity:0.2" />
+    </linearGradient>
+    
+    <!-- Shadow Gradient -->
+    <radialGradient id="shadowGradient">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+</svg>

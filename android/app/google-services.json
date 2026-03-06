@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "411577078188",
+    "project_id": "shamgold-aa8fa",
+    "storage_bucket": "shamgold-aa8fa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411577078188:android:51c5f288550922c52daa09",
+        "android_client_info": {
+          "package_name": "com.toiall.gold_sham"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfCcVHve0ggS2QNMkNhSv2gjFJJt2pP1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

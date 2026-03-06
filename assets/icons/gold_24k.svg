@@ -1,0 +1,53 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Glow -->
+  <circle cx="128" cy="128" r="120" fill="url(#outerGlow)" opacity="0.3"/>
+  
+  <!-- Main Circle -->
+  <circle cx="128" cy="128" r="100" fill="url(#goldCircle)"/>
+  
+  <!-- Inner Circle -->
+  <circle cx="128" cy="128" r="85" fill="url(#innerCircle)"/>
+  
+  <!-- Rays (8 rays) -->
+  <g opacity="0.6">
+    <path d="M128 20 L135 70 L128 75 L121 70 Z" fill="url(#rayGradient)"/>
+    <path d="M236 128 L186 135 L181 128 L186 121 Z" fill="url(#rayGradient)"/>
+    <path d="M128 236 L121 186 L128 181 L135 186 Z" fill="url(#rayGradient)"/>
+    <path d="M20 128 L70 121 L75 128 L70 135 Z" fill="url(#rayGradient)"/>
+    
+    <path d="M200 56 L160 96 L154 92 L158 86 Z" fill="url(#rayGradient)" opacity="0.8"/>
+    <path d="M200 200 L158 170 L154 164 L160 160 Z" fill="url(#rayGradient)" opacity="0.8"/>
+    <path d="M56 200 L96 160 L92 154 L86 158 Z" fill="url(#rayGradient)" opacity="0.8"/>
+    <path d="M56 56 L86 98 L92 102 L98 96 Z" fill="url(#rayGradient)" opacity="0.8"/>
+  </g>
+  
+  <!-- 24K Text -->
+  <text x="128" y="140" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="900" fill="#FFFFFF">24K</text>
+  
+  <!-- Shine -->
+  <path d="M128 50 Q150 80 140 100" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.4"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <radialGradient id="outerGlow">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0" />
+    </radialGradient>
+    
+    <radialGradient id="goldCircle">
+      <stop offset="0%" style="stop-color:#FFFFE0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </radialGradient>
+    
+    <radialGradient id="innerCircle">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </radialGradient>
+    
+    <linearGradient id="rayGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFE0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.5" />
+    </linearGradient>
+  </defs>
+</svg>

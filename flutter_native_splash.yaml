@@ -1,0 +1,30 @@
+flutter_native_splash:
+  # لون الخلفية - نفس لون Splash Screen الموجود
+  color: "#0D2818"
+  
+  # الصورة في المنتصف
+  image: assets/logo.png
+  
+  # حجم الصورة
+  android_12:
+    image: assets/logo.png
+    color: "#0D2818"
+    icon_background_color: "#0D2818"
+  
+  # لون النص والـ branding
+  color_dark: "#0D2818"
+  image_dark: assets/logo.png
+  
+  # إعدادات Android
+  android: true
+  android_gravity: center
+  
+  # إعدادات iOS
+  ios: true
+  ios_content_mode: center
+  
+  # الويب
+  web: false
+  
+  # تفعيل fullscreen
+  fullscreen: true

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ✅ اللون الأخضر الداكن الرئيسي للتطبيق -->
+    <color name="splash_background">#0D2818</color>
+</resources>

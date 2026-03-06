@@ -1,0 +1,55 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Glow -->
+  <circle cx="128" cy="128" r="110" fill="url(#starGlow)" opacity="0.4"/> <!-- Inner Circle Base -->
+  <circle cx="128" cy="128" r="90" fill="url(#starBase)"/>
+  
+  <!-- Five-Point Star -->
+  <path d="M128 40 L145 95 L203 95 L155 130 L175 185 L128 150 L81 185 L101 130 L53 95 L111 95 Z" fill="url(#starGradient)" stroke="url(#starStroke)" stroke-width="3"/>
+  
+  <!-- Inner Star Highlight -->
+  <path d="M128 65 L138 100 L175 100 L145 122 L158 157 L128 135 L98 157 L111 122 L81 100 L118 100 Z" fill="url(#highlightGradient)" opacity="0.6"/>
+  
+  <!-- Center Circle -->
+  <circle cx="128" cy="128" r="35" fill="url(#centerGradient)"/>
+  
+  <!-- Sparkles -->
+  <circle cx="128" cy="50" r="5" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="190" cy="108" r="4" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="165" cy="175" r="4" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="91" cy="175" r="4" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="66" cy="108" r="4" fill="#FFFFFF" opacity="0.8"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <radialGradient id="starGlow">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:0" />
+    </radialGradient>
+    
+    <radialGradient id="starBase">
+      <stop offset="0%" style="stop-color:#FFA500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </radialGradient>
+    
+    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFA500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="starStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFE0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+    
+    <radialGradient id="highlightGradient">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.3" />
+    </radialGradient>
+    
+    <radialGradient id="centerGradient">
+      <stop offset="0%" style="stop-color:#FFFFE0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+</svg>
