@@ -93,6 +93,8 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
         _baseUrl,
         socket_io.OptionBuilder()
             .setTransports(AppConfig.socketOptions['transports'])
+            .setAuth({'apiKey': AppConfig.apiAccessKey})
+            .setExtraHeaders({'x-api-key': AppConfig.apiAccessKey})
             .disableAutoConnect()
             .setReconnectionDelay(AppConfig.socketOptions['reconnectionDelay'])
             .setReconnectionAttempts(
@@ -114,7 +116,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       if (isConnected && _appState == AppLifecycleState.resumed) {
         // This simple status check keeps the server alive on platforms like Render
         try {
-          await http.get(Uri.parse('$_baseUrl/api/status/ping'));
+          await http.get(
+            Uri.parse('$_baseUrl/api/status/ping'),
+            headers: {'x-api-key': AppConfig.apiAccessKey},
+          );
         } catch (_) {}
       }
     });
@@ -218,6 +223,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   void _updateSettings(Map<String, dynamic> settings,
       {required bool saveData}) {
+    debugPrint('🔄 Received Settings Update: ${settings['displaySettings']}');
     currentSettings = settings;
     _settingsController.add(settings);
 
@@ -333,8 +339,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   Future<List<Map<String, dynamic>>> fetchPriceHistory(String id,
       {String range = 'day'}) async {
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/api/prices/history/$id?range=$range'));
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/prices/history/$id?range=$range'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      );
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.cast<Map<String, dynamic>>();
@@ -379,16 +387,17 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Map<String, String> get _authHeaders => {
         'Content-Type': 'application/json',
+        'x-api-key': AppConfig.apiAccessKey,
         if (_authToken != null) 'Authorization': 'Bearer $_authToken',
       };
 
   // Admin Methods...
   Future<bool> updatePrice(String id, double buy, double sell) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/api/prices'),
+      final response = await http.put(
+        Uri.parse('$_baseUrl/api/admin/prices/$id'),
         headers: _authHeaders,
-        body: json.encode({'id': id, 'buyPrice': buy, 'sellPrice': sell}),
+        body: json.encode({'buyPrice': buy, 'sellPrice': sell}),
       );
       return response.statusCode == 200;
     } catch (e) {
@@ -399,7 +408,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   Future<bool> resetPrice(String id) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/prices/reset/$id'),
+        Uri.parse('$_baseUrl/api/admin/prices/$id/reset'),
         headers: _authHeaders,
       );
       return response.statusCode == 200;
@@ -423,16 +432,16 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       if (forceScrape && (manual || source != null)) {
         await http
             .post(
-              Uri.parse('$_baseUrl/api/prices/refresh'),
+              Uri.parse('$_baseUrl/api/admin/scrape${source != null ? '/$source' : ''}'),
               headers: _authHeaders,
-              body: source != null ? json.encode({'source': source}) : null,
             )
             .timeout(const Duration(seconds: 15));
       }
 
-      final response = await http
-          .get(Uri.parse('$_baseUrl/api/prices'))
-          .timeout(const Duration(seconds: 20));
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/prices'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      ).timeout(const Duration(seconds: 20));
       if (response.statusCode == 200) {
         _lastRefreshTime = DateTime.now();
         final List<dynamic> jsonList = json.decode(response.body);
@@ -440,7 +449,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
             jsonList.map((json) => PriceItem.fromJson(json)).toList();
         _updatePrices(prices, saveData: true, originalJson: jsonList);
 
-        final bannerRes = await http.get(Uri.parse('$_baseUrl/api/banners'));
+        final bannerRes = await http.get(
+          Uri.parse('$_baseUrl/api/banners'),
+          headers: {'x-api-key': AppConfig.apiAccessKey},
+        );
         if (bannerRes.statusCode == 200) {
           final List<dynamic> bList = json.decode(bannerRes.body);
           final banners =
@@ -457,8 +469,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<Map<String, dynamic>> fetchSourcesStatus() async {
     try {
-      final response =
-          await http.get(Uri.parse('$_baseUrl/api/status/sources'));
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/status/sources'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      );
       if (response.statusCode == 200) return json.decode(response.body);
       return {};
     } catch (e) {
@@ -468,8 +482,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<List<dynamic>> fetchPublicSourcePrices() async {
     try {
-      final response =
-          await http.get(Uri.parse('$_baseUrl/api/prices/sources/public'));
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/prices/sources/public'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      );
       if (response.statusCode == 200) return json.decode(response.body);
       return [];
     } catch (e) {
@@ -480,10 +496,17 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   Future<bool> updateSourceInterval(String source, int intervalMinutes) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/settings/source-interval'),
+        Uri.parse('$_baseUrl/api/admin/settings'),
         headers: _authHeaders,
-        body:
-            json.encode({'source': source, 'intervalMinutes': intervalMinutes}),
+        body: json.encode({
+          'apiSettings': {
+            'scraperSettings': {
+              'sourceIntervals': {
+                source: intervalMinutes
+              }
+            }
+          }
+        }),
       );
       return response.statusCode == 200;
     } catch (e) {
@@ -502,7 +525,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       String? adCode}) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/banners'),
+        Uri.parse('$_baseUrl/api/admin/banners'),
         headers: _authHeaders,
         body: json.encode({
           'title': title,
@@ -523,7 +546,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<bool> deleteBanner(String id) async {
     try {
-      final response = await http.delete(Uri.parse('$_baseUrl/api/banners/$id'),
+      final response = await http.delete(Uri.parse('$_baseUrl/api/admin/banners/$id'),
           headers: _authHeaders);
       return response.statusCode == 200;
     } catch (e) {
@@ -534,7 +557,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   Future<bool> sendNotification(String message) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/notify'),
+        Uri.parse('$_baseUrl/api/admin/notify'),
         headers: _authHeaders,
         body: json.encode({'message': message}),
       );
@@ -546,7 +569,15 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<void> fetchSettings() async {
     try {
-      final response = await http.get(Uri.parse('$_baseUrl/api/settings'));
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/settings?t=$timestamp'),
+        headers: {
+          'x-api-key': AppConfig.apiAccessKey,
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+        },
+      );
       if (response.statusCode == 200) {
         _updateSettings(json.decode(response.body), saveData: true);
       }
@@ -561,8 +592,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<void> _fetchEnabledCurrencies() async {
     try {
-      final response =
-          await http.get(Uri.parse('$_baseUrl/api/currencies/enabled'));
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/currencies/enabled'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         _enabledCurrenciesController
@@ -579,7 +612,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/api/alerts'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': AppConfig.apiAccessKey
+        },
         body: json.encode({
           'deviceToken': deviceToken,
           'priceId': priceId,
@@ -595,8 +631,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<List<Map<String, dynamic>>> fetchAlerts(String deviceToken) async {
     try {
-      final response =
-          await http.get(Uri.parse('$_baseUrl/api/alerts/$deviceToken'));
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/alerts/$deviceToken'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      );
       if (response.statusCode == 200) {
         return (json.decode(response.body) as List)
             .cast<Map<String, dynamic>>();
@@ -609,8 +647,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<bool> deleteAlert(String alertId) async {
     try {
-      final response =
-          await http.delete(Uri.parse('$_baseUrl/api/alerts/$alertId'));
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/api/alerts/$alertId'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      );
       return response.statusCode == 200;
     } catch (e) {
       return false;
@@ -632,7 +672,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       String appName, String logoUrl, Map<String, String> socialLinks) async {
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/api/settings'),
+        Uri.parse('$_baseUrl/api/admin/settings'),
         headers: _authHeaders,
         body: json.encode({
           'appName': appName,

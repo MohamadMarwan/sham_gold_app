@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_config.dart';
+
 
 class AdService {
   static final AdService _instance = AdService._internal();
@@ -101,7 +103,10 @@ class AdService {
   // Method to fetch dynamic IDs (Call this from a Provider/Controller)
   Future<void> fetchAdSettings(String baseUrl) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/settings'));
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/settings'),
+        headers: {'x-api-key': AppConfig.apiAccessKey},
+      );
       if (response.statusCode == 200) {
         updateFromSettings(json.decode(response.body));
       }

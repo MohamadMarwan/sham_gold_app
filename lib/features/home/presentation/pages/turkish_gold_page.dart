@@ -19,6 +19,8 @@ import '../widgets/global_market_summary_card.dart';
 import '../widgets/live_indicator.dart';
 import '../../../../shared/widgets/ad_banner_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'price_detail_page.dart';
+
 
 class TurkishGoldPage extends StatelessWidget {
   const TurkishGoldPage({super.key});
@@ -184,7 +186,6 @@ class TurkishGoldPage extends StatelessWidget {
                     const SyriaSummaryCard(),
                     const SizedBox(height: 12),
                     const AdBannerWidget(
-                      adUnitId: 'ca-app-pub-1767098791247433/2351852934',
                       size: AdSize.mediumRectangle,
                     ),
                     const SizedBox(height: 12),
@@ -647,7 +648,18 @@ class TurkishGoldPage extends StatelessWidget {
     final format = NumberFormat("#,##0.00", "ar_SY");
     final isUp = item.trend == Trend.up;
 
-    return BreathingCard(
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PriceDetailPage(priceItem: item),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(28),
+      child: BreathingCard(
       duration: const Duration(seconds: 3),
       scaleEnd: 1.01,
       child: Container(
@@ -857,11 +869,23 @@ class TurkishGoldPage extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 
   Widget _buildLiveCurrencyGridCard(PriceItem item, BuildContext context) {
-    return Container(
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PriceDetailPage(priceItem: item),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -966,6 +990,7 @@ class TurkishGoldPage extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 

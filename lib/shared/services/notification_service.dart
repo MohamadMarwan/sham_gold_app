@@ -51,7 +51,10 @@ class NotificationService {
 
       await http.post(
         Uri.parse('$baseUrl/api/devices/register'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+        'x-api-key': AppConfig.apiAccessKey,
+        },
         body: json.encode({
           'token': token,
           'platform': kIsWeb

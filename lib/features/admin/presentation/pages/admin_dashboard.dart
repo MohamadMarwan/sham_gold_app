@@ -51,11 +51,7 @@ class SettingsTab extends StatefulWidget {
 class _SettingsTabState extends State<SettingsTab> {
   final TextEditingController _appNameController = TextEditingController();
   final TextEditingController _logoUrlController = TextEditingController();
-  final TextEditingController _facebookController = TextEditingController();
-  final TextEditingController _whatsappController = TextEditingController();
-  final TextEditingController _telegramController = TextEditingController();
-  final TextEditingController _instagramController = TextEditingController();
-  final TextEditingController _websiteController = TextEditingController();
+  List<Map<String, dynamic>> _socialLinks = [];
   bool _isLoading = false;
 
   @override
@@ -69,17 +65,20 @@ class _SettingsTabState extends State<SettingsTab> {
     final priceService = Provider.of<PriceService>(context, listen: false);
     // We can listen to the stream to fill initial values
     priceService.settingsStream.listen((settings) {
-      if (mounted && _appNameController.text.isEmpty) {
-        // initialize only once or if empty to avoid overwrite while typing (though stream usually emits once on connect)
+      if (mounted) {
         setState(() {
           _appNameController.text = settings['appName'] ?? '';
           _logoUrlController.text = settings['logoUrl'] ?? '';
-          final links = settings['socialLinks'] ?? {};
-          _facebookController.text = links['facebook'] ?? '';
-          _whatsappController.text = links['whatsapp'] ?? '';
-          _telegramController.text = links['telegram'] ?? '';
-          _instagramController.text = links['instagram'] ?? '';
-          _websiteController.text = links['website'] ?? '';
+          final dynamicLinksRaw = settings['dynamicSocialLinks'];
+          final linksRaw = settings['socialLinks'];
+          
+          if (dynamicLinksRaw is List) {
+            _socialLinks = List<Map<String, dynamic>>.from(
+                dynamicLinksRaw.map((e) => Map<String, dynamic>.from(e)));
+          } else if (linksRaw is List) {
+            _socialLinks = List<Map<String, dynamic>>.from(
+                linksRaw.map((e) => Map<String, dynamic>.from(e)));
+          }
         });
       }
     });
@@ -113,44 +112,40 @@ class _SettingsTabState extends State<SettingsTab> {
           const Text('روابط التواصل الاجتماعي',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 15),
-          TextField(
-            controller: _facebookController,
-            decoration: const InputDecoration(
-                labelText: 'Facebook Link',
-                prefixIcon: Icon(Icons.facebook),
-                border: OutlineInputBorder()),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _whatsappController,
-            decoration: const InputDecoration(
-                labelText: 'WhatsApp Link',
-                prefixIcon: Icon(Icons.phone),
-                border: OutlineInputBorder()),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _telegramController,
-            decoration: const InputDecoration(
-                labelText: 'Telegram Link',
-                prefixIcon: Icon(Icons.send),
-                border: OutlineInputBorder()),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _instagramController,
-            decoration: const InputDecoration(
-                labelText: 'Instagram Link',
-                prefixIcon: Icon(Icons.camera_alt),
-                border: OutlineInputBorder()),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _websiteController,
-            decoration: const InputDecoration(
-                labelText: 'Website Link',
-                prefixIcon: Icon(Icons.language),
-                border: OutlineInputBorder()),
+          ..._socialLinks.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final item = entry.value;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: TextField(
+                onChanged: (val) => _socialLinks[idx]['url'] = val,
+                decoration: InputDecoration(
+                  labelText: item['title'] ?? 'رابط',
+                  prefixIcon: Icon(_getIconData(item['iconName'])),
+                  border: const OutlineInputBorder(),
+                ),
+                controller: TextEditingController(text: item['url'] ?? '')
+                  ..selection = TextSelection.fromPosition(
+                    TextPosition(offset: (item['url'] ?? '').toString().length),
+                  ),
+              ),
+            );
+          }),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _socialLinks.add({
+                  'id': 'custom_${DateTime.now().millisecondsSinceEpoch}',
+                  'title': 'عنوان جديد',
+                  'subtitle': '',
+                  'iconName': 'link',
+                  'url': '',
+                  'color': '#000000',
+                  'isEnabled': true,
+                });
+              });
+            },
+            child: const Text('إضافة رابط جديد'),
           ),
           const SizedBox(height: 30),
           ElevatedButton(
@@ -162,18 +157,17 @@ class _SettingsTabState extends State<SettingsTab> {
                 ? null
                 : () async {
                     setState(() => _isLoading = true);
-                    final socialLinks = {
-                      'facebook': _facebookController.text,
-                      'whatsapp': _whatsappController.text,
-                      'telegram': _telegramController.text,
-                      'instagram': _instagramController.text,
-                      'website': _websiteController.text,
-                    };
-
+                    
+                    final Map<String, String> formattedLinks = {};
+                    for (var link in _socialLinks) {
+                      final key = link['id']?.toString() ?? link['iconName']?.toString() ?? 'link_${DateTime.now().millisecondsSinceEpoch}';
+                      formattedLinks[key] = link['url']?.toString() ?? '';
+                    }
+                    
                     final success = await priceService.updateSettings(
                         _appNameController.text,
                         _logoUrlController.text,
-                        socialLinks);
+                        formattedLinks);
 
                     setState(() => _isLoading = false);
 
@@ -198,6 +192,27 @@ class _SettingsTabState extends State<SettingsTab> {
         ],
       ),
     );
+  }
+
+  IconData _getIconData(String? name) {
+    switch (name) {
+      case 'facebook':
+        return Icons.facebook;
+      case 'campaign':
+        return Icons.campaign;
+      case 'send':
+        return Icons.send;
+      case 'camera_alt':
+        return Icons.camera_alt;
+      case 'video_library':
+        return Icons.video_library;
+      case 'language':
+        return Icons.language;
+      case 'phone':
+        return Icons.phone;
+      default:
+        return Icons.link;
+    }
   }
 }
 

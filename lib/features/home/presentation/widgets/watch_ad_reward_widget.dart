@@ -44,7 +44,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
     final bool isRewardActive = _adService.isRewardActive;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
       decoration: BoxDecoration(
         color: isRewardActive
             ? Colors.green.withValues(alpha: 0.08)

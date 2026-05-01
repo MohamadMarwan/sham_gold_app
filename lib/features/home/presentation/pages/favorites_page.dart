@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/services/favorites_service.dart';
 import '../../../../shared/models/price_item.dart';
@@ -230,8 +230,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   Widget _buildFavoriteCard(PriceItem item) {
-    final format = NumberFormat("#,##0", "ar_SY");
-    final symbol = item.currency == 'USD' ? '\$' : 'ل.س';
+    final priceText = CurrencyUtils.formatPrice(item.buyPrice, item.currency, id: item.id);
 
     return Dismissible(
       key: Key(item.id),
@@ -293,7 +292,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                               fontWeight: FontWeight.w800, fontSize: 16)),
                       const SizedBox(height: 4),
                       Text(
-                        '${format.format(item.buyPrice)} $symbol',
+                        priceText,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -374,6 +373,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
     if (item.id.startsWith('sy_') && item.metalType == 'currency') {
       return const SyrianFlag(width: 28, height: 18);
     }
+
+    if (item.id.startsWith('tr_') || item.currency == 'TRY') {
+      if (item.metalType == 'currency') {
+        return const Center(child: Text('🇹🇷', style: TextStyle(fontSize: 22)));
+      }
+      return CustomIcon.gold24k(size: 32);
+    }
+
     if (item.metalType == 'currency') {
       return const Icon(Icons.currency_exchange, color: Colors.blue, size: 24);
     }

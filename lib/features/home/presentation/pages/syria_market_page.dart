@@ -375,7 +375,6 @@ class _SyriaMarketPageState extends State<SyriaMarketPage> {
                     ],
 
                     const AdBannerWidget(
-                      adUnitId: 'ca-app-pub-1767098791247433/3721421727',
                       size: AdSize.mediumRectangle,
                     ),
 

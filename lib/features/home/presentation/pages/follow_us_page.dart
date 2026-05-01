@@ -31,7 +31,13 @@ class _FollowUsPageState extends State<FollowUsPage> {
           }
 
           final settings = snapshot.data!;
-          final links = settings['socialLinks'] as Map<String, dynamic>? ?? {};
+          final dynamicLinksRaw = settings['dynamicSocialLinks'];
+          final linksRaw = settings['socialLinks'];
+          
+          final List<dynamic> socialLinksList = (dynamicLinksRaw is List) ? dynamicLinksRaw : ((linksRaw is List) ? linksRaw : []);
+          
+          // Legacy support or fallback if needed
+          final Map<String, dynamic> legacyLinks = (linksRaw is Map) ? Map<String, dynamic>.from(linksRaw) : {};
 
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
@@ -43,41 +49,63 @@ class _FollowUsPageState extends State<FollowUsPage> {
                   delegate: SliverChildListDelegate([
                     _buildSectionHeader('قنواتنا الرسمية'),
                     const SizedBox(height: 20),
-                    _buildSocialCard(
-                      'فيسبوك',
-                      'تابع آخر الأخبار والمنشورات الرسمية',
-                      Icons.facebook_rounded,
-                      const Color(0xFF1877F2),
-                      links['facebook'],
-                    ),
-                    _buildSocialCard(
-                      'قناتنا على واتساب',
-                      'اشترك ليصلك كل جديد عبر الواتساب',
-                      Icons.campaign_rounded,
-                      const Color(0xFF25D366),
-                      links['whatsapp_channel'] ?? links['whatsapp'],
-                    ),
-                    _buildSocialCard(
-                      'تيليجرام',
-                      'اشترك في القناة ليصلك كل جديد فوراً',
-                      Icons.send_rounded,
-                      const Color(0xFF0088CC),
-                      links['telegram'],
-                    ),
-                    _buildSocialCard(
-                      'انستغرام',
-                      'شاهد صور وجولات حصرية لمنتجاتنا',
-                      Icons.camera_alt_rounded,
-                      const Color(0xFFE1306C),
-                      links['instagram'],
-                    ),
-                    _buildSocialCard(
-                      'الموقع الإلكتروني',
-                      'زر موقعنا الرسمي لمزيد من الخدمات',
-                      Icons.language_rounded,
-                      AppColors.darkGreen,
-                      links['website'],
-                    ),
+                    
+                    // Dynamic Social Links from Backend
+                    ...socialLinksList.where((item) => item['isEnabled'] != false).map((item) {
+                      return _buildSocialCard(
+                        item['title'] ?? '',
+                        item['subtitle'] ?? '',
+                        _getIconData(item['iconName']),
+                        _parseColor(item['color']),
+                        item['url'],
+                      );
+                    }),
+
+                    // Fallback for legacy data structure if list is empty
+                    if (socialLinksList.isEmpty && legacyLinks.isNotEmpty) ...[
+                      _buildSocialCard(
+                        'فيسبوك',
+                        'تابع آخر الأخبار والمنشورات الرسمية',
+                        Icons.facebook_rounded,
+                        const Color(0xFF1877F2),
+                        legacyLinks['facebook'],
+                      ),
+                      _buildSocialCard(
+                        'قناتنا على واتساب',
+                        'اشترك ليصلك كل جديد عبر الواتساب',
+                        Icons.campaign_rounded,
+                        const Color(0xFF25D366),
+                        legacyLinks['whatsapp_channel'] ?? legacyLinks['whatsapp'],
+                      ),
+                      _buildSocialCard(
+                        'تيليجرام',
+                        'اشترك في القناة ليصلك كل جديد فوراً',
+                        Icons.send_rounded,
+                        const Color(0xFF0088CC),
+                        legacyLinks['telegram'],
+                      ),
+                      _buildSocialCard(
+                        'انستغرام',
+                        'شاهد صور وجولات حصرية لمنتجاتنا',
+                        Icons.camera_alt_rounded,
+                        const Color(0xFFE1306C),
+                        legacyLinks['instagram'],
+                      ),
+                      _buildSocialCard(
+                        'تيك توك',
+                        'شاهد كواليس وفيديوهات حصرية لنا',
+                        Icons.video_library_rounded,
+                        const Color(0xFF000000),
+                        legacyLinks['tiktok'],
+                      ),
+                      _buildSocialCard(
+                        'الموقع الإلكتروني',
+                        'زر موقعنا الرسمي لمزيد من الخدمات',
+                        Icons.language_rounded,
+                        AppColors.darkGreen,
+                        legacyLinks['website'],
+                      ),
+                    ],
                     const SizedBox(height: 30),
                     _buildSupportInfo(),
                     const SizedBox(height: 30),
@@ -628,5 +656,35 @@ class _FollowUsPageState extends State<FollowUsPage> {
         ),
       ),
     );
+  }
+
+  IconData _getIconData(String? name) {
+    switch (name) {
+      case 'facebook':
+        return Icons.facebook_rounded;
+      case 'campaign':
+        return Icons.campaign_rounded;
+      case 'send':
+        return Icons.send_rounded;
+      case 'camera_alt':
+        return Icons.camera_alt_rounded;
+      case 'video_library':
+        return Icons.video_library_rounded;
+      case 'language':
+        return Icons.language_rounded;
+      default:
+        return Icons.link_rounded;
+    }
+  }
+
+  Color _parseColor(String? hexColor) {
+    if (hexColor == null || hexColor.isEmpty) return Colors.black;
+    try {
+      String hex = hexColor.replaceAll('#', '');
+      if (hex.length == 6) hex = 'FF$hex';
+      return Color(int.parse(hex, radix: 16));
+    } catch (e) {
+      return Colors.black;
+    }
   }
 }

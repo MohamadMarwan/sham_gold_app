@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/custom_icon.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
+import '../../../../core/utils/currency_utils.dart';
 
 class CalculatorWidget extends StatefulWidget {
   final bool showHeader;
@@ -185,7 +185,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
   }
 
   Widget _buildInputSection(PriceItem selected) {
-    final symbol = selected.currency == 'SYP' ? 'ل.س' : '\$';
+    final symbol = CurrencyUtils.getSymbol(selected.currency, id: selected.id);
 
     return Column(
       children: [
@@ -211,7 +211,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                 ),
               ),
               Text(
-                '${NumberFormat("#,##0", "ar").format(selected.buyPrice)} $symbol',
+                CurrencyUtils.formatPrice(selected.buyPrice, selected.currency, id: selected.id),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,

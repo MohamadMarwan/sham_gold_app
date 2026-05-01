@@ -22,8 +22,8 @@ import 'package:gold_sham/features/home/presentation/widgets/syria_summary_card.
 import 'package:gold_sham/features/home/presentation/widgets/turkish_summary_card.dart';
 import 'package:gold_sham/features/home/presentation/widgets/watch_ad_reward_widget.dart';
 import 'package:gold_sham/features/home/presentation/widgets/quick_converter_widget.dart';
-import 'package:gold_sham/shared/widgets/ad_banner_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:gold_sham/shared/widgets/ad_banner_widget.dart';
 
 class GoldPage extends StatelessWidget {
   final Function(int)? onNavigate;
@@ -302,11 +302,7 @@ class GoldPage extends StatelessWidget {
                       const QuickConverterWidget(),
                       const SizedBox(height: 24),
                     ],
-                    if (priceService.shouldShow('homeShowWatchAdSection',
-                        defaultValue: false)) ...[
-                      const WatchAdRewardWidget(),
-                      const SizedBox(height: 24),
-                    ],
+
                     if (globalDisplayItems.isNotEmpty) ...[
                       _buildSectionTitle('البورصة العالمية', Icons.language),
                       _buildLocationBanners(context, 'global_gold_mid'),
@@ -327,14 +323,21 @@ class GoldPage extends StatelessWidget {
                         itemBuilder: (context, index) =>
                             _buildOunceCard(globalDisplayItems[index], context),
                       ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (priceService.shouldShow('homeShowWatchAdSection',
+                        defaultValue: false)) ...[
+                      const WatchAdRewardWidget(),
                       const SizedBox(height: 24),
                     ],
-                    const AdBannerWidget(
-                      adUnitId: 'ca-app-pub-1767098791247433/2351852934',
-                      size: AdSize.mediumRectangle,
-                    ),
-                    const SizedBox(height: 16),
                     if (globalKarats.isNotEmpty) ...[
+                      if (priceService.shouldShow('homeShowGlobalPricesAdBanner'))
+                        const Padding(
+                          padding: EdgeInsets.only(top: 10, bottom: 24),
+                          child: AdBannerWidget(
+                            size: AdSize.largeBanner,
+                          ),
+                        ),
                       _buildSectionTitle(
                           'أسعار الذهب الخام (USD)', Icons.grid_view_rounded),
                       const SizedBox(height: 22),

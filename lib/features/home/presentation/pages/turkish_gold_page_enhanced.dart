@@ -21,6 +21,9 @@ import '../../../../shared/widgets/live_price_widget.dart';
 import '../widgets/live_indicator.dart';
 import 'package:gold_sham/shared/widgets/ad_banner_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'price_detail_page.dart';
+
+
 
 class TurkishGoldPageEnhanced extends StatefulWidget {
   const TurkishGoldPageEnhanced({super.key});
@@ -114,7 +117,6 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
                         children: [
                           _buildLocationBanners(context, 'turkish_karats_top'),
                           const AdBannerWidget(
-                            adUnitId: 'ca-app-pub-1767098791247433/2351852934',
                             size: AdSize.mediumRectangle,
                           ),
                           const SizedBox(height: 10),
@@ -550,6 +552,11 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(height: 10),
+                // إعلان مخصص لصفحة تركيا - يتم التحكم به من لوحة التحكم
+                const AdBannerWidget(
+                  size: AdSize.banner,
                 ),
               ],
             ),
@@ -1283,6 +1290,9 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
 
   List<PriceItem> _filterCurrencies(
       List<PriceItem> prices, PriceService service) {
+    final showSecondary = service.shouldShow('turkishShowSecondaryCurrencies',
+        defaultValue: false);
+
     final currencyIds = [
       'tr_curr_usd',
       'tr_curr_eur',
@@ -1290,6 +1300,10 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
       'tr_curr_sar',
       'tr_curr_aed'
     ];
+
+    if (showSecondary) {
+      currencyIds.addAll(['tr_curr_kwd', 'tr_curr_jod', 'tr_curr_qar']);
+    }
 
     return prices
         .where((p) =>
@@ -1431,60 +1445,10 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
   }
 
   void _showPriceDetails(PriceItem item, BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            _buildDynamicIcon(item, size: 64),
-            const SizedBox(height: 16),
-            Text(
-              item.title,
-              style: GoogleFonts.cairo(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Add more details here as needed
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFE30A17),
-                minimumSize: const Size(double.infinity, 52),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              child: Text(
-                'إغلاق',
-                style: GoogleFonts.cairo(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PriceDetailPage(priceItem: item),
       ),
     );
   }
@@ -1580,6 +1544,7 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
 
   String _getProfessionalTitle(String id, String original) {
     switch (id) {
+      case 'tr_gold_gram_altin':
       case 'tr_gold_24':
         return 'عيار 24 (غرام)';
       case 'tr_gold_kulce':
@@ -1596,6 +1561,8 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
         return 'أونصة الفضة العالمي';
       case 'tr_silver_kg':
         return 'كيلو الفضة (تركي)';
+      case 'tr_silver_gram':
+        return 'غرام الفضة (بالليرة)';
       case 'tr_gold_usd_kg':
         return 'كيلو الذهب بالدولار';
       case 'tr_gold_eur_kg':
@@ -1616,6 +1583,12 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
         return 'الريال السعودي';
       case 'tr_curr_aed':
         return 'الدرهم الإماراتي';
+      case 'tr_curr_kwd':
+        return 'الدينار الكويتي';
+      case 'tr_curr_jod':
+        return 'الدينار الأردني';
+      case 'tr_curr_qar':
+        return 'الريال القطري';
       default:
         return original;
     }

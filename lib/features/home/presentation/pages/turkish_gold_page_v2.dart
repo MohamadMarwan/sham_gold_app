@@ -9,6 +9,8 @@ import '../../../../shared/widgets/sparkline_widget.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
 import '../../../../shared/widgets/ad_banner_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'price_detail_page.dart';
+
 
 class TurkishGoldPageV2 extends StatelessWidget {
   const TurkishGoldPageV2({super.key});
@@ -122,7 +124,6 @@ class TurkishGoldPageV2 extends StatelessWidget {
             if (turkishGold.isNotEmpty) ...[
               const SliverToBoxAdapter(
                 child: AdBannerWidget(
-                  adUnitId: 'ca-app-pub-1767098791247433/2351852934',
                   size: AdSize.mediumRectangle,
                 ),
               ),
@@ -164,7 +165,7 @@ class TurkishGoldPageV2 extends StatelessWidget {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 1.15,
+                    childAspectRatio: 0.95, // Increased height to prevent overflow
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) =>
@@ -309,7 +310,18 @@ class TurkishGoldPageV2 extends StatelessWidget {
             .trim();
     }
 
-    return Container(
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PriceDetailPage(priceItem: item),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -518,12 +530,24 @@ class TurkishGoldPageV2 extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 
   Widget _buildCurrencyCard(PriceItem item, BuildContext context) {
     final isUp = item.trend == Trend.up;
-    return Container(
+    return InkWell(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PriceDetailPage(priceItem: item),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -618,6 +642,7 @@ class TurkishGoldPageV2 extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 

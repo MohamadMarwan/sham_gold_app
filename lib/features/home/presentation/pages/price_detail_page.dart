@@ -12,6 +12,7 @@ import '../../../../shared/widgets/favorite_toggle_button.dart';
 
 import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/utils/currency_utils.dart';
 
 class PriceDetailPage extends StatefulWidget {
   final PriceItem priceItem;
@@ -283,8 +284,8 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
           Expanded(
               child: _buildStatColumn(
                   'سعر الشراء',
-                  format.format(widget.priceItem.buyPrice),
-                  widget.priceItem.currency,
+                  CurrencyUtils.formatPrice(widget.priceItem.buyPrice, widget.priceItem.currency, id: widget.priceItem.id),
+                  '',
                   Colors.blue)),
           Container(
               width: 1.5,
@@ -303,8 +304,8 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
           Expanded(
               child: _buildStatColumn(
                   'سعر المبيع',
-                  format.format(widget.priceItem.sellPrice),
-                  widget.priceItem.currency,
+                  CurrencyUtils.formatPrice(widget.priceItem.sellPrice, widget.priceItem.currency, id: widget.priceItem.id),
+                  '',
                   AppColors.gold)),
         ],
       ),
@@ -373,7 +374,8 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
           else if (errorMessage.isNotEmpty)
             _buildErrorState()
           else
-            PriceChartWidget(
+          RepaintBoundary(
+            child: PriceChartWidget(
               history: historyPoints,
               title: '',
               range: selectedRange,
@@ -381,6 +383,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
               dailyChangePercentage:
                   _dynamicChange ?? widget.priceItem.changePercentage,
             ),
+          ),
         ],
       ),
     );
