@@ -8,7 +8,7 @@ workflows:
     instance_type: mac_mini_m2
     
     integrations:
-      app_store_connect: any # This tells Codemagic to use any available Apple integration
+      app_store_connect: "magic key"
     environment:
       flutter: 3.41.7
       xcode: latest
