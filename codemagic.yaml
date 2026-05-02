@@ -60,7 +60,7 @@ workflows:
       android_signing:
         - gold_sham_keystore  # اسم الـ keystore في إعدادات Codemagic
       vars:
-        PACKAGE_NAME: "com.toiall.goldsham"
+        PACKAGE_NAME: "com.toiall.gold_sham"
 
     triggering:
       events:
