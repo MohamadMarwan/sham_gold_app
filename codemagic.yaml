@@ -13,9 +13,9 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.toiall.gold_sham
+        bundle_identifier: com.toiall.goldsham
       vars:
-        BUNDLE_ID: "com.toiall.gold_sham"
+        BUNDLE_ID: "com.toiall.goldsham"
 
     triggering:
       events:
@@ -60,7 +60,7 @@ workflows:
       android_signing:
         - gold_sham_keystore  # اسم الـ keystore في إعدادات Codemagic
       vars:
-        PACKAGE_NAME: "com.toiall.gold_sham"
+        PACKAGE_NAME: "com.toiall.goldsham"
 
     triggering:
       events:
