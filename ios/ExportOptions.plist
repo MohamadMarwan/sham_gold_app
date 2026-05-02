@@ -10,12 +10,18 @@
     <false/>
     <key>compileBitcode</key>
     <false/>
+    <key>uploadSymbols</key>
+    <true/>
     <key>signingStyle</key>
     <string>manual</string>
+    <key>stripSwiftSymbols</key>
+    <true/>
     <key>provisioningProfiles</key>
     <dict>
         <key>com.toiall.gold_sham</key>
         <string>REPLACE_WITH_PROVISIONING_PROFILE_NAME</string>
     </dict>
+    <key>destination</key>
+    <string>export</string>
 </dict>
 </plist>
