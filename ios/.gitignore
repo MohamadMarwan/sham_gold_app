@@ -32,3 +32,10 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Podfile.lock should be committed (tracks exact pod versions)
+!Podfile.lock
+
+# GoogleService-Info.plist must be committed (required for Firebase)
+# ⚠️ Make sure to fill in the real values from Firebase Console
+!Runner/GoogleService-Info.plist
