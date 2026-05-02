@@ -8,7 +8,7 @@ workflows:
     instance_type: mac_mini_m2
     
     integrations:
-      app_store_connect: Codemagic_Integration_Name
+      app_store_connect: any # This tells Codemagic to use any available Apple integration
     environment:
       flutter: 3.41.7
       xcode: latest
@@ -27,6 +27,11 @@ workflows:
           include: true
 
     scripts:
+      - name: Fetch signing files from Apple
+        script: |
+          app-store-connect fetch-signing-files "com.toiall.goldsham" \
+            --type IOS_APP_STORE \
+            --create
       - name: Get Flutter packages
         script: flutter pub get
 
