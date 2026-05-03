@@ -5,7 +5,7 @@
     <key>method</key>
     <string>app-store</string>
     <key>teamID</key>
-    <string>REPLACE_WITH_YOUR_TEAM_ID</string>
+    <string>ULCAFL67U6</string>
     <key>uploadBitcode</key>
     <false/>
     <key>compileBitcode</key>
@@ -19,7 +19,7 @@
     <key>provisioningProfiles</key>
     <dict>
         <key>com.toiall.goldsham</key>
-        <string>REPLACE_WITH_PROVISIONING_PROFILE_NAME</string>
+        <string>GoldSham_Final_Profile</string>
     </dict>
     <key>destination</key>
     <string>export</string>
