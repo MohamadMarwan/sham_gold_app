@@ -19,7 +19,7 @@
     <key>provisioningProfiles</key>
     <dict>
         <key>com.toiall.goldsham</key>
-        <string>GoldSham_Final_Profile</string>
+        <string>goldsham</string>
     </dict>
     <key>destination</key>
     <string>export</string>

@@ -15,8 +15,10 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.toiall.goldsham
-      vars:
-        BUNDLE_ID: "com.toiall.goldsham"
+        provisioning_profiles:
+          - goldsham
+    vars:
+      BUNDLE_ID: "com.toiall.goldsham"
 
     triggering:
       events:
@@ -28,14 +30,17 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
- 
+
+      - name: Patch Xcode Project
+        script: python3 patch_xcode.py
+
       - name: Install Pods
         script: cd ios && pod install --repo-update
- 
+
       - name: Flutter build IPA
         script: |
           flutter build ipa --release \
-            --export-options-plist /Users/builder/export_options.plist
+            --export-options-plist ios/ExportOptions.plist
 
     artifacts:
       - build/ios/ipa/*.ipa
