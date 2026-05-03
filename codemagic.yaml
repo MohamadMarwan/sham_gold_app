@@ -14,11 +14,10 @@ workflows:
       xcode: latest
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.toiall.goldsham
         provisioning_profiles:
           - goldsham
-    vars:
-      BUNDLE_ID: "com.toiall.goldsham"
+      vars:
+        BUNDLE_ID: "com.toiall.goldsham"
 
     triggering:
       events:
