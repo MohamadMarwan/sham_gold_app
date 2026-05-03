@@ -16,6 +16,8 @@ workflows:
         distribution_type: app_store
         provisioning_profiles:
           - goldsham
+        certificates:
+          - Ali_DAHES_Cert
       vars:
         BUNDLE_ID: "com.toiall.goldsham"
 
