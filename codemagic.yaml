@@ -27,6 +27,7 @@ workflows:
         script: |
           keychain initialize
           keychain add-certificates
+          security find-identity -v -p codesigning # Debug: Show available identities
           xcode-project use-profiles
       - name: Get Flutter packages
         script: flutter pub get
