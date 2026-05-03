@@ -12,8 +12,12 @@ workflows:
     environment:
       flutter: 3.41.7
       xcode: latest
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.toiall.goldsham
       vars:
         BUNDLE_ID: "com.toiall.goldsham"
+        APP_STORE_APPLE_ID: "6740695373" # This is your App ID from App Store Connect
 
     triggering:
       events:
@@ -23,20 +27,6 @@ workflows:
           include: true
 
     scripts:
-      - name: Initialize keychain
-        script: keychain initialize
-      - name: Create Distribution Certificate
-        script: |
-          app-store-connect certificates create --type IOS_DISTRIBUTION --save
-      - name: Fetch signing files from Apple
-        script: |
-          app-store-connect fetch-signing-files "com.toiall.goldsham" \
-            --type IOS_APP_STORE \
-            --create
-      - name: Add certificates to keychain
-        script: keychain add-certificates
-      - name: Use profiles
-        script: xcode-project use-profiles
       - name: Get Flutter packages
         script: flutter pub get
 
