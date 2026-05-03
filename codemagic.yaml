@@ -17,7 +17,7 @@ workflows:
         provisioning_profiles:
           - goldsham
         certificates:
-          - goldsham
+          - gold_cert
       vars:
         BUNDLE_ID: "com.toiall.goldsham"
 
