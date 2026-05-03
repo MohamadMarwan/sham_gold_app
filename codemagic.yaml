@@ -35,13 +35,18 @@ workflows:
       - name: Patch Xcode Project
         script: python3 patch_xcode.py
 
+      - name: Set up code signing settings
+        script: xcode-project use-profiles
+
       - name: Install Pods
         script: cd ios && pod install --repo-update
 
       - name: Flutter build IPA
         script: |
           flutter build ipa --release \
-            --export-options-plist ios/ExportOptions.plist
+            --export-options-plist ios/ExportOptions.plist \
+            --build-name=1.0.0 \
+            --build-number=7
 
     artifacts:
       - build/ios/ipa/*.ipa
