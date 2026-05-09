@@ -8,7 +8,7 @@ workflows:
     instance_type: mac_mini_m2
     
     integrations:
-      app_store_connect: "magic key"
+      app_store_connect: "magickey"
     environment:
       flutter: 3.41.7
       xcode: latest
