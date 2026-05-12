@@ -42,7 +42,7 @@
 			<string>UIInterfaceOrientationLandscapeRight</string>
 		</array>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
-		<true/>
+		<false/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
 	<key>NSAppTransportSecurity</key>
@@ -62,6 +62,10 @@
 		<string>twitter</string>
 		<string>youtube</string>
 	</array>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>نحتاج إلى إذن لحفظ الصور في معرض الصور الخاص بك عند مشاركة الأسعار.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>نحتاج إلى إذن للوصول إلى معرض الصور الخاص بك لتتمكن من مشاركة الصور.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>يساعد هذا المعرف في تقديم إعلانات مخصصة تهمك، مما يدعم استمرارية تقديم خدماتنا بشكل مجاني.</string>
 	<key>GADApplicationIdentifier</key>
