@@ -15,6 +15,7 @@ import 'follow_us_page.dart';
 import 'price_detail_page.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
 import 'splash_page.dart';
+import '../../../../core/services/ad_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -248,6 +249,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 if (_currentIndex != index) {
                   HapticFeedback.selectionClick();
                   setState(() => _currentIndex = index);
+                  // إظهار إعلان بيني عند التنقل (بناءً على إعدادات الباكند)
+                  AdService().showInterstitialOnNavigation();
                 }
               },
               selectedItemColor: AppColors.darkGreen,

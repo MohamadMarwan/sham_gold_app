@@ -16,6 +16,9 @@ class AdService {
   String? _bannerId;
   String? _interstitialId;
   String? _rewardedId;
+  bool _showOnPageChange = false;
+  int _interstitialInterval = 3;
+  int _pageChangeCount = 0;
 
   InterstitialAd? _interstitialAd;
   bool _isInterstitialAdLoaded = false;
@@ -86,6 +89,13 @@ class AdService {
           _rewardedId = adSettings['ios']?['rewardedInterstitialUnitId'];
         }
       }
+
+      final interSettings = adSettings['interstitialSettings'];
+      if (interSettings != null) {
+        _showOnPageChange = interSettings['showOnPageChange'] ?? false;
+        _interstitialInterval = interSettings['interval'] ?? 3;
+      }
+
       debugPrint(
           '🔄 AdService Updated from Settings: Enabled=$_isEnabled, Banner=$_bannerId');
 
@@ -185,6 +195,18 @@ class AdService {
     );
 
     _interstitialAd!.show();
+  }
+
+  void showInterstitialOnNavigation() {
+    if (!_isEnabled || !_showOnPageChange || kIsWeb) return;
+
+    _pageChangeCount++;
+    debugPrint('Navigation Count: $_pageChangeCount / $_interstitialInterval');
+
+    if (_pageChangeCount >= _interstitialInterval) {
+      _pageChangeCount = 0;
+      showInterstitialAd();
+    }
   }
 
   void showRewardedAd(
