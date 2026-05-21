@@ -46,6 +46,11 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-1767098791247433~5951434590"/>
+
+        <!-- Facebook App ID (Meta Audience Network) -->
+        <meta-data 
+            android:name="com.facebook.sdk.ApplicationId" 
+            android:value="fb123456789"/> <!-- Change this via Gradle or Strings if needed -->
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -74,6 +74,18 @@
 	<array>
 		<dict>
 			<key>SKAdNetworkIdentifier</key>
+			<string>v9wttpbfk9.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>n38lu8286q.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>4w7y6s5ca2.skadnetwork</string>
+		</dict>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
 			<string>cstr6suwn9.skadnetwork</string>
 		</dict>
 		<dict>
@@ -227,5 +239,9 @@
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>FacebookAppID</key>
+	<string>123456789</string>
+	<key>FacebookDisplayName</key>
+	<string>ذهب الشام</string>
 </dict>
 </plist>

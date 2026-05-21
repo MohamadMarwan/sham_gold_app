@@ -16,21 +16,19 @@ plugins {
 
 android {
     namespace = "com.toiall.gold_sham"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         // ✅ السطر الأساسي لحل مشكلة core library desugaring
         // ✅ التصحيح: في Kotlin DSL يجب استخدام isCoreLibraryDesugaringEnabled
         isCoreLibraryDesugaringEnabled = true
-        // ✅ غيرت من VERSION_11 إلى VERSION_1_8
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        // ✅ غيرت من VERSION_11 إلى VERSION_1_8
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
     signingConfigs {
@@ -84,4 +82,8 @@ dependencies {
     // هذا هو dependency المطلوب لحل المشكلة
     // استخدم أحدث إصدار متوافق (2.0.4 حالياً)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    
+    // Ads Mediation Adapters
+    implementation("com.google.ads.mediation:facebook:6.17.0.0")
+    implementation("com.google.ads.mediation:unity:4.10.0.0")
 }

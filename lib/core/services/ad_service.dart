@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:facebook_audience_network/facebook_audience_network.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
@@ -19,6 +22,9 @@ class AdService {
   bool _showOnPageChange = false;
   int _interstitialInterval = 3;
   int _pageChangeCount = 0;
+  int _interstitialRetryAttempts = 0;
+  int _rewardedRetryAttempts = 0;
+  static const int _maxRetryAttempts = 5;
 
   InterstitialAd? _interstitialAd;
   bool _isInterstitialAdLoaded = false;
@@ -49,11 +55,33 @@ class AdService {
   Future<void> initialize() async {
     if (kIsWeb) return;
     await _loadRewardState();
+
     try {
+      // 1. Handle App Tracking Transparency for iOS (Fixes Meta Error #17)
+      if (Platform.isIOS) {
+        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        if (status == TrackingStatus.notDetermined) {
+          await AppTrackingTransparency.requestTrackingAuthorization();
+        }
+        
+        final finalStatus = await AppTrackingTransparency.trackingAuthorizationStatus;
+        bool isTrackingEnabled = finalStatus == TrackingStatus.authorized;
+        
+        // Notify Facebook about tracking status
+        await FacebookAudienceNetwork.init(
+          iOSAdvertiserTrackingEnabled: isTrackingEnabled,
+        );
+        debugPrint('📱 iOS ATE Status sent to Meta: $isTrackingEnabled');
+      } else {
+        // Android Initialization
+        await FacebookAudienceNetwork.init();
+      }
+
+      // 2. Initialize Google Mobile Ads
       await MobileAds.instance.initialize();
-      debugPrint('✅ Google Mobile Ads Initialized');
+      debugPrint('✅ All Ad SDKs Initialized');
     } catch (e) {
-      debugPrint('❌ AdMob Init Error: $e');
+      debugPrint('❌ Ads Init Error: $e');
     }
   }
 
@@ -110,6 +138,14 @@ class AdService {
     }
   }
 
+  Future<AdSize> getAdaptiveBannerSize(BuildContext context) async {
+    if (kIsWeb) return AdSize.banner;
+    final size = await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+      MediaQuery.of(context).size.width.truncate(),
+    );
+    return size ?? AdSize.banner;
+  }
+
   // Method to fetch dynamic IDs (Call this from a Provider/Controller)
   Future<void> fetchAdSettings(String baseUrl) async {
     try {
@@ -135,11 +171,20 @@ class AdService {
         onAdLoaded: (ad) {
           _interstitialAd = ad;
           _isInterstitialAdLoaded = true;
+          _interstitialRetryAttempts = 0; // Reset on success
           debugPrint('✅ Interstitial Ad Loaded');
         },
         onAdFailedToLoad: (error) {
           debugPrint('❌ Interstitial Ad Failed to Load: $error');
           _isInterstitialAdLoaded = false;
+          _interstitialAd = null;
+          
+          if (_interstitialRetryAttempts < _maxRetryAttempts) {
+            _interstitialRetryAttempts++;
+            int delay = _interstitialRetryAttempts * 30; // 30, 60, 90... seconds
+            Future.delayed(Duration(seconds: delay), () => loadInterstitialAd());
+            debugPrint('🔄 Retrying Interstitial Ad in $delay seconds...');
+          }
         },
       ),
     );
@@ -155,11 +200,20 @@ class AdService {
         onAdLoaded: (ad) {
           _rewardedAd = ad;
           _isRewardedAdLoaded = true;
+          _rewardedRetryAttempts = 0; // Reset on success
           debugPrint('✅ Rewarded Ad Loaded');
         },
         onAdFailedToLoad: (error) {
           debugPrint('❌ Rewarded Ad Failed to Load: $error');
           _isRewardedAdLoaded = false;
+          _rewardedAd = null;
+
+          if (_rewardedRetryAttempts < _maxRetryAttempts) {
+            _rewardedRetryAttempts++;
+            int delay = _rewardedRetryAttempts * 30;
+            Future.delayed(Duration(seconds: delay), () => loadRewardedAd());
+            debugPrint('🔄 Retrying Rewarded Ad in $delay seconds...');
+          }
         },
       ),
     );
