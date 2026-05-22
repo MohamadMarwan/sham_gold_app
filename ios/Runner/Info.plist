@@ -239,6 +239,8 @@
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<false/>
 	<key>FacebookAppID</key>
 	<string>123456789</string>
 	<key>FacebookDisplayName</key>
