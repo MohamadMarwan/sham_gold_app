@@ -46,7 +46,7 @@ workflows:
           flutter build ipa --release \
             --export-options-plist ios/ExportOptions.plist \
             --build-name=1.0.0 \
-            --build-number=7
+            --build-number=9
 
     artifacts:
       - build/ios/ipa/*.ipa
