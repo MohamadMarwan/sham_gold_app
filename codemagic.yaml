@@ -45,8 +45,8 @@ workflows:
         script: |
           flutter build ipa --release \
             --export-options-plist ios/ExportOptions.plist \
-            --build-name=1.0.0 \
-            --build-number=201
+            --build-name=1.0.1 \
+            --build-number=301
 
     artifacts:
       - build/ios/ipa/*.ipa
