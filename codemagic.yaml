@@ -10,7 +10,7 @@ workflows:
     integrations:
       app_store_connect: "magickey"
     environment:
-      flutter: 3.41.7
+      flutter: stable
       xcode: latest
       ios_signing:
         distribution_type: app_store
@@ -68,7 +68,7 @@ workflows:
     instance_type: linux_x2
 
     environment:
-      flutter: 3.41.7
+      flutter: stable
       android_signing:
         - gold_sham_keystore  # اسم الـ keystore في إعدادات Codemagic
       vars:
