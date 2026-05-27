@@ -53,6 +53,8 @@ flutter_icons:
 
 flutter:
   uses-material-design: true
+  config:
+    disable-swift-package-manager: true
 
   assets:
     - assets/icons/
