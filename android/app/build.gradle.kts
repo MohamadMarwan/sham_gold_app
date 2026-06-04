@@ -85,5 +85,6 @@ dependencies {
     
     // Ads Mediation Adapters
     implementation("com.google.ads.mediation:facebook:6.17.0.0")
-    implementation("com.google.ads.mediation:unity:4.10.0.0")
+    // ✅ Unity Ads via AdMob Mediation Adapter (متوفر في Google Maven — يتضمن Unity Ads SDK)
+    implementation("com.google.ads.mediation:unity:4.12.5.0")
 }

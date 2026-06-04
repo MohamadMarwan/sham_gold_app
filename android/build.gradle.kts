@@ -2,6 +2,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // Unity Ads Mediation (جزء من Google AdMob Maven)
+        maven { url = uri("https://dl.google.com/dl/android/maven2") }
     }
 }
 

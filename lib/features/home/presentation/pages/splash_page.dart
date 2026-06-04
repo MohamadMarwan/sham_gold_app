@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
+import '../../../../core/services/ad_service.dart';
 import 'home_page.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 
@@ -46,19 +47,40 @@ class _SplashPageState extends State<SplashPage>
 
   Future<void> _initializeApp() async {
     final priceService = Provider.of<PriceService>(context, listen: false);
+    final adService = AdService();
 
     if (widget.fromResume) {
       priceService.refreshPrices();
     }
 
-    // Faster check for first-time load: only wait 1 second max
-    // instead of 3, users prefer seeing shimmers on home than a frozen splash
-    int checkCount = 0;
-    while (priceService.currentPrices.isEmpty && checkCount < 10) {
+    // Wait for BOTH prices and the App Open Ad in parallel.
+    // Maximum wait: 3 seconds total.
+    // We break early as soon as the ad is ready (no point waiting longer).
+    int waitCount = 0;
+    const int maxWait = 30; // 30 × 100ms = 3 seconds
+
+    while (waitCount < maxWait) {
       await Future.delayed(const Duration(milliseconds: 100));
-      checkCount++;
+      waitCount++;
+
+      // Break as soon as the ad is loaded — it's ready to show
+      if (adService.isAppOpenAdLoaded) break;
+
+      // If prices are loaded and we've waited at least 1 s, don't keep waiting
+      // just for the ad — let the user into the app
+      if (priceService.currentPrices.isNotEmpty && waitCount >= 10) break;
     }
 
+    // Show App Open Ad if it finished loading in time
+    if (adService.isAppOpenAdLoaded && mounted) {
+      adService.showStartupAppOpenAd(onAdDismissed: _navigateToHome);
+      return; // Navigation happens after the ad is dismissed
+    }
+
+    _navigateToHome();
+  }
+
+  void _navigateToHome() {
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(

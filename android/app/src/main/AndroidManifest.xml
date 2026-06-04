@@ -45,12 +45,16 @@
         <!-- AdMob App ID (Test ID - Change for Production) - MUST BE AT APPLICATION LEVEL -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-1767098791247433~5951434590"/>
+            android:value="ca-app-pub-4487814270090643~8619289839"/>
 
         <!-- Facebook App ID (Meta Audience Network) -->
-        <meta-data 
-            android:name="com.facebook.sdk.ApplicationId" 
-            android:value="fb123456789"/> <!-- Change this via Gradle or Strings if needed -->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="fbYOUR_ID"/>
+        <!-- Unity Ads Game ID -->
+        <meta-data
+            android:name="unityads_game_id"
+            android:value="6103432"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -15,12 +15,18 @@ class AdService {
   factory AdService() => _instance;
   AdService._internal();
 
-  bool _isEnabled = false;
+  // ─── App Open Ad unit ID (hardcoded for startup — loaded before backend settings arrive) ───
+  static const String _kAppOpenAdUnitId = 'ca-app-pub-4487814270090643/1749829422';
+  String? _unityGameId;
+  String? get unityGameId => _unityGameId;
+
   String? _bannerId;
   String? _interstitialId;
   String? _rewardedId;
-  bool _showOnPageChange = false;
-  int _interstitialInterval = 3;
+  String? _appOpenId;
+  bool _isEnabled = false;
+  bool _showOnPageChange = true;
+  int _interstitialInterval = 1;
   int _pageChangeCount = 0;
   int _interstitialRetryAttempts = 0;
   int _rewardedRetryAttempts = 0;
@@ -30,6 +36,9 @@ class AdService {
   bool _isInterstitialAdLoaded = false;
   RewardedAd? _rewardedAd;
   bool _isRewardedAdLoaded = false;
+  AppOpenAd? _appOpenAd;
+  bool _isAppOpenAdLoaded = false;
+  bool _isShowingAd = false;
 
   // Reward State
   DateTime? _rewardExpiration;
@@ -38,6 +47,9 @@ class AdService {
   String? get bannerId => _bannerId;
   String? get interstitialId => _interstitialId;
   String? get rewardedId => _rewardedId;
+  String? get appOpenId => _appOpenId;
+  bool get isAppOpenAdLoaded => _isAppOpenAdLoaded;
+  bool get isShowingAd => _isShowingAd;
 
   bool get isRewardActive {
     if (_rewardExpiration == null) return false;
@@ -80,6 +92,11 @@ class AdService {
       // 2. Initialize Google Mobile Ads
       await MobileAds.instance.initialize();
       debugPrint('✅ All Ad SDKs Initialized');
+
+      // 3. Pre-load App Open Ad immediately with hardcoded unit ID
+      //    (backend settings may not be fetched yet at this point)
+      _appOpenId = _kAppOpenAdUnitId;
+      loadAppOpenAd();
     } catch (e) {
       debugPrint('❌ Ads Init Error: $e');
     }
@@ -111,10 +128,12 @@ class AdService {
           _bannerId = adSettings['android']?['bannerUnitId'];
           _interstitialId = adSettings['android']?['interstitialUnitId'];
           _rewardedId = adSettings['android']?['rewardedInterstitialUnitId'];
+          _appOpenId = adSettings['android']?['appOpenUnitId'];
         } else if (Platform.isIOS) {
           _bannerId = adSettings['ios']?['bannerUnitId'];
           _interstitialId = adSettings['ios']?['interstitialUnitId'];
           _rewardedId = adSettings['ios']?['rewardedInterstitialUnitId'];
+          _appOpenId = adSettings['ios']?['appOpenUnitId'];
         }
       }
 
@@ -122,10 +141,13 @@ class AdService {
       if (interSettings != null) {
         _showOnPageChange = interSettings['showOnPageChange'] ?? false;
         _interstitialInterval = interSettings['interval'] ?? 3;
+        // Unity Settings
+        final unitySettings = settings['unitySettings'];
+        if (unitySettings != null) { _unityGameId = unitySettings['gameId']; }
       }
 
       debugPrint(
-          '🔄 AdService Updated from Settings: Enabled=$_isEnabled, Banner=$_bannerId');
+          '🔄 AdService Updated from Settings: Enabled=$_isEnabled, Banner=$_bannerId, AppOpen=$_appOpenId');
 
       if (_isEnabled) {
         if (_interstitialId != null && !_isInterstitialAdLoaded) {
@@ -133,6 +155,9 @@ class AdService {
         }
         if (_rewardedId != null && !_isRewardedAdLoaded) {
           loadRewardedAd();
+        }
+        if (_appOpenId != null && !_isAppOpenAdLoaded) {
+          loadAppOpenAd();
         }
       }
     }
@@ -227,6 +252,11 @@ class AdService {
       return;
     }
 
+    if (_isShowingAd) {
+      onAdDismissed?.call();
+      return;
+    }
+
     if (!_isInterstitialAdLoaded || _interstitialAd == null) {
       onAdDismissed?.call();
       loadInterstitialAd(); // Try for next time
@@ -234,13 +264,18 @@ class AdService {
     }
 
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+      },
       onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
         ad.dispose();
         _isInterstitialAdLoaded = false;
         loadInterstitialAd(); // Preload next
         onAdDismissed?.call();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
         ad.dispose();
         _isInterstitialAdLoaded = false;
         loadInterstitialAd();
@@ -267,6 +302,11 @@ class AdService {
       {required Function onRewardEarned,
       Function? onAdDismissed,
       Function? onAdFailed}) {
+    if (_isShowingAd) {
+      onAdFailed?.call();
+      return;
+    }
+
     if (!_isRewardedAdLoaded || _rewardedAd == null) {
       // إن لم يتوفر إعلان مكافأة، نحاول عرض إعلان بيني كبديل
       if (_isInterstitialAdLoaded && _interstitialAd != null) {
@@ -285,13 +325,18 @@ class AdService {
     }
 
     _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+      },
       onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
         ad.dispose();
         _isRewardedAdLoaded = false;
         loadRewardedAd();
         onAdDismissed?.call();
       },
       onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
         ad.dispose();
         _isRewardedAdLoaded = false;
         loadRewardedAd();
@@ -302,5 +347,116 @@ class AdService {
     _rewardedAd!.show(onUserEarnedReward: (ad, reward) {
       onRewardEarned();
     });
+  }
+
+  void loadAppOpenAd() {
+    if (_appOpenId == null || !_isEnabled || kIsWeb) return;
+
+    AppOpenAd.load(
+      adUnitId: _appOpenId!,
+      request: const AdRequest(),
+      adLoadCallback: AppOpenAdLoadCallback(
+        onAdLoaded: (ad) {
+          _appOpenAd = ad;
+          _isAppOpenAdLoaded = true;
+          debugPrint('✅ App Open Ad Loaded');
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('❌ App Open Ad Failed to Load: $error');
+          _isAppOpenAdLoaded = false;
+          _appOpenAd = null;
+        },
+      ),
+    );
+  }
+
+  void showAppOpenAd({Function? onAdDismissed}) {
+    if (!_isEnabled || isRewardActive || kIsWeb) {
+      onAdDismissed?.call();
+      return;
+    }
+
+    if (_isShowingAd) {
+      debugPrint('⚠️ Another ad is already showing');
+      onAdDismissed?.call();
+      return;
+    }
+
+    if (!_isAppOpenAdLoaded || _appOpenAd == null) {
+      debugPrint('⚠️ App Open Ad not loaded yet');
+      onAdDismissed?.call();
+      loadAppOpenAd(); // Load for next time
+      return;
+    }
+
+    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+        debugPrint('✅ App Open Ad showing full screen');
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        ad.dispose();
+        _isAppOpenAdLoaded = false;
+        _appOpenAd = null;
+        loadAppOpenAd(); // Preload next
+        onAdDismissed?.call();
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        ad.dispose();
+        _isAppOpenAdLoaded = false;
+        _appOpenAd = null;
+        loadAppOpenAd();
+        onAdDismissed?.call();
+      },
+    );
+
+    _appOpenAd!.show();
+  }
+
+  /// Shows the App Open Ad on cold start.
+  /// Unlike [showAppOpenAd], this does NOT require the backend [isEnabled] flag,
+  /// so it works reliably before backend settings are fetched.
+  void showStartupAppOpenAd({Function? onAdDismissed}) {
+    if (isRewardActive || kIsWeb) {
+      onAdDismissed?.call();
+      return;
+    }
+
+    if (_isShowingAd) {
+      onAdDismissed?.call();
+      return;
+    }
+
+    if (!_isAppOpenAdLoaded || _appOpenAd == null) {
+      debugPrint('⚠️ Startup App Open Ad not loaded — skipping');
+      onAdDismissed?.call();
+      return;
+    }
+
+    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+        debugPrint('✅ Startup App Open Ad showing');
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        ad.dispose();
+        _isAppOpenAdLoaded = false;
+        _appOpenAd = null;
+        onAdDismissed?.call();
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        ad.dispose();
+        _isAppOpenAdLoaded = false;
+        _appOpenAd = null;
+        debugPrint('❌ Startup App Open Ad failed to show: $error');
+        onAdDismissed?.call();
+      },
+    );
+
+    _appOpenAd!.show();
   }
 }

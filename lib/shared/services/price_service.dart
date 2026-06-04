@@ -85,6 +85,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     _appState = state;
     if (state == AppLifecycleState.resumed) {
       refreshPrices(manual: false);
+      AdService().showAppOpenAd();
     }
   }
 

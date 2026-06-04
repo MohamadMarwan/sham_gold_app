@@ -69,7 +69,7 @@
 	<key>NSUserTrackingUsageDescription</key>
 	<string>يساعد هذا المعرف في تقديم إعلانات مخصصة تهمك، مما يدعم استمرارية تقديم خدماتنا بشكل مجاني.</string>
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-1767098791247433~5951434590</string>
+	<string>ca-app-pub-4487814270090643~8619289839</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>
@@ -210,7 +210,7 @@
 		</dict>
 		<dict>
 			<key>SKAdNetworkIdentifier</key>
-			<string>4dzt52r2t5.skadnetwork</string>
+			<string>4DZT52R2T5.skadnetwork</string>
 		</dict>
 		<dict>
 			<key>SKAdNetworkIdentifier</key>
