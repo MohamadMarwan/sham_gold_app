@@ -52,10 +52,11 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
     // If settings changed or first load
     if (isEnabled &&
         adUnitId != null &&
+        adUnitId.trim().isNotEmpty &&
         (adUnitId != _currentAdUnitId || _bannerAd == null)) {
       _currentAdUnitId = adUnitId;
       _loadAd(adUnitId);
-    } else if (!isEnabled) {
+    } else if (!isEnabled || adUnitId == null || adUnitId.trim().isEmpty) {
       _bannerAd?.dispose();
       _bannerAd = null;
       _isLoaded = false;

@@ -412,7 +412,6 @@ class _SyriaMarketPageState extends State<SyriaMarketPage> {
   }
 
   Widget _buildLocationBanners(String location) {
-    if (AdService().isRewardActive) return const SizedBox.shrink();
     final priceService = Provider.of<PriceService>(context);
     final banners = priceService.currentBanners
         .where((b) => b.location == location)

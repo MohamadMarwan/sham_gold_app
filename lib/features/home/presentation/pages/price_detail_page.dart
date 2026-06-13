@@ -36,9 +36,11 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
     _fetchHistory();
     _setupRealtimeListener();
 
-    // Trigger Ad — controlled by backend dashboard settings (showOnPageChange + interval)
+    // Trigger Ad — بعد اكتمال بناء الصفحة وانتهاء الانيميشن
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      AdService().showInterstitialOnNavigation();
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (mounted) AdService().showInterstitialOnNavigation(force: true);
+      });
     });
   }
 

@@ -17,14 +17,15 @@ class AdService {
 
   // ─── App Open Ad unit ID (hardcoded for startup — loaded before backend settings arrive) ───
   static const String _kAppOpenAdUnitId = 'ca-app-pub-4487814270090643/1749829422';
-  String? _unityGameId;
-  String? get unityGameId => _unityGameId;
+
 
   String? _bannerId;
   String? _interstitialId;
   String? _rewardedId;
   String? _appOpenId;
   bool _isEnabled = false;
+  int _appOpenTimeoutSeconds = 3;
+  int get appOpenTimeoutSeconds => _appOpenTimeoutSeconds;
   bool _showOnPageChange = true;
   int _interstitialInterval = 1;
   int _pageChangeCount = 0;
@@ -95,8 +96,9 @@ class AdService {
 
       // 3. Pre-load App Open Ad immediately with hardcoded unit ID
       //    (backend settings may not be fetched yet at this point)
+      //    Note: we bypass _isEnabled here because settings haven't arrived yet.
       _appOpenId = _kAppOpenAdUnitId;
-      loadAppOpenAd();
+      _loadAppOpenAdBypass(); // ← bypass _isEnabled check for startup
     } catch (e) {
       debugPrint('❌ Ads Init Error: $e');
     }
@@ -122,43 +124,68 @@ class AdService {
   void updateFromSettings(Map<String, dynamic> settings) {
     final adSettings = settings['admobSettings'];
     if (adSettings != null) {
+      final wasEnabled = _isEnabled;
       _isEnabled = adSettings['isEnabled'] ?? false;
+      _appOpenTimeoutSeconds = adSettings['appOpenTimeoutSeconds'] ?? 3;
+
+      String? newInterstitialId;
+      String? newRewardedId;
+
       if (!kIsWeb) {
         if (Platform.isAndroid) {
           _bannerId = adSettings['android']?['bannerUnitId'];
-          _interstitialId = adSettings['android']?['interstitialUnitId'];
-          _rewardedId = adSettings['android']?['rewardedInterstitialUnitId'];
+          
+          final dbInterstitial = adSettings['android']?['interstitialUnitId'];
+          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) 
+              ? dbInterstitial 
+              : 'ca-app-pub-4487814270090643/9895234137';
+              
+          newRewardedId = adSettings['android']?['rewardedInterstitialUnitId'];
           _appOpenId = adSettings['android']?['appOpenUnitId'];
         } else if (Platform.isIOS) {
           _bannerId = adSettings['ios']?['bannerUnitId'];
-          _interstitialId = adSettings['ios']?['interstitialUnitId'];
-          _rewardedId = adSettings['ios']?['rewardedInterstitialUnitId'];
+          
+          final dbInterstitial = adSettings['ios']?['interstitialUnitId'];
+          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) 
+              ? dbInterstitial 
+              : 'ca-app-pub-4487814270090643/9895234137';
+              
+          newRewardedId = adSettings['ios']?['rewardedInterstitialUnitId'];
           _appOpenId = adSettings['ios']?['appOpenUnitId'];
         }
       }
 
+      // Detect if the ad unit IDs changed → force reload
+      final interstitialIdChanged = newInterstitialId != _interstitialId;
+      final rewardedIdChanged = newRewardedId != _rewardedId;
+      _interstitialId = newInterstitialId;
+      _rewardedId = newRewardedId;
+
       final interSettings = adSettings['interstitialSettings'];
       if (interSettings != null) {
-        _showOnPageChange = interSettings['showOnPageChange'] ?? false;
-        _interstitialInterval = interSettings['interval'] ?? 3;
-        // Unity Settings
-        final unitySettings = settings['unitySettings'];
-        if (unitySettings != null) { _unityGameId = unitySettings['gameId']; }
+        _showOnPageChange = interSettings['showOnPageChange'] ?? true;
+        _interstitialInterval = interSettings['interval'] ?? 1;
       }
 
       debugPrint(
-          '🔄 AdService Updated from Settings: Enabled=$_isEnabled, Banner=$_bannerId, AppOpen=$_appOpenId');
+          '🔄 AdService Updated: Enabled=$_isEnabled, Interstitial=$_interstitialId, '
+          'showOnPageChange=$_showOnPageChange, interval=$_interstitialInterval, '
+          'wasEnabled=$wasEnabled, idChanged=$interstitialIdChanged');
 
       if (_isEnabled) {
-        if (_interstitialId != null && !_isInterstitialAdLoaded) {
+        // Load interstitial if: not loaded yet, OR the ad unit ID changed
+        if (_interstitialId != null && (!_isInterstitialAdLoaded || interstitialIdChanged)) {
+          debugPrint('📢 Triggering loadInterstitialAd() from updateFromSettings');
           loadInterstitialAd();
         }
-        if (_rewardedId != null && !_isRewardedAdLoaded) {
+        if (_rewardedId != null && (!_isRewardedAdLoaded || rewardedIdChanged)) {
           loadRewardedAd();
         }
         if (_appOpenId != null && !_isAppOpenAdLoaded) {
           loadAppOpenAd();
         }
+      } else {
+        debugPrint('⚠️ AdService: _isEnabled=false → no ads will load or show');
       }
     }
   }
@@ -187,7 +214,11 @@ class AdService {
   }
 
   void loadInterstitialAd() {
-    if (_interstitialId == null || !_isEnabled || kIsWeb) return;
+    if (_interstitialId == null || _interstitialId!.trim().isEmpty || !_isEnabled || kIsWeb) {
+      debugPrint('⚠️ loadInterstitialAd() skipped: id=$_interstitialId, enabled=$_isEnabled, web=$kIsWeb');
+      return;
+    }
+    debugPrint('📡 Loading Interstitial Ad: $_interstitialId');
 
     InterstitialAd.load(
       adUnitId: _interstitialId!,
@@ -196,19 +227,21 @@ class AdService {
         onAdLoaded: (ad) {
           _interstitialAd = ad;
           _isInterstitialAdLoaded = true;
-          _interstitialRetryAttempts = 0; // Reset on success
-          debugPrint('✅ Interstitial Ad Loaded');
+          _interstitialRetryAttempts = 0;
+          debugPrint('✅ Interstitial Ad Loaded successfully');
         },
         onAdFailedToLoad: (error) {
-          debugPrint('❌ Interstitial Ad Failed to Load: $error');
+          debugPrint('❌ Interstitial Ad Failed to Load: ${error.message} (code: ${error.code})');
           _isInterstitialAdLoaded = false;
           _interstitialAd = null;
-          
+
           if (_interstitialRetryAttempts < _maxRetryAttempts) {
             _interstitialRetryAttempts++;
-            int delay = _interstitialRetryAttempts * 30; // 30, 60, 90... seconds
+            int delay = _interstitialRetryAttempts * 30;
             Future.delayed(Duration(seconds: delay), () => loadInterstitialAd());
-            debugPrint('🔄 Retrying Interstitial Ad in $delay seconds...');
+            debugPrint('🔄 Retrying Interstitial Ad in $delay seconds (attempt $_interstitialRetryAttempts)...');
+          } else {
+            debugPrint('🚫 Max retry attempts reached for Interstitial Ad');
           }
         },
       ),
@@ -216,7 +249,7 @@ class AdService {
   }
 
   void loadRewardedAd() {
-    if (_rewardedId == null || !_isEnabled || kIsWeb) return;
+    if (_rewardedId == null || _rewardedId!.trim().isEmpty || !_isEnabled || kIsWeb) return;
 
     RewardedAd.load(
       adUnitId: _rewardedId!,
@@ -286,15 +319,41 @@ class AdService {
     _interstitialAd!.show();
   }
 
-  void showInterstitialOnNavigation() {
-    if (!_isEnabled || !_showOnPageChange || kIsWeb) return;
+  /// الطريقة الأساسية: تعرض الإعلان البيني عند التنقل بين الصفحات.
+  /// تتجاوز تلقائياً إذا كان الإعلان غير محمّل أو الإعدادات تمنعه.
+  void showInterstitialOnNavigation({bool force = false}) {
+    debugPrint(
+      '🧭 showInterstitialOnNavigation → '
+      'enabled=$_isEnabled | showOnPageChange=$_showOnPageChange | '
+      'loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | '
+      'rewardActive=$isRewardActive | interstitialId=$_interstitialId | force=$force'
+    );
 
-    _pageChangeCount++;
-    debugPrint('Navigation Count: $_pageChangeCount / $_interstitialInterval');
+    // لا نعرض الإعلان إذا:
+    if (kIsWeb) { debugPrint('⛔ Web platform — skip'); return; }
+    if (!_isEnabled) { debugPrint('⛔ Ads disabled (_isEnabled=false)'); return; }
+    if (isRewardActive) { debugPrint('⛔ Reward is active'); return; }
+    if (_isShowingAd) { debugPrint('⛔ Another ad is already showing'); return; }
 
-    if (_pageChangeCount >= _interstitialInterval) {
+    if (!force) {
+      if (!_showOnPageChange) { debugPrint('⛔ showOnPageChange=false'); return; }
+
+      _pageChangeCount++;
+      debugPrint('📊 Navigation Count: $_pageChangeCount / $_interstitialInterval');
+
+      if (_pageChangeCount < _interstitialInterval) {
+        return;
+      }
       _pageChangeCount = 0;
+    }
+
+    debugPrint('🎯 Attempting to show interstitial (force=$force)');
+
+    if (_isInterstitialAdLoaded && _interstitialAd != null) {
       showInterstitialAd();
+    } else {
+      debugPrint('⚠️ Interstitial not ready — requesting load for next time');
+      loadInterstitialAd();
     }
   }
 
@@ -349,8 +408,17 @@ class AdService {
     });
   }
 
+  /// Loads App Open Ad — requires _isEnabled=true (use after backend settings arrive)
   void loadAppOpenAd() {
-    if (_appOpenId == null || !_isEnabled || kIsWeb) return;
+    if (_appOpenId == null || _appOpenId!.trim().isEmpty || !_isEnabled || kIsWeb) return;
+    _loadAppOpenAdBypass();
+  }
+
+  /// Loads App Open Ad bypassing the _isEnabled flag.
+  /// Use only at startup before backend settings are fetched.
+  void _loadAppOpenAdBypass() {
+    if (_appOpenId == null || _appOpenId!.trim().isEmpty || kIsWeb) return;
+    debugPrint('📡 Loading App Open Ad: $_appOpenId');
 
     AppOpenAd.load(
       adUnitId: _appOpenId!,
@@ -362,7 +430,7 @@ class AdService {
           debugPrint('✅ App Open Ad Loaded');
         },
         onAdFailedToLoad: (error) {
-          debugPrint('❌ App Open Ad Failed to Load: $error');
+          debugPrint('❌ App Open Ad Failed to Load: ${error.message} (code: ${error.code})');
           _isAppOpenAdLoaded = false;
           _appOpenAd = null;
         },

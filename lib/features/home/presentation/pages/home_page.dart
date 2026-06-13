@@ -249,8 +249,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 if (_currentIndex != index) {
                   HapticFeedback.selectionClick();
                   setState(() => _currentIndex = index);
-                  // إظهار إعلان بيني عند التنقل (بناءً على إعدادات الباكند)
-                  AdService().showInterstitialOnNavigation();
+                  // إظهار إعلان بيني بعد اكتمال انتقال الصفحة
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (mounted) AdService().showInterstitialOnNavigation();
+                  });
                 }
               },
               selectedItemColor: AppColors.darkGreen,

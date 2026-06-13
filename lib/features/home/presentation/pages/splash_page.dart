@@ -53,26 +53,22 @@ class _SplashPageState extends State<SplashPage>
       priceService.refreshPrices();
     }
 
-    // Wait for BOTH prices and the App Open Ad in parallel.
-    // Maximum wait: 3 seconds total.
-    // We break early as soon as the ad is ready (no point waiting longer).
+    // Wait for the App Open Ad to load, up to the dynamically configured timeout limit.
+    // We check the timeout on each iteration to adapt reactively to settings loaded from cache.
     int waitCount = 0;
-    const int maxWait = 30; // 30 × 100ms = 3 seconds
 
-    while (waitCount < maxWait) {
+    while (waitCount < (adService.appOpenTimeoutSeconds * 10)) {
+      if (adService.appOpenTimeoutSeconds <= 0) break;
+
       await Future.delayed(const Duration(milliseconds: 100));
       waitCount++;
 
       // Break as soon as the ad is loaded — it's ready to show
       if (adService.isAppOpenAdLoaded) break;
-
-      // If prices are loaded and we've waited at least 1 s, don't keep waiting
-      // just for the ad — let the user into the app
-      if (priceService.currentPrices.isNotEmpty && waitCount >= 10) break;
     }
 
-    // Show App Open Ad if it finished loading in time
-    if (adService.isAppOpenAdLoaded && mounted) {
+    // Show App Open Ad if it finished loading within the configured window and is enabled (timeout > 0)
+    if (adService.appOpenTimeoutSeconds > 0 && adService.isAppOpenAdLoaded && mounted) {
       adService.showStartupAppOpenAd(onAdDismissed: _navigateToHome);
       return; // Navigation happens after the ad is dismissed
     }

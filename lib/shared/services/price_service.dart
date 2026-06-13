@@ -85,7 +85,8 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     _appState = state;
     if (state == AppLifecycleState.resumed) {
       refreshPrices(manual: false);
-      AdService().showAppOpenAd();
+      // App Open Ad is shown only on cold start via splash_page.dart
+      // Do NOT call showAppOpenAd() here to avoid showing it on every resume
     }
   }
 
@@ -160,8 +161,14 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       _updateSettings(data, saveData: true);
     });
 
-    socket.on('alert_triggered', (data) {
-      _alertTriggeredController.add(Map<String, dynamic>.from(data));
+    socket.on('alert_triggered', (data) async {
+      // 🚨 CRITICAL FIX: Only show the alert if it belongs to this specific device
+      final myToken = await getDeviceToken();
+      if (data != null && data['deviceToken'] == myToken) {
+        _alertTriggeredController.add(Map<String, dynamic>.from(data));
+      } else {
+        debugPrint('🔕 Ignored alert for another device: ${data['deviceToken']}');
+      }
     });
 
     socket.onDisconnect((_) {
@@ -265,6 +272,8 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       if (cachedSettings != null) {
         currentSettings = json.decode(cachedSettings);
         _settingsController.add(currentSettings!);
+        // ✅ مهم: نُحدِّث AdService من الـ cache فوراً حتى لا ننتظر الباكند
+        AdService().updateFromSettings(currentSettings!);
       }
     } catch (e) {
       debugPrint('Error loading from cache: $e');

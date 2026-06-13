@@ -9,7 +9,7 @@ if (keystorePropertiesFile.exists()) {
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -85,6 +85,5 @@ dependencies {
     
     // Ads Mediation Adapters
     implementation("com.google.ads.mediation:facebook:6.17.0.0")
-    // ✅ Unity Ads via AdMob Mediation Adapter (متوفر في Google Maven — يتضمن Unity Ads SDK)
-    implementation("com.google.ads.mediation:unity:4.12.5.0")
+    implementation("com.google.ads.mediation:unity:4.12.5.1")
 }

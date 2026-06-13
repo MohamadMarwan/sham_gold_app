@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
         android:label="ذهب الشام - SHAM GOLD"
-        android:name="${applicationName}"
+
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
@@ -50,11 +50,7 @@
         <!-- Facebook App ID (Meta Audience Network) -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
-            android:value="fbYOUR_ID"/>
-        <!-- Unity Ads Game ID -->
-        <meta-data
-            android:name="unityads_game_id"
-            android:value="6103432"/>
+            android:value="526240221710665"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

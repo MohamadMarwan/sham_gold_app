@@ -1312,7 +1312,6 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
   }
 
   Widget _buildLocationBanners(BuildContext context, String location) {
-    if (AdService().isRewardActive) return const SizedBox.shrink();
     final priceService = Provider.of<PriceService>(context);
     final banners = priceService.currentBanners
         .where((b) => b.location == location)
