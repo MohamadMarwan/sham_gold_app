@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../core/constants/app_colors.dart';
+
 class ShimmerLoading extends StatelessWidget {
   final double width;
   final double height;
@@ -22,14 +24,16 @@ class ShimmerLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Shimmer.fromColors(
-      baseColor: Colors.grey[200]!,
-      highlightColor: Colors.white,
+      baseColor: isDark ? AppColors.darkGreen.withValues(alpha: 0.5) : Colors.grey[200]!,
+      highlightColor: isDark ? AppColors.accentGreen.withValues(alpha: 0.5) : Colors.white,
       child: Container(
         width: width,
         height: height,
         decoration: ShapeDecoration(
-          color: Colors.grey[400]!,
+          color: isDark ? AppColors.darkGreen : Colors.grey[400]!,
           shape: shapeBorder,
         ),
       ),
@@ -42,11 +46,12 @@ class PremiumCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkGreen : Colors.white,
         borderRadius: BorderRadius.circular(28),
       ),
       child: const Row(
@@ -82,12 +87,13 @@ class OunceCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: 190,
       margin: const EdgeInsets.only(left: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkGreen : Colors.white,
         borderRadius: BorderRadius.circular(28),
       ),
       child: const Column(
@@ -121,12 +127,13 @@ class ChartShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 250,
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkGreen : Colors.white,
         borderRadius: BorderRadius.circular(32),
       ),
       child: const Column(

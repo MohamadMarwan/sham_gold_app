@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Core Brand Colors
   static const Color gold = Color(0xFFC5A059); // Premium muted gold
-  static const Color darkGreen = Color(0xFF0F2E25); // Deep emerald green
-  static const Color accentGreen = Color(0xFF2D6A4F); // Brighter accent green
-  static const Color warmBrown = Color(0xFF5D4037);
+  static const Color darkGreen = Color(0xFF0F172A); // Emerald Dark
+  static const Color accentGreen = Color(0xFF1E293B); // Emerald Light
+  static const Color warmBrown = Color(0xFF8B6B2D); // Primary Gold Dark
   static const Color warmBeige = Color(0xFFF9F7F2); // Premium off-white
   static const Color lightGrey = Color(0xFFF0F2F5);
   static const Color tertiary = Color(0xFFB87333); // Copper accent
   static const Color copper = tertiary;
 
   // Majlis (Elite Dark Mode) Palette
-  static const Color majlisGreen = Color(0xFF062119); // Rich Palace Green
-  static const Color majlisGold = Color(0xFFD4AF37); // Royal Gold
+  static const Color majlisGreen = Color(0xFF020617); // Emerald Darker
+  static const Color majlisGold = Color(0xFFC5A059); // Royal Gold
 
   static const Color background = warmBeige;
   static const Color primaryText = Color(0xFF1D2121); // Dark charcoal
@@ -42,7 +42,7 @@ class AppColors {
       );
 
   static LinearGradient get emeraldGradient => const LinearGradient(
-        colors: [Color(0xFF062119), Color(0xFF0F3D30), Color(0xFF1B4332)],
+        colors: [Color(0xFF020617), Color(0xFF0F172A), Color(0xFF1E293B)],
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
       );
