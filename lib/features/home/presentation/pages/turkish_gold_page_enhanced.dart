@@ -101,7 +101,7 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
               onRefresh: () async {
                 HapticFeedback.mediumImpact();
                 await priceService.refreshPrices(
-                    source: 'haremaltin', manual: true);
+                    source: 'altinapi', manual: true);
               },
               child: CustomScrollView(
                 controller: _scrollController,
@@ -1358,7 +1358,7 @@ class _TurkishGoldPageEnhancedState extends State<TurkishGoldPageEnhanced>
             ElevatedButton.icon(
               onPressed: () {
                 HapticFeedback.mediumImpact();
-                service.refreshPrices(source: 'haremaltin', manual: true);
+                service.refreshPrices(source: 'altinapi', manual: true);
               },
               icon: const Icon(Icons.refresh, color: Colors.white),
               label: Text(
