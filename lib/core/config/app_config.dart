@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
   static const String appName = 'غولد شام';
@@ -12,7 +13,9 @@ class AppConfig {
 
 
   // API Access Key for extra security
-  static const String apiAccessKey = 'sham_gold_secure_access_key_2026_ali';
+  static String get apiAccessKey {
+    return dotenv.env['API_ACCESS_KEY'] ?? '';
+  }
 
   // Socket.io Options
   // NOTE: On Flutter Web (Chrome), WebSocket-only transport can fail silently.

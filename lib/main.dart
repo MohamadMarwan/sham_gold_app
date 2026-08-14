@@ -12,9 +12,22 @@ import 'core/services/ad_service.dart'; // Added AdService
 import 'package:showcaseview/showcaseview.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'core/services/socket_service.dart';
+import 'core/services/http_api_service.dart';
+import 'core/services/cache_service.dart';
+import 'core/providers/settings_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ar_SA', null);
+  
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('Could not load .env file: $e');
+  }
 
   // Start the app immediately to prevent hanging on the native green splash
   runApp(const GoldShamApp());
@@ -51,8 +64,22 @@ class GoldShamApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<PriceService>(
-          create: (_) => PriceService(),
+        ChangeNotifierProvider<SettingsProvider>(
+          create: (_) => SettingsProvider(),
+        ),
+        ChangeNotifierProxyProvider<SettingsProvider, PriceService>(
+          create: (context) => PriceService(
+            SocketService(),
+            HttpApiService(),
+            CacheService(),
+            Provider.of<SettingsProvider>(context, listen: false),
+          ),
+          update: (context, settingsProvider, previous) => previous ?? PriceService(
+            SocketService(),
+            HttpApiService(),
+            CacheService(),
+            settingsProvider,
+          ),
         ),
       ],
       child: MaterialApp(

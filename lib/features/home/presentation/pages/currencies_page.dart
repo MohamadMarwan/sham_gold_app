@@ -474,7 +474,7 @@ class CurrenciesPage extends StatelessWidget {
 
   Widget _buildPriceRow(String label, double price, String symbol,
       {bool isSell = false}) {
-    final format = NumberFormat("#,##0", "ar");
+    final format = NumberFormat("#,##0.###", "ar");
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

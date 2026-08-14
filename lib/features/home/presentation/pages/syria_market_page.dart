@@ -329,7 +329,7 @@ class _SyriaMarketPageState extends State<SyriaMarketPage> {
                                             ),
                                           ),
                                           Text(
-                                            'يتم الحساب بناءً على سعر ${NumberFormat("#,##0", "ar").format(priceService.getDisplaySetting('sy_usd_buy', defaultValue: priceService.currentPrices.firstWhere((p) => p.id == "sy_usd", orElse: () => PriceItem.empty()).buyPrice))} ل.س للدولار',
+                                            'يتم الحساب بناءً على سعر ${NumberFormat("#,##0.###", "ar").format(priceService.getDisplaySetting('sy_usd_buy', defaultValue: priceService.currentPrices.firstWhere((p) => p.id == "sy_usd", orElse: () => PriceItem.empty()).buyPrice))} ل.س للدولار',
                                             style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.w600,
@@ -504,7 +504,7 @@ class _SyriaMarketPageState extends State<SyriaMarketPage> {
     final featured = items.where((p) => order.contains(p.id)).toList();
     featured.sort((a, b) => order.indexOf(a.id).compareTo(order.indexOf(b.id)));
 
-    final format = NumberFormat("#,##0", "ar");
+    final format = NumberFormat("#,##0.###", "ar");
 
     return GridView.builder(
       shrinkWrap: true,
@@ -969,7 +969,7 @@ class _SyriaMarketPageState extends State<SyriaMarketPage> {
   Widget _buildPriceRow(
       String label, double price, String symbol, bool isDecimal,
       {bool isSell = false}) {
-    final format = NumberFormat("#,##0", "ar");
+    final format = NumberFormat("#,##0.###", "ar");
     final decimalFormat = NumberFormat("#,##0.00", "ar");
 
     return Row(
