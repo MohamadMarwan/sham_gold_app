@@ -159,7 +159,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   }
 
   DateTime? _lastRefreshTime;
-  Future<RefreshStatus> refreshPrices({bool manual = false}) async {
+  Future<RefreshStatus> refreshPrices({bool manual = false, String? source}) async {
     bool bypassThrottle = manual;
     if (!bypassThrottle && _lastRefreshTime != null) {
       final difference = DateTime.now().difference(_lastRefreshTime!);
@@ -184,6 +184,11 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     } catch (e) {
       return RefreshStatus.connectionError;
     }
+  }
+
+  bool isWeekend() {
+    final now = DateTime.now();
+    return now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;
   }
 
   Future<List<Map<String, dynamic>>> fetchPriceHistory(String id, {String range = 'day'}) async {
