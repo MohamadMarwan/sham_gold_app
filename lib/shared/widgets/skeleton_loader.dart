@@ -38,31 +38,31 @@ class PriceCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return const Card(
       elevation: 0,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Row(
           children: [
-            const SkeletonLoader(width: 48, height: 48, borderRadius: 24),
-            const SizedBox(width: 16),
+            SkeletonLoader(width: 48, height: 48, borderRadius: 24),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SkeletonLoader(width: 120, height: 16),
-                  const SizedBox(height: 8),
-                  const SkeletonLoader(width: 80, height: 12),
+                  SkeletonLoader(width: 120, height: 16),
+                  SizedBox(height: 8),
+                  SkeletonLoader(width: 80, height: 12),
                 ],
               ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const SkeletonLoader(width: 80, height: 20),
-                const SizedBox(height: 8),
-                const SkeletonLoader(width: 60, height: 14),
+                SkeletonLoader(width: 80, height: 20),
+                SizedBox(height: 8),
+                SkeletonLoader(width: 60, height: 14),
               ],
             ),
           ],

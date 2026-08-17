@@ -7,6 +7,8 @@ import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 import 'privacy_policy_page.dart';
 import 'terms_of_service_page.dart';
+import 'package:easy_localization/easy_localization.dart';
+import '../../../../core/providers/settings_provider.dart';
 
 class FollowUsPage extends StatefulWidget {
   const FollowUsPage({super.key});
@@ -107,6 +109,8 @@ class _FollowUsPageState extends State<FollowUsPage> {
                       ),
                     ],
                     const SizedBox(height: 30),
+                    _buildSettingsSection(context),
+                    const SizedBox(height: 30),
                     _buildSupportInfo(),
                     const SizedBox(height: 30),
                     _buildPromotionSection(),
@@ -184,7 +188,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 10),
                   _buildLogo(settings),
                   const SizedBox(height: 16),
                   Text(
@@ -686,5 +690,72 @@ class _FollowUsPageState extends State<FollowUsPage> {
     } catch (e) {
       return Colors.black;
     }
+  }
+
+  Widget _buildSettingsSection(BuildContext context) {
+    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final isDark = settingsProvider.themeMode == ThemeMode.dark ||
+        (settingsProvider.themeMode == ThemeMode.system &&
+            MediaQuery.of(context).platformBrightness == Brightness.dark);
+
+    return Column(
+      children: [
+        _buildSectionHeader('settings'.tr()),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(
+                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  color: AppColors.gold,
+                ),
+                title: Text(
+                  'dark_mode'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                trailing: Switch(
+                  value: isDark,
+                  activeColor: AppColors.gold,
+                  onChanged: (val) {
+                    settingsProvider.setThemeMode(
+                        val ? ThemeMode.dark : ThemeMode.light);
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.language_rounded, color: AppColors.gold),
+                title: Text(
+                  'language'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                trailing: DropdownButton<String>(
+                  value: context.locale.languageCode,
+                  underline: const SizedBox(),
+                  icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
+                  items: const [
+                    DropdownMenuItem(value: 'ar', child: Text('العربية')),
+                    DropdownMenuItem(value: 'en', child: Text('English')),
+                    DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
+                  ],
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      context.setLocale(Locale(newValue));
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -4,16 +4,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/country_provider.dart';
+import '../../../../shared/models/country_model.dart';
 import 'gold_page.dart';
-import 'syria_market_page.dart';
 import 'currencies_page.dart';
-import 'turkish_gold_page_enhanced.dart';
-import 'calculator_page.dart'; // Re-import calculator
+import 'portfolio_page.dart';
+import 'smart_calculators_page.dart';
+import 'country_market_page.dart';
 import 'follow_us_page.dart';
 import 'price_detail_page.dart';
-import '../../../../shared/widgets/syrian_flag.dart';
 import 'splash_page.dart';
 import '../../../../core/services/ad_service.dart';
 
@@ -26,15 +28,18 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   int _currentIndex = 0;
+  late PageController _pageController;
   DateTime? _pausedTime;
 
   final GlobalKey _globalKey = GlobalKey();
-  final GlobalKey _syriaKey = GlobalKey();
+  final GlobalKey _marketKey = GlobalKey();
+  final GlobalKey _portfolioKey = GlobalKey();
   final GlobalKey _calcKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: _currentIndex);
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkFirstRun();
@@ -44,6 +49,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _pageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -55,7 +61,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       if (_pausedTime != null) {
         final duration = DateTime.now().difference(_pausedTime!);
-        // If the app was in the background for more than 5 minutes
         if (duration.inMinutes >= 5) {
           _navigateToSplash();
         }
@@ -76,7 +81,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void _setupAlertListener() {
     final priceService = Provider.of<PriceService>(context, listen: false);
 
-    // 1. Listen for Price Alerts (Specific to device)
     priceService.alertTriggeredStream.listen((data) {
       if (mounted) {
         HapticFeedback.vibrate();
@@ -104,7 +108,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }
     });
 
-    // 2. Listen for General Broadcast Notifications
     priceService.notificationStream.listen((data) {
       if (mounted) {
         HapticFeedback.heavyImpact();
@@ -147,12 +150,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 14,
-                          color: Colors.white)),
+                          color: Colors.white,
+                          fontFamily: 'Cairo')),
                   Text(body,
                       style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white.withValues(alpha: 0.2),
-                          fontWeight: FontWeight.w600)),
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Cairo')),
                 ],
               ),
             ),
@@ -177,214 +182,157 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (isFirstRun) {
       if (mounted) {
         ShowCaseWidget.of(context)
-            .startShowCase([_globalKey, _syriaKey, _calcKey]);
+            .startShowCase([_globalKey, _marketKey, _portfolioKey, _calcKey]);
         await prefs.setBool('first_run_tutorial', false);
       }
     }
   }
 
-  // Dynamic page builder based on settings
-  Widget _buildFourthPage(String mode) {
-    if (mode == 'calculator') {
-      return const CalculatorPage();
-    }
-    return const TurkishGoldPageEnhanced(); // premium enhanced design
+  Widget _buildCountrySpecificMarketPage(CountryModel country) {
+    return CountryMarketPage(forcedCountry: country);
+  }
+
+  Widget _buildActiveIcon(Widget child) {
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [
+                AppColors.gold.withValues(alpha: 0.25),
+                Colors.transparent,
+              ],
+              radius: 0.8,
+            ),
+          ),
+        ),
+        child,
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final priceService = Provider.of<PriceService>(context);
-    final settings = priceService.currentSettings;
-    final fourthPageMode =
-        settings?['displaySettings']?['fourthPageMode'] ?? 'turkish_gold';
+    final countryProvider = Provider.of<CountryProvider>(context);
+    final country = countryProvider.selectedCountry;
 
     final pages = [
       GoldPage(
         onNavigate: (index) {
           if (_currentIndex != index) {
-            HapticFeedback.selectionClick();
-            setState(() => _currentIndex = index);
+            _onTabTapped(index);
           }
         },
       ),
-      const SyriaMarketPage(),
+      _buildCountrySpecificMarketPage(country),
+      const PortfolioPage(),
+      const SmartCalculatorsPage(),
       const CurrenciesPage(),
-      _buildFourthPage(fourthPageMode),
       const FollowUsPage(),
     ];
 
     return Scaffold(
       backgroundColor: AppColors.background,
       extendBody: true,
-      body: pages[_currentIndex],
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterFloat,
+      body: PageView(
+        controller: _pageController,
+        physics: const BouncingScrollPhysics(),
+        onPageChanged: (index) {
+          setState(() => _currentIndex = index);
+        },
+        children: pages,
+      ),
       bottomNavigationBar: Container(
         height: 85,
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 30),
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 25),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(40),
+          color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(38),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.5),
+            color: isDark ? Colors.white12 : Colors.white.withValues(alpha: 0.6),
             width: 1.2,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.darkGreen.withValues(alpha: 0.2),
-              blurRadius: 40,
-              offset: const Offset(0, 15),
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
               spreadRadius: 2,
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(40),
+          borderRadius: BorderRadius.circular(38),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
             child: BottomNavigationBar(
               currentIndex: _currentIndex,
-              onTap: (index) {
-                if (_currentIndex != index) {
-                  HapticFeedback.selectionClick();
-                  setState(() => _currentIndex = index);
-                  // إظهار إعلان بيني بعد اكتمال انتقال الصفحة
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    if (mounted) AdService().showInterstitialOnNavigation();
-                  });
-                }
-              },
-              selectedItemColor: AppColors.darkGreen,
-              unselectedItemColor:
-                  isDark ? Colors.white38 : AppColors.mutedText,
+              onTap: _onTabTapped,
+              selectedItemColor: AppColors.gold,
+              unselectedItemColor: isDark ? Colors.white38 : AppColors.mutedText,
               backgroundColor: Colors.transparent,
               type: BottomNavigationBarType.fixed,
               elevation: 0,
-              selectedFontSize: 11,
-              unselectedFontSize: 11,
-              selectedLabelStyle:
-                  const TextStyle(fontWeight: FontWeight.w900, height: 1.8),
-              unselectedLabelStyle:
-                  const TextStyle(fontWeight: FontWeight.w700, height: 1.8),
+              selectedFontSize: 10.5,
+              unselectedFontSize: 10.5,
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', height: 1.6),
+              unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Cairo', height: 1.6),
               items: [
                 BottomNavigationBarItem(
                   icon: Showcase(
                     key: _globalKey,
-                    title: 'الذهب العالمي',
-                    description:
-                        'تابع أسعار الذهب العالمية بالدولار لحظة بلحظة',
-                    child: const Icon(Icons.public_rounded, size: 22),
+                    title: 'home'.tr(),
+                    description: 'أسعار الذهب والعيارات المباشرة', // Could also be translated
+                    child: const Icon(Icons.home_filled, size: 21),
                   ),
-                  activeIcon: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.public_rounded, size: 26),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: const BoxDecoration(
-                          color: AppColors.gold,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  label: 'العالمي',
+                  activeIcon: _buildActiveIcon(const Icon(Icons.home_filled, size: 24, color: AppColors.gold)),
+                  label: 'home'.tr(),
                 ),
                 BottomNavigationBarItem(
                   icon: Showcase(
-                    key: _syriaKey,
-                    title: 'أسواق سوريا',
-                    description:
-                        'أسعار الذهب والعملات في السوق المحلي (الحقيقي)',
-                    child: const SyrianFlag(width: 24, height: 14),
+                    key: _marketKey,
+                    title: country.name,
+                    description: 'الأسعار والوحدات الخاصة بدولتك',
+                    child: Text(country.flag, style: const TextStyle(fontSize: 18)),
                   ),
-                  activeIcon: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SyrianFlag(width: 28, height: 18),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: const BoxDecoration(
-                          color: AppColors.gold,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  label: 'سوريا',
+                  activeIcon: _buildActiveIcon(Text(country.flag, style: const TextStyle(fontSize: 22))),
+                  label: country.name.length > 8 ? country.name.substring(0, 7) : country.name,
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(Icons.currency_exchange_rounded, size: 22),
-                  activeIcon: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.currency_exchange_rounded, size: 26),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: const BoxDecoration(
-                          color: AppColors.gold,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
+                  icon: Showcase(
+                    key: _portfolioKey,
+                    title: 'my_portfolio'.tr(),
+                    description: 'سجل سبائكك ومجوهراتك واحسب أرباحك',
+                    child: const Icon(Icons.account_balance_wallet_outlined, size: 21),
                   ),
-                  label: 'العملات',
+                  activeIcon: _buildActiveIcon(const Icon(Icons.account_balance_wallet_rounded, size: 24, color: AppColors.gold)),
+                  label: 'my_portfolio'.tr(),
                 ),
                 BottomNavigationBarItem(
                   icon: Showcase(
                     key: _calcKey,
-                    title: fourthPageMode == 'calculator' ? 'الحاسبة' : 'تركيا',
-                    description: fourthPageMode == 'calculator'
-                        ? 'احسب قيمة مدخراتك بدقة'
-                        : 'أسعار الذهب في تركيا (ليرة تركية)',
-                    child: fourthPageMode == 'calculator'
-                        ? const Icon(Icons.calculate_rounded, size: 22)
-                        : const Text('🇹🇷', style: TextStyle(fontSize: 20)),
+                    title: 'calculator'.tr(),
+                    description: 'حاسبة الزكاة والمصنعية وتحويل الأوزان',
+                    child: const Icon(Icons.calculate_outlined, size: 21),
                   ),
-                  activeIcon: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      fourthPageMode == 'calculator'
-                          ? const Icon(Icons.calculate_rounded, size: 26)
-                          : const Text('🇹🇷', style: TextStyle(fontSize: 24)),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: const BoxDecoration(
-                          color: AppColors.gold,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  label: fourthPageMode == 'calculator' ? 'الحاسبة' : 'تركيا',
+                  activeIcon: _buildActiveIcon(const Icon(Icons.calculate_rounded, size: 24, color: AppColors.gold)),
+                  label: 'calculator'.tr(),
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(Icons.contact_support_rounded, size: 22),
-                  activeIcon: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.contact_support_rounded, size: 26),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: const BoxDecoration(
-                          color: AppColors.gold,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ],
-                  ),
-                  label: 'تواصل',
+                  icon: const Icon(Icons.currency_exchange_rounded, size: 21),
+                  activeIcon: _buildActiveIcon(const Icon(Icons.currency_exchange_rounded, size: 24, color: AppColors.gold)),
+                  label: 'currencies'.tr(),
+                ),
+                BottomNavigationBarItem(
+                  icon: const Icon(Icons.more_horiz_rounded, size: 21),
+                  activeIcon: _buildActiveIcon(const Icon(Icons.more_horiz_rounded, size: 26, color: AppColors.gold)),
+                  label: 'more'.tr(),
                 ),
               ],
             ),
@@ -393,4 +341,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
     );
   }
+
+  void _onTabTapped(int index) {
+    if (_currentIndex != index) {
+      HapticFeedback.selectionClick();
+      _pageController.animateToPage(
+        index,
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeInOutCubic,
+      );
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) AdService().showInterstitialOnNavigation();
+      });
+    }
+  }
 }
+

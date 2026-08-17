@@ -1,0 +1,20 @@
+{
+  "app_name": "Gold Sham",
+  "gold": "Gold",
+  "currencies": "Currencies",
+  "calculator": "Calculator",
+  "portfolio": "Portfolio",
+  "settings": "Settings",
+  "language": "Language",
+  "dark_mode": "Dark Mode",
+  "favorites": "Favorites",
+  "smart_calculator": "Smart Calculator",
+  "price_alerts": "Price Alerts",
+  "home": "Home",
+  "buy": "Buy",
+  "sell": "Sell",
+  "last_update": "Last Update",
+  "offline_mode": "Offline Mode",
+  "more": "More",
+  "my_portfolio": "My Portfolio"
+}

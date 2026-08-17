@@ -11,6 +11,7 @@ import 'core/services/notification_service.dart'; // Updated path
 import 'core/services/ad_service.dart'; // Added AdService
 import 'package:showcaseview/showcaseview.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -18,6 +19,8 @@ import 'core/services/socket_service.dart';
 import 'core/services/http_api_service.dart';
 import 'core/services/cache_service.dart';
 import 'core/providers/settings_provider.dart';
+import 'core/providers/country_provider.dart';
+import 'core/providers/portfolio_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +33,17 @@ void main() async {
   }
 
   // Start the app immediately to prevent hanging on the native green splash
-  runApp(const GoldShamApp());
+  await EasyLocalization.ensureInitialized();
+  
+  runApp(
+    EasyLocalization(
+      supportedLocales: const [Locale('ar'), Locale('en'), Locale('tr')],
+      path: 'assets/translations',
+      fallbackLocale: const Locale('ar'),
+      startLocale: const Locale('ar'),
+      child: const GoldShamApp(),
+    ),
+  );
 
   // Initialize heavy services in the background
   _initializeBackgroundServices();
@@ -67,6 +80,12 @@ class GoldShamApp extends StatelessWidget {
         ChangeNotifierProvider<SettingsProvider>(
           create: (_) => SettingsProvider(),
         ),
+        ChangeNotifierProvider<CountryProvider>(
+          create: (_) => CountryProvider(),
+        ),
+        ChangeNotifierProvider<PortfolioProvider>(
+          create: (_) => PortfolioProvider(),
+        ),
         ChangeNotifierProxyProvider<SettingsProvider, PriceService>(
           create: (context) => PriceService(
             SocketService(),
@@ -82,16 +101,19 @@ class GoldShamApp extends StatelessWidget {
           ),
         ),
       ],
-      child: MaterialApp(
-        title: 'ذهب الشام - SHAM GOLD',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
+      child: Consumer<SettingsProvider>(
+        builder: (context, settings, _) => MaterialApp(
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          title: 'app_name'.tr(),
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: settings.themeMode,
         builder: (context, child) {
           return ShowCaseWidget(
-            builder: (context) => Directionality(
-              textDirection: TextDirection.rtl,
-              child: child!,
-            ),
+            builder: (context) => child!,
           );
         },
         initialRoute: '/',
@@ -99,6 +121,7 @@ class GoldShamApp extends StatelessWidget {
           '/': (context) => const SplashPage(),
           '/home': (context) => const HomePage(),
         },
+      ),
       ),
     );
   }

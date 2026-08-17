@@ -1,5 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -24,10 +26,53 @@ import 'package:gold_sham/features/home/presentation/widgets/watch_ad_reward_wid
 import 'package:gold_sham/features/home/presentation/widgets/quick_converter_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:gold_sham/shared/widgets/ad_banner_widget.dart';
+import 'package:gold_sham/core/providers/country_provider.dart';
+import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
+import 'package:gold_sham/features/home/presentation/widgets/social_share_sheet.dart';
+import 'package:gold_sham/features/home/presentation/widgets/interactive_market_chart.dart';
 
-class GoldPage extends StatelessWidget {
+class GoldPage extends StatefulWidget {
   final Function(int)? onNavigate;
   const GoldPage({super.key, this.onNavigate});
+
+  @override
+  State<GoldPage> createState() => _GoldPageState();
+}
+
+class _GoldPageState extends State<GoldPage> {
+  bool _isCompactView = false;
+  List<String> _preferredOrder = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isCompactView = prefs.getBool('home_compact_view') ?? false;
+      _preferredOrder = prefs.getStringList('home_karats_order') ?? [];
+    });
+  }
+
+  Future<void> _toggleCompactView() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isCompactView = !_isCompactView;
+      prefs.setBool('home_compact_view', _isCompactView);
+    });
+  }
+
+  Future<void> _saveOrder(List<String> newOrder) async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _preferredOrder = newOrder;
+      prefs.setStringList('home_karats_order', _preferredOrder);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +97,20 @@ class GoldPage extends StatelessWidget {
             p.id.trim().toLowerCase().startsWith('gold_') &&
             p.id.trim().toLowerCase().endsWith('_usd'))
         .toList();
-    globalKarats.sort((a, b) => b.buyPrice.compareTo(a.buyPrice));
+    globalKarats.sort((a, b) {
+      final order = [
+        'gold_24k_usd',
+        'gold_22k_usd',
+        'gold_21k_usd',
+        'gold_18k_usd',
+        'gold_14k_usd',
+      ];
+      final idxA = order.indexOf(a.id.toLowerCase());
+      final idxB = order.indexOf(b.id.toLowerCase());
+      final orderA = idxA >= 0 ? idxA : 999;
+      final orderB = idxB >= 0 ? idxB : 999;
+      return orderA.compareTo(orderB);
+    });
 
     final isConnected = priceService.isConnected;
     DateTime? latestUpdate = priceService.lastSyncTime;
@@ -229,6 +287,11 @@ class GoldPage extends StatelessWidget {
                 ),
               ),
               actions: [
+                _buildHeaderIcon(Icons.public, () {
+                  HapticFeedback.selectionClick();
+                  CountrySwitcherSheet.show(context);
+                }),
+                const SizedBox(width: 8),
                 _buildHeaderIcon(Icons.notifications_active_outlined, () {
                   HapticFeedback.selectionClick();
                   Navigator.push(
@@ -274,18 +337,39 @@ class GoldPage extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 160),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    // ⚠️ Offline Status Notice Banner (Shown when network is unavailable)
+                    _buildOfflineNoticeBanner(context),
+
+                    // 🌍 Top Country Banner with Auto-detect & Quick Switcher
+                    _buildTopCountryBanner(context),
+                    const SizedBox(height: 16),
+
+                    // 🏷️ Karat Filter Chips
+                    _buildKaratFilterChips(context),
+                    const SizedBox(height: 16),
+
+                    // 💎 Smart Dual-Pricing Cards Section for Selected Country
+                    _buildCountrySmartCards(context, allPrices),
+                    const SizedBox(height: 24),
+
                     if (priceService.shouldShow('homeShowNewsTicker')) ...[
                       const QuickNewsTicker(),
                       const SizedBox(height: 20),
                     ],
                     if (priceService.shouldShow('homeShowGlobalPulse')) ...[
                       _buildWelcomeCard(allPrices),
+                      const SizedBox(height: 20),
+                      InteractiveMarketChart(
+                        currentPrice: allPrices.where((p) => p.id == 'xau_usd').firstOrNull?.buyPrice ?? 2650.0,
+                        currency: 'USD',
+                        title: 'التحليل الفني والاتجاه اللحظي (XAU/USD)',
+                      ),
                       const SizedBox(height: 24),
                     ],
                     if (priceService.shouldShow('homeShowSyriaSummary')) ...[
                       SyriaSummaryCard(
                         onTap: () {
-                          if (onNavigate != null) onNavigate!(1);
+                          if (widget.onNavigate != null) widget.onNavigate!(1);
                         },
                       ),
                       const SizedBox(height: 16),
@@ -293,7 +377,7 @@ class GoldPage extends StatelessWidget {
                     if (priceService.shouldShow('homeShowTurkishSummary')) ...[
                       TurkishSummaryCard(
                         onTap: () {
-                          if (onNavigate != null) onNavigate!(3);
+                          if (widget.onNavigate != null) widget.onNavigate!(3);
                         },
                       ),
                       const SizedBox(height: 24),
@@ -304,7 +388,7 @@ class GoldPage extends StatelessWidget {
                     ],
 
                     if (globalDisplayItems.isNotEmpty) ...[
-                      _buildSectionTitle('البورصة العالمية', Icons.language),
+                      _buildSectionTitle('البورصة العالمية (سبائك وأونصات)', Icons.language),
                       _buildLocationBanners(context, 'global_gold_mid'),
                       const SizedBox(height: 10),
                       GridView.builder(
@@ -338,11 +422,29 @@ class GoldPage extends StatelessWidget {
                             size: AdSize.largeBanner,
                           ),
                         ),
-                      _buildSectionTitle(
-                          'أسعار الذهب الخام (USD)', Icons.grid_view_rounded),
-                      const SizedBox(height: 22),
-                      ...globalKarats
-                          .map((item) => _buildKaratCard(item, context)),
+                      _buildReorderableSectionTitle(),
+                      const SizedBox(height: 16),
+                      ReorderableListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        buildDefaultDragHandles: false,
+                        onReorder: (oldIndex, newIndex) {
+                          if (newIndex > oldIndex) newIndex -= 1;
+                          final newOrder = _sortKarats(globalKarats).map((e) => e.id).toList();
+                          final item = newOrder.removeAt(oldIndex);
+                          newOrder.insert(newIndex, item);
+                          _saveOrder(newOrder);
+                        },
+                        children: _sortKarats(globalKarats)
+                            .map((item) => ReorderableDragStartListener(
+                                  key: ValueKey(item.id),
+                                  index: _sortKarats(globalKarats).indexOf(item),
+                                  child: _isCompactView
+                                      ? _buildCompactListTile(item, context)
+                                      : _buildKaratCard(item, context),
+                                ))
+                            .toList(),
+                      ),
                     ] else ...[
                       const SizedBox(height: 20),
                       const PremiumCardShimmer(),
@@ -565,6 +667,120 @@ class GoldPage extends StatelessWidget {
     );
   }
 
+  List<PriceItem> _sortKarats(List<PriceItem> items) {
+    if (_preferredOrder.isEmpty) return items;
+    final sorted = List<PriceItem>.from(items);
+    sorted.sort((a, b) {
+      final indexA = _preferredOrder.indexOf(a.id);
+      final indexB = _preferredOrder.indexOf(b.id);
+      if (indexA == -1 && indexB == -1) return 0;
+      if (indexA == -1) return 1;
+      if (indexB == -1) return -1;
+      return indexA.compareTo(indexB);
+    });
+    return sorted;
+  }
+
+  Widget _buildReorderableSectionTitle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.gold.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.grid_view_rounded, color: AppColors.gold, size: 24),
+              ),
+              const SizedBox(width: 14),
+              const Text(
+                'أسعار الذهب الخام بالدولار (USD)',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.darkGreen,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  _toggleCompactView();
+                },
+                icon: Icon(
+                  _isCompactView ? Icons.view_agenda_rounded : Icons.view_headline_rounded,
+                  color: AppColors.gold,
+                ),
+                tooltip: _isCompactView ? 'عرض مفصل' : 'عرض مضغوط',
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 4,
+            width: 40,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.gold, Colors.orangeAccent],
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactListTile(PriceItem item, BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
+      ),
+      child: ListTile(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => PriceDetailPage(priceItem: item)));
+        },
+        leading: Icon(Icons.drag_indicator_rounded, color: Colors.grey.shade400),
+        title: Text(
+          item.title,
+          style: GoogleFonts.tajawal(
+            fontWeight: FontWeight.w800,
+            fontSize: 15,
+            color: AppColors.darkGreen,
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('\$ ', style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold)),
+            LivePriceWidget(
+              price: item.buyPrice,
+              currency: '',
+              style: GoogleFonts.roboto(
+                fontWeight: FontWeight.w900,
+                fontSize: 16,
+                color: AppColors.darkGreen,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -628,7 +844,7 @@ class GoldPage extends StatelessWidget {
 
   Widget _buildOunceCard(PriceItem item, BuildContext context) {
     final isGold = item.id.toLowerCase().contains('xau');
-    return InkWell(
+    return Bounceable(
       onTap: () {
         HapticFeedback.lightImpact();
         Navigator.push(
@@ -636,7 +852,6 @@ class GoldPage extends StatelessWidget {
             MaterialPageRoute(
                 builder: (_) => PriceDetailPage(priceItem: item)));
       },
-      borderRadius: BorderRadius.circular(24),
       child: Container(
         height: 160,
         padding: const EdgeInsets.all(16),
@@ -790,33 +1005,28 @@ class GoldPage extends StatelessWidget {
       default:
         icon = CustomIcon.gold24k(size: 28);
     }
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
+    return Bounceable(
+      onTap: () {
+          HapticFeedback.lightImpact();
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => PriceDetailPage(priceItem: item)));
+        },
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
           ),
-        ],
-        border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => PriceDetailPage(priceItem: item)));
-          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Row(
@@ -896,7 +1106,6 @@ class GoldPage extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -910,6 +1119,261 @@ class GoldPage extends StatelessWidget {
 
     return Column(
       children: banners.map((b) => PromotionBanner(banner: b)).toList(),
+    );
+  }
+
+  // --- 0. OFFLINE NOTICE BANNER ---
+  Widget _buildOfflineNoticeBanner(BuildContext context) {
+    final countryProvider = Provider.of<CountryProvider>(context);
+    if (!countryProvider.isOffline) return const SizedBox.shrink();
+
+    final lastSync = countryProvider.lastOfflineSyncTime;
+    final lastSyncText = lastSync != null
+        ? '${lastSync.hour.toString().padLeft(2, '0')}:${lastSync.minute.toString().padLeft(2, '0')}'
+        : 'سابقاً';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF3C7),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF59E0B), width: 1.2),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.wifi_off_rounded, color: Color(0xFFB45309), size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'أنت في وضع عدم الاتصال • يتم عرض آخر أسعار مسجلة ($lastSyncText)',
+              style: const TextStyle(
+                color: Color(0xFF92400E),
+                fontWeight: FontWeight.w800,
+                fontSize: 11.5,
+                fontFamily: 'Cairo',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 1. TOP COUNTRY BANNER & SWITCHER ---
+  Widget _buildTopCountryBanner(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final countryProvider = Provider.of<CountryProvider>(context);
+    final country = countryProvider.selectedCountry;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF131B2E) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.gold.withValues(alpha: 0.4), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.gold.withValues(alpha: 0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Text(country.flag, style: const TextStyle(fontSize: 26)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'سوق ${country.name}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 15,
+                        color: isDark ? Colors.white : AppColors.primaryText,
+                        fontFamily: 'Cairo',
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.gold.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        country.currencySymbol,
+                        style: const TextStyle(
+                          color: AppColors.gold,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'العيار الافتراضي: ${country.defaultKarat}K • تسعير محلي وعالمي',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.mutedText,
+                    fontFamily: 'Cairo',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  SocialShareSheet.show(context);
+                },
+                icon: const Icon(Icons.share_rounded, size: 20, color: AppColors.gold),
+                tooltip: 'مشاركة النشرة كصورة',
+                visualDensity: VisualDensity.compact,
+              ),
+              const SizedBox(width: 4),
+              ElevatedButton.icon(
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  CountrySwitcherSheet.show(context);
+                },
+                icon: const Icon(Icons.tune_rounded, size: 15, color: Colors.white),
+                label: const Text(
+                  'تغيير',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 11.5),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.darkGreen,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  elevation: 0,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 2. KARAT FILTER CHIPS ---
+  Widget _buildKaratFilterChips(BuildContext context) {
+    final countryProvider = Provider.of<CountryProvider>(context);
+    final selectedKarat = countryProvider.selectedKaratFilter;
+
+    final filterOptions = [
+      {'key': 'all', 'label': 'جميع العيارات ✨'},
+      {'key': '24', 'label': 'عيار 24'},
+      {'key': '22', 'label': 'عيار 22'},
+      {'key': '21', 'label': 'عيار 21 ⭐'},
+      {'key': '18', 'label': 'عيار 18'},
+      {'key': 'silver', 'label': 'الفضة 🥈'},
+    ];
+
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: filterOptions.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final opt = filterOptions[index];
+          final isSelected = selectedKarat == opt['key'] || (selectedKarat.isEmpty && opt['key'] == 'all');
+
+          return ChoiceChip(
+            label: Text(
+              opt['label']!,
+              style: TextStyle(
+                fontFamily: 'Cairo',
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                color: isSelected ? Colors.white : AppColors.mutedText,
+              ),
+            ),
+            selected: isSelected,
+            selectedColor: AppColors.gold,
+            backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E293B) : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(
+                color: isSelected ? AppColors.gold : const Color(0xFFE2E8F0),
+                width: 1,
+              ),
+            ),
+            onSelected: (bool selected) {
+              if (selected) {
+                HapticFeedback.selectionClick();
+                countryProvider.setKaratFilter(opt['key']!);
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  // --- 3. DUAL-PRICING SMART CARDS FOR SELECTED COUNTRY ---
+  Widget _buildCountrySmartCards(BuildContext context, List<PriceItem> allPrices) {
+    final countryProvider = Provider.of<CountryProvider>(context);
+    final country = countryProvider.selectedCountry;
+    final selectedKarat = countryProvider.selectedKaratFilter;
+    final marketData = countryProvider.currentMarketData;
+
+    final List<dynamic> marketItems = (marketData != null && marketData['items'] != null)
+        ? marketData['items']
+        : [];
+
+    if (marketItems.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Filter items based on selected karat
+    final filteredItems = marketItems.where((item) {
+      if (selectedKarat == 'all') return true;
+      final k = (item['karat'] ?? '').toString();
+      final metal = (item['metalType'] ?? '').toString();
+      if (selectedKarat == 'silver') return metal.contains('silver');
+      return k == selectedKarat;
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('أسعار الذهب المباشرة (${country.name})', Icons.auto_graph_rounded),
+        const SizedBox(height: 12),
+        ...filteredItems.map((item) {
+          final priceItem = PriceItem(
+            id: item['id'] ?? '',
+            title: item['title'] ?? '',
+            buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
+            sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+            currency: item['currency'] ?? country.currencySymbol,
+            metalType: item['metalType'] ?? 'gold',
+          );
+
+          final isFeatured = item['karat'] == country.defaultKarat || item['isPopular'] == true;
+
+          return CompactPriceCard(
+            priceItem: priceItem,
+            localPrice: (item['buyPrice'] as num?)?.toDouble(),
+            localCurrencySymbol: item['currency'] ?? country.currencySymbol,
+            usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+            isFeatured: isFeatured,
+          );
+        }),
+      ],
     );
   }
 }

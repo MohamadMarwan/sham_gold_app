@@ -8,6 +8,7 @@ import '../../core/services/socket_service.dart';
 import '../../core/services/http_api_service.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/providers/settings_provider.dart';
+import '../../core/services/smart_alert_service.dart';
 
 enum RefreshStatus { success, connectionError, serverError }
 
@@ -93,7 +94,17 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _appState = state;
-    if (state == AppLifecycleState.resumed) {
+    
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.hidden) {
+      debugPrint('App in background: Disconnecting Socket to save resources');
+      if (_socketService.isConnected) {
+        _socketService.socket.disconnect();
+      }
+    } else if (state == AppLifecycleState.resumed) {
+      debugPrint('App resumed: Reconnecting Socket');
+      if (!_socketService.isConnected) {
+        _socketService.socket.connect();
+      }
       refreshPrices(manual: false);
     }
   }
@@ -123,6 +134,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
     currentPrices = prices;
     lastSyncTime = DateTime.now();
+    
+    // Process real-time price rules for smart alerts
+    SmartAlertService().processPriceUpdates(prices);
+
     if (saveData && originalJson != null) {
       _cacheService.saveToCache('cached_prices', json.encode(originalJson));
     }
@@ -222,7 +237,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<bool> createAlert(String deviceToken, String priceId, double targetPrice, String condition) async {
     try {
-      final response = await _httpApiService.post('/api/alerts', {
+      await _httpApiService.post('/api/alerts', {
         'deviceToken': deviceToken,
         'priceId': priceId,
         'targetPrice': targetPrice,

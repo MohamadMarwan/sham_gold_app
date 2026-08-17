@@ -1,0 +1,20 @@
+{
+  "app_name": "Gold Sham",
+  "gold": "Altın",
+  "currencies": "Döviz",
+  "calculator": "Hesap Makinesi",
+  "portfolio": "Portföy",
+  "settings": "Ayarlar",
+  "language": "Dil",
+  "dark_mode": "Karanlık Mod",
+  "favorites": "Favoriler",
+  "smart_calculator": "Akıllı Hesap Makinesi",
+  "price_alerts": "Fiyat Uyarıları",
+  "home": "Ana Sayfa",
+  "buy": "Alış",
+  "sell": "Satış",
+  "last_update": "Son Güncelleme",
+  "offline_mode": "Çevrimdışı Mod",
+  "more": "Daha Fazla",
+  "my_portfolio": "Portföyüm"
+}

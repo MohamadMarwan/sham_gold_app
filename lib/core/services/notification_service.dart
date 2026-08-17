@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'http_api_service.dart';
 
 // ✅ دالة معالجة الإشعارات في الخلفية (يجب أن تكون خارج الكلاس)
 @pragma('vm:entry-point')
@@ -89,10 +91,34 @@ class NotificationService {
     // 5. التسجيل في موضوع عام (Topic) لتتمكن من إرسال إشعارات للكل من لوحة التحكم
     await _firebaseMessaging.subscribeToTopic('all');
 
-    // 6. الحصول على الـ Token (للشرح أو التجربة)
-    if (kDebugMode) {
-      String? token = await _firebaseMessaging.getToken();
-      debugPrint('🔑 FCM Token: $token');
+    // 6. الحصول على الـ Token وإرساله للخادم
+    String? token = await _firebaseMessaging.getToken();
+    if (token != null) {
+      if (kDebugMode) {
+        debugPrint('🔑 FCM Token: $token');
+      }
+      _sendTokenToBackend(token);
+    }
+    
+    _firebaseMessaging.onTokenRefresh.listen((newToken) {
+      _sendTokenToBackend(newToken);
+    });
+  }
+
+  static Future<void> _sendTokenToBackend(String token) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastToken = prefs.getString('last_fcm_token');
+      
+      // Send only if it's new or changed
+      if (lastToken != token) {
+        final api = HttpApiService();
+        await api.post('/api/alerts/register-token', {'token': token});
+        await prefs.setString('last_fcm_token', token);
+        debugPrint('✅ FCM Token sent to backend');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Failed to send FCM token to backend: $e');
     }
   }
 

@@ -1,7 +1,7 @@
 name: gold_sham
 description: Gold Sham Mobile Application for Price Display
 publish_to: 'none'
-version: 1.0.0+204
+version: 1.0.0+205
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.18.1
+  intl: ^0.20.2
   provider: ^6.0.5
   cupertino_icons: ^1.0.6
   socket_io_client: ^2.0.3
@@ -20,6 +20,7 @@ dependencies:
   fl_chart: ^0.66.0
   shimmer: ^3.0.0
   shared_preferences: ^2.2.2
+  easy_localization: ^3.0.5
   firebase_core: ^3.8.0
   firebase_messaging: ^15.1.3
   flutter_local_notifications: ^18.0.1
@@ -33,6 +34,8 @@ dependencies:
   facebook_audience_network: ^1.0.1
   app_tracking_transparency: ^2.0.4
   flutter_dotenv: ^6.0.1
+  flutter_bounceable: ^1.2.0
+  syncfusion_flutter_charts: ^34.2.3
 
 dependency_overrides:
   sqflite: 2.4.0
@@ -60,4 +63,5 @@ flutter:
   assets:
     - assets/icons/
     - assets/logo.png
+    - assets/translations/
     - .env

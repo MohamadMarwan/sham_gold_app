@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/price_chart_widget.dart';
+import '../../../../features/home/presentation/widgets/candlestick_chart_widget.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../../shared/widgets/price_alert_dialog.dart';
@@ -377,7 +378,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
             _buildErrorState()
           else
           RepaintBoundary(
-            child: PriceChartWidget(
+            child: CandlestickChartWidget(
               history: historyPoints,
               title: '',
               range: selectedRange,

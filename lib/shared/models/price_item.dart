@@ -19,7 +19,7 @@ class PriceItem {
     required this.buyPrice,
     required this.sellPrice,
     required this.currency,
-    required this.trend,
+    this.trend = Trend.stable,
     required this.metalType,
     this.changePercentage = 0.0,
     this.externalId,

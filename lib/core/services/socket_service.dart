@@ -1,5 +1,4 @@
-﻿import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 import '../config/app_config.dart';
 import 'http_api_service.dart';
