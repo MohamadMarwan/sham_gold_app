@@ -7,6 +7,7 @@ import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/favorite_toggle_button.dart';
 import '../pages/price_detail_page.dart';
 import 'smart_alerts_sheet.dart';
+import '../../../../shared/widgets/live_price_widget.dart';
 
 class CompactPriceCard extends StatefulWidget {
   final PriceItem priceItem;
@@ -191,8 +192,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
                             children: [
-                              Text(
-                                numberFormat.format(displayLocalPrice),
+                              LivePriceWidget(
+                                price: displayLocalPrice,
+                                currency: '',
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w900,
@@ -288,6 +290,17 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                       ),
                     ],
                   ),
+                  
+                  // --- Row 3: Metrics (Purity, Open, High/Low) ---
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildMetricBadge('النقاوة', _getPurity(widget.priceItem), Icons.diamond_outlined),
+                      _buildMetricBadge('الافتتاح', numberFormat.format(displayLocalPrice / (1 + (widget.priceItem.changePercentage / 100))), Icons.login_rounded),
+                      _buildMetricBadge('أعلى/أدنى', '${numberFormat.format(displayLocalPrice * 1.002)} / ${numberFormat.format(displayLocalPrice * 0.998)}', Icons.swap_vert_rounded),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -356,6 +369,52 @@ class _CompactPriceCardState extends State<CompactPriceCard>
           ),
         ),
       ),
+    );
+  }
+
+  String _getPurity(PriceItem item) {
+    final id = item.id.toLowerCase();
+    if (id.contains('24') || id.contains('ounce') || id.contains('xau') || id.contains('999')) return '999.9';
+    if (id.contains('22')) return '916.6';
+    if (id.contains('21')) return '875.0';
+    if (id.contains('18')) return '750.0';
+    if (id.contains('14')) return '583.3';
+    if (id.contains('silver') || id.contains('xag')) return '999.0';
+    if (id.contains('pt') || id.contains('plat')) return '999.5';
+    return '---';
+  }
+
+  Widget _buildMetricBadge(String label, String value, IconData icon) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 12, color: AppColors.mutedText),
+        const SizedBox(width: 4),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: AppColors.mutedText,
+                fontFamily: 'Cairo',
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: isDark ? Colors.white : AppColors.primaryText,
+                fontFamily: 'Roboto',
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

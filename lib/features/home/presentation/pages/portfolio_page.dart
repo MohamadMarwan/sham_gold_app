@@ -205,27 +205,29 @@ class PortfolioPage extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Add Asset Button
-                ElevatedButton.icon(
-                  onPressed: () {
-                    HapticFeedback.mediumImpact();
-                    _showAddAssetSheet(context, country);
-                  },
-                  icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 20),
-                  label: const Text(
-                    'إضافة سبيكة أو مجوهرات للمحفظة',
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                      color: Colors.white,
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      _showAddAssetSheet(context, country);
+                    },
+                    icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 20),
+                    label: const Text(
+                      'إضافة سبيكة أو مجوهرات للمحفظة',
+                      style: TextStyle(
+                        fontFamily: 'Cairo',
+                        fontWeight: FontWeight.w900,
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.darkGreen,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    elevation: 4,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.darkGreen,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      elevation: 4,
+                    ),
                   ),
                 ),
 

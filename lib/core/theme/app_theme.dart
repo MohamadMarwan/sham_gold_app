@@ -116,7 +116,6 @@ class AppTheme {
           foregroundColor: isDark ? AppColors.majlisGreen : Colors.white,
           elevation: 8,
           shadowColor: AppColors.gold.withValues(alpha: 0.2),
-          minimumSize: const Size(double.infinity, 58),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),

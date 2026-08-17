@@ -101,11 +101,12 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
         _socketService.socket.disconnect();
       }
     } else if (state == AppLifecycleState.resumed) {
-      debugPrint('App resumed: Reconnecting Socket');
-      if (!_socketService.isConnected) {
+      debugPrint('App resumed: Forcing Socket Reconnection and refresh');
+      _socketService.socket.disconnect();
+      Future.delayed(const Duration(milliseconds: 100), () {
         _socketService.socket.connect();
-      }
-      refreshPrices(manual: false);
+      });
+      refreshPrices(manual: true);
     }
   }
 

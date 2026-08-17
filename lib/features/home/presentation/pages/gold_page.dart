@@ -31,6 +31,7 @@ import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
 import 'package:gold_sham/features/home/presentation/widgets/social_share_sheet.dart';
 import 'package:gold_sham/features/home/presentation/widgets/interactive_market_chart.dart';
+import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
 
 class GoldPage extends StatefulWidget {
   final Function(int)? onNavigate;
@@ -415,6 +416,7 @@ class _GoldPageState extends State<GoldPage> {
                       const SizedBox(height: 24),
                     ],
                     if (globalKarats.isNotEmpty) ...[
+                      const SilverPlatinumBanner(),
                       if (priceService.shouldShow('homeShowGlobalPricesAdBanner'))
                         const Padding(
                           padding: EdgeInsets.only(top: 10, bottom: 24),

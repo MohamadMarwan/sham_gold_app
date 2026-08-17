@@ -18,6 +18,7 @@ import 'follow_us_page.dart';
 import 'price_detail_page.dart';
 import 'splash_page.dart';
 import '../../../../core/services/ad_service.dart';
+import 'bullions_coins_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -231,7 +232,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         },
       ),
       _buildCountrySpecificMarketPage(country),
-      const PortfolioPage(),
+      const BullionsCoinsPage(),
       const SmartCalculatorsPage(),
       const CurrenciesPage(),
       const FollowUsPage(),
@@ -307,12 +308,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 BottomNavigationBarItem(
                   icon: Showcase(
                     key: _portfolioKey,
-                    title: 'my_portfolio'.tr(),
-                    description: 'سجل سبائكك ومجوهراتك واحسب أرباحك',
-                    child: const Icon(Icons.account_balance_wallet_outlined, size: 21),
+                    title: 'السبائك والليرات',
+                    description: 'أسعار السبائك والليرات الذهبية',
+                    child: const Icon(Icons.diamond_outlined, size: 21),
                   ),
-                  activeIcon: _buildActiveIcon(const Icon(Icons.account_balance_wallet_rounded, size: 24, color: AppColors.gold)),
-                  label: 'my_portfolio'.tr(),
+                  activeIcon: _buildActiveIcon(const Icon(Icons.diamond_rounded, size: 24, color: AppColors.gold)),
+                  label: 'السبائك',
                 ),
                 BottomNavigationBarItem(
                   icon: Showcase(

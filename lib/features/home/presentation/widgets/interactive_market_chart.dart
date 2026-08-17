@@ -5,7 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 
-enum ChartInterval { day, week, month, year, fiveYears }
+enum ChartInterval { thirtyMin, day, week, month }
 
 class InteractiveMarketChart extends StatefulWidget {
   final double currentPrice;
@@ -54,6 +54,11 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
     double trendFactor = 0.015;
 
     switch (_selectedInterval) {
+      case ChartInterval.thirtyMin:
+        pointsCount = 30;
+        volatility = 0.001;
+        trendFactor = 0.002;
+        break;
       case ChartInterval.day:
         pointsCount = 24;
         volatility = 0.004;
@@ -68,16 +73,6 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
         pointsCount = 30;
         volatility = 0.025;
         trendFactor = 0.035;
-        break;
-      case ChartInterval.year:
-        pointsCount = 24;
-        volatility = 0.08;
-        trendFactor = 0.18;
-        break;
-      case ChartInterval.fiveYears:
-        pointsCount = 30;
-        volatility = 0.15;
-        trendFactor = 0.45;
         break;
     }
 
@@ -184,11 +179,10 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              _buildIntervalChip(ChartInterval.thirtyMin, '30 دقيقة'),
               _buildIntervalChip(ChartInterval.day, '24 ساعة'),
               _buildIntervalChip(ChartInterval.week, 'أسبوع'),
               _buildIntervalChip(ChartInterval.month, 'شهر'),
-              _buildIntervalChip(ChartInterval.year, 'سنة'),
-              _buildIntervalChip(ChartInterval.fiveYears, '5 سنوات'),
             ],
           ),
 

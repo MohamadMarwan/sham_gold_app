@@ -17,8 +17,8 @@ class SmartCalculatorsPage extends StatefulWidget {
   State<SmartCalculatorsPage> createState() => _SmartCalculatorsPageState();
 }
 
-class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
+  int? _selectedCalculatorIndex;
 
   // Controllers - Zakat
   final _zakat24Controller = TextEditingController();
@@ -65,12 +65,6 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> with Single
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        HapticFeedback.selectionClick();
-      }
-    });
 
     _savingsService.initialize().then((_) {
       if (mounted) setState(() {});
@@ -104,7 +98,6 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> with Single
 
   @override
   void dispose() {
-    _tabController.dispose();
     _zakat24Controller.dispose();
     _zakat21Controller.dispose();
     _zakat18Controller.dispose();
@@ -134,71 +127,230 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> with Single
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            expandedHeight: 180,
-            pinned: true,
-            backgroundColor: AppColors.darkGreen,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
-              titlePadding: const EdgeInsets.only(bottom: 60),
-              title: const Text(
-                'الآلات الحاسبة الذكية',
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontFamily: 'Cairo',
-                  shadows: [Shadow(color: Colors.black54, blurRadius: 12)],
-                ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
-                child: const Center(
-                  child: PremiumLogo(size: 100, isBackground: true),
-                ),
+      body: _selectedCalculatorIndex == null
+          ? _buildHub(isDark)
+          : _buildSelectedCalculator(isDark, country),
+    );
+  }
+
+  Widget _buildHub(bool isDark) {
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverAppBar(
+          expandedHeight: 180,
+          pinned: true,
+          backgroundColor: AppColors.darkGreen,
+          elevation: 0,
+          flexibleSpace: FlexibleSpaceBar(
+            centerTitle: true,
+            titlePadding: const EdgeInsets.only(bottom: 20),
+            title: const Text(
+              'الآلات الحاسبة الذكية',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                fontSize: 22,
+                fontFamily: 'Cairo',
+                shadows: [Shadow(color: Colors.black54, blurRadius: 12)],
               ),
             ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(54),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  labelColor: AppColors.gold,
-                  unselectedLabelColor: isDark ? Colors.white60 : AppColors.mutedText,
-                  indicatorColor: AppColors.gold,
-                  indicatorWeight: 3,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', fontSize: 13),
-                  tabs: const [
-                    Tab(text: 'حاسبة الزكاة ⚖️'),
-                    Tab(text: 'المصنعية والكسر 💎'),
-                    Tab(text: 'محول الأوزان 🔄'),
-                    Tab(text: 'العائد الاستثماري 📈'),
-                    Tab(text: 'مخطط الادخار 🎯'),
-                  ],
-                ),
+            background: Container(
+              decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
+              child: const Center(
+                child: PremiumLogo(size: 100, isBackground: true),
               ),
             ),
           ),
-        ],
-        body: TabBarView(
-          controller: _tabController,
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _buildCalculatorCard(
+                title: 'حاسبة الزكاة',
+                subtitle: 'احسب النصاب والزكاة المستحقة على الذهب والفضة بسهولة',
+                icon: Icons.scale_rounded,
+                color: const Color(0xFF10B981),
+                onTap: () => setState(() => _selectedCalculatorIndex = 0),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 16),
+              _buildCalculatorCard(
+                title: 'حاسبة المصنعية والكسر',
+                subtitle: 'التكلفة الإجمالية للقطع الجديدة وتقدير سعر الكسر',
+                icon: Icons.diamond_rounded,
+                color: const Color(0xFFF59E0B),
+                onTap: () => setState(() => _selectedCalculatorIndex = 1),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 16),
+              _buildCalculatorCard(
+                title: 'محول الأوزان',
+                subtitle: 'تحويل سريع بين الأونصة والغرام والليرات والمثقال',
+                icon: Icons.swap_horiz_rounded,
+                color: const Color(0xFF3B82F6),
+                onTap: () => setState(() => _selectedCalculatorIndex = 2),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 16),
+              _buildCalculatorCard(
+                title: 'حاسبة العائد الاستثماري',
+                subtitle: 'مقارنة سعر الشراء بالسعر الحالي لمعرفة نسبة الأرباح',
+                icon: Icons.trending_up_rounded,
+                color: const Color(0xFF8B5CF6),
+                onTap: () => setState(() => _selectedCalculatorIndex = 3),
+                isDark: isDark,
+              ),
+              const SizedBox(height: 16),
+              _buildCalculatorCard(
+                title: 'مخطط الادخار',
+                subtitle: 'ضع هدفاً للادخار بالذهب وتتبع خطتك نحو تحقيقه',
+                icon: Icons.track_changes_rounded,
+                color: const Color(0xFFEC4899),
+                onTap: () => setState(() => _selectedCalculatorIndex = 4),
+                isDark: isDark,
+              ),
+            ]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCalculatorCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            )
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Row(
           children: [
-            _buildZakatTab(isDark, country),
-            _buildMakingAndScrapTab(isDark, country),
-            _buildUnitConverterTab(isDark),
-            _buildRoiTab(isDark, country),
-            _buildSavingsGoalTab(isDark, country),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 32, color: color),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : AppColors.darkGreen,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.mutedText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.mutedText, size: 16),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSelectedCalculator(bool isDark, dynamic country) {
+    Widget content;
+    String title;
+
+    switch (_selectedCalculatorIndex) {
+      case 0:
+        title = 'حاسبة الزكاة ⚖️';
+        content = _buildZakatTab(isDark, country);
+        break;
+      case 1:
+        title = 'المصنعية والكسر 💎';
+        content = _buildMakingAndScrapTab(isDark, country);
+        break;
+      case 2:
+        title = 'محول الأوزان 🔄';
+        content = _buildUnitConverterTab(isDark);
+        break;
+      case 3:
+        title = 'العائد الاستثماري 📈';
+        content = _buildRoiTab(isDark, country);
+        break;
+      case 4:
+        title = 'مخطط الادخار 🎯';
+        content = _buildSavingsGoalTab(isDark, country);
+        break;
+      default:
+        content = const SizedBox();
+        title = '';
+    }
+
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
+          decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  setState(() => _selectedCalculatorIndex = null);
+                },
+              ),
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'Cairo',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 48), // Balance the icon button
+            ],
+          ),
+        ),
+        Expanded(child: content),
+      ],
     );
   }
 
