@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/core/services/ad_service.dart';
 
@@ -97,7 +98,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
 
   Widget _buildTitle(bool isActive) {
     return Text(
-      isActive ? 'أنت الآن في الوضع المميّز' : 'شاهد إعلان واحصل على مكافأة',
+      isActive ? 'premium_active'.tr() : 'watch_ad_reward'.tr(),
       style: const TextStyle(
         fontWeight: FontWeight.w900,
         fontSize: 18,
@@ -111,8 +112,8 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
     if (isActive) {
       return Column(
         children: [
-          const Text(
-            'استمتع بالتطبيق بدون إعلانات بانر نهائياً',
+          Text(
+            'no_banner_ads'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.darkGreen,
@@ -133,7 +134,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
                 const Icon(Icons.timer_outlined, color: Colors.white, size: 14),
                 const SizedBox(width: 8),
                 Text(
-                  'المتبقي: ${_adService.remainingRewardTime}',
+                  'remaining_time'.tr(args: [_adService.remainingRewardTime]),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 14,
@@ -148,8 +149,8 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
       );
     }
 
-    return const Text(
-      'قم بمشاهدة إعلان واحد قصير لتفعيل ميزة "منع الإعلانات" في كافة صفحات التطبيق لمدة نصف ساعة كاملة',
+    return Text(
+      'watch_ad_desc'.tr(),
       textAlign: TextAlign.center,
       style: TextStyle(
         color: AppColors.secondaryText,
@@ -184,9 +185,9 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
               if (mounted) {
                 setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
-                        'تم تفعيل المكافأة! استمتع بنصف ساعة بدون إعلانات 🎁',
+                        'reward_activated'.tr(),
                         textAlign: TextAlign.right,
                         style: TextStyle(fontFamily: 'Cairo')),
                     backgroundColor: Colors.green,
@@ -198,9 +199,9 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
             onAdFailed: () {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text(
-                        'لا يوجد إعلان متاح حالياً. يرجى المحاولة لاحقاً ⏳',
+                        'no_ad_available'.tr(),
                         textAlign: TextAlign.right,
                         style: TextStyle(fontFamily: 'Cairo')),
                     backgroundColor: Colors.orange,
@@ -219,14 +220,14 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 0,
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.play_circle_fill_rounded, size: 22),
-            SizedBox(width: 12),
+            const Icon(Icons.play_circle_fill_rounded, size: 22),
+            const SizedBox(width: 12),
             Text(
-              'شاهد الآن وفعل المكافأة',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+              'watch_and_activate'.tr(),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
             ),
           ],
         ),

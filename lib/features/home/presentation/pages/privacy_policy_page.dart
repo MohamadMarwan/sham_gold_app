@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class PrivacyPolicyPage extends StatelessWidget {
@@ -22,8 +23,8 @@ class PrivacyPolicyPage extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'سياسة الخصوصية',
+              title: Text(
+                'privacy_policy'.tr(),
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
@@ -53,24 +54,24 @@ class PrivacyPolicyPage extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildSection('مقدمة',
-                    'نحن في "غولد شام" نلتزم بحماية خصوصية بياناتك. توضح هذه السياسة كيفية جمعنا واستخدامنا وحماية معلوماتك الشخصية عند استخدامك لتطبيقنا.'),
-                _buildSection('المعلومات التي نجمعها',
-                    'نقوم بجمع الحد الأدنى من البيانات اللازمة لتشغيل التطبيق، مثل معرف الجهاز لتلقي التنبيهات، وتفضيلاتك (المفضلة) التي تُحفظ محلياً أو لغرض المزامنة.'),
-                _buildSection('كيفية استخدام البيانات',
-                    'نستخدم البيانات لتحسين تجربة المستخدم، إرسال تنبيهات الأسعار الفورية، وتحليل أداء التطبيق لضمان تقديم أفضل خدمة.'),
-                _buildSection('مشاركة البيانات',
-                    'نحن لا نبيع أو نشارك معلوماتك الشخصية مع أطراف ثالثة لأغراض تسويقية. يتم استخدام البيانات فقط ضمن إطار خدمات التطبيق.'),
-                _buildSection('حماية البيانات',
-                    'نستخدم تقنيات تشفير ومعايير أمنية متقدمة لحماية بياناتك من الوصول غير المصرح به.'),
-                _buildSection('التغييرات في السياسة',
-                    'قد نقوم بتحديث سياسة الخصوصية من وقت لآخر. سيتم إخطارك بأي تغييرات جوهرية عبر التطبيق.'),
-                _buildSection('اتصل بنا',
-                    'إذا كان لديك أي استفسار حول سياسة الخصوصية، يمكنك التواصل معنا عبر قنوات التواصل الرسمية المتاحة في التطبيق.'),
+                _buildSection('auto_str_360'.tr(),
+                    'auto_str_009'.tr()),
+                _buildSection('auto_str_145'.tr(),
+                    'auto_str_006'.tr()),
+                _buildSection('auto_str_138'.tr(),
+                    'auto_str_013'.tr()),
+                _buildSection('auto_str_228'.tr(),
+                    'auto_str_012'.tr()),
+                _buildSection('auto_str_242'.tr(),
+                    'auto_str_025'.tr()),
+                _buildSection('auto_str_151'.tr(),
+                    'auto_str_022'.tr()),
+                _buildSection('auto_str_311'.tr(),
+                    'auto_str_014'.tr()),
                 const SizedBox(height: 50),
                 const Center(
                   child: Text(
-                    'آخر تحديث: يناير 2026',
+                    'auto_str_143'.tr(),
                     style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                   ),
                 ),

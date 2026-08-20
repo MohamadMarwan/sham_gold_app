@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/models/country_model.dart';
@@ -54,7 +55,7 @@ class CountryMarketPage extends StatelessWidget {
                     Text(country.flag, style: const TextStyle(fontSize: 22)),
                     const SizedBox(width: 8),
                     Text(
-                      'سوق ${country.name}',
+                      'market_of'.tr(args: [country.name.tr()]),
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
@@ -82,7 +83,7 @@ class CountryMarketPage extends StatelessWidget {
                     SocialShareSheet.show(context, forcedCountry: country);
                   },
                   icon: const Icon(Icons.share_rounded, color: AppColors.gold, size: 20),
-                  tooltip: 'مشاركة النشرة كصورة',
+                  tooltip: 'share_bulletin_image'.tr(),
                 ),
                 TextButton.icon(
                   onPressed: () {
@@ -90,9 +91,9 @@ class CountryMarketPage extends StatelessWidget {
                     CountrySwitcherSheet.show(context);
                   },
                   icon: const Icon(Icons.swap_horiz_rounded, color: AppColors.gold, size: 18),
-                  label: const Text(
-                    'تغيير',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 12),
+                  label: Text(
+                    'change_country'.tr(),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 12),
                   ),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -175,7 +176,7 @@ class CountryMarketPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'الأسعار الرسمية والمحلية بـ (${country.currencySymbol})',
+                                'official_local_prices'.tr(args: [country.currencySymbol]),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 14,
@@ -185,7 +186,7 @@ class CountryMarketPage extends StatelessWidget {
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'العيار الأكثر طلباً: عيار ${country.defaultKarat} • التحديث لحظي ومباشر',
+                                'default_karat_info'.tr(args: [country.defaultKarat.toString()]),
                                 style: const TextStyle(
                                   fontSize: 11,
                                   color: AppColors.mutedText,
@@ -206,7 +207,7 @@ class CountryMarketPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'عيارات الذهب ووحدات السوق (${country.name})',
+                        'karats_and_units'.tr(args: [country.name.tr()]),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
@@ -240,6 +241,7 @@ class CountryMarketPage extends StatelessWidget {
                         sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
                         currency: item['currency'] ?? country.currencySymbol,
                         metalType: item['metalType'] ?? 'gold',
+                        usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
                       );
 
                       return CompactPriceCard(
@@ -259,7 +261,7 @@ class CountryMarketPage extends StatelessWidget {
                           const Icon(Icons.stars_rounded, color: AppColors.gold, size: 20),
                           const SizedBox(width: 8),
                           Text(
-                            'وحدات السوق المخصصة',
+                            'auto_str_168'.tr(),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w900,

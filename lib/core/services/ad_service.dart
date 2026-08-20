@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -270,67 +271,10 @@ class AdService {
             _rewardedRetryAttempts++;
             int delay = _rewardedRetryAttempts * 30;
             Future.delayed(Duration(seconds: delay), () => loadRewardedAd());
-            debugPrint('🔄 Retrying Rewarded Ad in $delay seconds...');
-          }
-        },
-      ),
-    );
-  }
-
-  void showInterstitialAd(
-      {Function? onAdDismissed, bool ignoreReward = false}) {
-    // Suppress ads if reward is active, unless explicitly ignored (e.g., clicking the reward button itself)
-    if (isRewardActive && !ignoreReward) {
-      onAdDismissed?.call();
-      return;
-    }
-
-    if (_isShowingAd) {
-      onAdDismissed?.call();
-      return;
-    }
-
-    if (!_isInterstitialAdLoaded || _interstitialAd == null) {
-      onAdDismissed?.call();
-      loadInterstitialAd(); // Try for next time
-      return;
-    }
-
-    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) {
-        _isShowingAd = true;
-      },
-      onAdDismissedFullScreenContent: (ad) {
-        _isShowingAd = false;
-        ad.dispose();
-        _isInterstitialAdLoaded = false;
-        loadInterstitialAd(); // Preload next
-        onAdDismissed?.call();
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        _isShowingAd = false;
-        ad.dispose();
-        _isInterstitialAdLoaded = false;
-        loadInterstitialAd();
-        onAdDismissed?.call();
-      },
-    );
-
-    _interstitialAd!.show();
-  }
-
-  /// الطريقة الأساسية: تعرض الإعلان البيني عند التنقل بين الصفحات.
-  /// تتجاوز تلقائياً إذا كان الإعلان غير محمّل أو الإعدادات تمنعه.
-  void showInterstitialOnNavigation({bool force = false}) {
-    debugPrint(
-      '🧭 showInterstitialOnNavigation → '
+            debugPrint('🔄 Retrying Rewarded Ad in $delay seconds...'auto_str_002'.tr()🧭 showInterstitialOnNavigation → '
       'enabled=$_isEnabled | showOnPageChange=$_showOnPageChange | '
       'loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | '
-      'rewardActive=$isRewardActive | interstitialId=$_interstitialId | force=$force'
-    );
-
-    // لا نعرض الإعلان إذا:
-    if (kIsWeb) { debugPrint('⛔ Web platform — skip'); return; }
+      'rewardActive=$isRewardActive | interstitialId=$_interstitialId | force=$force'auto_str_029'.tr()⛔ Web platform — skip'); return; }
     if (!_isEnabled) { debugPrint('⛔ Ads disabled (_isEnabled=false)'); return; }
     if (isRewardActive) { debugPrint('⛔ Reward is active'); return; }
     if (_isShowingAd) { debugPrint('⛔ Another ad is already showing'); return; }
@@ -352,73 +296,7 @@ class AdService {
     if (_isInterstitialAdLoaded && _interstitialAd != null) {
       showInterstitialAd();
     } else {
-      debugPrint('⚠️ Interstitial not ready — requesting load for next time');
-      loadInterstitialAd();
-    }
-  }
-
-  void showRewardedAd(
-      {required Function onRewardEarned,
-      Function? onAdDismissed,
-      Function? onAdFailed}) {
-    if (_isShowingAd) {
-      onAdFailed?.call();
-      return;
-    }
-
-    if (!_isRewardedAdLoaded || _rewardedAd == null) {
-      // إن لم يتوفر إعلان مكافأة، نحاول عرض إعلان بيني كبديل
-      if (_isInterstitialAdLoaded && _interstitialAd != null) {
-        showInterstitialAd(
-          ignoreReward: true,
-          onAdDismissed: () {
-            onRewardEarned();
-            onAdDismissed?.call();
-          },
-        );
-      } else {
-        // لا يوجد إعلان مكافأة ولا إعلان بيني جاهز
-        onAdFailed?.call();
-      }
-      return;
-    }
-
-    _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) {
-        _isShowingAd = true;
-      },
-      onAdDismissedFullScreenContent: (ad) {
-        _isShowingAd = false;
-        ad.dispose();
-        _isRewardedAdLoaded = false;
-        loadRewardedAd();
-        onAdDismissed?.call();
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        _isShowingAd = false;
-        ad.dispose();
-        _isRewardedAdLoaded = false;
-        loadRewardedAd();
-        onAdDismissed?.call();
-      },
-    );
-
-    _rewardedAd!.show(onUserEarnedReward: (ad, reward) {
-      onRewardEarned();
-    });
-  }
-
-  /// Loads App Open Ad — requires _isEnabled=true (use after backend settings arrive)
-  void loadAppOpenAd() {
-    if (_appOpenId == null || _appOpenId!.trim().isEmpty || !_isEnabled || kIsWeb) return;
-    _loadAppOpenAdBypass();
-  }
-
-  /// Loads App Open Ad bypassing the _isEnabled flag.
-  /// Use only at startup before backend settings are fetched.
-  void _loadAppOpenAdBypass() {
-    if (_appOpenId == null || _appOpenId!.trim().isEmpty || kIsWeb) return;
-    debugPrint('📡 Loading App Open Ad: $_appOpenId');
+      debugPrint('⚠️ Interstitial not ready — requesting load for next time'auto_str_001'.tr()📡 Loading App Open Ad: $_appOpenId');
 
     AppOpenAd.load(
       adUnitId: _appOpenId!,

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -76,7 +77,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       if (data is Map) {
         _notificationController.add(Map<String, dynamic>.from(data));
       } else {
-        _notificationController.add({'title': 'إشعار جديد', 'body': data.toString()});
+        _notificationController.add({'title': 'auto_str_280'.tr(), 'body': data.toString()});
       }
     });
 

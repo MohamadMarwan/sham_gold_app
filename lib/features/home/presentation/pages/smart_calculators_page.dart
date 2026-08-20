@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/services/calculators_service.dart';
@@ -145,9 +146,9 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
           flexibleSpace: FlexibleSpaceBar(
             centerTitle: true,
             titlePadding: const EdgeInsets.only(bottom: 20),
-            title: const Text(
-              'الآلات الحاسبة الذكية',
-              style: TextStyle(
+            title: Text(
+              'smart_calculators'.tr(),
+              style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 color: Colors.white,
                 fontSize: 22,
@@ -168,8 +169,8 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               _buildCalculatorCard(
-                title: 'حاسبة الزكاة',
-                subtitle: 'احسب النصاب والزكاة المستحقة على الذهب والفضة بسهولة',
+                title: 'zakat_calculator'.tr(),
+                subtitle: 'zakat_calculator_desc'.tr(),
                 icon: Icons.scale_rounded,
                 color: const Color(0xFF10B981),
                 onTap: () => setState(() => _selectedCalculatorIndex = 0),
@@ -177,8 +178,8 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               ),
               const SizedBox(height: 16),
               _buildCalculatorCard(
-                title: 'حاسبة المصنعية والكسر',
-                subtitle: 'التكلفة الإجمالية للقطع الجديدة وتقدير سعر الكسر',
+                title: 'making_charge_calculator'.tr(),
+                subtitle: 'making_charge_desc'.tr(),
                 icon: Icons.diamond_rounded,
                 color: const Color(0xFFF59E0B),
                 onTap: () => setState(() => _selectedCalculatorIndex = 1),
@@ -186,8 +187,8 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               ),
               const SizedBox(height: 16),
               _buildCalculatorCard(
-                title: 'محول الأوزان',
-                subtitle: 'تحويل سريع بين الأونصة والغرام والليرات والمثقال',
+                title: 'weight_converter'.tr(),
+                subtitle: 'weight_converter_desc'.tr(),
                 icon: Icons.swap_horiz_rounded,
                 color: const Color(0xFF3B82F6),
                 onTap: () => setState(() => _selectedCalculatorIndex = 2),
@@ -195,8 +196,8 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               ),
               const SizedBox(height: 16),
               _buildCalculatorCard(
-                title: 'حاسبة العائد الاستثماري',
-                subtitle: 'مقارنة سعر الشراء بالسعر الحالي لمعرفة نسبة الأرباح',
+                title: 'roi_calculator'.tr(),
+                subtitle: 'roi_calculator_desc'.tr(),
                 icon: Icons.trending_up_rounded,
                 color: const Color(0xFF8B5CF6),
                 onTap: () => setState(() => _selectedCalculatorIndex = 3),
@@ -204,8 +205,8 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               ),
               const SizedBox(height: 16),
               _buildCalculatorCard(
-                title: 'مخطط الادخار',
-                subtitle: 'ضع هدفاً للادخار بالذهب وتتبع خطتك نحو تحقيقه',
+                title: 'auto_str_269'.tr(),
+                subtitle: 'auto_str_040'.tr(),
                 icon: Icons.track_changes_rounded,
                 color: const Color(0xFFEC4899),
                 onTap: () => setState(() => _selectedCalculatorIndex = 4),
@@ -295,23 +296,23 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
 
     switch (_selectedCalculatorIndex) {
       case 0:
-        title = 'حاسبة الزكاة ⚖️';
+        title = 'auto_str_225'.tr();
         content = _buildZakatTab(isDark, country);
         break;
       case 1:
-        title = 'المصنعية والكسر 💎';
+        title = 'auto_str_183'.tr();
         content = _buildMakingAndScrapTab(isDark, country);
         break;
       case 2:
-        title = 'محول الأوزان 🔄';
+        title = 'auto_str_244'.tr();
         content = _buildUnitConverterTab(isDark);
         break;
       case 3:
-        title = 'العائد الاستثماري 📈';
+        title = 'auto_str_159'.tr();
         content = _buildRoiTab(isDark, country);
         break;
       case 4:
-        title = 'مخطط الادخار 🎯';
+        title = 'auto_str_245'.tr();
         content = _buildSavingsGoalTab(isDark, country);
         break;
       default:
@@ -370,16 +371,16 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoBanner(
-            title: 'نصاب الذهب الشرعي: 85 غرام (عيار 24)',
-            subtitle: 'يتم احتساب زكاة الذهب بنسبة 2.5% بعد تحويل كافة العيارات إلى ما يعادلها من الذهب الخالص.',
+            title: 'auto_str_054'.tr(),
+            subtitle: 'auto_str_021'.tr(),
           ),
           const SizedBox(height: 16),
-          _buildInputField('وزن ذهب عيار 24 (غرام)', _zakat24Controller, isDark),
-          _buildInputField('وزن ذهب عيار 21 (غرام)', _zakat21Controller, isDark),
-          _buildInputField('وزن ذهب عيار 18 (غرام)', _zakat18Controller, isDark),
-          _buildInputField('وزن الفضة الخالصة (غرام)', _zakatSilverController, isDark),
+          _buildInputField('auto_str_142'.tr(), _zakat24Controller, isDark),
+          _buildInputField('auto_str_141'.tr(), _zakat21Controller, isDark),
+          _buildInputField('auto_str_140'.tr(), _zakat18Controller, isDark),
+          _buildInputField('auto_str_121'.tr(), _zakatSilverController, isDark),
           SwitchListTile.adaptive(
-            title: const Text('احتساب ذهب الزينة والحلية المستعملة', style: TextStyle(fontFamily: 'Cairo', fontSize: 13, fontWeight: FontWeight.bold)),
+            title: const Text('auto_str_056'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 13, fontWeight: FontWeight.bold)),
             value: _includeJewelry,
             activeThumbColor: AppColors.gold,
             onChanged: (val) => setState(() => _includeJewelry = val),
@@ -413,18 +414,18 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('احسب الزكاة المستحقة', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: const Text('auto_str_149'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_zakatResult != null) ...[
             const SizedBox(height: 18),
             _buildResultCard(
-              title: _zakatResult!['isGoldNisabReached'] ? 'بلغ النصاب الشرعي ✅' : 'لم يبلغ النصاب الشرعي ❌',
+              title: _zakatResult!['isGoldNisabReached'] ? 'auto_str_161'.tr() : 'auto_str_129'.tr(),
               items: [
-                {'label': 'الوزن المكافئ لعيار 24', 'value': '${(_zakatResult!['totalEquivalent24k'] as double).toStringAsFixed(2)} غرام'},
-                {'label': 'إجمالي القيمة التقديرية', 'value': '${numberFormat.format(_zakatResult!['goldTotalValue'])} ${country.currencySymbol}'},
-                {'label': 'مقدار الزكاة الواجبة (غرام)', 'value': '${(_zakatResult!['goldZakatGrams'] as double).toStringAsFixed(2)} غرام 24K'},
-                {'label': 'قيمة الزكاة النقدية المستحقة', 'value': '${numberFormat.format(_zakatResult!['totalZakatDue'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_136'.tr(), 'value': '${(_zakatResult!['totalEquivalent24k'auto_str_050'.tr()},
+                {'label': 'auto_str_122'.tr(), 'value': '${numberFormat.format(_zakatResult!['goldTotalValue'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_104'.tr(), 'value': '${(_zakatResult!['goldZakatGrams'auto_str_044'.tr()},
+                {'label': 'auto_str_092'.tr(), 'value': '${numberFormat.format(_zakatResult!['totalZakatDue'])} ${country.currencySymbol}'},
               ],
               isHighlight: _zakatResult!['isGoldNisabReached'],
             ),
@@ -445,14 +446,14 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoBanner(
-            title: 'حاسبة أجور الصياغة (المصنعية) وشراء الذهب الجديد',
-            subtitle: 'احسب السعر الإجمالي للقطعة مع المصنعية والضريبة بدقة قبل الذهاب للصائغ.',
+            title: 'auto_str_034'.tr(),
+            subtitle: 'auto_str_027'.tr(),
           ),
           const SizedBox(height: 16),
-          _buildInputField('وزن القطعة (غرام)', _itemWeightController, isDark),
+          _buildInputField('auto_str_194'.tr(), _itemWeightController, isDark),
           _buildInputField('سعر غرام الذهب الخام (${country.currencySymbol})', _goldGramPriceController, isDark),
           _buildInputField('أجرة المصنعية للغرام الواحد (${country.currencySymbol})', _makingChargeController, isDark),
-          _buildInputField('نسبة ضريبة القيمة المضافة VAT %', _vatPercentController, isDark),
+          _buildInputField('auto_str_079'.tr(), _vatPercentController, isDark),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -477,31 +478,31 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('احسب التكلفة الإجمالية للقطعة', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: const Text('auto_str_084'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_makingResult != null) ...[
             const SizedBox(height: 18),
             _buildResultCard(
-              title: 'تفاصيل فاتورة الشراء 🛍️',
+              title: 'auto_str_127'.tr(),
               items: [
-                {'label': 'قيمة الذهب الصافي', 'value': '${numberFormat.format(_makingResult!['rawGoldCost'])} ${country.currencySymbol}'},
-                {'label': 'إجمالي أجور الصياغة', 'value': '${numberFormat.format(_makingResult!['totalMakingCharge'])} ${country.currencySymbol}'},
-                {'label': 'نسبة المصنعية من السعر', 'value': '${(_makingResult!['makingRatio'] as double).toStringAsFixed(1)}%'},
-                {'label': 'السعر الإجمالي النهائي للقطعة', 'value': '${numberFormat.format(_makingResult!['totalCost'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_192'.tr(), 'value': '${numberFormat.format(_makingResult!['rawGoldCost'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_158'.tr(), 'value': '${numberFormat.format(_makingResult!['totalMakingCharge'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_139'.tr(), 'value': '${(_makingResult!['makingRatio'] as double).toStringAsFixed(1)}%'},
+                {'label': 'auto_str_086'.tr(), 'value': '${numberFormat.format(_makingResult!['totalCost'])} ${country.currencySymbol}'},
               ],
               isHighlight: true,
             ),
           ],
           const Divider(height: 36),
           _buildInfoBanner(
-            title: 'حاسبة بيع الذهب المستعمل (ذهب الكسر)',
-            subtitle: 'احسب المبلغ الصافي الذي ستحصل عليه عند بيع ذهبك القديم بعد خصم وزن الفصوص.',
+            title: 'auto_str_052'.tr(),
+            subtitle: 'auto_str_026'.tr(),
           ),
           const SizedBox(height: 16),
-          _buildInputField('الوزن الإجمالي للذهب المستعمل (غرام)', _scrapWeightController, isDark),
+          _buildInputField('auto_str_051'.tr(), _scrapWeightController, isDark),
           _buildInputField('سعر شراء الكسر للغرام (${country.currencySymbol})', _scrapPriceController, isDark),
-          _buildInputField('خصم وزن الفصوص والخرز (غرام إن وجد)', _stoneDeductionController, isDark),
+          _buildInputField('auto_str_059'.tr(), _stoneDeductionController, isDark),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -524,16 +525,16 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('احسب صافي قيمة البيع', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: const Text('auto_str_150'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_scrapResult != null) ...[
             const SizedBox(height: 18),
             _buildResultCard(
-              title: 'مستحقات البيع الصافية 💰',
+              title: 'auto_str_130'.tr(),
               items: [
-                {'label': 'الوزن الصافي للذهب', 'value': '${(_scrapResult!['netWeight'] as double).toStringAsFixed(2)} غرام'},
-                {'label': 'المبلغ النقدي المستحق لك', 'value': '${numberFormat.format(_scrapResult!['totalPayout'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_171'.tr(), 'value': '${(_scrapResult!['netWeight'auto_str_050'.tr()},
+                {'label': 'auto_str_117'.tr(), 'value': '${numberFormat.format(_scrapResult!['totalPayout'])} ${country.currencySymbol}'},
               ],
               isHighlight: false,
             ),
@@ -552,15 +553,15 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoBanner(
-            title: 'محول أوزان المعادن الثمينة والليرات',
-            subtitle: 'تحويل فوري وشامل بين الأونصة العالمية، الغرام، التولة الهندية، المثقال الخليجي/العراقي والليرات الذهبية.',
+            title: 'auto_str_060'.tr(),
+            subtitle: 'auto_str_016'.tr(),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 flex: 3,
-                child: _buildInputField('الكمية', _convertAmountController, isDark),
+                child: _buildInputField('auto_str_339'.tr(), _convertAmountController, isDark),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -571,19 +572,19 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                     initialValue: _fromUnit,
                     dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                     decoration: InputDecoration(
-                      labelText: 'الوحدة الأصلية',
+                      labelText: 'auto_str_238'.tr(),
                       filled: true,
                       fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'gram', child: Text('غرام (g)', style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'ounce', child: Text('أونصة (31.1g)', style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'tola', child: Text('تولة (11.66g)', style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'mithqal', child: Text('مثقال (5g)', style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'english', child: Text('ليرة إنجليزية (8g)', style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'rashadi', child: Text('ليرة رشادية (7g)', style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'kilo', child: Text('كيلوغرام (1000g)', style: TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'gram', child: Text('auto_str_319'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'ounce', child: Text('auto_str_247'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'tola', child: Text('auto_str_254'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'mithqal', child: Text('auto_str_297'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'english', child: Text('auto_str_176'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'rashadi', child: Text('auto_str_209'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'kilo', child: Text('auto_str_208'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
                     ],
                     onChanged: (val) {
                       if (val != null) {
@@ -610,21 +611,21 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('تحويل لجميع الوحدات', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: const Text('auto_str_162'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_conversionResult != null) ...[
             const SizedBox(height: 18),
             _buildResultCard(
-              title: 'الوزن المعادل في كافة الوحدات ⚖️',
+              title: 'auto_str_070'.tr(),
               items: [
-                {'label': 'بالغرام', 'value': '${_conversionResult!['gram']!.toStringAsFixed(3)} غرام'},
-                {'label': 'بالأونصة الترويسية (Oz)', 'value': '${_conversionResult!['ounce']!.toStringAsFixed(4)} أونصة'},
-                {'label': 'بالمثقال', 'value': '${_conversionResult!['mithqal']!.toStringAsFixed(3)} مثقال'},
-                {'label': 'بالتولة (Tola)', 'value': '${_conversionResult!['tola']!.toStringAsFixed(3)} تولة'},
-                {'label': 'بالليرات الإنجليزية (8g)', 'value': '${_conversionResult!['english']!.toStringAsFixed(2)} ليرة'},
-                {'label': 'بالليرات الرشادية / العثمانية (7g)', 'value': '${_conversionResult!['rashadi']!.toStringAsFixed(2)} ليرة'},
-                {'label': 'بالكيلوغرام', 'value': '${_conversionResult!['kilo']!.toStringAsFixed(5)} كغ'},
+                {'label': 'auto_str_333'.tr(), 'value': '${_conversionResult!['gram'auto_str_097'.tr()},
+                {'label': 'auto_str_126'.tr(), 'value': '${_conversionResult!['ounce'auto_str_089'.tr()},
+                {'label': 'auto_str_316'.tr(), 'value': '${_conversionResult!['mithqal'auto_str_088'.tr()},
+                {'label': 'auto_str_239'.tr(), 'value': '${_conversionResult!['tola'auto_str_096'.tr()},
+                {'label': 'auto_str_118'.tr(), 'value': '${_conversionResult!['english'auto_str_095'.tr()},
+                {'label': 'auto_str_063'.tr(), 'value': '${_conversionResult!['rashadi'auto_str_095'.tr()},
+                {'label': 'auto_str_274'.tr(), 'value': '${_conversionResult!['kilo'auto_str_107'.tr()},
               ],
               isHighlight: true,
             ),
@@ -645,13 +646,13 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoBanner(
-            title: 'حاسبة العائد الاستثماري على الذهب',
-            subtitle: 'احسب نسبة أرباحك وعائد استثمارك بمقارنة سعر الشراء السابق مع سعر السوق الحي الحالي.',
+            title: 'auto_str_064'.tr(),
+            subtitle: 'auto_str_023'.tr(),
           ),
           const SizedBox(height: 16),
           _buildInputField('إجمالي رأس المال المستثمر (${country.currencySymbol})', _investmentAmountController, isDark),
-          _buildInputField('سعر غرام الذهب وقت الشراء', _buyPriceRoiController, isDark),
-          _buildInputField('سعر غرام الذهب الحالي', _currentPriceRoiController, isDark),
+          _buildInputField('auto_str_110'.tr(), _buyPriceRoiController, isDark),
+          _buildInputField('auto_str_146'.tr(), _currentPriceRoiController, isDark),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -674,18 +675,18 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('احسب الأرباح ومعدل ROI %', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: const Text('auto_str_113'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_roiResult != null) ...[
             const SizedBox(height: 18),
             _buildResultCard(
-              title: _roiResult!['isProfit'] ? 'استثمار رابح 🚀' : 'خسارة غير محققة 📉',
+              title: _roiResult!['isProfit'] ? 'auto_str_231'.tr() : 'auto_str_186'.tr(),
               items: [
-                {'label': 'كمية الذهب المشتراة', 'value': '${(_roiResult!['gramsBought'] as double).toStringAsFixed(2)} غرام'},
-                {'label': 'القيمة الإجمالية الحالية', 'value': '${numberFormat.format(_roiResult!['currentValue'])} ${country.currencySymbol}'},
-                {'label': 'صافي الربح / الخسارة', 'value': '${numberFormat.format(_roiResult!['netProfit'])} ${country.currencySymbol}'},
-                {'label': 'معدل العائد على الاستثمار', 'value': '${(_roiResult!['roiPercent'] as double).toStringAsFixed(2)}%'},
+                {'label': 'auto_str_167'.tr(), 'value': '${(_roiResult!['gramsBought'auto_str_050'.tr()},
+                {'label': 'auto_str_116'.tr(), 'value': '${numberFormat.format(_roiResult!['currentValue'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_155'.tr(), 'value': '${numberFormat.format(_roiResult!['netProfit'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_112'.tr(), 'value': '${(_roiResult!['roiPercent'] as double).toStringAsFixed(2)}%'},
               ],
               isHighlight: _roiResult!['isProfit'],
             ),
@@ -712,8 +713,8 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoBanner(
-            title: 'مخطط أهداف الادخار بالذهب (Gold Savings & DCA Planner)',
-            subtitle: 'خطط لمستقبلك بالذهب وحقق أهدافك المالية (زواج، شراء سيارة، عقار أو تقاعد) باحتساب خطة الشراء التراكمي شهرياً وأسبوعياً.',
+            title: 'auto_str_031'.tr(),
+            subtitle: 'auto_str_010'.tr(),
           ),
           const SizedBox(height: 16),
 
@@ -729,7 +730,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  '1. محاكي وخطة الادخار المستقبلي',
+                  'auto_str_072'.tr(),
                   style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', fontSize: 15, color: AppColors.gold),
                 ),
                 const SizedBox(height: 12),
@@ -739,7 +740,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                   children: [
                     Expanded(
                       child: ChoiceChip(
-                        label: const Center(child: Text('الهدف بالغرامات ⚖️', style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold))),
+                        label: const Center(child: Text('auto_str_169'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold))),
                         selected: _isGoalTargetInGrams,
                         selectedColor: AppColors.gold.withValues(alpha: 0.2),
                         onSelected: (val) => setState(() => _isGoalTargetInGrams = true),
@@ -759,24 +760,24 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 const SizedBox(height: 12),
 
                 _buildInputField(
-                  _isGoalTargetInGrams ? 'الكمية المستهدفة (غرام)' : 'المبلغ المستهدف (${country.currencySymbol})',
+                  _isGoalTargetInGrams ? 'auto_str_125'.tr() : 'المبلغ المستهدف (${country.currencySymbol})',
                   _goalTargetAmountController,
                   isDark,
                 ),
 
-                _buildInputField('ما تملكه حالياً من الذهب كبداية (غرام)', _goalInitialSavedController, isDark),
+                _buildInputField('auto_str_049'.tr(), _goalInitialSavedController, isDark),
 
                 // Duration Selector
-                const Text('المدة الزمنية لتحقيق الهدف:', style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.mutedText)),
+                const Text('auto_str_098'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.mutedText)),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDurationChip(6, '6 أشهر'),
-                    _buildDurationChip(12, 'سنة واحدة'),
-                    _buildDurationChip(24, 'سنتين'),
-                    _buildDurationChip(36, '3 سنوات'),
-                    _buildDurationChip(60, '5 سنوات'),
+                    _buildDurationChip(6, 'auto_str_336'.tr()),
+                    _buildDurationChip(12, 'auto_str_306'.tr()),
+                    _buildDurationChip(24, 'auto_str_355'.tr()),
+                    _buildDurationChip(36, 'auto_str_323'.tr()),
+                    _buildDurationChip(60, 'auto_str_324'.tr()),
                   ],
                 ),
 
@@ -805,7 +806,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
-                    child: const Text('احسب خطة الادخار التراكمي (DCA)', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+                    child: const Text('auto_str_076'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
                   ),
                 ),
               ],
@@ -816,13 +817,13 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
           if (_savingsPlanResult != null) ...[
             const SizedBox(height: 18),
             _buildResultCard(
-              title: 'خطة استقطاع الادخار الذكية 🎯',
+              title: 'auto_str_091'.tr(),
               items: [
-                {'label': 'الهدف الإجمالي', 'value': '${(_savingsPlanResult!['totalTargetGrams'] as double).toStringAsFixed(2)} غرام'},
-                {'label': 'الادخار الشهري المطلوب', 'value': '${(_savingsPlanResult!['monthlyGramsNeeded'] as double).toStringAsFixed(2)} غرام / شهر'},
-                {'label': 'الادخار الأسبوعي المطلوب', 'value': '${(_savingsPlanResult!['weeklyGramsNeeded'] as double).toStringAsFixed(2)} غرام / أسبوع'},
-                {'label': 'المبلغ الشهري التقديري', 'value': '${numberFormat.format(_savingsPlanResult!['monthlyCostEstimate'])} ${country.currencySymbol}'},
-                {'label': 'القيمة المتوقعة مع نمو الذهب (~8% سنوياً)', 'value': '${numberFormat.format(_savingsPlanResult!['futureTargetValue'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_237'.tr(), 'value': '${(_savingsPlanResult!['totalTargetGrams'auto_str_050'.tr()},
+                {'label': 'auto_str_132'.tr(), 'value': '${(_savingsPlanResult!['monthlyGramsNeeded'auto_str_042'.tr()},
+                {'label': 'auto_str_114'.tr(), 'value': '${(_savingsPlanResult!['weeklyGramsNeeded'auto_str_039'.tr()},
+                {'label': 'auto_str_134'.tr(), 'value': '${numberFormat.format(_savingsPlanResult!['monthlyCostEstimate'])} ${country.currencySymbol}'},
+                {'label': 'auto_str_046'.tr(), 'value': '${numberFormat.format(_savingsPlanResult!['futureTargetValue'])} ${country.currencySymbol}'},
               ],
               isHighlight: true,
             ),
@@ -832,7 +833,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               child: OutlinedButton.icon(
                 onPressed: () => _showCreateGoalDialog(context, gram24, country),
                 icon: const Icon(Icons.bookmark_add_rounded, color: AppColors.gold),
-                label: const Text('حفظ كهدف ادخاري ومتابعة الإنجاز 📌', style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontFamily: 'Cairo')),
+                label: const Text('auto_str_065'.tr(), style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontFamily: 'Cairo')),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.gold, width: 1.5),
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -860,7 +861,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               IconButton(
                 icon: const Icon(Icons.add_circle_rounded, color: AppColors.gold, size: 28),
                 onPressed: () => _showCreateGoalDialog(context, gram24, country),
-                tooltip: 'إضافة هدف جديد',
+                tooltip: 'auto_str_229'.tr(),
               ),
             ],
           ),
@@ -881,12 +882,12 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                     Icon(Icons.flag_rounded, size: 40, color: AppColors.gold),
                     SizedBox(height: 10),
                     Text(
-                      'لا توجد أهداف ادخار مسجلة بعد',
+                      'auto_str_087'.tr(),
                       style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Cairo', fontSize: 14),
                     ),
                     SizedBox(height: 4),
                     Text(
-                      'اضغط على زر + أو احسب خطتك أعلاه لحفظ أول هدف لك!',
+                      'auto_str_033'.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(color: AppColors.mutedText, fontFamily: 'Cairo', fontSize: 12),
                     ),
@@ -1015,7 +1016,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isCompleted ? '🎉 مبروك! تم تحقيق الهدف بالكامل' : 'المتبقي: ${goal.remainingGrams.toStringAsFixed(1)} غرام',
+                isCompleted ? 'auto_str_080'.tr() : 'المتبقي: ${goal.remainingGrams.toStringAsFixed(1)} غرام',
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w800,
@@ -1027,7 +1028,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 ElevatedButton.icon(
                   onPressed: () => _showAddGramsDialog(context, goal),
                   icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-                  label: const Text('+ إضافة ادخار', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11, fontFamily: 'Cairo')),
+                  label: const Text('auto_str_246'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11, fontFamily: 'Cairo')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkGreen,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -1043,7 +1044,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
   }
 
   void _showCreateGoalDialog(BuildContext context, double currentGoldPrice, dynamic country) {
-    final titleCtrl = TextEditingController(text: _goalTitleController.text.isNotEmpty ? _goalTitleController.text : 'ادخار الذهب للهدف');
+    final titleCtrl = TextEditingController(text: _goalTitleController.text.isNotEmpty ? _goalTitleController.text : 'auto_str_180'.tr());
     final gramsCtrl = TextEditingController(text: _savingsPlanResult != null ? (_savingsPlanResult!['totalTargetGrams'] as double).toStringAsFixed(1) : '50');
     final initialCtrl = TextEditingController(text: _goalInitialSavedController.text);
 
@@ -1051,26 +1052,26 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('إنشاء هدف ادخاري جديد 🎯', style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.w900, fontSize: 16)),
+        title: const Text('auto_str_123'.tr(), style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.w900, fontSize: 16)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'اسم الهدف (مثال: للزواج 💍)', labelStyle: TextStyle(fontFamily: 'Cairo')),
+                decoration: const InputDecoration(labelText: 'auto_str_105'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: gramsCtrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'الهدف الإجمالي (غرام ذهب)', labelStyle: TextStyle(fontFamily: 'Cairo')),
+                decoration: const InputDecoration(labelText: 'auto_str_109'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: initialCtrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'المدخر الحالي كبداية (غرام)', labelStyle: TextStyle(fontFamily: 'Cairo')),
+                decoration: const InputDecoration(labelText: 'auto_str_099'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
               ),
             ],
           ),
@@ -1078,13 +1079,13 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('إلغاء', style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
+            child: const Text('auto_str_349'.tr(), style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
           ),
           ElevatedButton(
             onPressed: () {
               final targetG = double.tryParse(gramsCtrl.text) ?? 50.0;
               final currentG = double.tryParse(initialCtrl.text) ?? 0.0;
-              final title = titleCtrl.text.isNotEmpty ? titleCtrl.text : 'ادخار الذهب';
+              final title = titleCtrl.text.isNotEmpty ? titleCtrl.text : 'auto_str_272'.tr();
 
               final newGoal = SavingsGoalModel(
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -1104,14 +1105,14 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               Navigator.pop(ctx);
               setState(() {});
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم حفظ الهدف الادخاري بنجاح! 🎯', style: TextStyle(fontFamily: 'Cairo')), backgroundColor: AppColors.darkGreen),
+                const SnackBar(content: Text('auto_str_083'.tr(), style: TextStyle(fontFamily: 'Cairo')), backgroundColor: AppColors.darkGreen),
               );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
-            child: const Text('حفظ الهدف', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
+            child: const Text('auto_str_302'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
           ),
         ],
       ),
@@ -1129,16 +1130,16 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('أدخل وزن الذهب الذي قمت بشرائه وإضافته لادخارك اليوم:', style: TextStyle(fontFamily: 'Cairo', fontSize: 12, color: AppColors.mutedText)),
+            const Text('auto_str_032'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, color: AppColors.mutedText)),
             const SizedBox(height: 12),
             TextField(
               controller: addCtrl,
               autofocus: true,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
-                labelText: 'الوزن المضاف (غرام)',
+                labelText: 'auto_str_160'.tr(),
                 labelStyle: TextStyle(fontFamily: 'Cairo'),
-                suffixText: 'غرام',
+                suffixText: 'auto_str_363'.tr(),
               ),
             ),
           ],
@@ -1146,7 +1147,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('إلغاء', style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
+            child: const Text('auto_str_349'.tr(), style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1159,7 +1160,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.darkGreen, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-            child: const Text('تأكيد الإضافة 💎', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
+            child: const Text('auto_str_224'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
           ),
         ],
       ),

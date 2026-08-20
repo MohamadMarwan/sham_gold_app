@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,7 +17,7 @@ class InteractiveMarketChart extends StatefulWidget {
     super.key,
     required this.currentPrice,
     this.currency = 'USD',
-    this.title = 'حركة سعر الذهب',
+    this.title = 'auto_str_241'.tr(),
   });
 
   @override
@@ -179,10 +180,10 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildIntervalChip(ChartInterval.thirtyMin, '30 دقيقة'),
-              _buildIntervalChip(ChartInterval.day, '24 ساعة'),
-              _buildIntervalChip(ChartInterval.week, 'أسبوع'),
-              _buildIntervalChip(ChartInterval.month, 'شهر'),
+              _buildIntervalChip(ChartInterval.thirtyMin, 'auto_str_307'.tr()),
+              _buildIntervalChip(ChartInterval.day, 'auto_str_322'.tr()),
+              _buildIntervalChip(ChartInterval.week, 'auto_str_347'.tr()),
+              _buildIntervalChip(ChartInterval.month, 'auto_str_379'.tr()),
             ],
           ),
 
@@ -257,11 +258,11 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildStatItem('أدنى سعر', _minPrice, numberFormat),
+              _buildStatItem('auto_str_308'.tr(), _minPrice, numberFormat),
               Container(width: 1, height: 20, color: Colors.grey.withValues(alpha: 0.2)),
-              _buildStatItem('متوسط الفترة', (_minPrice + _maxPrice) / 2, numberFormat),
+              _buildStatItem('auto_str_268'.tr(), (_minPrice + _maxPrice) / 2, numberFormat),
               Container(width: 1, height: 20, color: Colors.grey.withValues(alpha: 0.2)),
-              _buildStatItem('أعلى سعر', _maxPrice, numberFormat),
+              _buildStatItem('auto_str_310'.tr(), _maxPrice, numberFormat),
             ],
           ),
         ],
@@ -303,20 +304,20 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
   }
 
   Widget _buildSentimentBadge(double percent) {
-    String text = 'متماسك / محايد 🟡';
+    String text = 'auto_str_210'.tr();
     Color color = Colors.amber;
 
     if (percent >= 1.5) {
-      text = 'صاعد قوي 🚀';
+      text = 'auto_str_289'.tr();
       color = const Color(0xFF00E676);
     } else if (percent > 0.2) {
-      text = 'اتجاه صاعد 🟢';
+      text = 'auto_str_259'.tr();
       color = const Color(0xFF4CAF50);
     } else if (percent <= -1.5) {
-      text = 'هابط حاد 🔻';
+      text = 'auto_str_298'.tr();
       color = const Color(0xFFFF5252);
     } else if (percent < -0.2) {
-      text = 'اتجاه هابط 🔴';
+      text = 'auto_str_260'.tr();
       color = const Color(0xFFE57373);
     }
 

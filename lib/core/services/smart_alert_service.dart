@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../shared/models/price_item.dart';
+import 'http_api_service.dart';
+import 'cache_service.dart';
 
 enum AlertType { targetPrice, volatility, dipBuying }
 
@@ -106,8 +108,29 @@ class SmartAlertService extends ChangeNotifier {
         final List<dynamic> list = jsonDecode(data);
         _rules.clear();
         _rules.addAll(list.map((e) => SmartAlertRule.fromJson(e)));
-        notifyListeners();
       }
+      
+      // Fetch target alerts from server
+      final token = await CacheService().getDeviceToken();
+      final serverAlertsRaw = await HttpApiService().get('/api/alerts/$token');
+      final List<dynamic> serverAlerts = serverAlertsRaw;
+      
+      // Remove local targetPrice rules and replace with server ones
+      _rules.removeWhere((r) => r.type == AlertType.targetPrice);
+      for (var sAlert in serverAlerts) {
+        _rules.add(SmartAlertRule(
+          id: sAlert['_id'],
+          priceItemId: sAlert['priceId'],
+          title: 'تنبيه سعر ${sAlert['priceId']}',
+          type: AlertType.targetPrice,
+          targetPrice: (sAlert['targetPrice'] as num).toDouble(),
+          isAbove: sAlert['condition'] == 'above',
+          createdAt: DateTime.parse(sAlert['createdAt']),
+          isEnabled: sAlert['active'] ?? true,
+        ));
+      }
+      
+      notifyListeners();
     } catch (e) {
       debugPrint('Error loading smart alerts: $e');
     }
@@ -124,12 +147,51 @@ class SmartAlertService extends ChangeNotifier {
   }
 
   Future<void> addRule(SmartAlertRule rule) async {
-    _rules.add(rule);
+    if (rule.type == AlertType.targetPrice) {
+      try {
+        final token = await CacheService().getDeviceToken();
+        final res = await HttpApiService().post('/api/alerts', {
+          'deviceToken': token,
+          'priceId': rule.priceItemId,
+          'targetPrice': rule.targetPrice,
+          'condition': rule.isAbove ? 'above' : 'below',
+        });
+        if (res['success'] == true && res['data'] != null) {
+          final serverId = res['data']['_id'];
+          final updatedRule = SmartAlertRule(
+            id: serverId,
+            priceItemId: rule.priceItemId,
+            title: rule.title,
+            type: rule.type,
+            targetPrice: rule.targetPrice,
+            isAbove: rule.isAbove,
+            createdAt: rule.createdAt,
+            isEnabled: rule.isEnabled,
+          );
+          _rules.add(updatedRule);
+        } else {
+          _rules.add(rule); // Fallback locally if server returns false but didn't throw
+        }
+      } catch (e) {
+        debugPrint('Error creating server alert: $e');
+        _rules.add(rule);
+      }
+    } else {
+      _rules.add(rule);
+    }
     await _saveRulesToStorage();
     notifyListeners();
   }
 
   Future<void> removeRule(String id) async {
+    final rule = _rules.where((r) => r.id == id).firstOrNull;
+    if (rule != null && rule.type == AlertType.targetPrice) {
+      try {
+        await HttpApiService().delete('/api/alerts/$id');
+      } catch (e) {
+        debugPrint('Error deleting server alert: $e');
+      }
+    }
     _rules.removeWhere((r) => r.id == id);
     await _saveRulesToStorage();
     notifyListeners();
@@ -177,17 +239,7 @@ class SmartAlertService extends ChangeNotifier {
 
         switch (rule.type) {
           case AlertType.targetPrice:
-            if (rule.isAbove && item.buyPrice >= rule.targetPrice) {
-              shouldTrigger = true;
-              alertTitle = '🎯 تحقق السعر المستهدف! (${item.title})';
-              alertBody =
-                  'وصل السعر إلى ${item.buyPrice} ${item.currency} وتجاوز هدفك (${rule.targetPrice})';
-            } else if (!rule.isAbove && item.buyPrice <= rule.targetPrice) {
-              shouldTrigger = true;
-              alertTitle = '🎯 انخفاض السعر للمستهدف! (${item.title})';
-              alertBody =
-                  'هبط السعر إلى ${item.buyPrice} ${item.currency} ووصل لهدفك (${rule.targetPrice})';
-            }
+            // Handled exclusively by Backend FCM Push Notifications.
             break;
 
           case AlertType.volatility:

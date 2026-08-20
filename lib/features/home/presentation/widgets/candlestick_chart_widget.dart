@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -91,7 +92,7 @@ class _CandlestickChartWidgetState extends State<CandlestickChartWidget> {
     if (data.isEmpty) {
       return const SizedBox(
         height: 250,
-        child: Center(child: Text('لا توجد بيانات كافية')),
+        child: Center(child: Text('auto_str_156'.tr())),
       );
     }
 

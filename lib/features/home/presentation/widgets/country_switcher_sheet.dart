@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +40,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
     final filteredCountries = allCountries.where((c) {
       if (_searchQuery.isEmpty) return true;
       final q = _searchQuery.toLowerCase();
-      return c.name.toLowerCase().contains(q) ||
+      return c.name.tr().toLowerCase().contains(q) ||
           c.currencyCode.toLowerCase().contains(q) ||
           c.code.toLowerCase().contains(q);
     }).toList();
@@ -89,7 +90,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'اختر سوق الدولة',
+                        'auto_str_218'.tr(),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -98,7 +99,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
                         ),
                       ),
                       const Text(
-                        'سيتم تخصيص العملة والشاشات والأسعار وفق اختيارك',
+                        'auto_str_035'.tr(),
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,
@@ -123,7 +124,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
               controller: _searchController,
               onChanged: (val) => setState(() => _searchQuery = val),
               decoration: InputDecoration(
-                hintText: 'ابحث عن اسم الدولة أو العملة...',
+                hintText: 'auto_str_075'.tr(),
                 hintStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 13, color: AppColors.mutedText),
                 prefixIcon: const Icon(Icons.search_rounded, color: AppColors.gold),
                 filled: true,
@@ -159,7 +160,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'تم تحويل السوق إلى ${country.name} (${country.currencySymbol})',
+                            'تم تحويل السوق إلى ${country.name.tr()} (${country.currencySymbol})',
                             style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold),
                           ),
                           backgroundColor: AppColors.darkGreen,
@@ -192,7 +193,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                country.name,
+                                country.name.tr(),
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
@@ -201,7 +202,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
                                 ),
                               ),
                               Text(
-                                '${country.currencyCode} (${country.currencySymbol}) • ${country.region}',
+                                '${country.currencyCode} (${country.currencySymbol}) • ${country.region.tr()}',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,

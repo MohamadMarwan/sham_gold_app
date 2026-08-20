@@ -86,11 +86,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (mounted) {
         HapticFeedback.vibrate();
         _showProfessionalSnack(
-          title: data['title'] ?? 'تنبيه السعر',
+          title: data['title'] ?? 'alert_title'.tr(),
           body: data['body'] ?? '',
           icon: Icons.notifications_active,
           action: SnackBarAction(
-            label: 'رؤية',
+            label: 'view'.tr(),
             textColor: AppColors.gold,
             onPressed: () {
               final priceItem = priceService.currentPrices.firstWhere(
@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (mounted) {
         HapticFeedback.heavyImpact();
         _showProfessionalSnack(
-          title: data['title'] ?? 'إشعار غولد شام',
+          title: data['title'] ?? 'alert_notification'.tr(),
           body: data['body'] ?? '',
           icon: Icons.campaign_rounded,
           isBroadcast: true,
@@ -289,7 +289,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   icon: Showcase(
                     key: _globalKey,
                     title: 'home'.tr(),
-                    description: 'أسعار الذهب والعيارات المباشرة', // Could also be translated
+                    description: 'showcase_home_desc'.tr(),
                     child: const Icon(Icons.home_filled, size: 21),
                   ),
                   activeIcon: _buildActiveIcon(const Icon(Icons.home_filled, size: 24, color: AppColors.gold)),
@@ -298,28 +298,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 BottomNavigationBarItem(
                   icon: Showcase(
                     key: _marketKey,
-                    title: country.name,
-                    description: 'الأسعار والوحدات الخاصة بدولتك',
+                    title: country.name.tr(),
+                    description: 'showcase_market_desc'.tr(),
                     child: Text(country.flag, style: const TextStyle(fontSize: 18)),
                   ),
                   activeIcon: _buildActiveIcon(Text(country.flag, style: const TextStyle(fontSize: 22))),
-                  label: country.name.length > 8 ? country.name.substring(0, 7) : country.name,
+                  label: country.name.tr().length > 8 ? country.name.tr().substring(0, 7) : country.name.tr(),
                 ),
                 BottomNavigationBarItem(
                   icon: Showcase(
                     key: _portfolioKey,
-                    title: 'السبائك والليرات',
-                    description: 'أسعار السبائك والليرات الذهبية',
+                    title: 'bullions_and_coins'.tr(),
+                    description: 'showcase_bullions_desc'.tr(),
                     child: const Icon(Icons.diamond_outlined, size: 21),
                   ),
                   activeIcon: _buildActiveIcon(const Icon(Icons.diamond_rounded, size: 24, color: AppColors.gold)),
-                  label: 'السبائك',
+                  label: 'bullions'.tr(),
                 ),
                 BottomNavigationBarItem(
                   icon: Showcase(
                     key: _calcKey,
                     title: 'calculator'.tr(),
-                    description: 'حاسبة الزكاة والمصنعية وتحويل الأوزان',
+                    description: 'showcase_calc_desc'.tr(),
                     child: const Icon(Icons.calculate_outlined, size: 21),
                   ),
                   activeIcon: _buildActiveIcon(const Icon(Icons.calculate_rounded, size: 24, color: AppColors.gold)),

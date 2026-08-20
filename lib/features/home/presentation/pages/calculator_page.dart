@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/premium_logo.dart';
@@ -22,7 +23,7 @@ class CalculatorPage extends StatelessWidget {
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 80),
               title: const Text(
-                'الحاسبة الذكية',
+                'auto_str_232'.tr(),
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   color: Colors.white,

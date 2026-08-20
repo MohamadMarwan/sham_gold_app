@@ -1,7 +1,8 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
-  static const String appName = 'غولد شام';
+  static const String appName = 'auto_str_320'.tr();
 
   // Base URL for API
   // في وضع التطوير: يتصل بالخادم المحلي على localhost:3000

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -48,7 +49,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('تنبيهاتي المنشطة',
+        title: const Text('auto_str_206'.tr(),
             style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white)),
         backgroundColor: AppColors.darkGreen,
         elevation: 0,
@@ -74,7 +75,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
   }
 
   Widget _buildAlertCard(Map<String, dynamic> alert) {
-    final conditionText = alert['condition'] == 'above' ? 'أعلى من' : 'أقل من';
+    final conditionText = alert['condition'] == 'above' ? 'auto_str_326'.tr() : 'auto_str_337'.tr();
     final targetPrice = alert['targetPrice'];
     final priceId = alert['priceId'];
     final date = DateTime.parse(alert['createdAt']);
@@ -145,7 +146,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
               size: 80, color: Colors.grey[300]),
           const SizedBox(height: 20),
           const Text(
-            'لا توجد تنبيهات نشطة حالياً',
+            'auto_str_100'.tr(),
             style: TextStyle(
                 color: AppColors.mutedText,
                 fontWeight: FontWeight.bold,
@@ -153,7 +154,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
           ),
           const SizedBox(height: 8),
           const Text(
-            'اضغط على أيقونة الجرس بجانب الأسعار لضبط تنبيه',
+            'auto_str_037'.tr(),
             style: TextStyle(color: Colors.grey, fontSize: 13),
           ),
         ],

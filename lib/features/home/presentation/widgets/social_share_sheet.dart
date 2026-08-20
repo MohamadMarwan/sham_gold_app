@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -81,7 +82,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'مشاركة نشرة الأسعار الرسمية',
+                        'auto_str_103'.tr(),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -90,7 +91,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
                         ),
                       ),
                       Text(
-                        'سوق ${country.name} • تصميم فاخر عالي الدقة',
+                        'سوق ${country.name.tr()} • تصميم فاخر عالي الدقة',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,
@@ -116,8 +117,8 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
                 Expanded(
                   child: _buildFormatButton(
                     format: ShareCardFormat.square,
-                    title: 'منشور مربع (1:1)',
-                    subtitle: 'لتيليجرام، واتساب وفيسبوك',
+                    title: 'auto_str_215'.tr(),
+                    subtitle: 'auto_str_111'.tr(),
                     icon: Icons.crop_square_rounded,
                   ),
                 ),
@@ -125,8 +126,8 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
                 Expanded(
                   child: _buildFormatButton(
                     format: ShareCardFormat.story,
-                    title: 'ستوري طولي (9:16)',
-                    subtitle: 'لحالات واتساب وإنستغرام',
+                    title: 'auto_str_188'.tr(),
+                    subtitle: 'auto_str_128'.tr(),
                     icon: Icons.stay_current_portrait_rounded,
                   ),
                 ),
@@ -170,7 +171,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
                       )
                     : const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                 label: Text(
-                  _isExporting ? 'جاري توليد الصورة الفاخرة...' : 'مشاركة النشرة كصورة فورية 📲',
+                  _isExporting ? 'auto_str_090'.tr() : 'auto_str_102'.tr(),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
@@ -277,7 +278,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
       if (mounted) {
         await Share.shareXFiles(
           [xFile],
-          text: '🏆 نشرة أسعار الذهب والعملات الرسمية اليومية - تطبيق ذهب الشام\nتابع الأسعار الحية لحظة بلحظة.',
+          text: 'auto_str_020'.tr(),
         );
       }
     } catch (e) {

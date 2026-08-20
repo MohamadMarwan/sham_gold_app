@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../core/services/ad_service.dart';
@@ -55,6 +56,9 @@ class _SplashPageState extends State<SplashPage>
 
     // Wait for the App Open Ad to load, up to the dynamically configured timeout limit.
     // We check the timeout on each iteration to adapt reactively to settings loaded from cache.
+    // Wait for a minimum of 1200ms to allow splash animations and cache loading to complete
+    final startTime = DateTime.now();
+    
     int waitCount = 0;
 
     while (waitCount < (adService.appOpenTimeoutSeconds * 10)) {
@@ -71,6 +75,11 @@ class _SplashPageState extends State<SplashPage>
     if (adService.appOpenTimeoutSeconds > 0 && adService.isAppOpenAdLoaded && mounted) {
       adService.showStartupAppOpenAd(onAdDismissed: _navigateToHome);
       return; // Navigation happens after the ad is dismissed
+    }
+
+    final elapsedTime = DateTime.now().difference(startTime).inMilliseconds;
+    if (elapsedTime < 1500) {
+      await Future.delayed(Duration(milliseconds: 1500 - elapsedTime));
     }
 
     _navigateToHome();
@@ -133,7 +142,7 @@ class _SplashPageState extends State<SplashPage>
               builder: (context, snapshot) {
                 final settings = snapshot.data;
                 final logoUrl = settings?['logoUrl'] as String?;
-                final appName = settings?['appName'] as String? ?? 'غولد شام';
+                final appName = settings?['appName'] as String? ?? 'auto_str_320'.tr();
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -181,8 +190,8 @@ class _SplashPageState extends State<SplashPage>
                               border: Border.all(
                                   color: AppColors.gold.withValues(alpha: 0.3)),
                             ),
-                            child: const Text(
-                              'دليلك الأول لأسعار الذهب والعملات',
+                            child: Text(
+                              'app_tagline'.tr(),
                               style: TextStyle(
                                 fontSize: 14,
                                 color: AppColors.gold,
@@ -199,9 +208,9 @@ class _SplashPageState extends State<SplashPage>
                     // Elegant loading indicator
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: const Column(
+                      child: Column(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 35,
                             height: 35,
                             child: CircularProgressIndicator(
@@ -209,9 +218,9 @@ class _SplashPageState extends State<SplashPage>
                               strokeWidth: 3,
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
-                            'جاري تحديث البيانات اللحظية...',
+                            'loading_data'.tr(),
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 10,

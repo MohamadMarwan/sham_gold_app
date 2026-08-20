@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 
 class TermsOfServicePage extends StatelessWidget {
@@ -22,8 +23,8 @@ class TermsOfServicePage extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text(
-                'اتفاقية الاستخدام',
+              title: Text(
+                'terms_of_service'.tr(),
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
@@ -53,24 +54,24 @@ class TermsOfServicePage extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildSection('قبول الشروط',
-                    'باستخدامك لتطبيق "غولد شام"، فإنك تقر وتوافق على الالتزام بشروط وأحكام هذه الاتفاقية. إذا كنت لا توافق على هذه الشروط، يرجى عدم استخدام التطبيق.'),
-                _buildSection('طبيعة الخدمة',
-                    'التطبيق يقدم أسعار الذهب والعملات للأغراض المعلوماتية فقط. نحن نسعى لتقديم أدق البيانات، ولكن لا نتحمل مسؤولية أي قرارات مالية تُتخذ بناءً على هذه الأسعار.'),
-                _buildSection('مسؤولية المستخدم',
-                    'يتحمل المستخدم المسؤولية الكاملة عن استخدامه للتطبيق والبيانات الواردة فيه. يجب التأكد من الأسعار من المصادر الرسمية قبل إجراء أي عمليات بيع أو شراء حقيقية.'),
-                _buildSection('حقوق الملكية',
-                    'جميع المحتويات والشعارات والبرمجيات الخاصة بالتطبيق هي ملك "غولد شام" ومحمية بموجب قوانين الملكية الفكرية.'),
-                _buildSection('توافر الخدمة',
-                    'نحن نسعى لضمان توفر التطبيق على مدار الساعة، ولكن لا نضمن عدم حدوث انقطاعات تقنية خارجة عن إرادتنا.'),
-                _buildSection('التعديلات',
-                    'نحتفظ بالحق في تعديل هذه الشروط في أي وقت. استمرارك في استخدام التطبيق بعد هذه التعديلات يُعتبر قبولاً للشروط الجديدة.'),
-                _buildSection('إخلاء المسؤولية',
-                    'يتم توفير الخدمة "كما هي" دون أي ضمانات صريحة أو ضمنية. نحن لا نتحمل مسؤولية أي خسائر ناتجة عن استخدام أو عدم القدرة على استخدام التطبيق.'),
+                _buildSection('auto_str_279'.tr(),
+                    'auto_str_007'.tr()),
+                _buildSection('auto_str_267'.tr(),
+                    'auto_str_005'.tr()),
+                _buildSection('auto_str_214'.tr(),
+                    'auto_str_004'.tr()),
+                _buildSection('auto_str_263'.tr(),
+                    'auto_str_015'.tr()),
+                _buildSection('auto_str_262'.tr(),
+                    'auto_str_019'.tr()),
+                _buildSection('auto_str_300'.tr(),
+                    'auto_str_011'.tr()),
+                _buildSection('auto_str_217'.tr(),
+                    'auto_str_008'.tr()),
                 const SizedBox(height: 50),
                 const Center(
                   child: Text(
-                    'آخر تحديث: يناير 2026',
+                    'auto_str_143'.tr(),
                     style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                   ),
                 ),

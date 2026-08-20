@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gold_sham/shared/widgets/live_price_widget.dart';
@@ -49,7 +50,7 @@ class SyriaSummaryCard extends StatelessWidget {
                 const SyrianFlag(width: 24, height: 16, borderRadius: 3),
                 const SizedBox(width: 12),
                 const Text(
-                  'سوق سوريا الآن',
+                  'auto_str_243'.tr(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -63,9 +64,9 @@ class SyriaSummaryCard extends StatelessWidget {
             const SizedBox(height: 20),
             Row(
               children: [
-                _buildMetric('الدولار', usdItem.buyPrice, 'ل.س'),
+                _buildMetric('auto_str_329'.tr(), usdItem.buyPrice, 'auto_str_381'.tr()),
                 const SizedBox(width: 24),
-                _buildMetric('ذهب 21', gold21.buyPrice, 'ل.س'),
+                _buildMetric('auto_str_341'.tr(), gold21.buyPrice, 'auto_str_381'.tr()),
               ],
             ),
           ],

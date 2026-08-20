@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter/services.dart';
@@ -151,7 +152,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             ),
                             if (widget.isFeatured)
                               const Text(
-                                'العيار الأكثر تداولاً ⭐',
+                                'auto_str_124'.tr(),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -256,7 +257,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Text(
-                                  'مبيع: ',
+                                  'auto_str_343'.tr(),
                                   style: TextStyle(
                                     fontSize: 10.5,
                                     fontWeight: FontWeight.w600,
@@ -296,9 +297,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildMetricBadge('النقاوة', _getPurity(widget.priceItem), Icons.diamond_outlined),
-                      _buildMetricBadge('الافتتاح', numberFormat.format(displayLocalPrice / (1 + (widget.priceItem.changePercentage / 100))), Icons.login_rounded),
-                      _buildMetricBadge('أعلى/أدنى', '${numberFormat.format(displayLocalPrice * 1.002)} / ${numberFormat.format(displayLocalPrice * 0.998)}', Icons.swap_vert_rounded),
+                      _buildMetricBadge('auto_str_332'.tr(), _getPurity(widget.priceItem), Icons.diamond_outlined),
+                      _buildMetricBadge('auto_str_313'.tr(), numberFormat.format(displayLocalPrice / (1 + (widget.priceItem.changePercentage / 100))), Icons.login_rounded),
+                      _buildMetricBadge('auto_str_299'.tr(), '${numberFormat.format(displayLocalPrice * 1.002)} / ${numberFormat.format(displayLocalPrice * 0.998)}', Icons.swap_vert_rounded),
                     ],
                   ),
                 ],
@@ -327,13 +328,13 @@ class _CompactPriceCardState extends State<CompactPriceCard>
       label = '14K';
       badgeColor = const Color(0xFF9E9E9E);
     } else if (id.contains('silver') || id.contains('xag')) {
-      label = 'فضة';
+      label = 'auto_str_380'.tr();
       badgeColor = const Color(0xFF94A3B8);
     } else if (id.contains('ounce') || id.contains('xau')) {
-      label = 'أونصة';
+      label = 'auto_str_348'.tr();
       badgeColor = const Color(0xFF0F172A);
     } else if (id.contains('pound') || id.contains('lira')) {
-      label = 'عملة';
+      label = 'auto_str_362'.tr();
       badgeColor = const Color(0xFF059669);
     }
 

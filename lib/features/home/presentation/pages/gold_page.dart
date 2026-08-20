@@ -1,16 +1,23 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/shared/widgets/promotion_banner.dart';
 
+import 'package:gold_sham/features/home/presentation/widgets/gold_page_components/welcome_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/gold_page_components/ounce_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/gold_page_components/karat_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/gold_page_components/offline_notice_banner.dart';
+import 'package:gold_sham/features/home/presentation/widgets/gold_page_components/top_country_banner.dart';
+
 import 'package:gold_sham/shared/services/price_service.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
-import 'package:gold_sham/shared/widgets/custom_icon.dart';
+
 import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
 import 'package:gold_sham/shared/widgets/premium_logo.dart';
 import 'package:gold_sham/shared/widgets/live_price_widget.dart';
@@ -29,7 +36,7 @@ import 'package:gold_sham/shared/widgets/ad_banner_widget.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
 import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
-import 'package:gold_sham/features/home/presentation/widgets/social_share_sheet.dart';
+
 import 'package:gold_sham/features/home/presentation/widgets/interactive_market_chart.dart';
 import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
 
@@ -151,13 +158,13 @@ class _GoldPageState extends State<GoldPage> {
             }
 
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('تأكد من اتصالك بالإنترنت لتحديث الأسعار',
+              SnackBar(
+                content: Text('check_internet'.tr(),
                     textAlign: TextAlign.right,
-                    style: TextStyle(fontFamily: 'Cairo')),
+                    style: const TextStyle(fontFamily: 'Cairo')),
                 backgroundColor: Colors.redAccent,
                 behavior: SnackBarBehavior.floating,
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
               ),
             );
           }
@@ -178,7 +185,7 @@ class _GoldPageState extends State<GoldPage> {
               flexibleSpace: FlexibleSpaceBar(
                 centerTitle: true,
                 titlePadding: const EdgeInsets.only(bottom: 16),
-                title: Text('السوق العالمي',
+                title: Text('global_market'.tr(),
                     style: TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
@@ -271,8 +278,8 @@ class _GoldPageState extends State<GoldPage> {
                                 ),
                               ] else if (!isConnected) ...[
                                 const SizedBox(width: 10),
-                                const Text(
-                                  'الوضع الأوفلاين نشط',
+                                Text(
+                                  'offline_active'.tr(),
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -315,7 +322,7 @@ class _GoldPageState extends State<GoldPage> {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildSectionTitle(
-                        'جاري التحميل...', Icons.hourglass_empty),
+                        'loading'.tr(), Icons.hourglass_empty),
                     const SizedBox(height: 20),
                     const SizedBox(
                       height: 180,
@@ -339,10 +346,10 @@ class _GoldPageState extends State<GoldPage> {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     // ⚠️ Offline Status Notice Banner (Shown when network is unavailable)
-                    _buildOfflineNoticeBanner(context),
+                    const OfflineNoticeBanner(),
 
                     // 🌍 Top Country Banner with Auto-detect & Quick Switcher
-                    _buildTopCountryBanner(context),
+                    const TopCountryBanner(),
                     const SizedBox(height: 16),
 
                     // 🏷️ Karat Filter Chips
@@ -358,12 +365,12 @@ class _GoldPageState extends State<GoldPage> {
                       const SizedBox(height: 20),
                     ],
                     if (priceService.shouldShow('homeShowGlobalPulse')) ...[
-                      _buildWelcomeCard(allPrices),
+                      WelcomeCard(items: allPrices),
                       const SizedBox(height: 20),
                       InteractiveMarketChart(
                         currentPrice: allPrices.where((p) => p.id == 'xau_usd').firstOrNull?.buyPrice ?? 2650.0,
                         currency: 'USD',
-                        title: 'التحليل الفني والاتجاه اللحظي (XAU/USD)',
+                        title: 'technical_analysis'.tr(),
                       ),
                       const SizedBox(height: 24),
                     ],
@@ -389,7 +396,7 @@ class _GoldPageState extends State<GoldPage> {
                     ],
 
                     if (globalDisplayItems.isNotEmpty) ...[
-                      _buildSectionTitle('البورصة العالمية (سبائك وأونصات)', Icons.language),
+                      _buildSectionTitle('global_exchange'.tr(), Icons.language),
                       _buildLocationBanners(context, 'global_gold_mid'),
                       const SizedBox(height: 10),
                       GridView.builder(
@@ -406,7 +413,7 @@ class _GoldPageState extends State<GoldPage> {
                             ? 4
                             : globalDisplayItems.length,
                         itemBuilder: (context, index) =>
-                            _buildOunceCard(globalDisplayItems[index], context),
+                            OunceCard(item: globalDisplayItems[index]),
                       ),
                       const SizedBox(height: 8),
                     ],
@@ -443,7 +450,7 @@ class _GoldPageState extends State<GoldPage> {
                                   index: _sortKarats(globalKarats).indexOf(item),
                                   child: _isCompactView
                                       ? _buildCompactListTile(item, context)
-                                      : _buildKaratCard(item, context),
+                                      : KaratCard(item: item),
                                 ))
                             .toList(),
                       ),
@@ -462,212 +469,7 @@ class _GoldPageState extends State<GoldPage> {
     );
   }
 
-  Widget _buildWelcomeCard(List<PriceItem> items) {
-    final goldOunce = items.where((p) => p.id == 'xau_usd').firstOrNull;
-    final isUp = (goldOunce?.changePercentage ?? 0) >= 0;
-    final changePercent =
-        (goldOunce?.changePercentage ?? 0).abs().toStringAsFixed(2);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D1C16), // Dark emerald
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.35),
-          width: 1.2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            // Top Header: [Percentage] ... [Title][Live]
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // 1. Right Section: Title and Live Badge (Placed first in code, rightmost in RTL)
-                Row(
-                  children: [
-                    Text(
-                      'نبض السوق العالمي',
-                      style: GoogleFonts.tajawal(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    _buildLiveBadge(),
-                  ],
-                ),
-
-                // 2. Percentage Pill (Placed second in code, leftmost in RTL)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '$changePercent%',
-                        style: TextStyle(
-                          color: isUp ? const Color(0xFF00FF88) : Colors.red,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        isUp
-                            ? Icons.trending_up_rounded
-                            : Icons.trending_down_rounded,
-                        color: isUp ? const Color(0xFF00FF88) : Colors.red,
-                        size: 14,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-
-            // Bottom Metrics: [Liquidity] [Volatility] [Direction]
-            Row(
-              children: [
-                Expanded(
-                  child: _buildPulseMetricCard(
-                    'السيولة',
-                    'مرتفعة',
-                    Icons.water_drop_rounded,
-                    const Color(0xFF00C2FF),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildPulseMetricCard(
-                    'التذبذب',
-                    'مستقر',
-                    Icons.bolt_rounded,
-                    const Color(0xFFFFD700),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildPulseMetricCard(
-                    'الاتجاه',
-                    isUp ? 'صعود' : 'هبوط',
-                    isUp ? Icons.north_east_rounded : Icons.south_east_rounded,
-                    isUp ? const Color(0xFF00FF88) : Colors.redAccent,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLiveBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: const Color(0xFF00FF88).withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: const Color(0xFF00FF88).withValues(alpha: 0.4),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'مباشر',
-            style: GoogleFonts.tajawal(
-              color: const Color(0xFF00FF88),
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 6),
-          _buildLiveDot(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLiveDot() {
-    return Container(
-      width: 6,
-      height: 6,
-      decoration: BoxDecoration(
-        color: const Color(0xFF00FF88),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF00FF88).withValues(alpha: 0.2),
-            blurRadius: 4,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPulseMetricCard(
-      String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.35),
-        ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: GoogleFonts.tajawal(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: GoogleFonts.tajawal(
-              color: color,
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   List<PriceItem> _sortKarats(List<PriceItem> items) {
     if (_preferredOrder.isEmpty) return items;
@@ -700,9 +502,9 @@ class _GoldPageState extends State<GoldPage> {
                 child: const Icon(Icons.grid_view_rounded, color: AppColors.gold, size: 24),
               ),
               const SizedBox(width: 14),
-              const Text(
-                'أسعار الذهب الخام بالدولار (USD)',
-                style: TextStyle(
+              Text(
+                'raw_gold_prices_usd'.tr(),
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: AppColors.darkGreen,
@@ -719,7 +521,7 @@ class _GoldPageState extends State<GoldPage> {
                   _isCompactView ? Icons.view_agenda_rounded : Icons.view_headline_rounded,
                   color: AppColors.gold,
                 ),
-                tooltip: _isCompactView ? 'عرض مفصل' : 'عرض مضغوط',
+                tooltip: _isCompactView ? 'detailed_view'.tr() : 'compact_view'.tr(),
               ),
             ],
           ),
@@ -844,272 +646,9 @@ class _GoldPageState extends State<GoldPage> {
     );
   }
 
-  Widget _buildOunceCard(PriceItem item, BuildContext context) {
-    final isGold = item.id.toLowerCase().contains('xau');
-    return Bounceable(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => PriceDetailPage(priceItem: item)));
-      },
-      child: Container(
-        height: 160,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-          border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Icon on the RIGHT in RTL
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: (isGold ? AppColors.gold : Colors.white)
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: isGold
-                      ? CustomIcon.goldOunce(size: 20)
-                      : CustomIcon.silverOunce(size: 20),
-                ),
-                // Trend on the LEFT in RTL
-                _buildSmallTrend(item.changePercentage),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              item.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.tajawal(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                color: AppColors.secondaryText,
-              ),
-            ),
-            const SizedBox(height: 10),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                textDirection: TextDirection.ltr, // Keep price LTR internally
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    '\$ ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                      color: AppColors.darkGreen,
-                    ),
-                  ),
-                  LivePriceWidget(
-                    price: item.buyPrice,
-                    currency: '',
-                    style: GoogleFonts.roboto(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 26,
-                      color: AppColors.darkGreen,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildSmallTrend(double percentage) {
-    if (percentage == 0) {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: Colors.grey.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: const Text(
-          '0.0%',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Roboto',
-          ),
-        ),
-      );
-    }
 
-    final isUp = percentage > 0;
-    final color = isUp ? Colors.green : Colors.red;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '${percentage.abs().toStringAsFixed(2)}%',
-            style: TextStyle(
-              color: color,
-              fontSize: 10,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Roboto',
-            ),
-          ),
-          const SizedBox(width: 2),
-          Icon(
-            isUp ? Icons.arrow_drop_up_rounded : Icons.arrow_drop_down_rounded,
-            color: color,
-            size: 16,
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildKaratCard(PriceItem item, BuildContext context) {
-    Widget icon;
-    switch (item.id.toLowerCase()) {
-      case 'gold_24k_usd':
-        icon = CustomIcon.gold24k(size: 28);
-        break;
-      case 'gold_22k_usd':
-        icon = CustomIcon.gold22k(size: 28);
-        break;
-      case 'gold_21k_usd':
-        icon = CustomIcon.gold21k(size: 28);
-        break;
-      case 'gold_18k_usd':
-        icon = CustomIcon.gold18k(size: 28);
-        break;
-      case 'gold_14k_usd':
-        icon = CustomIcon.gold14k(size: 28);
-        break;
-      default:
-        icon = CustomIcon.gold24k(size: 28);
-    }
-    return Bounceable(
-      onTap: () {
-          HapticFeedback.lightImpact();
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => PriceDetailPage(priceItem: item)));
-        },
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Row(
-              children: [
-                // 1. Icon Side (Right in RTL - First Child)
-                Container(
-                  width: 54,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Center(child: icon),
-                ),
-                const SizedBox(width: 14),
-
-                // 2. Title Side (Middle)
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.right,
-                        style: GoogleFonts.tajawal(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 17,
-                          color: AppColors.darkGreen,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'سِعْرُ البورصة العالمي',
-                        textAlign: TextAlign.right,
-                        style: GoogleFonts.tajawal(
-                          fontSize: 10,
-                          color: AppColors.mutedText.withValues(alpha: 0.6),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 14),
-
-                // 3. Price Side (Left in RTL - Last Child)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '\$',
-                        style: GoogleFonts.roboto(
-                          color: AppColors.gold,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      LivePriceWidget(
-                        price: item.buyPrice,
-                        currency: '',
-                        style: GoogleFonts.roboto(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 24,
-                          color: AppColors.darkGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-    );
-  }
 
   Widget _buildLocationBanners(BuildContext context, String location) {
     final priceService = Provider.of<PriceService>(context);
@@ -1124,150 +663,7 @@ class _GoldPageState extends State<GoldPage> {
     );
   }
 
-  // --- 0. OFFLINE NOTICE BANNER ---
-  Widget _buildOfflineNoticeBanner(BuildContext context) {
-    final countryProvider = Provider.of<CountryProvider>(context);
-    if (!countryProvider.isOffline) return const SizedBox.shrink();
 
-    final lastSync = countryProvider.lastOfflineSyncTime;
-    final lastSyncText = lastSync != null
-        ? '${lastSync.hour.toString().padLeft(2, '0')}:${lastSync.minute.toString().padLeft(2, '0')}'
-        : 'سابقاً';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFEF3C7),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFF59E0B), width: 1.2),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.wifi_off_rounded, color: Color(0xFFB45309), size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              'أنت في وضع عدم الاتصال • يتم عرض آخر أسعار مسجلة ($lastSyncText)',
-              style: const TextStyle(
-                color: Color(0xFF92400E),
-                fontWeight: FontWeight.w800,
-                fontSize: 11.5,
-                fontFamily: 'Cairo',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- 1. TOP COUNTRY BANNER & SWITCHER ---
-  Widget _buildTopCountryBanner(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = Provider.of<CountryProvider>(context);
-    final country = countryProvider.selectedCountry;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131B2E) : Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.4), width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.gold.withValues(alpha: 0.1),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Text(country.flag, style: const TextStyle(fontSize: 26)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'سوق ${country.name}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                        color: isDark ? Colors.white : AppColors.primaryText,
-                        fontFamily: 'Cairo',
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.gold.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        country.currencySymbol,
-                        style: const TextStyle(
-                          color: AppColors.gold,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Cairo',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'العيار الافتراضي: ${country.defaultKarat}K • تسعير محلي وعالمي',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.mutedText,
-                    fontFamily: 'Cairo',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  SocialShareSheet.show(context);
-                },
-                icon: const Icon(Icons.share_rounded, size: 20, color: AppColors.gold),
-                tooltip: 'مشاركة النشرة كصورة',
-                visualDensity: VisualDensity.compact,
-              ),
-              const SizedBox(width: 4),
-              ElevatedButton.icon(
-                onPressed: () {
-                  HapticFeedback.selectionClick();
-                  CountrySwitcherSheet.show(context);
-                },
-                icon: const Icon(Icons.tune_rounded, size: 15, color: Colors.white),
-                label: const Text(
-                  'تغيير',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 11.5),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkGreen,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  elevation: 0,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   // --- 2. KARAT FILTER CHIPS ---
   Widget _buildKaratFilterChips(BuildContext context) {
@@ -1275,12 +671,12 @@ class _GoldPageState extends State<GoldPage> {
     final selectedKarat = countryProvider.selectedKaratFilter;
 
     final filterOptions = [
-      {'key': 'all', 'label': 'جميع العيارات ✨'},
-      {'key': '24', 'label': 'عيار 24'},
-      {'key': '22', 'label': 'عيار 22'},
-      {'key': '21', 'label': 'عيار 21 ⭐'},
-      {'key': '18', 'label': 'عيار 18'},
-      {'key': 'silver', 'label': 'الفضة 🥈'},
+      {'key': 'all', 'label': 'all_karats'.tr()},
+      {'key': '24', 'label': 'karat_24'.tr()},
+      {'key': '22', 'label': 'karat_22'.tr()},
+      {'key': '21', 'label': 'karat_21'.tr()},
+      {'key': '18', 'label': 'karat_18'.tr()},
+      {'key': 'silver', 'label': 'silver'.tr()},
     ];
 
     return SizedBox(
@@ -1353,7 +749,7 @@ class _GoldPageState extends State<GoldPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('أسعار الذهب المباشرة (${country.name})', Icons.auto_graph_rounded),
+        _buildSectionTitle('live_gold_prices'.tr(args: [country.name.tr()]), Icons.auto_graph_rounded),
         const SizedBox(height: 12),
         ...filteredItems.map((item) {
           final priceItem = PriceItem(
@@ -1363,6 +759,7 @@ class _GoldPageState extends State<GoldPage> {
             sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
             currency: item['currency'] ?? country.currencySymbol,
             metalType: item['metalType'] ?? 'gold',
+            usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
           );
 
           final isFeatured = item['karat'] == country.defaultKarat || item['isPopular'] == true;

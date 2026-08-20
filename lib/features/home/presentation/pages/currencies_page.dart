@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,7 +42,7 @@ class CurrenciesPage extends StatelessWidget {
         initialData: priceService.currentSettings,
         builder: (context, settingsSnapshot) {
           final appName =
-              settingsSnapshot.data?['appName'] as String? ?? 'سوق العملات';
+              settingsSnapshot.data?['appName'] as String? ?? 'auto_str_278'.tr();
 
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
@@ -224,7 +225,7 @@ class CurrenciesPage extends StatelessWidget {
                         ],
                         if (syrianCurrencies.isNotEmpty) ...[
                           _buildSectionHeader(
-                              'أسعار العملات مقابل الليرة السورية',
+                              'auto_str_062'.tr(),
                               Icons.account_balance_rounded),
                           const SizedBox(height: 16),
                           ...syrianCurrencies.map((item) => Padding(
@@ -235,7 +236,7 @@ class CurrenciesPage extends StatelessWidget {
                         if (turkishCurrencies.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           _buildSectionHeader(
-                              'أسعار العملات مقابل الليرة التركية',
+                              'auto_str_061'.tr(),
                               Icons.currency_lira_rounded),
                           const SizedBox(height: 16),
                           ...turkishCurrencies.map((item) => Padding(
@@ -299,7 +300,7 @@ class CurrenciesPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'أسواق العملات الحية',
+                  'auto_str_157'.tr(),
                   style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w900,
@@ -308,7 +309,7 @@ class CurrenciesPage extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'أسعار الصرف الفورية مقابل الليرة السورية والدولار الأمريكي.',
+                  'auto_str_030'.tr(),
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -393,7 +394,7 @@ class CurrenciesPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'سعر الصرف اللحظي',
+                          'auto_str_207'.tr(),
                           textAlign: TextAlign.right,
                           style: TextStyle(
                             fontSize: 10,
@@ -410,11 +411,11 @@ class CurrenciesPage extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildPriceRow('شراء', item.buyPrice,
-                          item.currency == 'TRY' ? '₺' : 'ل.س'),
+                      _buildPriceRow('auto_str_361'.tr(), item.buyPrice,
+                          item.currency == 'TRY' ? '₺' : 'auto_str_381'.tr()),
                       const SizedBox(height: 6),
-                      _buildPriceRow('مبيـع', item.sellPrice,
-                          item.currency == 'TRY' ? '₺' : 'ل.س',
+                      _buildPriceRow('auto_str_359'.tr(), item.sellPrice,
+                          item.currency == 'TRY' ? '₺' : 'auto_str_381'.tr(),
                           isSell: true),
                     ],
                   ),
@@ -518,29 +519,29 @@ class CurrenciesPage extends StatelessWidget {
     // ✅ 1. Direct Emoji Mapping (Most Reliable)
     Widget? emojiWidget;
 
-    if (t.contains('دولار') || d.contains('usd')) {
+    if (t.contains('auto_str_352'.tr()) || d.contains('usd')) {
       emojiWidget = const Text('🇺🇸', style: TextStyle(fontSize: 32));
-    } else if (t.contains('يورو') || d.contains('eur')) {
+    } else if (t.contains('auto_str_368'.tr()) || d.contains('eur')) {
       emojiWidget = const Text('🇪🇺', style: TextStyle(fontSize: 32));
-    } else if (t.contains('سعودي') || d.contains('sar')) {
+    } else if (t.contains('auto_str_354'.tr()) || d.contains('sar')) {
       emojiWidget = const Text('🇸🇦', style: TextStyle(fontSize: 32));
-    } else if (t.contains('إماراتي') || d.contains('aed')) {
+    } else if (t.contains('auto_str_328'.tr()) || d.contains('aed')) {
       emojiWidget = const Text('🇦🇪', style: TextStyle(fontSize: 32));
-    } else if (t.contains('استرليني') || d.contains('gbp')) {
+    } else if (t.contains('auto_str_312'.tr()) || d.contains('gbp')) {
       emojiWidget = const Text('🇬🇧', style: TextStyle(fontSize: 32));
-    } else if (t.contains('كويتي') || d.contains('kwd')) {
+    } else if (t.contains('auto_str_357'.tr()) || d.contains('kwd')) {
       emojiWidget = const Text('🇰🇼', style: TextStyle(fontSize: 32));
-    } else if (t.contains('أردني') || d.contains('jod')) {
+    } else if (t.contains('auto_str_346'.tr()) || d.contains('jod')) {
       emojiWidget = const Text('🇯🇴', style: TextStyle(fontSize: 32));
-    } else if (t.contains('قطري') || d.contains('qar')) {
+    } else if (t.contains('auto_str_364'.tr()) || d.contains('qar')) {
       emojiWidget = const Text('🇶🇦', style: TextStyle(fontSize: 32));
-    } else if (t.contains('بحريني') || d.contains('bhd')) {
+    } else if (t.contains('auto_str_340'.tr()) || d.contains('bhd')) {
       emojiWidget = const Text('🇧🇭', style: TextStyle(fontSize: 32));
-    } else if (t.contains('عماني') || d.contains('omr')) {
+    } else if (t.contains('auto_str_356'.tr()) || d.contains('omr')) {
       emojiWidget = const Text('🇴🇲', style: TextStyle(fontSize: 32));
-    } else if (t.contains('مصري') || d.contains('egp')) {
+    } else if (t.contains('auto_str_366'.tr()) || d.contains('egp')) {
       emojiWidget = const Text('🇪🇬', style: TextStyle(fontSize: 32));
-    } else if (t.contains('تركية') || d.contains('try')) {
+    } else if (t.contains('auto_str_351'.tr()) || d.contains('try')) {
       emojiWidget = const Text('🇹🇷', style: TextStyle(fontSize: 32));
     }
 
@@ -551,19 +552,19 @@ class CurrenciesPage extends StatelessWidget {
 
     // ✅ 3. Try DynamicAssetIcon (only if Backend has custom assets)
     String? assetKey;
-    if (t.contains('دولار')) {
+    if (t.contains('auto_str_352'.tr())) {
       assetKey = 'currency_usd';
-    } else if (t.contains('يورو')) {
+    } else if (t.contains('auto_str_368'.tr())) {
       assetKey = 'currency_eur';
-    } else if (t.contains('تركية')) {
+    } else if (t.contains('auto_str_351'.tr())) {
       assetKey = 'currency_try';
-    } else if (t.contains('سعودي')) {
+    } else if (t.contains('auto_str_354'.tr())) {
       assetKey = 'currency_sar';
-    } else if (t.contains('إماراتي')) {
+    } else if (t.contains('auto_str_328'.tr())) {
       assetKey = 'currency_aed';
-    } else if (t.contains('كويتي')) {
+    } else if (t.contains('auto_str_357'.tr())) {
       assetKey = 'currency_kwd';
-    } else if (t.contains('أردني')) {
+    } else if (t.contains('auto_str_346'.tr())) {
       assetKey = 'currency_jod';
     }
 
@@ -581,40 +582,40 @@ class CurrenciesPage extends StatelessWidget {
 
   Widget _getEmojiFallback(String t, String id) {
     final d = id.toLowerCase();
-    if (t.contains('دولار') || d.contains('usd')) {
+    if (t.contains('auto_str_352'.tr()) || d.contains('usd')) {
       return const Text('🇺🇸', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('يورو') || d.contains('eur')) {
+    if (t.contains('auto_str_368'.tr()) || d.contains('eur')) {
       return const Text('🇪🇺', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('سعودي') || d.contains('sar')) {
+    if (t.contains('auto_str_354'.tr()) || d.contains('sar')) {
       return const Text('🇸🇦', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('إماراتي') || d.contains('aed')) {
+    if (t.contains('auto_str_328'.tr()) || d.contains('aed')) {
       return const Text('🇦🇪', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('استرليني') || d.contains('gbp')) {
+    if (t.contains('auto_str_312'.tr()) || d.contains('gbp')) {
       return const Text('🇬🇧', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('كويتي') || d.contains('kwd')) {
+    if (t.contains('auto_str_357'.tr()) || d.contains('kwd')) {
       return const Text('🇰🇼', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('أردني') || d.contains('jod')) {
+    if (t.contains('auto_str_346'.tr()) || d.contains('jod')) {
       return const Text('🇯🇴', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('قطري') || d.contains('qar')) {
+    if (t.contains('auto_str_364'.tr()) || d.contains('qar')) {
       return const Text('🇶🇦', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('بحريني') || d.contains('bhd')) {
+    if (t.contains('auto_str_340'.tr()) || d.contains('bhd')) {
       return const Text('🇧🇭', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('عماني') || d.contains('omr')) {
+    if (t.contains('auto_str_356'.tr()) || d.contains('omr')) {
       return const Text('🇴🇲', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('مصري') || d.contains('egp')) {
+    if (t.contains('auto_str_366'.tr()) || d.contains('egp')) {
       return const Text('🇪🇬', style: TextStyle(fontSize: 32));
     }
-    if (t.contains('تركية') || d.contains('try')) {
+    if (t.contains('auto_str_351'.tr()) || d.contains('try')) {
       return const Text('🇹🇷', style: TextStyle(fontSize: 32));
     }
     return const SyrianFlag(width: 40);
@@ -622,16 +623,16 @@ class CurrenciesPage extends StatelessWidget {
 
   String _translateTitle(String original) {
     final t = original.toUpperCase();
-    if (t == 'USDTRY') return 'الدولار الأمريكي';
-    if (t == 'EURTRY') return 'اليورو الأوروبي';
-    if (t == 'GBPTRY') return 'الجنيه الإسترليني';
-    if (t == 'SARTRY') return 'الريال السعودي';
-    if (t == 'AEDTRY') return 'الدرهم الإماراتي';
-    if (t == 'KWDTRY') return 'الدينار الكويتي';
-    if (t == 'JODTRY') return 'الدينار الأردني';
-    if (t == 'QARTRY') return 'الريال القطري';
-    if (t == 'BHDTRY') return 'الدينار البحريني';
-    if (t == 'OMRTRY') return 'الريال العُماني';
+    if (t == 'USDTRY') return 'auto_str_203'.tr();
+    if (t == 'EURTRY') return 'auto_str_223'.tr();
+    if (t == 'GBPTRY') return 'auto_str_181'.tr();
+    if (t == 'SARTRY') return 'auto_str_233'.tr();
+    if (t == 'AEDTRY') return 'auto_str_202'.tr();
+    if (t == 'KWDTRY') return 'auto_str_220'.tr();
+    if (t == 'JODTRY') return 'auto_str_219'.tr();
+    if (t == 'QARTRY') return 'auto_str_251'.tr();
+    if (t == 'BHDTRY') return 'auto_str_204'.tr();
+    if (t == 'OMRTRY') return 'auto_str_221'.tr();
     return original;
   }
 
@@ -681,7 +682,7 @@ class CurrenciesPage extends StatelessWidget {
             Icon(Icons.money_off_csred_rounded,
                 size: 80, color: Colors.grey.withValues(alpha: 0.2)),
             const SizedBox(height: 20),
-            const Text('لا توجد عملات متاحة الآن',
+            const Text('auto_str_120'.tr(),
                 style: TextStyle(
                     fontWeight: FontWeight.w900,
                     color: AppColors.mutedText,

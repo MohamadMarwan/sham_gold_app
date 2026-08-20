@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -111,7 +112,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          errorMessage = 'فشل تحميل البيانات';
+          errorMessage = 'auto_str_175'.tr();
           isLoading = false;
         });
       }
@@ -286,7 +287,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
         children: [
           Expanded(
               child: _buildStatColumn(
-                  'سعر الشراء',
+                  'auto_str_286'.tr(),
                   CurrencyUtils.formatPrice(widget.priceItem.buyPrice, widget.priceItem.currency, id: widget.priceItem.id),
                   '',
                   Colors.blue)),
@@ -306,7 +307,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
               )),
           Expanded(
               child: _buildStatColumn(
-                  'سعر المبيع',
+                  'auto_str_287'.tr(),
                   CurrencyUtils.formatPrice(widget.priceItem.sellPrice, widget.priceItem.currency, id: widget.priceItem.id),
                   '',
                   AppColors.gold)),
@@ -363,7 +364,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('الرسم البياني',
+              const Text('auto_str_250'.tr(),
                   style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 18,
@@ -393,7 +394,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
   }
 
   Widget _buildRangeSelector() {
-    final ranges = {'day': 'يوم', 'week': 'أسبوع', 'month': 'شهر'};
+    final ranges = {'day': 'auto_str_384'.tr(), 'week': 'auto_str_347'.tr(), 'month': 'auto_str_379'.tr()};
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -432,9 +433,9 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
   }
 
   Widget _buildHistoryList(NumberFormat format) {
-    String title = 'سجل التغيرات الأخير';
-    if (selectedRange == 'week') title = 'سجل الإغلاق اليومي (أسبوع)';
-    if (selectedRange == 'month') title = 'سجل الإغلاق اليومي (شهر)';
+    String title = 'auto_str_165'.tr();
+    if (selectedRange == 'week') title = 'auto_str_106'.tr();
+    if (selectedRange == 'month') title = 'auto_str_119'.tr();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,7 +458,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
                     color: AppColors.gold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('مباشر',
+                  child: const Text('auto_str_358'.tr(),
                       style: TextStyle(
                           fontSize: 10,
                           color: AppColors.gold,
@@ -470,7 +471,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
           const Center(
               child: Padding(
             padding: EdgeInsets.symmetric(vertical: 40),
-            child: Text('لا توجد بيانات سجل متوفرة حالياً',
+            child: Text('auto_str_071'.tr(),
                 style: TextStyle(color: Colors.grey)),
           ))
         else
@@ -516,7 +517,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                    DateFormat(isDaily ? 'EEEE, dd MMMM' : 'dd MMMM، hh:mm a',
+                    DateFormat(isDaily ? 'EEEE, dd MMMM' : 'auto_str_199'.tr(),
                             'ar_SA')
                         .format(point.timestamp.toLocal()),
                     style: const TextStyle(
@@ -524,7 +525,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
                         fontSize: 13,
                         color: AppColors.darkGreen)),
                 const SizedBox(height: 2),
-                Text(isDaily ? 'سعر الإغلاق النهائي' : 'تحديث آلي من البورصة',
+                Text(isDaily ? 'auto_str_166'.tr() : 'auto_str_153'.tr(),
                     style: TextStyle(
                         fontSize: 10,
                         color: AppColors.mutedText.withValues(alpha: 0.7),
@@ -567,7 +568,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
         const SizedBox(height: 16),
         Text(errorMessage, style: const TextStyle(color: AppColors.mutedText)),
         TextButton(
-            onPressed: _fetchHistory, child: const Text('إعادة المحاولة')),
+            onPressed: _fetchHistory, child: const Text('auto_str_230'.tr())),
       ],
     );
   }
@@ -580,7 +581,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
     if (!showNote) return const SizedBox.shrink();
 
     final noteText = displaySettings?['historyNoteText'] ??
-        'ملاحظة: البيانات التاريخية تُحدث كل 5-20 دقيقة حسب حركة السوق العالمية.';
+        'auto_str_028'.tr();
 
     return Container(
       padding: const EdgeInsets.all(24),

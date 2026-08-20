@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,7 +64,7 @@ class SilverPlatinumBanner extends StatelessWidget {
                 const Icon(Icons.diamond_outlined, color: Colors.white70, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  'المعادن الثمينة الأخرى',
+                  'auto_str_135'.tr(),
                   style: GoogleFonts.tajawal(
                     color: Colors.white,
                     fontSize: 16,
@@ -83,7 +84,7 @@ class SilverPlatinumBanner extends StatelessWidget {
                   Expanded(
                     child: _buildMetalCard(
                       context,
-                      title: 'الفضة',
+                      title: 'auto_str_350'.tr(),
                       iconColor: const Color(0xFF94A3B8),
                       ouncePrice: silverOunce.buyPrice,
                       gramPrice: silver999?.buyPrice ?? 0,
@@ -104,7 +105,7 @@ class SilverPlatinumBanner extends StatelessWidget {
                   Expanded(
                     child: _buildMetalCard(
                       context,
-                      title: 'البلاتين',
+                      title: 'auto_str_314'.tr(),
                       iconColor: const Color(0xFFCBD5E1),
                       ouncePrice: platOunce.buyPrice,
                       gramPrice: plat999?.buyPrice ?? 0,
@@ -179,7 +180,7 @@ class SilverPlatinumBanner extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'للأونصة',
+            'auto_str_335'.tr(),
             style: GoogleFonts.tajawal(
               color: Colors.white60,
               fontSize: 10,
@@ -199,7 +200,7 @@ class SilverPlatinumBanner extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text(
-                    'غرام 999: ',
+                    'auto_str_291'.tr(),
                     style: TextStyle(color: Colors.white70, fontSize: 10, fontFamily: 'Cairo'),
                   ),
                   Text(

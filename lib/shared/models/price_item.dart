@@ -9,6 +9,7 @@ class PriceItem {
   final Trend trend;
   final String metalType;
   final double changePercentage;
+  final double usdPrice;
   final String? externalId;
   final DateTime? lastUpdate;
   final bool isManual;
@@ -22,6 +23,7 @@ class PriceItem {
     this.trend = Trend.stable,
     required this.metalType,
     this.changePercentage = 0.0,
+    this.usdPrice = 0.0,
     this.externalId,
     this.lastUpdate,
     this.isManual = false,
@@ -37,6 +39,7 @@ class PriceItem {
       trend: Trend.values[(json['trend'] as int?) ?? 2],
       metalType: json['metalType'] ?? 'gold',
       changePercentage: (json['changePercentage'] as num?)?.toDouble() ?? 0.0,
+      usdPrice: (json['usdPrice'] as num?)?.toDouble() ?? 0.0,
       externalId: json['externalId'],
       lastUpdate: json['lastUpdate'] != null
           ? DateTime.tryParse(json['lastUpdate'])
@@ -55,6 +58,7 @@ class PriceItem {
       'trend': trend.index,
       'metalType': metalType,
       'changePercentage': changePercentage,
+      'usdPrice': usdPrice,
       'externalId': externalId,
       'lastUpdate': lastUpdate?.toIso8601String(),
       'isManual': isManual,

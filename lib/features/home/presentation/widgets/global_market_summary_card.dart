@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gold_sham/shared/widgets/live_price_widget.dart';
@@ -48,7 +49,7 @@ class GlobalMarketSummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               const Text(
-                'البورصة العالمية',
+                'auto_str_201'.tr(),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
@@ -62,9 +63,9 @@ class GlobalMarketSummaryCard extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              _buildMetric('أونصة الذهب', xau.buyPrice, '\$'),
+              _buildMetric('auto_str_270'.tr(), xau.buyPrice, '\$'),
               const SizedBox(width: 24),
-              if (xag != null) _buildMetric('أونصة الفضة', xag.buyPrice, '\$'),
+              if (xag != null) _buildMetric('auto_str_271'.tr(), xag.buyPrice, '\$'),
             ],
           ),
         ],

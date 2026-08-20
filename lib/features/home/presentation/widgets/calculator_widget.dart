@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -116,7 +117,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                 ),
                 const SizedBox(width: 12),
                 const Text(
-                  'الحاسبة الذكية',
+                  'auto_str_232'.tr(),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -203,7 +204,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'السعر المعتمد للحساب:',
+                'auto_str_144'.tr(),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -225,9 +226,9 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
         // Amount Field
         _buildTextField(
           controller: _amountController,
-          label: 'الكمية / الوزن',
+          label: 'auto_str_236'.tr(),
           hint: '0.00',
-          suffix: selected.metalType == 'currency' ? 'وحدة' : 'غرام',
+          suffix: selected.metalType == 'currency' ? 'auto_str_367'.tr() : 'auto_str_363'.tr(),
           icon: Icons.scale_rounded,
           onTap: () => setState(() => _isReverse = false),
           isActive: !_isReverse,
@@ -239,7 +240,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
         // Total Field
         _buildTextField(
           controller: _totalController,
-          label: 'القيمة الإجمالية',
+          label: 'auto_str_205'.tr(),
           hint: '0.00',
           suffix: symbol,
           icon: Icons.payments_rounded,
@@ -348,7 +349,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           SizedBox(width: 8),
           Expanded(
             child: Text(
-              'اضغط على "القيمة الإجمالية" للحساب العكسي',
+              'auto_str_045'.tr(),
               style: TextStyle(
                   fontSize: 11,
                   color: AppColors.darkGreen,
@@ -365,53 +366,53 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
     if (title.contains('21')) return CustomIcon.gold21k(size: 20);
     if (title.contains('18')) return CustomIcon.gold18k(size: 20);
     if (title.contains('14')) return CustomIcon.gold14k(size: 20);
-    if (title.contains('كيلو')) {
-      return title.contains('ذهب')
+    if (title.contains('auto_str_365'.tr())) {
+      return title.contains('auto_str_376'.tr())
           ? CustomIcon.goldKilo(size: 20)
           : CustomIcon.silverKilo(size: 20);
     }
-    if (title.contains('ذهب') || title.contains('أونصة')) {
+    if (title.contains('auto_str_376'.tr()) || title.contains('auto_str_348'.tr())) {
       return CustomIcon.goldOunce(size: 20);
     }
-    if (title.contains('فضة')) {
+    if (title.contains('auto_str_380'.tr())) {
       return CustomIcon.silverOunce(size: 20);
     }
 
     final t = title.toLowerCase();
-    if (t.contains('دولار') || t.contains('usd')) {
+    if (t.contains('auto_str_352'.tr()) || t.contains('usd')) {
       return const Text('🇺🇸', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('يورو') || t.contains('eur')) {
+    if (t.contains('auto_str_368'.tr()) || t.contains('eur')) {
       return const Text('🇪🇺', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('ريال سعودي') || t.contains('sar')) {
+    if (t.contains('auto_str_283'.tr()) || t.contains('sar')) {
       return const Text('🇸🇦', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('درهم إماراتي') || t.contains('aed')) {
+    if (t.contains('auto_str_264'.tr()) || t.contains('aed')) {
       return const Text('🇦🇪', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('ليرة تركية') || t.contains('try')) {
+    if (t.contains('auto_str_296'.tr()) || t.contains('try')) {
       return const Text('🇹🇷', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('جنيه إسترليني') || t.contains('gbp')) {
+    if (t.contains('auto_str_255'.tr()) || t.contains('gbp')) {
       return const Text('🇬🇧', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('دينار كويتي') || t.contains('kwd')) {
+    if (t.contains('auto_str_277'.tr()) || t.contains('kwd')) {
       return const Text('🇰🇼', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('دينار أردني') || t.contains('jod')) {
+    if (t.contains('auto_str_276'.tr()) || t.contains('jod')) {
       return const Text('🇯🇴', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('ريال قطري') || t.contains('qar')) {
+    if (t.contains('auto_str_305'.tr()) || t.contains('qar')) {
       return const Text('🇶🇦', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('دينار بحريني') || t.contains('bhd')) {
+    if (t.contains('auto_str_265'.tr()) || t.contains('bhd')) {
       return const Text('🇧🇭', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('ريال عماني') || t.contains('omr')) {
+    if (t.contains('auto_str_284'.tr()) || t.contains('omr')) {
       return const Text('🇴🇲', style: TextStyle(fontSize: 20));
     }
-    if (t.contains('جنيه مصري') || t.contains('egp')) {
+    if (t.contains('auto_str_301'.tr()) || t.contains('egp')) {
       return const Text('🇪🇬', style: TextStyle(fontSize: 20));
     }
     return const SyrianFlag(width: 20, height: 12);

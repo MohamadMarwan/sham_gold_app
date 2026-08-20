@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -87,7 +88,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'التنبيهات السعرية الذكية',
+                        'auto_str_115'.tr(),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -98,7 +99,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                       Text(
                         item != null
                             ? 'إعداد تنبيه خاص بـ: ${item.title}'
-                            : 'تنبيهات فورية عند وصول السعر أو التذبذب',
+                            : 'auto_str_048'.tr(),
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,
@@ -150,7 +151,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                   color: AppColors.gold, size: 18),
                               SizedBox(width: 8),
                               Text(
-                                'إنشاء تنبيه جديد',
+                                'auto_str_200'.tr(),
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w900,
@@ -165,13 +166,13 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                           Row(
                             children: [
                               _buildTypeChip(
-                                  AlertType.targetPrice, 'سعر مستهدف 🎯'),
+                                  AlertType.targetPrice, 'auto_str_266'.tr()),
                               const SizedBox(width: 8),
                               _buildTypeChip(
-                                  AlertType.volatility, 'تذبذب حاد ⚡'),
+                                  AlertType.volatility, 'auto_str_275'.tr()),
                               const SizedBox(width: 8),
                               _buildTypeChip(
-                                  AlertType.dipBuying, 'ارتداد وقاع 💎'),
+                                  AlertType.dipBuying, 'auto_str_248'.tr()),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -187,7 +188,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                         const TextInputType.numberWithOptions(
                                             decimal: true),
                                     decoration: InputDecoration(
-                                      labelText: 'السعر المستهدف',
+                                      labelText: 'auto_str_234'.tr(),
                                       labelStyle: const TextStyle(
                                           fontFamily: 'Cairo', fontSize: 13),
                                       suffixText: item?.currency ?? 'USD',
@@ -207,9 +208,9 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                 SegmentedButton<bool>(
                                   segments: const [
                                     ButtonSegment(
-                                        value: true, label: Text('أعلى ↗️')),
+                                        value: true, label: Text('auto_str_327'.tr())),
                                     ButtonSegment(
-                                        value: false, label: Text('أدنى ↘️')),
+                                        value: false, label: Text('auto_str_325'.tr())),
                                   ],
                                   selected: {_isAbove},
                                   onSelectionChanged: (set) =>
@@ -246,7 +247,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                             ),
                           ] else ...[
                             const Text(
-                              'سيتم رصد موجات الهبوط المتتالية وتنبيهك فور ظهور إشارة ارتداد وصعود لشراء القاع.',
+                              'auto_str_024'.tr(),
                               style: TextStyle(
                                   fontFamily: 'Cairo',
                                   fontSize: 12,
@@ -262,7 +263,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                               icon: const Icon(Icons.check_circle_outline,
                                   color: Colors.white, size: 18),
                               label: const Text(
-                                'تفعيل وحفظ التنبيه',
+                                'auto_str_172'.tr(),
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w900,
@@ -283,7 +284,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
 
                     const SizedBox(height: 24),
                     const Text(
-                      'التنبيهات المفعلة الحالية',
+                      'auto_str_108'.tr(),
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
@@ -303,7 +304,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                       AppColors.mutedText.withValues(alpha: 0.5)),
                               const SizedBox(height: 8),
                               const Text(
-                                'لا توجد تنبيهات مفعلة حالياً',
+                                'auto_str_093'.tr(),
                                 style: TextStyle(
                                     fontFamily: 'Cairo',
                                     color: AppColors.mutedText,
@@ -357,9 +358,9 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
   }
 
   Widget _buildRuleItem(SmartAlertRule rule, bool isDark) {
-    String typeLabel = 'سعر مستهدف';
+    String typeLabel = 'auto_str_288'.tr();
     if (rule.type == AlertType.volatility) typeLabel = 'تذبذب > ${rule.volatilityThresholdPercent}%';
-    if (rule.type == AlertType.dipBuying) typeLabel = 'ارتداد وقاع';
+    if (rule.type == AlertType.dipBuying) typeLabel = 'auto_str_273'.tr();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -418,7 +419,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
     final rule = SmartAlertRule(
       id: 'alert_${DateTime.now().millisecondsSinceEpoch}',
       priceItemId: item?.id ?? 'xau_usd',
-      title: item != null ? item.title : 'الذهب العالمي',
+      title: item != null ? item.title : 'auto_str_249'.tr(),
       type: _selectedType,
       targetPrice: targetPrice,
       isAbove: _isAbove,
@@ -433,7 +434,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('تم تفعيل التنبيه الذكي بنجاح 🔔', style: TextStyle(fontFamily: 'Cairo')),
+          content: const Text('auto_str_082'.tr(), style: TextStyle(fontFamily: 'Cairo')),
           backgroundColor: AppColors.darkGreen,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

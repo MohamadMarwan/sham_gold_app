@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -21,7 +22,7 @@ class SocialShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final dateStr = DateFormat('EEEE، d MMMM yyyy', 'ar').format(now);
+    final dateStr = DateFormat('auto_str_177'.tr(), 'ar').format(now);
     final timeStr = DateFormat('hh:mm a', 'ar').format(now);
     final numberFormat = NumberFormat('#,##0.##', 'ar');
 
@@ -72,7 +73,7 @@ class SocialShareCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'ذهب الشام',
+                        'auto_str_303'.tr(),
                         style: TextStyle(
                           color: AppColors.gold,
                           fontWeight: FontWeight.w900,
@@ -82,7 +83,7 @@ class SocialShareCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'SHAM GOLD • نشرة الأسعار الرسمية',
+                        'auto_str_068'.tr(),
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 9,
@@ -107,7 +108,7 @@ class SocialShareCard extends StatelessWidget {
                     Text(country.flag, style: const TextStyle(fontSize: 16)),
                     const SizedBox(width: 6),
                     Text(
-                      'سوق ${country.name}',
+                      'سوق ${country.name.tr()}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w900,
@@ -176,14 +177,14 @@ class SocialShareCard extends StatelessWidget {
                 Expanded(
                   flex: 5,
                   child: Text(
-                    'العيار / الصنف',
+                    'auto_str_235'.tr(),
                     style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
                   ),
                 ),
                 Expanded(
                   flex: 4,
                   child: Text(
-                    'سعر الشراء',
+                    'auto_str_286'.tr(),
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
                   ),
@@ -191,7 +192,7 @@ class SocialShareCard extends StatelessWidget {
                 Expanded(
                   flex: 4,
                   child: Text(
-                    'سعر المبيع',
+                    'auto_str_287'.tr(),
                     textAlign: TextAlign.left,
                     style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
                   ),
@@ -277,7 +278,7 @@ class SocialShareCard extends StatelessWidget {
                   Icon(Icons.verified_rounded, color: AppColors.gold, size: 14),
                   SizedBox(width: 4),
                   Text(
-                    'نشرة أسعار حية ومحدثة لحظياً',
+                    'auto_str_094'.tr(),
                     style: TextStyle(color: Colors.white70, fontSize: 9.5, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
                   ),
                 ],
@@ -289,7 +290,7 @@ class SocialShareCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text(
-                  '📲 تطبيق ذهب الشام',
+                  'auto_str_198'.tr(),
                   style: TextStyle(color: AppColors.gold, fontSize: 9.5, fontWeight: FontWeight.w900, fontFamily: 'Cairo'),
                 ),
               ),

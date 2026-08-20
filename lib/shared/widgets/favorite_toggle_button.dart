@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../services/favorites_service.dart';
 import '../../core/constants/app_colors.dart';
 
@@ -45,7 +46,7 @@ class _FavoriteToggleButtonState extends State<FavoriteToggleButton> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              _isFavorite ? 'تمت الإضافة للمفضلة' : 'تمت الإزالة من المفضلة'),
+              _isFavorite ? 'added_to_favorites'.tr() : 'removed_from_favorites'.tr()),
           duration: const Duration(seconds: 1),
           behavior: SnackBarBehavior.floating,
           shape:

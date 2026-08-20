@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
     super.dispose();
   }
 
-  String _resultCurrency = 'ل.س';
+  String _resultCurrency = 'auto_str_381'.tr();
 
   void _calculate() {
     final amount = double.tryParse(_amountController.text) ?? 0;
@@ -49,7 +50,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
     final prices = service.currentPrices;
 
     double rate = 0;
-    String currency = 'ل.س';
+    String currency = 'auto_str_381'.tr();
 
     // Find rate based on selection
     if (_selectedType == 'G24_USD') {
@@ -71,17 +72,17 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
       final item = prices.firstWhere((p) => p.id == 'sy_gold_24',
           orElse: () => PriceItem.empty());
       rate = item.buyPrice;
-      currency = 'ل.س';
+      currency = 'auto_str_381'.tr();
     } else if (_selectedType == 'G21_SYP') {
       final item = prices.firstWhere((p) => p.id == 'sy_gold_21',
           orElse: () => PriceItem.empty());
       rate = item.buyPrice;
-      currency = 'ل.س';
+      currency = 'auto_str_381'.tr();
     } else if (_selectedType == 'G18_SYP') {
       final item = prices.firstWhere((p) => p.id == 'sy_gold_18',
           orElse: () => PriceItem.empty());
       rate = item.buyPrice;
-      currency = 'ل.س';
+      currency = 'auto_str_381'.tr();
     } else if (_selectedType == 'KG_GOLD_USD') {
       final item = prices.firstWhere((p) => p.id == 'xau_kg_usd',
           orElse: () => PriceItem.empty());
@@ -158,7 +159,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'المحول السريع',
+                          'auto_str_252'.tr(),
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
@@ -167,7 +168,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                           ),
                         ),
                         Text(
-                          'احسب قيمة مدخراتك بدقة وسهولة',
+                          'auto_str_085'.tr(),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
@@ -196,7 +197,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                             fontFamily: 'Roboto'),
                         decoration: InputDecoration(
                           hintText: '0.00',
-                          labelText: 'الكمية',
+                          labelText: 'auto_str_339'.tr(),
                           labelStyle: TextStyle(
                               color: AppColors.darkGreen.withValues(alpha: 0.6),
                               fontWeight: FontWeight.bold,
@@ -255,20 +256,20 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                             items: const [
                               DropdownMenuItem(
                                   value: 'G24_USD',
-                                  child: Text('🇺🇸 ذهب 24 (دولار)')),
+                                  child: Text('auto_str_197'.tr())),
                               DropdownMenuItem(
                                   value: 'G21_USD',
-                                  child: Text('🇺🇸 ذهب 21 (دولار)')),
+                                  child: Text('auto_str_196'.tr())),
                               DropdownMenuItem(
                                   value: 'G18_USD',
-                                  child: Text('🇺🇸 ذهب 18 (دولار)')),
+                                  child: Text('auto_str_195'.tr())),
                               DropdownMenuItem(
                                   value: 'G24_SYP',
                                   child: Row(
                                     children: [
                                       SyrianFlag(width: 24, height: 14),
                                       SizedBox(width: 10),
-                                      Text('ذهب 24 (ليرة)'),
+                                      Text('auto_str_258'.tr()),
                                     ],
                                   )),
                               DropdownMenuItem(
@@ -277,7 +278,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                                     children: [
                                       SyrianFlag(width: 24, height: 14),
                                       SizedBox(width: 10),
-                                      Text('ذهب 21 (ليرة)'),
+                                      Text('auto_str_257'.tr()),
                                     ],
                                   )),
                               DropdownMenuItem(
@@ -286,15 +287,15 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                                     children: [
                                       SyrianFlag(width: 24, height: 14),
                                       SizedBox(width: 10),
-                                      Text('ذهب 18 (ليرة)'),
+                                      Text('auto_str_256'.tr()),
                                     ],
                                   )),
                               DropdownMenuItem(
                                   value: 'KG_GOLD_USD',
-                                  child: Text('🇺🇸 كيلو الذهب (دولار)')),
+                                  child: Text('auto_str_147'.tr())),
                               DropdownMenuItem(
                                   value: 'KG_SILVER_USD',
-                                  child: Text('🇺🇸 كيلو الفضة (دولار)')),
+                                  child: Text('auto_str_148'.tr())),
                             ],
                             onChanged: (val) {
                               if (val != null) {
@@ -329,7 +330,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'النتيجة التقريبية',
+                            'auto_str_185'.tr(),
                             style: TextStyle(
                                 color: AppColors.mutedText,
                                 fontSize: 13,
@@ -343,7 +344,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                                 HapticFeedback.mediumImpact();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('تم نسخ النتيجة',
+                                    content: Text('auto_str_240'.tr(),
                                         textAlign: TextAlign.center),
                                     behavior: SnackBarBehavior.floating,
                                     width: 150,
@@ -364,7 +365,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                                   Icon(Icons.copy_rounded,
                                       color: AppColors.gold, size: 14),
                                   SizedBox(width: 6),
-                                  Text('نسخ',
+                                  Text('auto_str_383'.tr(),
                                       style: TextStyle(
                                           color: AppColors.gold,
                                           fontSize: 10,

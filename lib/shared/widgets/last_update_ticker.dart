@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class LastUpdateTicker extends StatefulWidget {
   final DateTime? lastUpdate;
@@ -44,38 +45,37 @@ class _LastUpdateTickerState extends State<LastUpdateTicker> {
 
   void _updateText() {
     if (widget.lastUpdate == null) {
-      if (mounted) setState(() => _text = 'جارِ التحديث...');
+      if (mounted) setState(() => _text = 'updating'.tr());
       return;
     }
 
     final diff = DateTime.now().difference(widget.lastUpdate!);
     final seconds = diff.inSeconds;
+    final mins = seconds ~/ 60;
 
     String newText;
 
     if (widget.showOnlySeconds) {
       if (seconds < 10) {
-        newText = 'محدث الآن 🚀';
-      } else if (seconds < 30) {
-        newText = 'منذ ثوانٍ ⚡';
+        newText = 'updated_now'.tr();
       } else if (seconds < 60) {
-        newText = 'منذ $seconds ثانية ⚡';
-      } else if (seconds < 3600) {
-        final mins = seconds ~/ 60;
-        newText = 'منذ $mins دقيقة ⚡';
+        newText = 'seconds_ago'.tr();
+      } else if (mins < 2) {
+        newText = 'x_seconds_ago'.tr(args: [seconds.toString()]);
+      } else if (mins < 60) {
+        newText = 'x_minutes_ago'.tr(args: [mins.toString()]);
       } else {
-        newText = 'أكثر من ساعة ⚡';
+        newText = 'more_than_hour'.tr();
       }
     } else {
       if (seconds < 10) {
-        newText = 'محدث الآن ⚡';
+        newText = 'updated_now_alt'.tr();
       } else if (seconds < 60) {
-        newText = 'منذ $seconds ثانية';
-      } else if (seconds < 3600) {
-        final mins = seconds ~/ 60;
-        newText = 'منذ $mins دقيقة';
+        newText = 'x_seconds_ago_alt'.tr(args: [seconds.toString()]);
+      } else if (mins < 60) {
+        newText = 'x_minutes_ago_alt'.tr(args: [mins.toString()]);
       } else {
-        newText = 'أكثر من ساعة';
+        newText = 'more_than_hour_alt'.tr();
       }
     }
 

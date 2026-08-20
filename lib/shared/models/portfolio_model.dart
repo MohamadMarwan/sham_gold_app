@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 class PortfolioItemModel {
   final String id;
   final String title;
@@ -39,7 +40,7 @@ class PortfolioItemModel {
   factory PortfolioItemModel.fromJson(Map<String, dynamic> json) {
     return PortfolioItemModel(
       id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      title: json['title'] ?? 'أصل ذهبي',
+      title: json['title'] ?? 'auto_str_309'.tr(),
       category: json['category'] ?? 'bullion',
       karat: json['karat'] ?? '24',
       weightGrams: (json['weightGrams'] as num?)?.toDouble() ?? 0.0,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/services/price_service.dart';
@@ -68,7 +69,7 @@ class _BullionsCoinsPageState extends State<BullionsCoinsPage> with SingleTicker
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
               title: Text(
-                'السبائك والليرات',
+                'bullions_and_coins'.tr(),
                 style: GoogleFonts.tajawal(
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
@@ -120,9 +121,9 @@ class _BullionsCoinsPageState extends State<BullionsCoinsPage> with SingleTicker
                 unselectedLabelColor: AppColors.mutedText,
                 labelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w900, fontSize: 16),
                 unselectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w700, fontSize: 15),
-                tabs: const [
-                  Tab(text: 'السبائك'),
-                  Tab(text: 'الليرات الذهبية'),
+                tabs: [
+                  Tab(text: 'bullions'.tr()),
+                  Tab(text: 'gold_coins'.tr()),
                 ],
               ),
               isDark,
@@ -159,7 +160,7 @@ class _BullionsCoinsPageState extends State<BullionsCoinsPage> with SingleTicker
           priceItem: item,
           localPrice: item.buyPrice,
           localCurrencySymbol: item.currency,
-          usdPrice: 0.0,
+          usdPrice: item.usdPrice,
         );
       },
     );

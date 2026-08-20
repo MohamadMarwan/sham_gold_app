@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gold_sham/shared/services/price_service.dart';
@@ -68,8 +69,8 @@ class _QuickNewsTickerState extends State<QuickNewsTicker> {
     if (news.isEmpty || news == ' •') {
       news = priceService.getDisplaySetting('newsTickerText',
           defaultValue: isConnected
-              ? 'تم تحديث الأسعار العالمية والتركية الآن بنجاح • جاري متابعة حركة الأسواق المحلية بدقة • توقعات بـ استقرار أسعار الذهب خلال الساعات القادمة • شكرًا لاستخدامكم تطبيق غولد شام V2 •'
-              : 'نعتذر، يوجد عطل في الاتصال بالخادم • يرجى التحقق من الشبكة • البيانات المعروضة هي آخر بيانات مسجلة •');
+              ? 'auto_str_003'.tr()
+              : 'auto_str_018'.tr());
     }
 
     return Container(
@@ -87,7 +88,7 @@ class _QuickNewsTickerState extends State<QuickNewsTicker> {
             color: AppColors.gold.withValues(alpha: 0.9),
             alignment: Alignment.center,
             child: const Text(
-              'أخبار',
+              'auto_str_345'.tr(),
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10,

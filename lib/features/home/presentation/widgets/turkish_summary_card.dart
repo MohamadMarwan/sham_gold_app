@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:gold_sham/shared/widgets/live_price_widget.dart';
 import '../../../../shared/services/price_service.dart';
@@ -54,8 +55,8 @@ class TurkishSummaryCard extends StatelessWidget {
               children: [
                 const TurkishFlag(width: 24, height: 16, borderRadius: 3),
                 const SizedBox(width: 12),
-                const Text(
-                  'السوق التركي الآن',
+                Text(
+                  'turkish_market_now'.tr(),
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
@@ -69,9 +70,9 @@ class TurkishSummaryCard extends StatelessWidget {
             const SizedBox(height: 20),
             Row(
               children: [
-                _buildMetric('دولار/ليرة', tryItem.buyPrice, '₺'),
+                _buildMetric('auto_str_282'.tr(), tryItem.buyPrice, '₺'),
                 const SizedBox(width: 24),
-                _buildMetric('غرام الذهب', goldGramItem.buyPrice, '₺'),
+                _buildMetric('auto_str_292'.tr(), goldGramItem.buyPrice, '₺'),
               ],
             ),
           ],

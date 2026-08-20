@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 
@@ -113,7 +114,7 @@ class _LiveIndicatorState extends State<LiveIndicator>
             Icon(Icons.lock_clock_outlined, size: 12, color: activeColor),
           const SizedBox(width: 8),
           Text(
-            widget.isClosed ? 'السوق مغلق' : 'مباشر',
+            widget.isClosed ? 'auto_str_281'.tr() : 'auto_str_358'.tr(),
             style: TextStyle(
               color: activeColor,
               fontWeight: FontWeight.w900,

@@ -1,20 +1,36 @@
-﻿import 'dart:convert';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class CacheService {
+  static const String _cacheBoxName = 'gold_sham_cache';
   final _secureStorage = const FlutterSecureStorage();
+  
+  static Future<void> init() async {
+    await Hive.initFlutter();
+    await Hive.openBox(_cacheBoxName);
+  }
 
   Future<void> saveToCache(String key, String data) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, data);
+    try {
+      final box = Hive.box(_cacheBoxName);
+      await box.put(key, data);
+    } catch (e) {
+      debugPrint('Hive save error: $e');
+    }
   }
 
   Future<dynamic> loadFromCache(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    final cached = prefs.getString(key);
-    if (cached != null) {
-      return json.decode(cached);
+    try {
+      final box = Hive.box(_cacheBoxName);
+      final cached = box.get(key);
+      if (cached != null) {
+        return json.decode(cached);
+      }
+    } catch (e) {
+      debugPrint('Hive load error: $e');
     }
     return null;
   }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:intl/intl.dart';
 
 class CurrencyUtils {
@@ -5,7 +6,7 @@ class CurrencyUtils {
     if (currency == 'USD') return '\$';
     if (currency == 'TRY' || id.startsWith('tr_')) return '₺';
     if (currency == 'EUR') return '€';
-    if (currency == 'SYP') return 'ل.س';
+    if (currency == 'SYP') return 'auto_str_381'.tr();
     return currency;
   }
 

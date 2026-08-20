@@ -49,7 +49,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                 padding: const EdgeInsets.fromLTRB(20, 30, 20, 160),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    _buildSectionHeader('قنواتنا الرسمية'),
+                    _buildSectionHeader('our_channels'.tr()),
                     const SizedBox(height: 20),
                     
                     // Dynamic Social Links from Backend
@@ -66,43 +66,43 @@ class _FollowUsPageState extends State<FollowUsPage> {
                     // Fallback for legacy data structure if list is empty
                     if (socialLinksList.isEmpty && legacyLinks.isNotEmpty) ...[
                       _buildSocialCard(
-                        'فيسبوك',
-                        'تابع آخر الأخبار والمنشورات الرسمية',
+                        'auto_str_342'.tr(),
+                        'auto_str_058'.tr(),
                         Icons.facebook_rounded,
                         const Color(0xFF1877F2),
                         legacyLinks['facebook'],
                       ),
                       _buildSocialCard(
-                        'قناتنا على واتساب',
-                        'اشترك ليصلك كل جديد عبر الواتساب',
+                        'auto_str_191'.tr(),
+                        'auto_str_069'.tr(),
                         Icons.campaign_rounded,
                         const Color(0xFF25D366),
                         legacyLinks['whatsapp_channel'] ?? legacyLinks['whatsapp'],
                       ),
                       _buildSocialCard(
-                        'تيليجرام',
-                        'اشترك في القناة ليصلك كل جديد فوراً',
+                        'auto_str_317'.tr(),
+                        'auto_str_057'.tr(),
                         Icons.send_rounded,
                         const Color(0xFF0088CC),
                         legacyLinks['telegram'],
                       ),
                       _buildSocialCard(
-                        'انستغرام',
-                        'شاهد صور وجولات حصرية لمنتجاتنا',
+                        'auto_str_315'.tr(),
+                        'auto_str_077'.tr(),
                         Icons.camera_alt_rounded,
                         const Color(0xFFE1306C),
                         legacyLinks['instagram'],
                       ),
                       _buildSocialCard(
-                        'تيك توك',
-                        'شاهد كواليس وفيديوهات حصرية لنا',
+                        'auto_str_334'.tr(),
+                        'auto_str_078'.tr(),
                         Icons.video_library_rounded,
                         const Color(0xFF000000),
                         legacyLinks['tiktok'],
                       ),
                       _buildSocialCard(
-                        'الموقع الإلكتروني',
-                        'زر موقعنا الرسمي لمزيد من الخدمات',
+                        'auto_str_184'.tr(),
+                        'auto_str_066'.tr(),
                         Icons.language_rounded,
                         AppColors.darkGreen,
                         legacyLinks['website'],
@@ -121,7 +121,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                     const SizedBox(height: 30),
                     Center(
                       child: Text(
-                        'إصدار النسخة 2.5.0',
+                        'version'.tr(args: ['2.5.0']),
                         style: TextStyle(
                             color: AppColors.mutedText.withValues(alpha: 0.2),
                             fontSize: 9,
@@ -139,14 +139,14 @@ class _FollowUsPageState extends State<FollowUsPage> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: AppColors.gold, strokeWidth: 3),
-          SizedBox(height: 20),
-          Text('جاري تحميل الإعدادات والروابط...',
-              style: TextStyle(
+          const CircularProgressIndicator(color: AppColors.gold, strokeWidth: 3),
+          const SizedBox(height: 20),
+          Text('loading_settings'.tr(),
+              style: const TextStyle(
                   color: AppColors.darkGreen, fontWeight: FontWeight.bold)),
         ],
       ),
@@ -192,7 +192,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                   _buildLogo(settings),
                   const SizedBox(height: 16),
                   Text(
-                    settings['appName'] ?? 'غولد شام',
+                    settings['appName'] ?? 'auto_str_320'.tr(),
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
@@ -215,9 +215,9 @@ class _FollowUsPageState extends State<FollowUsPage> {
                       border: Border.all(
                           color: Colors.white.withValues(alpha: 0.2)),
                     ),
-                    child: const Text(
-                      'تواصل معنا عبر منصاتنا الرسمية',
-                      style: TextStyle(
+                    child: Text(
+                      'connect_via_platforms'.tr(),
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontWeight: FontWeight.bold),
@@ -302,7 +302,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text('عذراً، لا يمكن فتح هذا الرابط حالياً')),
+                      content: Text('auto_str_053'.tr())),
                 );
               }
             }
@@ -360,10 +360,10 @@ class _FollowUsPageState extends State<FollowUsPage> {
     }
 
     final title = priceService.getDisplaySetting('supportTitle',
-        defaultValue: 'دعم فني وتواصل');
+        defaultValue: 'support_title_default'.tr());
     final subtitle = priceService.getDisplaySetting('supportSubtitle',
         defaultValue:
-            'فريقنا متاح للرد على استفساراتكم وملاحظاتكم على مدار الساعة.');
+            'support_subtitle_default'.tr());
     String supportWhatsapp =
         priceService.getDisplaySetting('supportWhatsapp') ?? '';
     if (supportWhatsapp.trim().isEmpty) {
@@ -425,8 +425,8 @@ class _FollowUsPageState extends State<FollowUsPage> {
               } else {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('عذراً، لا يمكن فتح واتساب حالياً')),
+                    SnackBar(
+                        content: Text('cannot_open_whatsapp'.tr())),
                   );
                 }
               }
@@ -439,15 +439,15 @@ class _FollowUsPageState extends State<FollowUsPage> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFF25D366), width: 1),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.message_rounded,
+                  const Icon(Icons.message_rounded,
                       color: Color(0xFF25D366), size: 20),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
-                    'تواصل عبر واتساب',
-                    style: TextStyle(
+                    'contact_whatsapp'.tr(),
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF25D366),
@@ -470,7 +470,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildLegalLinkItem('سياسة الخصوصية', () {
+            _buildLegalLinkItem('privacy_policy'.tr(), () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const PrivacyPolicyPage()),
@@ -482,7 +482,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               color: Colors.black12,
             ),
-            _buildLegalLinkItem('اتفاقية الاستخدام', () {
+            _buildLegalLinkItem('terms_of_service'.tr(), () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const TermsOfServicePage()),
@@ -529,9 +529,9 @@ class _FollowUsPageState extends State<FollowUsPage> {
               fontWeight: FontWeight.w600,
               color: AppColors.mutedText.withValues(alpha: 0.2),
             ),
-            children: const [
-              TextSpan(text: 'برمجة وتطوير '),
-              TextSpan(
+            children: [
+              TextSpan(text: '${'developed_by'.tr()} '),
+              const TextSpan(
                 text: 'toiall',
                 style: TextStyle(
                   color: Color(0xFF2196F3),
@@ -552,15 +552,15 @@ class _FollowUsPageState extends State<FollowUsPage> {
 
     return Column(
       children: [
-        _buildSectionHeader('ادعمنا وشاركه'),
+        _buildSectionHeader('support_and_share'.tr()),
         const SizedBox(height: 20),
         Row(
           children: [
             // Rate Us Button
             Expanded(
               child: _buildPromoButton(
-                title: 'قيمنا الآن',
-                subtitle: 'على متجر Google Play',
+                title: 'rate_us'.tr(),
+                subtitle: 'on_play_store'.tr(),
                 icon: Icons.star_rounded,
                 color: Colors.amber.shade700,
                 onTap: () async {
@@ -577,14 +577,14 @@ class _FollowUsPageState extends State<FollowUsPage> {
             // Share App Button
             Expanded(
               child: _buildPromoButton(
-                title: 'شارك التطبيق',
-                subtitle: 'مع الأصدقاء والعائلة',
+                title: 'share_app'.tr(),
+                subtitle: 'with_friends'.tr(),
                 icon: Icons.share_rounded,
                 color: Colors.blue.shade600,
                 onTap: () {
                   Share.share(
-                    'تابع أسعار الذهب والعملات لحظة بلحظة مع تطبيق غولد شام. حمله الآن من متجر بلاي: \n$playStoreUrl',
-                    subject: 'تطبيق غولد شام للذهب والعملات',
+                    '${'share_app_text'.tr()} \n$playStoreUrl',
+                    subject: 'share_app_subject'.tr(),
                   );
                 },
               ),
@@ -741,7 +741,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                   underline: const SizedBox(),
                   icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
                   items: const [
-                    DropdownMenuItem(value: 'ar', child: Text('العربية')),
+                    DropdownMenuItem(value: 'ar', child: Text('auto_str_330'.tr())),
                     DropdownMenuItem(value: 'en', child: Text('English')),
                     DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
                   ],

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +45,7 @@ class PortfolioPage extends StatelessWidget {
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 50),
               title: const Text(
-                'محفظة أصول الذهب',
+                'auto_str_213'.tr(),
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
@@ -112,7 +113,7 @@ class PortfolioPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'إجمالي القيمة التقديرية الحالية',
+                            'auto_str_074'.tr(),
                             style: TextStyle(
                               color: Colors.white70,
                               fontSize: 13,
@@ -183,17 +184,17 @@ class PortfolioPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildPortfolioStat(
-                            title: 'صافي الربح/الخسارة',
+                            title: 'auto_str_174'.tr(),
                             value: '${isProfit ? "+" : ""}${numberFormat.format(totalPnL)} ${country.currencySymbol}',
                             color: isProfit ? AppColors.liveGreen : Colors.redAccent,
                           ),
                           _buildPortfolioStat(
-                            title: 'الوزن الصافي (24K)',
+                            title: 'auto_str_170'.tr(),
                             value: '${portfolioProvider.totalPureWeightGrams.toStringAsFixed(1)} غرام',
                             color: AppColors.gold,
                           ),
                           _buildPortfolioStat(
-                            title: 'عدد الأصول',
+                            title: 'auto_str_290'.tr(),
                             value: '${portfolioProvider.items.length} قطع',
                             color: Colors.white,
                           ),
@@ -214,7 +215,7 @@ class PortfolioPage extends StatelessWidget {
                     },
                     icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 20),
                     label: const Text(
-                      'إضافة سبيكة أو مجوهرات للمحفظة',
+                      'auto_str_081'.tr(),
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontWeight: FontWeight.w900,
@@ -265,12 +266,12 @@ class PortfolioPage extends StatelessWidget {
                         Icon(Icons.account_balance_wallet_outlined, size: 54, color: AppColors.gold.withValues(alpha: 0.5)),
                         const SizedBox(height: 14),
                         const Text(
-                          'محفظتك الذهبية فارغة حالياً',
+                          'auto_str_101'.tr(),
                           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, fontFamily: 'Cairo'),
                         ),
                         const SizedBox(height: 6),
                         const Text(
-                          'أضف سبائكك أو مجوهراتك أو عملاتك الذهبية لمتابعة قيمتها وأرباحها لحظة بلحظة وبخصوصية تامة على جهازك.',
+                          'auto_str_017'.tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12, color: AppColors.mutedText, fontFamily: 'Cairo'),
                         ),
@@ -414,7 +415,7 @@ class PortfolioPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'إضافة أصل جديد للمحفظة',
+                      'auto_str_131'.tr(),
                       style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, fontFamily: 'Cairo'),
                     ),
                     const SizedBox(height: 16),
@@ -423,7 +424,7 @@ class PortfolioPage extends StatelessWidget {
                     TextField(
                       controller: titleController,
                       decoration: InputDecoration(
-                        labelText: 'اسم الأصل (مثلاً: سبيكة 50غ أو طقم ذهب)',
+                        labelText: 'auto_str_047'.tr(),
                         labelStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 13),
                         filled: true,
                         fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
@@ -439,11 +440,11 @@ class PortfolioPage extends StatelessWidget {
                           child: DropdownButtonFormField<String>(
                             initialValue: selectedKarat,
                             items: ['24', '22', '21', '18', '14', 'silver']
-                                .map((k) => DropdownMenuItem(value: k, child: Text(k == 'silver' ? 'فضة' : 'عيار $k', style: const TextStyle(fontFamily: 'Cairo'))))
+                                .map((k) => DropdownMenuItem(value: k, child: Text(k == 'silver' ? 'auto_str_380'.tr() : 'عيار $k', style: const TextStyle(fontFamily: 'Cairo'))))
                                 .toList(),
                             onChanged: (val) => setModalState(() => selectedKarat = val ?? '24'),
                             decoration: InputDecoration(
-                              labelText: 'العيار',
+                              labelText: 'auto_str_338'.tr(),
                               filled: true,
                               fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
@@ -456,7 +457,7 @@ class PortfolioPage extends StatelessWidget {
                             controller: weightController,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             decoration: InputDecoration(
-                              labelText: 'الوزن (غرام)',
+                              labelText: 'auto_str_261'.tr(),
                               labelStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 13),
                               filled: true,
                               fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
@@ -476,7 +477,7 @@ class PortfolioPage extends StatelessWidget {
                             controller: buyPriceController,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             decoration: InputDecoration(
-                              labelText: 'سعر الشراء للجرام',
+                              labelText: 'auto_str_189'.tr(),
                               labelStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 13),
                               filled: true,
                               fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
@@ -490,7 +491,7 @@ class PortfolioPage extends StatelessWidget {
                             controller: makingChargeController,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             decoration: InputDecoration(
-                              labelText: 'المصنعية للجرام',
+                              labelText: 'auto_str_222'.tr(),
                               labelStyle: const TextStyle(fontFamily: 'Cairo', fontSize: 13),
                               filled: true,
                               fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
@@ -514,7 +515,7 @@ class PortfolioPage extends StatelessWidget {
 
                           if (weight <= 0 || buyPrice <= 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('يرجى إدخال الوزن وسعر الشراء بدقة', style: TextStyle(fontFamily: 'Cairo'))),
+                              const SnackBar(content: Text('auto_str_067'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
                             );
                             return;
                           }
@@ -539,7 +540,7 @@ class PortfolioPage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                         ),
-                        child: const Text('حفظ الأصل في المحفظة', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 15, fontFamily: 'Cairo')),
+                        child: const Text('auto_str_154'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 15, fontFamily: 'Cairo')),
                       ),
                     ),
                   ],

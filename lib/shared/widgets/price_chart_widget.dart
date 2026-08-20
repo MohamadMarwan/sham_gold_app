@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 
@@ -214,9 +215,9 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildStatItem('أعلى', max, AppColors.darkGreen),
-        _buildStatItem('أدنى', min, AppColors.mutedText),
-        _buildStatItem('التغير', change, changeColor),
+        _buildStatItem('highest'.tr(), max, AppColors.darkGreen),
+        _buildStatItem('lowest'.tr(), min, AppColors.mutedText),
+        _buildStatItem('change'.tr(), change, changeColor),
       ],
     );
   }
@@ -249,8 +250,8 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Center(
-        child: Text('لا توجد بيانات كافية للرسم البياني',
+      child: Center(
+        child: Text('no_chart_data'.tr(),
             style: TextStyle(color: AppColors.mutedText)),
       ),
     );

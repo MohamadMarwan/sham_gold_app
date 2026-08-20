@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class ShareService {
     String? customText,
   }) async {
     if (kIsWeb) {
-      _showError(context, 'المشاركة كصورة غير مدعومة حالياً على المتصفح');
+      _showError(context, 'auto_str_041'.tr());
       return;
     }
     try {
@@ -29,7 +30,7 @@ class ShareService {
 
       if (imageBytes == null) {
         if (context.mounted) {
-          _showError(context, 'فشل التقاط الصورة');
+          _showError(context, 'auto_str_190'.tr());
         }
         return;
       }
@@ -43,22 +44,22 @@ class ShareService {
 
       // النص المرافق للمشاركة
       final shareText = customText ??
-          '💰 أسعار الذهب والعملات الحية من غولد شام\n'
-              '📱 تطبيق غولد شام - أسعار دقيقة ومحدّثة لحظياً\n'
+          'auto_str_043'.tr()
+              'auto_str_036'.tr()
               '⏰ ${DateTime.now().toString().split('.')[0]}';
 
       // مشاركة الصورة مع النص
       await Share.shareXFiles(
         [XFile(imagePath)],
         text: shareText,
-        subject: 'أسعار الذهب والعملات - غولد شام',
+        subject: 'auto_str_073'.tr(),
       );
 
       // حذف الملف المؤقت بعد المشاركة
       await imageFile.delete();
 
       if (context.mounted) {
-        _showSuccess(context, 'تم المشاركة بنجاح!');
+        _showSuccess(context, 'auto_str_173'.tr());
       }
     } catch (e) {
       if (context.mounted) {
@@ -75,7 +76,7 @@ class ShareService {
     try {
       await Share.share(
         text,
-        subject: subject ?? 'من تطبيق غولد شام',
+        subject: subject ?? 'auto_str_193'.tr(),
       );
     } catch (e) {
       debugPrint('خطأ في المشاركة: $e');
@@ -92,17 +93,15 @@ class ShareService {
   }) async {
     final content = '''
 🏆 $itemName
-📊 سعر الشراء: ${buyPrice.toStringAsFixed(0)} ${currency ?? 'ل.س'}
-💵 سعر المبيع: ${sellPrice.toStringAsFixed(0)} ${currency ?? 'ل.س'}
+📊 سعر الشراء: ${buyPrice.toStringAsFixed(0)} ${currency ?? 'auto_str_381'.tr()}
+💵 سعر المبيع: ${sellPrice.toStringAsFixed(0)} ${currency ?? 'auto_str_381'.tr()}
 
-⏰ ${DateTime.now().toString().split('.')[0]}
-📱 تطبيق غولد شام - أسعار دقيقة ومحدّثة
-''';
+⏰ ${DateTime.now().toString().split('.'auto_str_038'.tr()'';
 
     await ShareService.shareText(text: content);
 
     if (context.mounted) {
-      _showSuccess(context, 'تم مشاركة السعر بنجاح!');
+      _showSuccess(context, 'auto_str_137'.tr());
     }
   }
 
@@ -154,7 +153,7 @@ class ShareService {
       backgroundColor: const Color(0xFFD4AF37), // لون ذهبي
       icon: const Icon(Icons.share_rounded, color: Colors.white),
       label: const Text(
-        'مشاركة',
+        'auto_str_344'.tr(),
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -176,7 +175,7 @@ class ShareService {
         Icons.share_rounded,
         color: color ?? const Color(0xFFD4AF37),
       ),
-      tooltip: 'مشاركة',
+      tooltip: 'auto_str_344'.tr(),
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(),
       splashRadius: 24,

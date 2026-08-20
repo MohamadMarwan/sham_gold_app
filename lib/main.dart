@@ -35,6 +35,8 @@ void main() async {
   // Start the app immediately to prevent hanging on the native green splash
   await EasyLocalization.ensureInitialized();
   
+  await CacheService.init();
+  
   runApp(
     EasyLocalization(
       supportedLocales: const [Locale('ar'), Locale('en'), Locale('tr')],

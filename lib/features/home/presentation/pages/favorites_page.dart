@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/utils/currency_utils.dart';
@@ -42,7 +43,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('تم الحذف من المفضلة'),
+          content: Text('auto_str_163'.tr()),
           duration: Duration(seconds: 2),
           backgroundColor: Colors.orange,
         ),
@@ -143,7 +144,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 _buildCircularButton(Icons.arrow_back_ios_new_rounded,
                     () => Navigator.pop(context)),
                 const Text(
-                  'المفضلة',
+                  'auto_str_331'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -211,7 +212,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 size: 100, color: Colors.grey[200]),
             const SizedBox(height: 24),
             Text(
-              'المفضلة فارغة',
+              'auto_str_253'.tr(),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
@@ -220,7 +221,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             ),
             const SizedBox(height: 8),
             Text(
-              'أضف العناصر التي تهمك للوصول السريع',
+              'auto_str_055'.tr(),
               style: TextStyle(color: Colors.grey[400], fontSize: 13),
             ),
           ],
@@ -363,7 +364,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     if (item.title.contains('18')) {
       return CustomIcon.gold18k(size: 32);
     }
-    if (item.metalType == 'gold' && item.title.contains('أونصة')) {
+    if (item.metalType == 'gold' && item.title.contains('auto_str_348'.tr())) {
       return CustomIcon.goldOunce(size: 32);
     }
     if (item.metalType == 'silver') {

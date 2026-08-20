@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -75,7 +76,7 @@ class SettingsProvider with ChangeNotifier {
       updateSettings(response, saveData: true);
     } catch (e) {
       if (currentSettings == null) {
-        updateSettings({'appName': 'غولد شام', 'logoUrl': '', 'socialLinks': {}}, saveData: false);
+        updateSettings({'appName': 'auto_str_320'.tr(), 'logoUrl': '', 'socialLinks': {}}, saveData: false);
       }
     }
   }

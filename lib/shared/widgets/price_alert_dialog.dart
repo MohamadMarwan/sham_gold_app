@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../core/constants/app_colors.dart';
 import '../models/price_item.dart';
 import '../services/price_service.dart';
@@ -46,15 +47,15 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
       if (success) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('تم ضبط التنبيه بنجاح'),
+          SnackBar(
+            content: Text('alert_success'.tr()),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('فشل ضبط التنبيه'),
+          SnackBar(
+            content: Text('alert_failed'.tr()),
             backgroundColor: Colors.red,
           ),
         );
@@ -83,7 +84,7 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'ضبط تنبيه: ${widget.priceItem.title}',
+                'set_alert_title'.tr(args: [widget.priceItem.title]),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
@@ -97,16 +98,16 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
             ],
           ),
           const SizedBox(height: 24),
-          const Text(
-            'نبهني عندما يكون السعر:',
+          Text(
+            'notify_when_price'.tr(),
             style: TextStyle(fontSize: 14, color: AppColors.mutedText),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildConditionChip('أعلى من', 'above'),
+              _buildConditionChip('above'.tr(), 'above'),
               const SizedBox(width: 12),
-              _buildConditionChip('أقل من', 'below'),
+              _buildConditionChip('below'.tr(), 'below'),
             ],
           ),
           const SizedBox(height: 24),
@@ -119,8 +120,8 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
                 color: AppColors.darkGreen,
                 fontFamily: 'Roboto'),
             decoration: InputDecoration(
-              labelText: 'ادخل السعر المستهدف',
-              suffixText: widget.priceItem.currency == 'USD' ? '\$' : 'ل.س',
+              labelText: 'enter_target_price'.tr(),
+              suffixText: widget.priceItem.currency == 'USD' ? '\$' : 'auto_str_381'.tr(),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               focusedBorder: OutlineInputBorder(
@@ -143,7 +144,7 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
               ),
               child: _isSaving
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('حفظ التنبيه',
+                  : Text('save_alert'.tr(),
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
