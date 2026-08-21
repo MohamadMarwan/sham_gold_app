@@ -112,7 +112,7 @@ class _LiveIndicatorState extends State<LiveIndicator>
             )
           else
             Icon(Icons.lock_clock_outlined, size: 12, color: activeColor),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             widget.isClosed ? 'auto_str_281'.tr() : 'auto_str_358'.tr(),
             style: TextStyle(

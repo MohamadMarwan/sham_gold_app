@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/price_item.dart';
@@ -9,15 +9,15 @@ import '../../../../shared/widgets/custom_icon.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
 import '../../../../core/utils/currency_utils.dart';
 
-class CalculatorWidget extends StatefulWidget {
+class CalculatorWidget extends ConsumerStatefulWidget {
   final bool showHeader;
   const CalculatorWidget({super.key, this.showHeader = true});
 
   @override
-  State<CalculatorWidget> createState() => _CalculatorWidgetState();
+  ConsumerState<CalculatorWidget> createState() => _CalculatorWidgetState();
 }
 
-class _CalculatorWidgetState extends State<CalculatorWidget> {
+class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _totalController = TextEditingController();
   String _selectedId = 'sy_usd'; // Default to USD for currencies page context
@@ -42,7 +42,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
   void _onAmountChanged() {
     if (_isReverse) return;
     final amount = double.tryParse(_amountController.text) ?? 0;
-    final service = Provider.of<PriceService>(context, listen: false);
+    final service = ref.read(priceServiceProvider);
     final price = service.currentPrices.firstWhere(
       (p) => p.id == _selectedId,
       orElse: () => PriceItem.empty(),
@@ -57,7 +57,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
   void _onTotalChanged() {
     if (!_isReverse) return;
     final total = double.tryParse(_totalController.text) ?? 0;
-    final service = Provider.of<PriceService>(context, listen: false);
+    final service = ref.read(priceServiceProvider);
     final price = service.currentPrices.firstWhere(
       (p) => p.id == _selectedId,
       orElse: () => PriceItem.empty(),
@@ -73,7 +73,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
     final prices = priceService.currentPrices;
 
     // Ensure selected ID exists
@@ -115,7 +115,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                   child: const Icon(Icons.calculate_rounded,
                       color: AppColors.gold, size: 24),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 const Text(
                   'auto_str_232'.tr(),
                   style: TextStyle(
@@ -126,12 +126,12 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
           ],
           _buildSelector(prices),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildInputSection(selectedPrice),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildInfoBanner(),
         ],
       ),
@@ -159,7 +159,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
               child: Row(
                 children: [
                   _getFlagForId(p.id, p.title),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Text(p.title,
                         maxLines: 1,
@@ -233,10 +233,10 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
           onTap: () => setState(() => _isReverse = false),
           isActive: !_isReverse,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         // Exchange Icon
         const Icon(Icons.swap_vert_rounded, color: AppColors.gold, size: 24),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         // Total Field
         _buildTextField(
           controller: _totalController,
@@ -290,7 +290,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
               Icon(icon,
                   size: 16,
                   color: isActive ? AppColors.gold : AppColors.mutedText),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(label,
                   style: TextStyle(
                       fontSize: 12,
@@ -300,7 +300,7 @@ class _CalculatorWidgetState extends State<CalculatorWidget> {
                           : AppColors.mutedText)),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             children: [
               Expanded(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
 
@@ -7,12 +7,12 @@ import 'package:gold_sham/core/providers/country_provider.dart';
 /// يظهر للمستخدم في الجزء العلوي من الشاشة عندما ينقطع الاتصال بالإنترنت
 /// ويشير إلى أن الأسعار المعروضة حالياً مأخوذة من الذاكرة المحلية (Cache)
 /// وليست محدثة بالضرورة في اللحظة الحالية.
-class OfflineNoticeBanner extends StatelessWidget {
+class OfflineNoticeBanner extends ConsumerWidget {
   const OfflineNoticeBanner({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final countryProvider = Provider.of<CountryProvider>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final countryProvider = ref.watch(countryProvider);
     if (!countryProvider.isOffline) return const SizedBox.shrink();
 
     final lastSync = countryProvider.lastOfflineSyncTime;
@@ -31,7 +31,7 @@ class OfflineNoticeBanner extends StatelessWidget {
       child: Row(
         children: [
           const Icon(Icons.wifi_off_rounded, color: Color(0xFFB45309), size: 20),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
               'offline_notice'.tr(args: [lastSyncText]),

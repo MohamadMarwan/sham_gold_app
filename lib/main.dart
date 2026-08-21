@@ -1,9 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/config/app_config.dart';
-import 'shared/services/price_service.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/home/presentation/pages/splash_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,12 +14,8 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'core/services/socket_service.dart';
-import 'core/services/http_api_service.dart';
 import 'core/services/cache_service.dart';
 import 'core/providers/settings_provider.dart';
-import 'core/providers/country_provider.dart';
-import 'core/providers/portfolio_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,12 +33,14 @@ void main() async {
   await CacheService.init();
   
   runApp(
-    EasyLocalization(
-      supportedLocales: const [Locale('ar'), Locale('en'), Locale('tr')],
-      path: 'assets/translations',
-      fallbackLocale: const Locale('ar'),
-      startLocale: const Locale('ar'),
-      child: const GoldShamApp(),
+    ProviderScope(
+      child: EasyLocalization(
+        supportedLocales: const [Locale('ar'), Locale('en'), Locale('tr')],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('ar'),
+        startLocale: const Locale('ar'),
+        child: const GoldShamApp(),
+      ),
     ),
   );
 
@@ -73,58 +70,32 @@ Future<void> _initializeBackgroundServices() async {
   }
 }
 
-class GoldShamApp extends StatelessWidget {
+class GoldShamApp extends ConsumerWidget {
   const GoldShamApp({super.key});
+  
   @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<SettingsProvider>(
-          create: (_) => SettingsProvider(),
-        ),
-        ChangeNotifierProvider<CountryProvider>(
-          create: (_) => CountryProvider(),
-        ),
-        ChangeNotifierProvider<PortfolioProvider>(
-          create: (_) => PortfolioProvider(),
-        ),
-        ChangeNotifierProxyProvider<SettingsProvider, PriceService>(
-          create: (context) => PriceService(
-            SocketService(),
-            HttpApiService(),
-            CacheService(),
-            Provider.of<SettingsProvider>(context, listen: false),
-          ),
-          update: (context, settingsProvider, previous) => previous ?? PriceService(
-            SocketService(),
-            HttpApiService(),
-            CacheService(),
-            settingsProvider,
-          ),
-        ),
-      ],
-      child: Consumer<SettingsProvider>(
-        builder: (context, settings, _) => MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          title: 'app_name'.tr(),
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: settings.themeMode,
-        builder: (context, child) {
-          return ShowCaseWidget(
-            builder: (context) => child!,
-          );
-        },
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const SplashPage(),
-          '/home': (context) => const HomePage(),
-        },
-      ),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(settingsProvider);
+    
+    return MaterialApp(
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      title: 'app_name'.tr(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: settings.themeMode,
+      builder: (context, child) {
+        return ShowCaseWidget(
+          builder: (context) => child!,
+        );
+      },
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashPage(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
@@ -7,15 +7,15 @@ import '../../../../core/services/ad_service.dart';
 import 'home_page.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 
-class SplashPage extends StatefulWidget {
+class SplashPage extends ConsumerStatefulWidget {
   final bool fromResume;
   const SplashPage({super.key, this.fromResume = false});
 
   @override
-  State<SplashPage> createState() => _SplashPageState();
+  ConsumerState<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage>
+class _SplashPageState extends ConsumerState<SplashPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -47,7 +47,7 @@ class _SplashPageState extends State<SplashPage>
   }
 
   Future<void> _initializeApp() async {
-    final priceService = Provider.of<PriceService>(context, listen: false);
+    final priceService = ref.read(priceServiceProvider);
     final adService = AdService();
 
     if (widget.fromResume) {
@@ -108,7 +108,7 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
 
     return Scaffold(
       backgroundColor: AppColors.darkGreen,
@@ -180,7 +180,7 @@ class _SplashPageState extends State<SplashPage>
                               ],
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 10),
@@ -210,7 +210,7 @@ class _SplashPageState extends State<SplashPage>
                       opacity: _fadeAnimation,
                       child: Column(
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 35,
                             height: 35,
                             child: CircularProgressIndicator(
@@ -218,7 +218,7 @@ class _SplashPageState extends State<SplashPage>
                               strokeWidth: 3,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           Text(
                             'loading_data'.tr(),
                             style: TextStyle(

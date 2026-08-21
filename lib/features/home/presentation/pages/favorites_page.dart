@@ -1,6 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/services/favorites_service.dart';
@@ -10,14 +10,14 @@ import 'price_detail_page.dart';
 import '../../../../shared/widgets/custom_icon.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
 
-class FavoritesPage extends StatefulWidget {
+class FavoritesPage extends ConsumerStatefulWidget {
   const FavoritesPage({Key? key}) : super(key: key);
 
   @override
-  State<FavoritesPage> createState() => _FavoritesPageState();
+  ConsumerState<FavoritesPage> createState() => _FavoritesPageState();
 }
 
-class _FavoritesPageState extends State<FavoritesPage> {
+class _FavoritesPageState extends ConsumerState<FavoritesPage> {
   final FavoritesService _favoritesService = FavoritesService();
   List<String> _favoriteIds = [];
   bool _isLoading = true;
@@ -53,7 +53,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -156,7 +156,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 }, color: Colors.white.withValues(alpha: 0.2)),
               ],
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
@@ -169,7 +169,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 children: [
                   const Icon(Icons.star_rounded,
                       color: AppColors.gold, size: 20),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Text(
                     '$count عنصر في قائمة المتابعة',
                     style: const TextStyle(
@@ -210,7 +210,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           children: [
             Icon(Icons.star_outline_rounded,
                 size: 100, color: Colors.grey[200]),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               'auto_str_253'.tr(),
               style: TextStyle(
@@ -219,7 +219,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 color: Colors.grey[400],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               'auto_str_055'.tr(),
               style: TextStyle(color: Colors.grey[400], fontSize: 13),
@@ -283,7 +283,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   ),
                   child: _buildItemIcon(item),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,7 +291,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       Text(item.title,
                           style: const TextStyle(
                               fontWeight: FontWeight.w800, fontSize: 16)),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         priceText,
                         style: const TextStyle(
@@ -307,7 +307,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     _buildTrendBadge(item),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     const Icon(Icons.arrow_forward_ios_rounded,
                         size: 14, color: Colors.grey),
                   ],

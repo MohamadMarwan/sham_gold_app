@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
@@ -19,12 +19,12 @@ import 'package:gold_sham/shared/widgets/dynamic_asset_icon_v2.dart';
 import 'package:gold_sham/shared/widgets/last_update_ticker.dart';
 import 'package:gold_sham/features/home/presentation/widgets/calculator_widget.dart';
 
-class CurrenciesPage extends StatelessWidget {
+class CurrenciesPage extends ConsumerWidget {
   const CurrenciesPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final priceService = ref.watch(priceServiceProvider);
     final allPrices = priceService.currentPrices;
 
     DateTime? latestUpdate;
@@ -140,7 +140,7 @@ class CurrenciesPage extends StatelessWidget {
                                   ),
                                   const Icon(Icons.speed_rounded,
                                       color: AppColors.gold, size: 14),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8),
                                   LastUpdateTicker(
                                     lastUpdate: latestUpdate,
                                     style: const TextStyle(
@@ -221,24 +221,24 @@ class CurrenciesPage extends StatelessWidget {
                         if (priceService
                             .shouldShow('currencyShowSummaryWelcome')) ...[
                           _buildWelcomeCard(),
-                          const SizedBox(height: 32),
+                          SizedBox(height: 32),
                         ],
                         if (syrianCurrencies.isNotEmpty) ...[
                           _buildSectionHeader(
                               'auto_str_062'.tr(),
                               Icons.account_balance_rounded),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           ...syrianCurrencies.map((item) => Padding(
                                 padding: const EdgeInsets.only(bottom: 16),
                                 child: _buildPremiumCurrencyCard(item, context),
                               )),
                         ],
                         if (turkishCurrencies.isNotEmpty) ...[
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           _buildSectionHeader(
                               'auto_str_061'.tr(),
                               Icons.currency_lira_rounded),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           ...turkishCurrencies.map((item) => Padding(
                                 padding: const EdgeInsets.only(bottom: 16),
                                 child: _buildPremiumCurrencyCard(item, context),
@@ -247,9 +247,9 @@ class CurrenciesPage extends StatelessWidget {
                         // 🧮 Calculator Section
                         if (priceService
                             .shouldShow('currencyShowCalculator')) ...[
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                           const CalculatorWidget(),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                         ],
                       ]),
                     ),
@@ -294,7 +294,7 @@ class CurrenciesPage extends StatelessWidget {
             child: const Icon(Icons.currency_exchange_rounded,
                 color: AppColors.gold, size: 36),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,7 +374,7 @@ class CurrenciesPage extends StatelessWidget {
                     ),
                     child: Center(child: _buildFlagIcon(item.id, item.title)),
                   ),
-                  const SizedBox(width: 18),
+                  SizedBox(width: 18),
 
                   // 2. Title & Subtitle (Middle)
                   Expanded(
@@ -392,7 +392,7 @@ class CurrenciesPage extends StatelessWidget {
                             color: AppColors.darkGreen,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         const Text(
                           'auto_str_207'.tr(),
                           textAlign: TextAlign.right,
@@ -405,7 +405,7 @@ class CurrenciesPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 18),
+                  SizedBox(width: 18),
 
                   // 3. Price Side (LEFT in RTL)
                   Column(
@@ -413,7 +413,7 @@ class CurrenciesPage extends StatelessWidget {
                     children: [
                       _buildPriceRow('auto_str_361'.tr(), item.buyPrice,
                           item.currency == 'TRY' ? '₺' : 'auto_str_381'.tr()),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       _buildPriceRow('auto_str_359'.tr(), item.sellPrice,
                           item.currency == 'TRY' ? '₺' : 'auto_str_381'.tr(),
                           isSell: true),
@@ -421,13 +421,13 @@ class CurrenciesPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // 4. Bottom Row (Actions & Visuals)
               Row(
                 children: [
                   FavoriteToggleButton(priceId: item.id),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   IconButton(
                     onPressed: () {
                       HapticFeedback.lightImpact();
@@ -444,7 +444,7 @@ class CurrenciesPage extends StatelessWidget {
                     constraints: const BoxConstraints(),
                   ),
                   if (item.lastUpdate != null) ...[
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Text(
                       'تحديث: ${DateFormat('hh:mm a', 'ar').format(item.lastUpdate!)}',
                       style: const TextStyle(
@@ -489,7 +489,7 @@ class CurrenciesPage extends StatelessWidget {
                 : Colors.green.withValues(alpha: 0.7),
           ),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(
           format.format(price),
           style: const TextStyle(
@@ -499,7 +499,7 @@ class CurrenciesPage extends StatelessWidget {
             fontFamily: 'Roboto',
           ),
         ),
-        const SizedBox(width: 4),
+        SizedBox(width: 4),
         Text(
           symbol,
           style: const TextStyle(
@@ -647,7 +647,7 @@ class CurrenciesPage extends StatelessWidget {
           ),
           child: Icon(icon, color: AppColors.gold, size: 20),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12),
         Text(
           title,
           style: const TextStyle(
@@ -681,7 +681,7 @@ class CurrenciesPage extends StatelessWidget {
           children: [
             Icon(Icons.money_off_csred_rounded,
                 size: 80, color: Colors.grey.withValues(alpha: 0.2)),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             const Text('auto_str_120'.tr(),
                 style: TextStyle(
                     fontWeight: FontWeight.w900,

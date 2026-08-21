@@ -1,18 +1,18 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gold_sham/shared/services/price_service.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'dart:async';
 
-class QuickNewsTicker extends StatefulWidget {
+class QuickNewsTicker extends ConsumerStatefulWidget {
   const QuickNewsTicker({super.key});
 
   @override
-  State<QuickNewsTicker> createState() => _QuickNewsTickerState();
+  ConsumerState<QuickNewsTicker> createState() => _QuickNewsTickerState();
 }
 
-class _QuickNewsTickerState extends State<QuickNewsTicker> {
+class _QuickNewsTickerState extends ConsumerState<QuickNewsTicker> {
   late ScrollController _scrollController;
   Timer? _timer;
   double _scrollPosition = 0;
@@ -47,7 +47,7 @@ class _QuickNewsTickerState extends State<QuickNewsTicker> {
 
   @override
   Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
     if (!priceService.shouldShow('homeShowNewsTicker')) {
       return const SizedBox.shrink();
     }

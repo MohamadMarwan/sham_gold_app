@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
@@ -11,14 +11,14 @@ import '../../../../core/services/savings_goal_service.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 
-class SmartCalculatorsPage extends StatefulWidget {
+class SmartCalculatorsPage extends ConsumerStatefulWidget {
   const SmartCalculatorsPage({super.key});
 
   @override
-  State<SmartCalculatorsPage> createState() => _SmartCalculatorsPageState();
+  ConsumerState<SmartCalculatorsPage> createState() => _SmartCalculatorsPageState();
 }
 
-class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
+class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
   int? _selectedCalculatorIndex;
 
   // Controllers - Zakat
@@ -78,7 +78,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
   }
 
   void _prefillLivePrices() {
-    final priceService = Provider.of<PriceService>(context, listen: false);
+    final priceService = ref.read(priceServiceProvider);
     final allPrices = priceService.currentPrices;
 
     final p24 = allPrices.where((p) => p.id.contains('24') || p.id == 'xau_usd').firstOrNull;
@@ -123,7 +123,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = Provider.of<CountryProvider>(context);
+    final countryProvider = ref.watch(countryProvider);
     final country = countryProvider.selectedCountry;
 
     return Scaffold(
@@ -176,7 +176,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 onTap: () => setState(() => _selectedCalculatorIndex = 0),
                 isDark: isDark,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildCalculatorCard(
                 title: 'making_charge_calculator'.tr(),
                 subtitle: 'making_charge_desc'.tr(),
@@ -185,7 +185,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 onTap: () => setState(() => _selectedCalculatorIndex = 1),
                 isDark: isDark,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildCalculatorCard(
                 title: 'weight_converter'.tr(),
                 subtitle: 'weight_converter_desc'.tr(),
@@ -194,7 +194,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 onTap: () => setState(() => _selectedCalculatorIndex = 2),
                 isDark: isDark,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildCalculatorCard(
                 title: 'roi_calculator'.tr(),
                 subtitle: 'roi_calculator_desc'.tr(),
@@ -203,7 +203,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 onTap: () => setState(() => _selectedCalculatorIndex = 3),
                 isDark: isDark,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildCalculatorCard(
                 title: 'auto_str_269'.tr(),
                 subtitle: 'auto_str_040'.tr(),
@@ -256,7 +256,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               ),
               child: Icon(icon, size: 32, color: color),
             ),
-            const SizedBox(width: 20),
+            SizedBox(width: 20),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +270,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                       color: isDark ? Colors.white : AppColors.darkGreen,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     subtitle,
                     style: TextStyle(
@@ -316,7 +316,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         content = _buildSavingsGoalTab(isDark, country);
         break;
       default:
-        content = const SizedBox();
+        content = SizedBox();
         title = '';
     }
 
@@ -346,7 +346,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 48), // Balance the icon button
+              SizedBox(width: 48), // Balance the icon button
             ],
           ),
         ),
@@ -357,7 +357,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
 
   // --- 1. Zakat Tab ---
   Widget _buildZakatTab(bool isDark, dynamic country) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
     final allPrices = priceService.currentPrices;
     final p24 = allPrices.where((p) => p.id.contains('24') || p.id == 'xau_usd').firstOrNull;
     final double gram24 = p24 != null ? (p24.id == 'xau_usd' ? p24.buyPrice / 31.1035 : p24.buyPrice) : 85.0;
@@ -374,7 +374,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             title: 'auto_str_054'.tr(),
             subtitle: 'auto_str_021'.tr(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildInputField('auto_str_142'.tr(), _zakat24Controller, isDark),
           _buildInputField('auto_str_141'.tr(), _zakat21Controller, isDark),
           _buildInputField('auto_str_140'.tr(), _zakat18Controller, isDark),
@@ -385,7 +385,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             activeThumbColor: AppColors.gold,
             onChanged: (val) => setState(() => _includeJewelry = val),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -418,7 +418,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ),
           ),
           if (_zakatResult != null) ...[
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
             _buildResultCard(
               title: _zakatResult!['isGoldNisabReached'] ? 'auto_str_161'.tr() : 'auto_str_129'.tr(),
               items: [
@@ -449,7 +449,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             title: 'auto_str_034'.tr(),
             subtitle: 'auto_str_027'.tr(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildInputField('auto_str_194'.tr(), _itemWeightController, isDark),
           _buildInputField('سعر غرام الذهب الخام (${country.currencySymbol})', _goldGramPriceController, isDark),
           _buildInputField('أجرة المصنعية للغرام الواحد (${country.currencySymbol})', _makingChargeController, isDark),
@@ -482,7 +482,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ),
           ),
           if (_makingResult != null) ...[
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
             _buildResultCard(
               title: 'auto_str_127'.tr(),
               items: [
@@ -499,7 +499,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             title: 'auto_str_052'.tr(),
             subtitle: 'auto_str_026'.tr(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildInputField('auto_str_051'.tr(), _scrapWeightController, isDark),
           _buildInputField('سعر شراء الكسر للغرام (${country.currencySymbol})', _scrapPriceController, isDark),
           _buildInputField('auto_str_059'.tr(), _stoneDeductionController, isDark),
@@ -529,7 +529,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ),
           ),
           if (_scrapResult != null) ...[
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
             _buildResultCard(
               title: 'auto_str_130'.tr(),
               items: [
@@ -556,14 +556,14 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             title: 'auto_str_060'.tr(),
             subtitle: 'auto_str_016'.tr(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 flex: 3,
                 child: _buildInputField('auto_str_339'.tr(), _convertAmountController, isDark),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 flex: 4,
                 child: Padding(
@@ -615,7 +615,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ),
           ),
           if (_conversionResult != null) ...[
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
             _buildResultCard(
               title: 'auto_str_070'.tr(),
               items: [
@@ -649,7 +649,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             title: 'auto_str_064'.tr(),
             subtitle: 'auto_str_023'.tr(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildInputField('إجمالي رأس المال المستثمر (${country.currencySymbol})', _investmentAmountController, isDark),
           _buildInputField('auto_str_110'.tr(), _buyPriceRoiController, isDark),
           _buildInputField('auto_str_146'.tr(), _currentPriceRoiController, isDark),
@@ -679,7 +679,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ),
           ),
           if (_roiResult != null) ...[
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
             _buildResultCard(
               title: _roiResult!['isProfit'] ? 'auto_str_231'.tr() : 'auto_str_186'.tr(),
               items: [
@@ -698,7 +698,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
 
   // --- 5. Gold Savings Goal Planner & DCA Tab (المقترح 3) ---
   Widget _buildSavingsGoalTab(bool isDark, dynamic country) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
     final allPrices = priceService.currentPrices;
     final p24 = allPrices.where((p) => p.id.contains('24') || p.id == 'xau_usd').firstOrNull;
     final double gram24 = p24 != null ? (p24.id == 'xau_usd' ? p24.buyPrice / 31.1035 : p24.buyPrice) : 85.0;
@@ -716,7 +716,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             title: 'auto_str_031'.tr(),
             subtitle: 'auto_str_010'.tr(),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Planner Form Card
           Container(
@@ -733,7 +733,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                   'auto_str_072'.tr(),
                   style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', fontSize: 15, color: AppColors.gold),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 // Target Type Switch (Grams vs Currency)
                 Row(
@@ -746,7 +746,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                         onSelected: (val) => setState(() => _isGoalTargetInGrams = true),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: ChoiceChip(
                         label: Center(child: Text('الهدف بالمبلغ (${country.currencySymbol}) 💵', style: const TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold))),
@@ -757,7 +757,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 _buildInputField(
                   _isGoalTargetInGrams ? 'auto_str_125'.tr() : 'المبلغ المستهدف (${country.currencySymbol})',
@@ -769,7 +769,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
 
                 // Duration Selector
                 const Text('auto_str_098'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.mutedText)),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -781,7 +781,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 SizedBox(
                   width: double.infinity,
@@ -815,7 +815,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
 
           // Plan Calculation Result
           if (_savingsPlanResult != null) ...[
-            const SizedBox(height: 18),
+            SizedBox(height: 18),
             _buildResultCard(
               title: 'auto_str_091'.tr(),
               items: [
@@ -827,7 +827,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               ],
               isHighlight: true,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -843,7 +843,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ),
           ],
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // 2. Active Savings Goals Tracker
           Row(
@@ -866,7 +866,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ],
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           if (activeGoals.isEmpty)
             Container(
@@ -965,7 +965,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                       size: 20,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -988,7 +988,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // Progress Bar
           Row(
@@ -998,7 +998,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
               Text('${progress.toStringAsFixed(1)}%', style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.w900, color: isCompleted ? const Color(0xFF00E676) : AppColors.gold)),
             ],
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
@@ -1009,7 +1009,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
             ),
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // Action: Add Contribution
           Row(
@@ -1061,13 +1061,13 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
                 controller: titleCtrl,
                 decoration: const InputDecoration(labelText: 'auto_str_105'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               TextField(
                 controller: gramsCtrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(labelText: 'auto_str_109'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               TextField(
                 controller: initialCtrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -1131,7 +1131,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text('auto_str_032'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, color: AppColors.mutedText)),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: addCtrl,
               autofocus: true,
@@ -1196,13 +1196,13 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Icon(Icons.info_outline_rounded, color: AppColors.gold, size: 22),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.gold, fontFamily: 'Cairo', fontSize: 14)),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.mutedText, fontFamily: 'Cairo', height: 1.5)),
               ],
             ),
@@ -1224,7 +1224,7 @@ class _SmartCalculatorsPageState extends State<SmartCalculatorsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: TextStyle(fontWeight: FontWeight.w900, color: isHighlight ? AppColors.gold : AppColors.primaryText, fontFamily: 'Cairo', fontSize: 16)),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ...items.map((item) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(

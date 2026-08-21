@@ -69,11 +69,11 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
       child: Column(
         children: [
           _buildHeader(isRewardActive),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildTitle(isRewardActive),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _buildSubtitle(isRewardActive),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildActionButton(isRewardActive),
         ],
       ),
@@ -121,7 +121,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
@@ -132,7 +132,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.timer_outlined, color: Colors.white, size: 14),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   'remaining_time'.tr(args: [_adService.remainingRewardTime]),
                   style: const TextStyle(
@@ -224,7 +224,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.play_circle_fill_rounded, size: 22),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(
               'watch_and_activate'.tr(),
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),

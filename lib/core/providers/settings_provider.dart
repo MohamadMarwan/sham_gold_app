@@ -7,6 +7,11 @@ import '../config/app_config.dart';
 import '../services/http_api_service.dart';
 import '../services/cache_service.dart';
 import '../../core/services/ad_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final settingsProvider = ChangeNotifierProvider<SettingsProvider>((ref) {
+  return SettingsProvider();
+});
 
 class SettingsProvider with ChangeNotifier {
   final HttpApiService _httpApiService = HttpApiService();

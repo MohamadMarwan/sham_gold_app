@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/shared/widgets/promotion_banner.dart';
@@ -27,8 +27,9 @@ import 'package:gold_sham/features/home/presentation/pages/alerts_management_pag
 import 'package:gold_sham/features/home/presentation/widgets/live_indicator.dart';
 import 'package:gold_sham/shared/widgets/last_update_ticker.dart';
 import 'package:gold_sham/features/home/presentation/widgets/quick_news_ticker.dart';
-import 'package:gold_sham/features/home/presentation/widgets/syria_summary_card.dart';
-import 'package:gold_sham/features/home/presentation/widgets/turkish_summary_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/unified_summary_card.dart';
+import 'package:gold_sham/shared/widgets/syrian_flag.dart';
+import 'package:gold_sham/shared/widgets/turkish_flag.dart';
 import 'package:gold_sham/features/home/presentation/widgets/watch_ad_reward_widget.dart';
 import 'package:gold_sham/features/home/presentation/widgets/quick_converter_widget.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -40,15 +41,15 @@ import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sh
 import 'package:gold_sham/features/home/presentation/widgets/interactive_market_chart.dart';
 import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
 
-class GoldPage extends StatefulWidget {
+class GoldPage extends ConsumerStatefulWidget {
   final Function(int)? onNavigate;
   const GoldPage({super.key, this.onNavigate});
 
   @override
-  State<GoldPage> createState() => _GoldPageState();
+  ConsumerState<GoldPage> createState() => _GoldPageState();
 }
 
-class _GoldPageState extends State<GoldPage> {
+class _GoldPageState extends ConsumerState<GoldPage> {
   bool _isCompactView = false;
   List<String> _preferredOrder = [];
 
@@ -84,7 +85,7 @@ class _GoldPageState extends State<GoldPage> {
 
   @override
   Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
     final allPrices = priceService.currentPrices;
 
     final globalDisplayItems = allPrices
@@ -266,7 +267,7 @@ class _GoldPageState extends State<GoldPage> {
                                 ),
                                 const Icon(Icons.history_toggle_off_rounded,
                                     color: AppColors.gold, size: 14),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                                 LastUpdateTicker(
                                   lastUpdate: latestUpdate,
                                   showOnlySeconds: true,
@@ -277,7 +278,7 @@ class _GoldPageState extends State<GoldPage> {
                                   ),
                                 ),
                               ] else if (!isConnected) ...[
-                                const SizedBox(width: 10),
+                                SizedBox(width: 10),
                                 Text(
                                   'offline_active'.tr(),
                                   style: TextStyle(
@@ -299,7 +300,7 @@ class _GoldPageState extends State<GoldPage> {
                   HapticFeedback.selectionClick();
                   CountrySwitcherSheet.show(context);
                 }),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 _buildHeaderIcon(Icons.notifications_active_outlined, () {
                   HapticFeedback.selectionClick();
                   Navigator.push(
@@ -307,13 +308,13 @@ class _GoldPageState extends State<GoldPage> {
                       MaterialPageRoute(
                           builder: (_) => const AlertsManagementPage()));
                 }),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 _buildHeaderIcon(Icons.star_rounded, () {
                   HapticFeedback.selectionClick();
                   Navigator.push(context,
                       MaterialPageRoute(builder: (_) => const FavoritesPage()));
                 }, isGold: true),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
               ],
             ),
             if (allPrices.isEmpty && isConnected)
@@ -323,8 +324,8 @@ class _GoldPageState extends State<GoldPage> {
                   delegate: SliverChildListDelegate([
                     _buildSectionTitle(
                         'loading'.tr(), Icons.hourglass_empty),
-                    const SizedBox(height: 20),
-                    const SizedBox(
+                    SizedBox(height: 20),
+                    SizedBox(
                       height: 180,
                       child: Row(
                         children: [
@@ -334,7 +335,7 @@ class _GoldPageState extends State<GoldPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     const PremiumCardShimmer(),
                     const PremiumCardShimmer(),
                   ]),
@@ -350,55 +351,47 @@ class _GoldPageState extends State<GoldPage> {
 
                     // 🌍 Top Country Banner with Auto-detect & Quick Switcher
                     const TopCountryBanner(),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
 
                     // 🏷️ Karat Filter Chips
                     _buildKaratFilterChips(context),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
 
                     // 💎 Smart Dual-Pricing Cards Section for Selected Country
                     _buildCountrySmartCards(context, allPrices),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
 
                     if (priceService.shouldShow('homeShowNewsTicker')) ...[
                       const QuickNewsTicker(),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                     ],
                     if (priceService.shouldShow('homeShowGlobalPulse')) ...[
                       WelcomeCard(items: allPrices),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       InteractiveMarketChart(
                         currentPrice: allPrices.where((p) => p.id == 'xau_usd').firstOrNull?.buyPrice ?? 2650.0,
                         currency: 'USD',
                         title: 'technical_analysis'.tr(),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                     ],
                     if (priceService.shouldShow('homeShowSyriaSummary')) ...[
-                      SyriaSummaryCard(
-                        onTap: () {
-                          if (widget.onNavigate != null) widget.onNavigate!(1);
-                        },
-                      ),
-                      const SizedBox(height: 16),
+                      _buildSyriaSummaryCard(allPrices),
+                      SizedBox(height: 16),
                     ],
                     if (priceService.shouldShow('homeShowTurkishSummary')) ...[
-                      TurkishSummaryCard(
-                        onTap: () {
-                          if (widget.onNavigate != null) widget.onNavigate!(3);
-                        },
-                      ),
-                      const SizedBox(height: 24),
+                      _buildTurkishSummaryCard(allPrices),
+                      SizedBox(height: 24),
                     ],
                     if (priceService.shouldShow('homeShowQuickConverter')) ...[
                       const QuickConverterWidget(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                     ],
 
                     if (globalDisplayItems.isNotEmpty) ...[
                       _buildSectionTitle('global_exchange'.tr(), Icons.language),
                       _buildLocationBanners(context, 'global_gold_mid'),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -415,12 +408,12 @@ class _GoldPageState extends State<GoldPage> {
                         itemBuilder: (context, index) =>
                             OunceCard(item: globalDisplayItems[index]),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                     ],
                     if (priceService.shouldShow('homeShowWatchAdSection',
                         defaultValue: false)) ...[
                       const WatchAdRewardWidget(),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                     ],
                     if (globalKarats.isNotEmpty) ...[
                       const SilverPlatinumBanner(),
@@ -432,7 +425,7 @@ class _GoldPageState extends State<GoldPage> {
                           ),
                         ),
                       _buildReorderableSectionTitle(),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       ReorderableListView(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -455,11 +448,11 @@ class _GoldPageState extends State<GoldPage> {
                             .toList(),
                       ),
                     ] else ...[
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
                       const PremiumCardShimmer(),
                       const PremiumCardShimmer(),
                     ],
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                   ]),
                 ),
               ),
@@ -501,7 +494,7 @@ class _GoldPageState extends State<GoldPage> {
                 ),
                 child: const Icon(Icons.grid_view_rounded, color: AppColors.gold, size: 24),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Text(
                 'raw_gold_prices_usd'.tr(),
                 style: const TextStyle(
@@ -525,7 +518,7 @@ class _GoldPageState extends State<GoldPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Container(
             height: 4,
             width: 40,
@@ -601,7 +594,7 @@ class _GoldPageState extends State<GoldPage> {
                 ),
                 child: Icon(icon, color: AppColors.gold, size: 24),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Text(
                 title,
                 style: const TextStyle(
@@ -613,7 +606,7 @@ class _GoldPageState extends State<GoldPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Container(
             height: 4,
             width: 40,
@@ -651,7 +644,7 @@ class _GoldPageState extends State<GoldPage> {
 
 
   Widget _buildLocationBanners(BuildContext context, String location) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
     final banners = priceService.currentBanners
         .where((b) => b.location == location)
         .toList();
@@ -667,8 +660,8 @@ class _GoldPageState extends State<GoldPage> {
 
   // --- 2. KARAT FILTER CHIPS ---
   Widget _buildKaratFilterChips(BuildContext context) {
-    final countryProvider = Provider.of<CountryProvider>(context);
-    final selectedKarat = countryProvider.selectedKaratFilter;
+    final countryProviderInstance = ref.watch(countryProvider);
+    final selectedKarat = countryProviderInstance.selectedKaratFilter;
 
     final filterOptions = [
       {'key': 'all', 'label': 'all_karats'.tr()},
@@ -685,7 +678,7 @@ class _GoldPageState extends State<GoldPage> {
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: filterOptions.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, __) => SizedBox(width: 8),
         itemBuilder: (context, index) {
           final opt = filterOptions[index];
           final isSelected = selectedKarat == opt['key'] || (selectedKarat.isEmpty && opt['key'] == 'all');
@@ -713,7 +706,7 @@ class _GoldPageState extends State<GoldPage> {
             onSelected: (bool selected) {
               if (selected) {
                 HapticFeedback.selectionClick();
-                countryProvider.setKaratFilter(opt['key']!);
+                countryProviderInstance.setKaratFilter(opt['key']!);
               }
             },
           );
@@ -724,10 +717,10 @@ class _GoldPageState extends State<GoldPage> {
 
   // --- 3. DUAL-PRICING SMART CARDS FOR SELECTED COUNTRY ---
   Widget _buildCountrySmartCards(BuildContext context, List<PriceItem> allPrices) {
-    final countryProvider = Provider.of<CountryProvider>(context);
-    final country = countryProvider.selectedCountry;
-    final selectedKarat = countryProvider.selectedKaratFilter;
-    final marketData = countryProvider.currentMarketData;
+    final countryProviderInstance = ref.watch(countryProvider);
+    final country = countryProviderInstance.selectedCountry;
+    final selectedKarat = countryProviderInstance.selectedKaratFilter;
+    final marketData = countryProviderInstance.currentMarketData;
 
     final List<dynamic> marketItems = (marketData != null && marketData['items'] != null)
         ? marketData['items']
@@ -750,7 +743,7 @@ class _GoldPageState extends State<GoldPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionTitle('live_gold_prices'.tr(args: [country.name.tr()]), Icons.auto_graph_rounded),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         ...filteredItems.map((item) {
           final priceItem = PriceItem(
             id: item['id'] ?? '',
@@ -773,6 +766,50 @@ class _GoldPageState extends State<GoldPage> {
           );
         }),
       ],
+    );
+  }
+
+  Widget _buildSyriaSummaryCard(List<PriceItem> allPrices) {
+    final syriaItems = allPrices.where((p) => p.id.startsWith('sy_')).toList();
+    if (syriaItems.isEmpty) return const SizedBox.shrink();
+
+    final usdItem = syriaItems.firstWhere((p) => p.id == 'sy_usd', orElse: () => syriaItems.first);
+    final gold21 = syriaItems.firstWhere((p) => p.id == 'sy_gold_21', orElse: () => syriaItems.first);
+
+    return UnifiedSummaryCard(
+      title: 'auto_str_243'.tr(),
+      iconOrFlag: const SyrianFlag(width: 24, height: 16, borderRadius: 3),
+      themeColor: AppColors.darkGreen,
+      metrics: [
+        MetricItem(label: 'auto_str_329'.tr(), price: usdItem.buyPrice, unit: 'auto_str_381'.tr()),
+        MetricItem(label: 'auto_str_341'.tr(), price: gold21.buyPrice, unit: 'auto_str_381'.tr()),
+      ],
+      onTap: () {
+        if (widget.onNavigate != null) widget.onNavigate!(1);
+      },
+    );
+  }
+
+  Widget _buildTurkishSummaryCard(List<PriceItem> allPrices) {
+    final turkishItems = allPrices.where((p) => p.id.startsWith('tr_')).toList();
+    if (turkishItems.isEmpty) return const SizedBox.shrink();
+
+    final tryItem = turkishItems.firstWhere((p) => p.id == 'tr_curr_usd', orElse: () => turkishItems.first);
+    final goldGramItem = turkishItems.firstWhere(
+        (p) => p.id == 'tr_gold_24' || p.id == 'tr_gold_gram_altin' || p.id == 'tr_gold_has_altin',
+        orElse: () => turkishItems.first);
+
+    return UnifiedSummaryCard(
+      title: 'turkish_market_now'.tr(),
+      iconOrFlag: const TurkishFlag(width: 24, height: 16, borderRadius: 3),
+      themeColor: AppColors.darkGreen,
+      metrics: [
+        MetricItem(label: 'auto_str_282'.tr(), price: tryItem.buyPrice, unit: '₺'),
+        MetricItem(label: 'auto_str_292'.tr(), price: goldGramItem.buyPrice, unit: '₺'),
+      ],
+      onTap: () {
+        if (widget.onNavigate != null) widget.onNavigate!(3);
+      },
     );
   }
 }

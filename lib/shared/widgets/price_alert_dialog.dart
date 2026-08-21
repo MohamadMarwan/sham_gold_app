@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../core/constants/app_colors.dart';
 import '../models/price_item.dart';
 import '../services/price_service.dart';
 
-class PriceAlertDialog extends StatefulWidget {
+class PriceAlertDialog extends ConsumerStatefulWidget {
   final PriceItem priceItem;
   const PriceAlertDialog({super.key, required this.priceItem});
 
   @override
-  State<PriceAlertDialog> createState() => _PriceAlertDialogState();
+  ConsumerState<PriceAlertDialog> createState() => _PriceAlertDialogState();
 }
 
-class _PriceAlertDialogState extends State<PriceAlertDialog> {
+class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
   final TextEditingController _controller = TextEditingController();
   String _condition = 'above';
   bool _isSaving = false;
@@ -32,7 +32,7 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
     setState(() => _isSaving = true);
     HapticFeedback.mediumImpact();
 
-    final service = Provider.of<PriceService>(context, listen: false);
+    final service = ref.read(priceServiceProvider);
     final token = await service.getDeviceToken();
 
     final success = await service.createAlert(
@@ -97,20 +97,20 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Text(
             'notify_when_price'.tr(),
             style: TextStyle(fontSize: 14, color: AppColors.mutedText),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Row(
             children: [
               _buildConditionChip('above'.tr(), 'above'),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               _buildConditionChip('below'.tr(), 'below'),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           TextField(
             controller: _controller,
             keyboardType: TextInputType.number,
@@ -130,7 +130,7 @@ class _PriceAlertDialogState extends State<PriceAlertDialog> {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
             height: 60,

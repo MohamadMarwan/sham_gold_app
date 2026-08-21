@@ -52,7 +52,7 @@ class CountryModel {
         'region': region,
       };
 
-  static List<CountryModel> get defaultCountries => const [
+  static List<CountryModel> get defaultCountries => [
         CountryModel(
           code: 'DZ',
           name: 'country_dz',

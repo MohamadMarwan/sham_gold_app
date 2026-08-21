@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/price_item.dart';
@@ -9,14 +9,14 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 
-class QuickConverterWidget extends StatefulWidget {
+class QuickConverterWidget extends ConsumerStatefulWidget {
   const QuickConverterWidget({Key? key}) : super(key: key);
 
   @override
-  State<QuickConverterWidget> createState() => _QuickConverterWidgetState();
+  ConsumerState<QuickConverterWidget> createState() => _QuickConverterWidgetState();
 }
 
-class _QuickConverterWidgetState extends State<QuickConverterWidget> {
+class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
   final TextEditingController _amountController = TextEditingController();
   String _selectedType = 'G24_USD'; // Default to Global Gold 24
   double _result = 0;
@@ -46,7 +46,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
       return;
     }
 
-    final service = Provider.of<PriceService>(context, listen: false);
+    final service = ref.read(priceServiceProvider);
     final prices = service.currentPrices;
 
     double rate = 0;
@@ -154,11 +154,11 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                       child: const Icon(Icons.currency_exchange_rounded,
                           color: AppColors.gold, size: 24),
                     ),
-                    const SizedBox(width: 18),
+                    SizedBox(width: 18),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'auto_str_252'.tr(),
                           style: TextStyle(
                             fontSize: 20,
@@ -179,7 +179,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
                 Row(
                   children: [
                     // Amount Input
@@ -222,7 +222,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     // Type Dropdown
                     Expanded(
                       flex: 3,
@@ -312,7 +312,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
                 // Result
                 Container(
                   width: double.infinity,
@@ -329,7 +329,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             'auto_str_185'.tr(),
                             style: TextStyle(
                                 color: AppColors.mutedText,
@@ -376,7 +376,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       FittedBox(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -393,7 +393,7 @@ class _QuickConverterWidgetState extends State<QuickConverterWidget> {
                                 letterSpacing: -1,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Text(
                               _resultCurrency,
                               style: const TextStyle(

@@ -153,7 +153,7 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
                       fontFamily: 'Cairo',
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Row(
                     children: [
                       Text(
@@ -174,7 +174,7 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
             ],
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Interval Selector Chips
           Row(
@@ -187,7 +187,7 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
             ],
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // The Line Chart
           SizedBox(
@@ -252,7 +252,7 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
                   ),
           ),
 
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // Key Stats Footer: High, Low, Average
           Row(
@@ -347,7 +347,7 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
           label,
           style: const TextStyle(fontSize: 10.5, color: AppColors.mutedText, fontFamily: 'Cairo'),
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 2),
         Text(
           numberFormat.format(value),
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, fontFamily: 'Cairo'),

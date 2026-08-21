@@ -52,7 +52,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _temp == '--') {
-      return const SizedBox(
+      return SizedBox(
         width: 80,
         height: 32,
         child: Center(
@@ -79,7 +79,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator> {
             color: _isDay ? AppColors.gold : Colors.lightBlueAccent,
             size: 16,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             'دمشق: $_temp°C',
             style: const TextStyle(

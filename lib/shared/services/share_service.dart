@@ -44,9 +44,7 @@ class ShareService {
 
       // النص المرافق للمشاركة
       final shareText = customText ??
-          'auto_str_043'.tr()
-              'auto_str_036'.tr()
-              '⏰ ${DateTime.now().toString().split('.')[0]}';
+          '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n⏰ ${DateTime.now().toString().split('.')[0]}';
 
       // مشاركة الصورة مع النص
       await Share.shareXFiles(
@@ -96,7 +94,7 @@ class ShareService {
 📊 سعر الشراء: ${buyPrice.toStringAsFixed(0)} ${currency ?? 'auto_str_381'.tr()}
 💵 سعر المبيع: ${sellPrice.toStringAsFixed(0)} ${currency ?? 'auto_str_381'.tr()}
 
-⏰ ${DateTime.now().toString().split('.'auto_str_038'.tr()'';
+⏰ ${DateTime.now().toString().split('.')[0]}''';
 
     await ShareService.shareText(text: content);
 
@@ -112,7 +110,7 @@ class ShareService {
         content: Row(
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(message),
           ],
         ),
@@ -131,7 +129,7 @@ class ShareService {
         content: Row(
           children: [
             const Icon(Icons.error_outline, color: Colors.white),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(child: Text(message)),
           ],
         ),
@@ -152,9 +150,9 @@ class ShareService {
       onPressed: onPressed,
       backgroundColor: const Color(0xFFD4AF37), // لون ذهبي
       icon: const Icon(Icons.share_rounded, color: Colors.white),
-      label: const Text(
+      label: Text(
         'auto_str_344'.tr(),
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),

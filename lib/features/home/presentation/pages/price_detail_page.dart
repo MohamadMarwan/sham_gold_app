@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/price_chart_widget.dart';
@@ -16,15 +16,15 @@ import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../core/services/ad_service.dart';
 import '../../../../core/utils/currency_utils.dart';
 
-class PriceDetailPage extends StatefulWidget {
+class PriceDetailPage extends ConsumerStatefulWidget {
   final PriceItem priceItem;
   const PriceDetailPage({super.key, required this.priceItem});
 
   @override
-  State<PriceDetailPage> createState() => _PriceDetailPageState();
+  ConsumerState<PriceDetailPage> createState() => _PriceDetailPageState();
 }
 
-class _PriceDetailPageState extends State<PriceDetailPage> {
+class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   List<PriceHistoryPoint> historyPoints = [];
   bool isLoading = true;
   String errorMessage = '';
@@ -47,7 +47,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
   }
 
   void _setupRealtimeListener() {
-    final service = Provider.of<PriceService>(context, listen: false);
+    final service = ref.read(priceServiceProvider);
     service.pricesStream.listen((prices) {
       if (!mounted) return;
       final currentItem =
@@ -78,7 +78,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
     });
 
     try {
-      final service = Provider.of<PriceService>(context, listen: false);
+      final service = ref.read(priceServiceProvider);
       final data = await service.fetchPriceHistory(widget.priceItem.id,
           range: selectedRange);
 
@@ -143,11 +143,11 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
               child: Column(
                 children: [
                   _buildPriceStatsCard(format),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   _buildChartSection(isGold),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   _buildHistoryList(format),
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   _buildMarketInfoTile(),
                 ],
               ),
@@ -186,7 +186,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
             );
           },
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
@@ -204,7 +204,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -225,7 +225,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _buildTrendBadge(),
                 ],
               ),
@@ -320,13 +320,13 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
       String label, String value, String unit, Color color) {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Text(label,
             style: const TextStyle(
                 fontSize: 12,
                 color: AppColors.mutedText,
                 fontWeight: FontWeight.w700)),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         FittedBox(
           fit: BoxFit.scaleDown,
           child: Text(value,
@@ -336,7 +336,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
                   color: AppColors.darkGreen,
                   fontFamily: 'Roboto')),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(unit,
             style: const TextStyle(
                 fontSize: 13,
@@ -372,7 +372,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
               _buildRangeSelector(),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           if (isLoading)
             const ChartShimmer()
           else if (errorMessage.isNotEmpty)
@@ -511,7 +511,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
                 size: 16,
                 color: AppColors.gold),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -524,7 +524,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
                         fontWeight: FontWeight.w800,
                         fontSize: 13,
                         color: AppColors.darkGreen)),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(isDaily ? 'auto_str_166'.tr() : 'auto_str_153'.tr(),
                     style: TextStyle(
                         fontSize: 10,
@@ -545,7 +545,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
                           fontSize: 16,
                           color: AppColors.darkGreen,
                           fontFamily: 'Roboto')),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(widget.priceItem.currency,
                       style: const TextStyle(
                           fontSize: 10,
@@ -565,7 +565,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
       children: [
         const Icon(Icons.error_outline_rounded,
             size: 48, color: Colors.redAccent),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Text(errorMessage, style: const TextStyle(color: AppColors.mutedText)),
         TextButton(
             onPressed: _fetchHistory, child: const Text('auto_str_230'.tr())),
@@ -574,7 +574,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
   }
 
   Widget _buildMarketInfoTile() {
-    final priceService = Provider.of<PriceService>(context, listen: false);
+    final priceService = ref.read(priceServiceProvider);
     final displaySettings = priceService.currentSettings?['displaySettings'];
     final showNote = displaySettings?['showHistoryNote'] ?? true;
 
@@ -593,7 +593,7 @@ class _PriceDetailPageState extends State<PriceDetailPage> {
         children: [
           const Icon(Icons.lock_clock_rounded,
               color: AppColors.darkGreen, size: 24),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Text(noteText,
                 style: Theme.of(context).textTheme.displaySmall?.copyWith(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
@@ -11,13 +11,13 @@ import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sh
 /// يعرض الدولة المحددة حالياً (علم، اسم، عملة) ويتيح للمستخدم النقر
 /// لفتح شاشة تغيير الأسواق `CountrySwitcherSheet`.
 /// يستمع لـ `CountryProvider` ليتحدث تلقائياً عند تغيير السوق.
-class TopCountryBanner extends StatelessWidget {
+class TopCountryBanner extends ConsumerWidget {
   const TopCountryBanner({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = Provider.of<CountryProvider>(context);
+    final countryProvider = ref.watch(countryProvider);
     final country = countryProvider.selectedCountry;
 
     return Container(
@@ -37,7 +37,7 @@ class TopCountryBanner extends StatelessWidget {
       child: Row(
         children: [
           Text(country.flag, style: const TextStyle(fontSize: 26)),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +53,7 @@ class TopCountryBanner extends StatelessWidget {
                         fontFamily: 'Cairo',
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
@@ -72,7 +72,7 @@ class TopCountryBanner extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   'default_karat_label'.tr(args: [country.defaultKarat.toString()]),
                   style: const TextStyle(
@@ -96,7 +96,7 @@ class TopCountryBanner extends StatelessWidget {
                 tooltip: 'share_bulletin_image'.tr(),
                 visualDensity: VisualDensity.compact,
               ),
-              const SizedBox(width: 4),
+              SizedBox(width: 4),
               ElevatedButton.icon(
                 onPressed: () {
                   HapticFeedback.selectionClick();

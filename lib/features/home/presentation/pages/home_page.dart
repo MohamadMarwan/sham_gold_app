@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -20,14 +20,14 @@ import 'splash_page.dart';
 import '../../../../core/services/ad_service.dart';
 import 'bullions_coins_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
   int _currentIndex = 0;
   late PageController _pageController;
   DateTime? _pausedTime;
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void _setupAlertListener() {
-    final priceService = Provider.of<PriceService>(context, listen: false);
+    final priceService = ref.read(priceServiceProvider);
 
     priceService.alertTriggeredStream.listen((data) {
       if (mounted) {
@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
               child: Icon(icon, color: Colors.white, size: 20),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -220,8 +220,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = Provider.of<CountryProvider>(context);
-    final country = countryProvider.selectedCountry;
+    final countryProviderInstance = ref.watch(countryProvider);
+    final country = countryProviderInstance.selectedCountry;
 
     final pages = [
       GoldPage(

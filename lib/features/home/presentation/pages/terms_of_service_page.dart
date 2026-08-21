@@ -68,14 +68,14 @@ class TermsOfServicePage extends StatelessWidget {
                     'auto_str_011'.tr()),
                 _buildSection('auto_str_217'.tr(),
                     'auto_str_008'.tr()),
-                const SizedBox(height: 50),
+                SizedBox(height: 50),
                 const Center(
                   child: Text(
                     'auto_str_143'.tr(),
                     style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                   ),
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: 40),
               ]),
             ),
           ),
@@ -98,7 +98,7 @@ class TermsOfServicePage extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(
               title,
               style: const TextStyle(
@@ -109,7 +109,7 @@ class TermsOfServicePage extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -133,7 +133,7 @@ class TermsOfServicePage extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
       ],
     );
   }

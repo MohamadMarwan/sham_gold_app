@@ -90,7 +90,7 @@ class PromotionBanner extends StatelessWidget {
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         banner.subtitle,
                         style: TextStyle(

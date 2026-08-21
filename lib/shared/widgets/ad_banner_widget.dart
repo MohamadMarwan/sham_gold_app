@@ -4,9 +4,9 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:gold_sham/core/services/ad_service.dart';
 
 import 'package:gold_sham/shared/services/price_service.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AdBannerWidget extends StatefulWidget {
+class AdBannerWidget extends ConsumerStatefulWidget {
   final AdSize size;
   final String? adUnitId;
 
@@ -17,10 +17,10 @@ class AdBannerWidget extends StatefulWidget {
   });
 
   @override
-  State<AdBannerWidget> createState() => _AdBannerWidgetState();
+  ConsumerState<AdBannerWidget> createState() => _AdBannerWidgetState();
 }
 
-class _AdBannerWidgetState extends State<AdBannerWidget> {
+class _AdBannerWidgetState extends ConsumerState<AdBannerWidget> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
   String? _currentAdUnitId;
@@ -29,7 +29,7 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Watch PriceService to reload when settings (ad enablement) update
-    Provider.of<PriceService>(context);
+    ref.watch(priceServiceProvider);
     _checkAndLoadAd();
   }
 

@@ -134,7 +134,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                   Row(
                     children: [
                       _buildKaratBadge(widget.priceItem),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,9 +176,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   const Divider(height: 1, color: Color(0x15000000)),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
 
                   // --- Row 2: Prominent Local Price & Global USD Subtext ---
                   Row(
@@ -204,7 +204,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                                   letterSpacing: -0.5,
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              SizedBox(width: 4),
                               Text(
                                 currencySymbol,
                                 style: const TextStyle(
@@ -218,11 +218,11 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                           ),
                           // Global USD Equivalent (Subtext)
                           if (displayUsdPrice > 0) ...[
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Row(
                               children: [
                                 const Icon(Icons.public, size: 12, color: AppColors.mutedText),
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4),
                                 Text(
                                   '≈ \$${displayUsdPrice.toStringAsFixed(2)} USD',
                                   style: const TextStyle(
@@ -276,7 +276,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Text(
                               'شراء: ${numberFormat.format(displayLocalPrice)}',
                               style: const TextStyle(
@@ -293,7 +293,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                   ),
                   
                   // --- Row 3: Metrics (Purity, Open, High/Low) ---
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -391,7 +391,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 12, color: AppColors.mutedText),
-        const SizedBox(width: 4),
+        SizedBox(width: 4),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/portfolio_provider.dart';
 import '../../../../core/providers/country_provider.dart';
@@ -10,24 +10,24 @@ import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/portfolio_model.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 
-class PortfolioPage extends StatelessWidget {
+class PortfolioPage extends ConsumerWidget {
   const PortfolioPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final portfolioProvider = Provider.of<PortfolioProvider>(context);
-    final countryProvider = Provider.of<CountryProvider>(context);
-    final priceService = Provider.of<PriceService>(context);
+    final portfolioProviderInstance = ref.watch(portfolioProvider);
+    final countryProviderInstance = ref.watch(countryProvider);
+    final priceService = ref.watch(priceServiceProvider);
 
-    final country = countryProvider.selectedCountry;
+    final country = countryProviderInstance.selectedCountry;
     final currentPrices = priceService.currentPrices;
 
     final numberFormat = NumberFormat('#,##0.##', 'ar');
 
-    final double totalValuation = portfolioProvider.calculateCurrentValuation(currentPrices);
-    final double totalPnL = portfolioProvider.calculateTotalPnL(currentPrices);
-    final double roiPercent = portfolioProvider.calculateRoiPercentage(currentPrices);
+    final double totalValuation = portfolioProviderInstance.calculateCurrentValuation(currentPrices);
+    final double totalPnL = portfolioProviderInstance.calculateTotalPnL(currentPrices);
+    final double roiPercent = portfolioProviderInstance.calculateRoiPercentage(currentPrices);
     final bool isProfit = totalPnL >= 0;
 
     return Scaffold(
@@ -135,7 +135,7 @@ class PortfolioPage extends StatelessWidget {
                                   color: isProfit ? AppColors.liveGreen : Colors.redAccent,
                                   size: 14,
                                 ),
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4),
                                 Text(
                                   '${isProfit ? "+" : ""}${roiPercent.toStringAsFixed(1)}%',
                                   style: TextStyle(
@@ -150,7 +150,7 @@ class PortfolioPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.baseline,
                         textBaseline: TextBaseline.alphabetic,
@@ -165,7 +165,7 @@ class PortfolioPage extends StatelessWidget {
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Text(
                             country.currencySymbol,
                             style: const TextStyle(
@@ -177,9 +177,9 @@ class PortfolioPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
                       const Divider(height: 1, color: Colors.white12),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -190,12 +190,12 @@ class PortfolioPage extends StatelessWidget {
                           ),
                           _buildPortfolioStat(
                             title: 'auto_str_170'.tr(),
-                            value: '${portfolioProvider.totalPureWeightGrams.toStringAsFixed(1)} غرام',
+                            value: '${portfolioProviderInstance.totalPureWeightGrams.toStringAsFixed(1)} غرام',
                             color: AppColors.gold,
                           ),
                           _buildPortfolioStat(
                             title: 'auto_str_290'.tr(),
-                            value: '${portfolioProvider.items.length} قطع',
+                            value: '${portfolioProviderInstance.items.length} قطع',
                             color: Colors.white,
                           ),
                         ],
@@ -204,14 +204,14 @@ class PortfolioPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
                       HapticFeedback.mediumImpact();
-                      _showAddAssetSheet(context, country);
+                      _showAddAssetSheet(context, country, ref);
                     },
                     icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 20),
                     label: const Text(
@@ -232,14 +232,14 @@ class PortfolioPage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
 
                 // Section Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'مقتنياتك المسجلة (${portfolioProvider.items.length})',
+                      'مقتنياتك المسجلة (${portfolioProviderInstance.items.length})',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -250,10 +250,10 @@ class PortfolioPage extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
 
                 // Empty State or List
-                if (portfolioProvider.isEmpty)
+                if (portfolioProviderInstance.isEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
                     decoration: BoxDecoration(
@@ -264,12 +264,12 @@ class PortfolioPage extends StatelessWidget {
                     child: Column(
                       children: [
                         Icon(Icons.account_balance_wallet_outlined, size: 54, color: AppColors.gold.withValues(alpha: 0.5)),
-                        const SizedBox(height: 14),
+                        SizedBox(height: 14),
                         const Text(
                           'auto_str_101'.tr(),
                           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, fontFamily: 'Cairo'),
                         ),
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6),
                         const Text(
                           'auto_str_017'.tr(),
                           textAlign: TextAlign.center,
@@ -279,8 +279,8 @@ class PortfolioPage extends StatelessWidget {
                     ),
                   )
                 else
-                  ...portfolioProvider.items.map((item) {
-                    return _buildAssetCard(context, item, country, isDark, numberFormat);
+                  ...portfolioProviderInstance.items.map((item) {
+                    return _buildAssetCard(context, ref, item, country, isDark, numberFormat);
                   }),
               ]),
             ),
@@ -295,7 +295,7 @@ class PortfolioPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title, style: const TextStyle(color: Colors.white60, fontSize: 11, fontFamily: 'Cairo')),
-        const SizedBox(height: 2),
+        SizedBox(height: 2),
         Text(
           value,
           style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 13, fontFamily: 'Cairo'),
@@ -306,12 +306,13 @@ class PortfolioPage extends StatelessWidget {
 
   Widget _buildAssetCard(
     BuildContext context,
+    WidgetRef ref,
     PortfolioItemModel item,
     dynamic country,
     bool isDark,
     NumberFormat numberFormat,
   ) {
-    final portfolioProvider = Provider.of<PortfolioProvider>(context, listen: false);
+    final portfolioProviderInstance = ref.read(portfolioProvider);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -344,7 +345,7 @@ class PortfolioPage extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,7 +370,7 @@ class PortfolioPage extends StatelessWidget {
             icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 20),
             onPressed: () {
               HapticFeedback.mediumImpact();
-              portfolioProvider.deleteItem(item.id);
+              portfolioProviderInstance.deleteItem(item.id);
             },
           ),
         ],
@@ -377,7 +378,7 @@ class PortfolioPage extends StatelessWidget {
     );
   }
 
-  void _showAddAssetSheet(BuildContext context, dynamic country) {
+  void _showAddAssetSheet(BuildContext context, dynamic country, WidgetRef ref) {
     final titleController = TextEditingController();
     final weightController = TextEditingController();
     final buyPriceController = TextEditingController();
@@ -413,12 +414,12 @@ class PortfolioPage extends StatelessWidget {
                         decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(10)),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     const Text(
                       'auto_str_131'.tr(),
                       style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, fontFamily: 'Cairo'),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
 
                     // Title
                     TextField(
@@ -431,7 +432,7 @@ class PortfolioPage extends StatelessWidget {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
 
                     // Karat & Weight Row
                     Row(
@@ -451,7 +452,7 @@ class PortfolioPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: TextField(
                             controller: weightController,
@@ -467,7 +468,7 @@ class PortfolioPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
 
                     // Buy Price & Making Charge Row
                     Row(
@@ -485,7 +486,7 @@ class PortfolioPage extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: TextField(
                             controller: makingChargeController,
@@ -501,7 +502,7 @@ class PortfolioPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
 
                     // Submit
                     SizedBox(
@@ -532,7 +533,7 @@ class PortfolioPage extends StatelessWidget {
                             currencyCode: country.currencyCode,
                           );
 
-                          Provider.of<PortfolioProvider>(context, listen: false).addItem(newItem);
+                          ref.read(portfolioProvider).addItem(newItem);
                           Navigator.pop(ctx);
                         },
                         style: ElevatedButton.styleFrom(

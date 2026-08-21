@@ -271,16 +271,110 @@ class AdService {
             _rewardedRetryAttempts++;
             int delay = _rewardedRetryAttempts * 30;
             Future.delayed(Duration(seconds: delay), () => loadRewardedAd());
-            debugPrint('🔄 Retrying Rewarded Ad in $delay seconds...'auto_str_002'.tr()🧭 showInterstitialOnNavigation → '
-      'enabled=$_isEnabled | showOnPageChange=$_showOnPageChange | '
-      'loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | '
-      'rewardActive=$isRewardActive | interstitialId=$_interstitialId | force=$force'auto_str_029'.tr()⛔ Web platform — skip'); return; }
-    if (!_isEnabled) { debugPrint('⛔ Ads disabled (_isEnabled=false)'); return; }
-    if (isRewardActive) { debugPrint('⛔ Reward is active'); return; }
-    if (_isShowingAd) { debugPrint('⛔ Another ad is already showing'); return; }
+            debugPrint('🔄 Retrying Rewarded Ad in $delay seconds...');
+          } else {
+            debugPrint('🚫 Max retry attempts reached for Rewarded Ad');
+          }
+        },
+      ),
+    );
+  }
+
+  void showRewardedAd({required VoidCallback onRewardEarned, required VoidCallback onAdFailed}) {
+    if (!_isEnabled || kIsWeb) {
+      onAdFailed();
+      return;
+    }
+
+    if (!_isRewardedAdLoaded || _rewardedAd == null) {
+      debugPrint('⚠️ Rewarded Ad not ready');
+      onAdFailed();
+      loadRewardedAd();
+      return;
+    }
+
+    _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (ad) {
+        _isShowingAd = true;
+        debugPrint('✅ Rewarded Ad showing');
+      },
+      onAdDismissedFullScreenContent: (ad) {
+        _isShowingAd = false;
+        ad.dispose();
+        _isRewardedAdLoaded = false;
+        _rewardedAd = null;
+        loadRewardedAd(); // Load next ad
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        _isShowingAd = false;
+        ad.dispose();
+        _isRewardedAdLoaded = false;
+        _rewardedAd = null;
+        debugPrint('❌ Rewarded Ad failed to show: $error');
+        onAdFailed();
+      },
+    );
+
+    _rewardedAd!.show(onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
+      debugPrint('🏆 User earned reward: ${reward.amount} ${reward.type}');
+      onRewardEarned();
+    });
+  }
+
+  void showInterstitialAd({bool force = false}) {
+    if (kIsWeb) return;
+    if (!_isEnabled && !force) return;
+    if (isRewardActive && !force) return;
+    
+    if (_isShowingAd) return;
+
+    if (_isInterstitialAdLoaded && _interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (ad) {
+          _isShowingAd = true;
+        },
+        onAdDismissedFullScreenContent: (ad) {
+          _isShowingAd = false;
+          ad.dispose();
+          _isInterstitialAdLoaded = false;
+          _interstitialAd = null;
+          loadInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          _isShowingAd = false;
+          ad.dispose();
+          _isInterstitialAdLoaded = false;
+          _interstitialAd = null;
+        },
+      );
+      _interstitialAd!.show();
+    }
+  }
+
+  void showInterstitialOnNavigation({bool force = false}) {
+    debugPrint('🧭 showInterstitialOnNavigation → enabled=$_isEnabled | showOnPageChange=$_showOnPageChange | loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | rewardActive=$isRewardActive | force=$force');
+    if (kIsWeb) {
+      debugPrint('⛔ Web platform — skip');
+      return;
+    }
+    if (!_isEnabled && !force) {
+      debugPrint('⛔ Ads disabled');
+      return;
+    }
+    if (isRewardActive && !force) {
+      debugPrint('⛔ Reward is active');
+      return;
+    }
+    if (_isShowingAd) {
+      debugPrint('⛔ Another ad is already showing');
+      return;
+    }
 
     if (!force) {
-      if (!_showOnPageChange) { debugPrint('⛔ showOnPageChange=false'); return; }
+      if (!_showOnPageChange) {
+        debugPrint('⛔ showOnPageChange=false');
+        return;
+      }
 
       _pageChangeCount++;
       debugPrint('📊 Navigation Count: $_pageChangeCount / $_interstitialInterval');
@@ -291,12 +385,22 @@ class AdService {
       _pageChangeCount = 0;
     }
 
-    debugPrint('🎯 Attempting to show interstitial (force=$force)');
-
     if (_isInterstitialAdLoaded && _interstitialAd != null) {
-      showInterstitialAd();
+      showInterstitialAd(force: force);
     } else {
-      debugPrint('⚠️ Interstitial not ready — requesting load for next time'auto_str_001'.tr()📡 Loading App Open Ad: $_appOpenId');
+      debugPrint('⚠️ Interstitial not ready — requesting load for next time');
+      loadInterstitialAd();
+    }
+  }
+
+  void loadAppOpenAd() {
+    if (_appOpenId == null || _appOpenId!.trim().isEmpty || !_isEnabled || kIsWeb) return;
+    _loadAppOpenAdBypass();
+  }
+
+  void _loadAppOpenAdBypass() {
+    if (_appOpenId == null || _appOpenId!.trim().isEmpty || kIsWeb) return;
+    debugPrint('📡 Loading App Open Ad: $_appOpenId');
 
     AppOpenAd.load(
       adUnitId: _appOpenId!,

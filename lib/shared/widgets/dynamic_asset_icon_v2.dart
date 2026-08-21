@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../services/price_service.dart';
 import '../../core/config/app_config.dart';
 
-class DynamicAssetIcon extends StatelessWidget {
+class DynamicAssetIcon extends ConsumerWidget {
   final String assetKey;
   final Widget? fallback;
   final IconData? fallbackIcon;
@@ -23,8 +23,8 @@ class DynamicAssetIcon extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final priceService = ref.watch(priceServiceProvider);
     final settings = priceService.currentSettings;
 
     // 1. Check for custom URL

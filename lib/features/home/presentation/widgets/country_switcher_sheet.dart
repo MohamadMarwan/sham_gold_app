@@ -1,11 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 
-class CountrySwitcherSheet extends StatefulWidget {
+class CountrySwitcherSheet extends ConsumerStatefulWidget {
   const CountrySwitcherSheet({super.key});
 
   static void show(BuildContext context) {
@@ -18,10 +18,10 @@ class CountrySwitcherSheet extends StatefulWidget {
   }
 
   @override
-  State<CountrySwitcherSheet> createState() => _CountrySwitcherSheetState();
+  ConsumerState<CountrySwitcherSheet> createState() => _CountrySwitcherSheetState();
 }
 
-class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
+class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -34,7 +34,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = Provider.of<CountryProvider>(context);
+    final countryProvider = ref.watch(countryProvider);
     final allCountries = countryProvider.allCountries;
 
     final filteredCountries = allCountries.where((c) {
@@ -84,7 +84,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
                   ),
                   child: const Icon(Icons.language_rounded, color: AppColors.gold, size: 22),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,7 +138,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
             ),
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // Country List
           Expanded(
@@ -146,7 +146,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               itemCount: filteredCountries.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, __) => SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final country = filteredCountries[index];
                 final isSelected = country.code == countryProvider.selectedCountry.code;
@@ -187,7 +187,7 @@ class _CountrySwitcherSheetState extends State<CountrySwitcherSheet> {
                     child: Row(
                       children: [
                         Text(country.flag, style: const TextStyle(fontSize: 28)),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

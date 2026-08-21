@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -10,17 +10,17 @@ import 'terms_of_service_page.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/providers/settings_provider.dart';
 
-class FollowUsPage extends StatefulWidget {
+class FollowUsPage extends ConsumerStatefulWidget {
   const FollowUsPage({super.key});
 
   @override
-  State<FollowUsPage> createState() => _FollowUsPageState();
+  ConsumerState<FollowUsPage> createState() => _FollowUsPageState();
 }
 
-class _FollowUsPageState extends State<FollowUsPage> {
+class _FollowUsPageState extends ConsumerState<FollowUsPage> {
   @override
   Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+    final priceService = ref.watch(priceServiceProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -50,7 +50,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildSectionHeader('our_channels'.tr()),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     
                     // Dynamic Social Links from Backend
                     ...socialLinksList.where((item) => item['isEnabled'] != false).map((item) {
@@ -108,17 +108,17 @@ class _FollowUsPageState extends State<FollowUsPage> {
                         legacyLinks['website'],
                       ),
                     ],
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30),
                     _buildSettingsSection(context),
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30),
                     _buildSupportInfo(),
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30),
                     _buildPromotionSection(),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     _buildLegalLinks(),
-                    const SizedBox(height: 40),
+                    SizedBox(height: 40),
                     _buildDeveloperInfo(),
-                    const SizedBox(height: 30),
+                    SizedBox(height: 30),
                     Center(
                       child: Text(
                         'version'.tr(args: ['2.5.0']),
@@ -144,7 +144,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(color: AppColors.gold, strokeWidth: 3),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text('loading_settings'.tr(),
               style: const TextStyle(
                   color: AppColors.darkGreen, fontWeight: FontWeight.bold)),
@@ -188,9 +188,9 @@ class _FollowUsPageState extends State<FollowUsPage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   _buildLogo(settings),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text(
                     settings['appName'] ?? 'auto_str_320'.tr(),
                     style: const TextStyle(
@@ -205,7 +205,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                               offset: Offset(0, 4))
                         ]),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -255,7 +255,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Text(
             title,
             style: const TextStyle(
@@ -319,7 +319,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                   ),
                   child: Icon(icon, color: color, size: 28),
                 ),
-                const SizedBox(width: 20),
+                SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +331,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                             fontWeight: FontWeight.w900,
                             color: AppColors.darkGreen),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         subtitle,
                         style: const TextStyle(
@@ -353,7 +353,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
   }
 
   Widget _buildSupportInfo() {
-    final priceService = Provider.of<PriceService>(context, listen: false);
+    final priceService = ref.read(priceServiceProvider);
 
     if (!priceService.shouldShow('showSupportSection')) {
       return const SizedBox.shrink();
@@ -390,7 +390,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                 child:
                     Icon(Icons.security_rounded, color: Colors.white, size: 28),
               ),
-              const SizedBox(width: 20),
+              SizedBox(width: 20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -402,7 +402,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                           color: AppColors.darkGreen,
                           fontSize: 16),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: const TextStyle(
@@ -416,7 +416,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           InkWell(
             onTap: () async {
               final uri = Uri.parse(whatsappUrl);
@@ -444,7 +444,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                 children: [
                   const Icon(Icons.message_rounded,
                       color: Color(0xFF25D366), size: 20),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Text(
                     'contact_whatsapp'.tr(),
                     style: const TextStyle(
@@ -466,7 +466,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
     return Column(
       children: [
         const Divider(color: Colors.black12, height: 1),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -553,7 +553,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
     return Column(
       children: [
         _buildSectionHeader('support_and_share'.tr()),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Row(
           children: [
             // Rate Us Button
@@ -573,7 +573,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                 },
               ),
             ),
-            const SizedBox(width: 15),
+            SizedBox(width: 15),
             // Share App Button
             Expanded(
               child: _buildPromoButton(
@@ -634,7 +634,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                   ),
                   child: Icon(icon, color: color, size: 28),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text(
                   title,
                   style: const TextStyle(
@@ -644,7 +644,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   subtitle,
                   style: TextStyle(
@@ -693,7 +693,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
   }
 
   Widget _buildSettingsSection(BuildContext context) {
-    final settingsProvider = Provider.of<SettingsProvider>(context);
+    final settingsProvider = ref.watch(settingsProvider);
     final isDark = settingsProvider.themeMode == ThemeMode.dark ||
         (settingsProvider.themeMode == ThemeMode.system &&
             MediaQuery.of(context).platformBrightness == Brightness.dark);
@@ -701,7 +701,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
     return Column(
       children: [
         _buildSectionHeader('settings'.tr()),
-        const SizedBox(height: 20),
+        SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -738,7 +738,7 @@ class _FollowUsPageState extends State<FollowUsPage> {
                 ),
                 trailing: DropdownButton<String>(
                   value: context.locale.languageCode,
-                  underline: const SizedBox(),
+                  underline: SizedBox(),
                   icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
                   items: const [
                     DropdownMenuItem(value: 'ar', child: Text('auto_str_330'.tr())),

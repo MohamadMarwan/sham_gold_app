@@ -1,19 +1,19 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 
-class AlertsManagementPage extends StatefulWidget {
+class AlertsManagementPage extends ConsumerStatefulWidget {
   const AlertsManagementPage({super.key});
 
   @override
-  State<AlertsManagementPage> createState() => _AlertsManagementPageState();
+  ConsumerState<AlertsManagementPage> createState() => _AlertsManagementPageState();
 }
 
-class _AlertsManagementPageState extends State<AlertsManagementPage> {
+class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
   List<Map<String, dynamic>> _alerts = [];
   bool _isLoading = true;
 
@@ -24,7 +24,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
   }
 
   Future<void> _loadAlerts() async {
-    final service = Provider.of<PriceService>(context, listen: false);
+    final service = ref.read(priceServiceProvider);
     final token = await service.getDeviceToken();
     final alerts = await service.fetchAlerts(token);
     if (mounted) {
@@ -37,7 +37,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
 
   Future<void> _deleteAlert(String id) async {
     HapticFeedback.mediumImpact();
-    final service = Provider.of<PriceService>(context, listen: false);
+    final service = ref.read(priceServiceProvider);
     final success = await service.deleteAlert(id);
     if (success) {
       _loadAlerts();
@@ -104,7 +104,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
             child:
                 const Icon(Icons.notifications_active, color: AppColors.gold),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +119,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
                   style:
                       const TextStyle(color: AppColors.mutedText, fontSize: 13),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   DateFormat('yyyy/MM/dd HH:mm').format(date.toLocal()),
                   style: TextStyle(color: Colors.grey[400], fontSize: 10),
@@ -144,7 +144,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
         children: [
           Icon(Icons.notifications_none_rounded,
               size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           const Text(
             'auto_str_100'.tr(),
             style: TextStyle(
@@ -152,7 +152,7 @@ class _AlertsManagementPageState extends State<AlertsManagementPage> {
                 fontWeight: FontWeight.bold,
                 fontSize: 16),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           const Text(
             'auto_str_037'.tr(),
             style: TextStyle(color: Colors.grey, fontSize: 13),

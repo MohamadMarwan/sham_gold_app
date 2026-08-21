@@ -76,7 +76,7 @@ class KaratCard extends StatelessWidget {
                   ),
                   child: Center(child: icon),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
 
                 // 2. Title Side (Middle)
                 Expanded(
@@ -95,7 +95,7 @@ class KaratCard extends StatelessWidget {
                           letterSpacing: -0.3,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         'global_exchange_price'.tr(),
                         textAlign: TextAlign.right,
@@ -108,7 +108,7 @@ class KaratCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
 
                 // 3. Price Side (Left in RTL - Last Child)
                 Container(
@@ -124,7 +124,7 @@ class KaratCard extends StatelessWidget {
                           fontSize: 18,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       LivePriceWidget(
                         price: item.buyPrice,
                         currency: '',

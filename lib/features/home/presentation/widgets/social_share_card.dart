@@ -68,11 +68,11 @@ class SocialShareCard extends StatelessWidget {
               Row(
                 children: [
                   const PremiumLogo(size: 38),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'auto_str_303'.tr(),
                         style: TextStyle(
                           color: AppColors.gold,
@@ -106,7 +106,7 @@ class SocialShareCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(country.flag, style: const TextStyle(fontSize: 16)),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Text(
                       'سوق ${country.name.tr()}',
                       style: const TextStyle(
@@ -122,9 +122,9 @@ class SocialShareCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Container(height: 1, color: AppColors.gold.withValues(alpha: 0.3)),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // Date & Time Bar
           Row(
@@ -133,7 +133,7 @@ class SocialShareCard extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.gold),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     dateStr,
                     style: TextStyle(
@@ -148,7 +148,7 @@ class SocialShareCard extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.access_time_filled_rounded, size: 12, color: AppColors.gold),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     'تحديث $timeStr',
                     style: TextStyle(
@@ -163,7 +163,7 @@ class SocialShareCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // Table Header
           Container(
@@ -201,7 +201,7 @@ class SocialShareCard extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: 6),
 
           // Price Rows
           Expanded(
@@ -269,7 +269,7 @@ class SocialShareCard extends StatelessWidget {
 
           // Footer & Watermark
           Container(height: 1, color: AppColors.gold.withValues(alpha: 0.3)),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -289,7 +289,7 @@ class SocialShareCard extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
+                child: Text(
                   'auto_str_198'.tr(),
                   style: TextStyle(color: AppColors.gold, fontSize: 9.5, fontWeight: FontWeight.w900, fontFamily: 'Cairo'),
                 ),

@@ -2,18 +2,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
 import '../pages/price_detail_page.dart';
 
-class SilverPlatinumBanner extends StatelessWidget {
+class SilverPlatinumBanner extends ConsumerWidget {
   const SilverPlatinumBanner({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final priceService = ref.watch(priceServiceProvider);
     final allPrices = priceService.currentPrices;
 
     final silverOunce = allPrices.where((p) => p.id == 'xag_usd').firstOrNull;
@@ -62,7 +62,7 @@ class SilverPlatinumBanner extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(Icons.diamond_outlined, color: Colors.white70, size: 20),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   'auto_str_135'.tr(),
                   style: GoogleFonts.tajawal(
@@ -146,7 +146,7 @@ class SilverPlatinumBanner extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: 6),
               Text(
                 title,
                 style: GoogleFonts.tajawal(
@@ -157,16 +157,16 @@ class SilverPlatinumBanner extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           // Ounce Price
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Text(
+              Text(
                 '\$',
                 style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold, fontSize: 12),
               ),
-              const SizedBox(width: 2),
+              SizedBox(width: 2),
               LivePriceWidget(
                 price: ouncePrice,
                 currency: '',
@@ -178,7 +178,7 @@ class SilverPlatinumBanner extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2),
           Text(
             'auto_str_335'.tr(),
             style: GoogleFonts.tajawal(
@@ -187,7 +187,7 @@ class SilverPlatinumBanner extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           // Gram Price
           if (gramPrice > 0)
             Container(
@@ -199,7 +199,7 @@ class SilverPlatinumBanner extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     'auto_str_291'.tr(),
                     style: TextStyle(color: Colors.white70, fontSize: 10, fontFamily: 'Cairo'),
                   ),

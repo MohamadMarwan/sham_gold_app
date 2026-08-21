@@ -4,6 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import '../../shared/models/country_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final countryProvider = ChangeNotifierProvider<CountryProvider>((ref) {
+  return CountryProvider();
+});
 
 class CountryProvider with ChangeNotifier {
   CountryModel _selectedCountry = CountryModel.defaultCountries.first;

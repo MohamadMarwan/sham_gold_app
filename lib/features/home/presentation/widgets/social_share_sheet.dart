@@ -2,16 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/models/country_model.dart';
 import 'social_share_card.dart';
 
-class SocialShareSheet extends StatefulWidget {
+class SocialShareSheet extends ConsumerStatefulWidget {
   final CountryModel? forcedCountry;
   const SocialShareSheet({super.key, this.forcedCountry});
 
@@ -25,10 +24,10 @@ class SocialShareSheet extends StatefulWidget {
   }
 
   @override
-  State<SocialShareSheet> createState() => _SocialShareSheetState();
+  ConsumerState<SocialShareSheet> createState() => _SocialShareSheetState();
 }
 
-class _SocialShareSheetState extends State<SocialShareSheet> {
+class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
   final ScreenshotController _screenshotController = ScreenshotController();
   ShareCardFormat _selectedFormat = ShareCardFormat.square;
   bool _isExporting = false;
@@ -36,7 +35,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = Provider.of<CountryProvider>(context);
+    final countryProvider = ref.watch(countryProvider);
     final country = widget.forcedCountry ?? countryProvider.selectedCountry;
     final marketData = countryProvider.currentMarketData;
 
@@ -76,7 +75,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
                   ),
                   child: const Icon(Icons.share_rounded, color: AppColors.gold, size: 22),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +121,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
                     icon: Icons.crop_square_rounded,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: _buildFormatButton(
                     format: ShareCardFormat.story,
@@ -164,7 +163,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
               child: ElevatedButton.icon(
                 onPressed: _isExporting ? null : () => _shareCardAsImage(country, items),
                 icon: _isExporting
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
@@ -219,7 +218,7 @@ class _SocialShareSheetState extends State<SocialShareSheet> {
         child: Row(
           children: [
             Icon(icon, color: isSelected ? AppColors.gold : AppColors.mutedText, size: 24),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

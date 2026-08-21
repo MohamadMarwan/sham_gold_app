@@ -90,7 +90,7 @@ class _CandlestickChartWidgetState extends State<CandlestickChartWidget> {
     final data = _generateCandleData(widget.history);
 
     if (data.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 250,
         child: Center(child: Text('auto_str_156'.tr())),
       );

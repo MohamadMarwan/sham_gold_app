@@ -55,7 +55,7 @@ class WelcomeCard extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     _buildLiveBadge(),
                   ],
                 ),
@@ -78,7 +78,7 @@ class WelcomeCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Icon(
                         isUp
                             ? Icons.trending_up_rounded
@@ -91,7 +91,7 @@ class WelcomeCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
             // Bottom Metrics: [Liquidity] [Volatility] [Direction]
             Row(
@@ -104,7 +104,7 @@ class WelcomeCard extends StatelessWidget {
                     const Color(0xFF00C2FF),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: _buildPulseMetricCard(
                     'volatility'.tr(),
@@ -113,7 +113,7 @@ class WelcomeCard extends StatelessWidget {
                     const Color(0xFFFFD700),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: _buildPulseMetricCard(
                     'direction'.tr(),
@@ -151,7 +151,7 @@ class WelcomeCard extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 6),
+          SizedBox(width: 6),
           _buildLiveDot(),
         ],
       ),
@@ -197,7 +197,7 @@ class WelcomeCard extends StatelessWidget {
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             label,
             style: GoogleFonts.tajawal(
@@ -206,7 +206,7 @@ class WelcomeCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2),
           Text(
             value,
             style: GoogleFonts.tajawal(

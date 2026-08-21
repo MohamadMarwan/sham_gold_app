@@ -76,6 +76,19 @@ class SocketService {
     });
   }
 
+  void pause() {
+    if (isConnected) {
+      socket.disconnect();
+      _pingTimer?.cancel();
+    }
+  }
+
+  void resume() {
+    if (!isConnected) {
+      socket.connect();
+    }
+  }
+
   void dispose() {
     _pingTimer?.cancel();
     socket.dispose();

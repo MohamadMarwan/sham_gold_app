@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
@@ -13,16 +13,16 @@ import '../widgets/country_switcher_sheet.dart';
 import '../widgets/social_share_sheet.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 
-class CountryMarketPage extends StatelessWidget {
+class CountryMarketPage extends ConsumerWidget {
   final CountryModel? forcedCountry;
   const CountryMarketPage({super.key, this.forcedCountry});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = Provider.of<CountryProvider>(context);
-    final country = forcedCountry ?? countryProvider.selectedCountry;
-    final marketData = countryProvider.currentMarketData;
+    final countryProviderInstance = ref.watch(countryProvider);
+    final country = forcedCountry ?? countryProviderInstance.selectedCountry;
+    final marketData = countryProviderInstance.currentMarketData;
 
     final List<dynamic> rawItems = (marketData != null && marketData['items'] != null)
         ? marketData['items']
@@ -35,7 +35,7 @@ class CountryMarketPage extends StatelessWidget {
         backgroundColor: AppColors.darkGreen,
         onRefresh: () async {
           HapticFeedback.mediumImpact();
-          await countryProvider.fetchMarketData();
+          await countryProviderInstance.fetchMarketData();
         },
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
@@ -53,7 +53,7 @@ class CountryMarketPage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(country.flag, style: const TextStyle(fontSize: 22)),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       'market_of'.tr(args: [country.name.tr()]),
                       style: TextStyle(
@@ -104,7 +104,7 @@ class CountryMarketPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
               ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(40),
@@ -170,7 +170,7 @@ class CountryMarketPage extends StatelessWidget {
                           ),
                           child: Text(country.flag, style: const TextStyle(fontSize: 24)),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,7 +184,7 @@ class CountryMarketPage extends StatelessWidget {
                                   fontFamily: 'Cairo',
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text(
                                 'default_karat_info'.tr(args: [country.defaultKarat.toString()]),
                                 style: const TextStyle(
@@ -200,7 +200,7 @@ class CountryMarketPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
 
                   // Section Title
                   Row(
@@ -218,7 +218,7 @@ class CountryMarketPage extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
 
                   // Dynamic Market Items
                   if (rawItems.isEmpty)
@@ -255,11 +255,11 @@ class CountryMarketPage extends StatelessWidget {
                     
                     // Custom Items Section
                     if (rawItems.any((item) => item['metalType'] == 'custom_item')) ...[
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       Row(
                         children: [
                           const Icon(Icons.stars_rounded, color: AppColors.gold, size: 20),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Text(
                             'auto_str_168'.tr(),
                             style: TextStyle(
@@ -271,7 +271,7 @@ class CountryMarketPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       ...rawItems.where((item) => item['metalType'] == 'custom_item').map((item) {
                         final priceItem = PriceItem(
                           id: item['id'] ?? '',

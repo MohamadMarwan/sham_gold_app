@@ -10,8 +10,14 @@ import '../../core/services/http_api_service.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/providers/settings_provider.dart';
 import '../../core/services/smart_alert_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum RefreshStatus { success, connectionError, serverError }
+
+final priceServiceProvider = ChangeNotifierProvider<PriceService>((ref) {
+  final settings = ref.watch(settingsProvider);
+  return PriceService(SocketService(), HttpApiService(), CacheService(), settings);
+});
 
 class PriceService with ChangeNotifier, WidgetsBindingObserver {
   final SocketService _socketService;
@@ -97,16 +103,11 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     _appState = state;
     
     if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.hidden) {
-      debugPrint('App in background: Disconnecting Socket to save resources');
-      if (_socketService.isConnected) {
-        _socketService.socket.disconnect();
-      }
+      debugPrint('App in background: Pausing Socket to save resources');
+      _socketService.pause();
     } else if (state == AppLifecycleState.resumed) {
       debugPrint('App resumed: Forcing Socket Reconnection and refresh');
-      _socketService.socket.disconnect();
-      Future.delayed(const Duration(milliseconds: 100), () {
-        _socketService.socket.connect();
-      });
+      _socketService.resume();
       refreshPrices(manual: true);
     }
   }

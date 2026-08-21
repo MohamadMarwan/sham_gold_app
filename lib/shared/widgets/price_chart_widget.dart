@@ -62,7 +62,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index >= widget.history.length) {
-                        return const SizedBox();
+                        return SizedBox();
                       }
 
                       // Filter labels to avoid crowding
@@ -71,7 +71,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
                           : 4;
                       if (index % interval != 0 &&
                           index != widget.history.length - 1) {
-                        return const SizedBox();
+                        return SizedBox();
                       }
 
                       String text = '';
@@ -194,7 +194,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         _buildQuickStats(),
       ],
     );
@@ -231,7 +231,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
                 fontSize: 10,
                 color: AppColors.mutedText,
                 fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(value,
             style: TextStyle(
                 fontSize: 14,

@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../shared/models/portfolio_model.dart';
 import '../../shared/models/price_item.dart';
+import '../../shared/services/price_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final portfolioProvider = ChangeNotifierProvider<PortfolioProvider>((ref) {
+  return PortfolioProvider();
+});
 
 class PortfolioProvider with ChangeNotifier {
   List<PortfolioItemModel> _items = [];

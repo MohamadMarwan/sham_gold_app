@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
@@ -11,14 +11,14 @@ import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
 import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
 
-class BullionsCoinsPage extends StatefulWidget {
+class BullionsCoinsPage extends ConsumerStatefulWidget {
   const BullionsCoinsPage({super.key});
 
   @override
-  State<BullionsCoinsPage> createState() => _BullionsCoinsPageState();
+  ConsumerState<BullionsCoinsPage> createState() => _BullionsCoinsPageState();
 }
 
-class _BullionsCoinsPageState extends State<BullionsCoinsPage> with SingleTickerProviderStateMixin {
+class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -35,8 +35,8 @@ class _BullionsCoinsPageState extends State<BullionsCoinsPage> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final priceService = Provider.of<PriceService>(context);
-    final countryProvider = Provider.of<CountryProvider>(context);
+    final priceService = ref.watch(priceServiceProvider);
+    final countryProvider = ref.watch(countryProvider);
     
     // We want local bullions and coins first. If not found, use global ones.
     final allPrices = priceService.currentPrices;

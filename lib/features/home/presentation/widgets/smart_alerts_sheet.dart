@@ -82,7 +82,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                   child: const Icon(Icons.notifications_active_rounded,
                       color: AppColors.gold, size: 22),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,22 +160,22 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
 
                           // Type Selector
                           Row(
                             children: [
                               _buildTypeChip(
                                   AlertType.targetPrice, 'auto_str_266'.tr()),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               _buildTypeChip(
                                   AlertType.volatility, 'auto_str_275'.tr()),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               _buildTypeChip(
                                   AlertType.dipBuying, 'auto_str_248'.tr()),
                             ],
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
 
                           // Dynamic fields based on type
                           if (_selectedType == AlertType.targetPrice) ...[
@@ -204,7 +204,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 SegmentedButton<bool>(
                                   segments: const [
                                     ButtonSegment(
@@ -246,7 +246,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                   setState(() => _volatilityPercent = val),
                             ),
                           ] else ...[
-                            const Text(
+                            Text(
                               'auto_str_024'.tr(),
                               style: TextStyle(
                                   fontFamily: 'Cairo',
@@ -255,14 +255,14 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                             ),
                           ],
 
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed: _addNewAlert,
                               icon: const Icon(Icons.check_circle_outline,
                                   color: Colors.white, size: 18),
-                              label: const Text(
+                              label: Text(
                                 'auto_str_172'.tr(),
                                 style: TextStyle(
                                     color: Colors.white,
@@ -282,15 +282,15 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
-                    const Text(
+                    SizedBox(height: 24),
+                    Text(
                       'auto_str_108'.tr(),
                       style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w900,
                           fontFamily: 'Cairo'),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
 
                     if (rules.isEmpty) ...[
                       Center(
@@ -302,8 +302,8 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                   size: 40,
                                   color:
                                       AppColors.mutedText.withValues(alpha: 0.5)),
-                              const SizedBox(height: 8),
-                              const Text(
+                              SizedBox(height: 8),
+                              Text(
                                 'auto_str_093'.tr(),
                                 style: TextStyle(
                                     fontFamily: 'Cairo',
@@ -376,7 +376,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
             rule.type == AlertType.targetPrice ? Icons.gps_fixed_rounded : Icons.bolt_rounded,
             color: rule.isEnabled ? AppColors.gold : AppColors.mutedText,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,7 +434,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('auto_str_082'.tr(), style: TextStyle(fontFamily: 'Cairo')),
+          content: Text('auto_str_082'.tr(), style: TextStyle(fontFamily: 'Cairo')),
           backgroundColor: AppColors.darkGreen,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
