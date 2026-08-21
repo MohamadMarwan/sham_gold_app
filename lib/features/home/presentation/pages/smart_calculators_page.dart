@@ -380,7 +380,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
           _buildInputField('auto_str_140'.tr(), _zakat18Controller, isDark),
           _buildInputField('auto_str_121'.tr(), _zakatSilverController, isDark),
           SwitchListTile.adaptive(
-            title: const Text('auto_str_056'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 13, fontWeight: FontWeight.bold)),
+            title: Text('auto_str_056'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 13, fontWeight: FontWeight.bold)),
             value: _includeJewelry,
             activeThumbColor: AppColors.gold,
             onChanged: (val) => setState(() => _includeJewelry = val),
@@ -414,7 +414,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('auto_str_149'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: Text('auto_str_149'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_zakatResult != null) ...[
@@ -422,9 +422,9 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             _buildResultCard(
               title: _zakatResult!['isGoldNisabReached'] ? 'auto_str_161'.tr() : 'auto_str_129'.tr(),
               items: [
-                {'label': 'auto_str_136'.tr(), 'value': '${(_zakatResult!['totalEquivalent24k'auto_str_050'.tr()},
+                {'label': 'auto_str_136'.tr(), 'value': '${(_zakatResult!['totalEquivalent24k'] as double).toStringAsFixed(1)} ${'auto_str_050'.tr()}'},
                 {'label': 'auto_str_122'.tr(), 'value': '${numberFormat.format(_zakatResult!['goldTotalValue'])} ${country.currencySymbol}'},
-                {'label': 'auto_str_104'.tr(), 'value': '${(_zakatResult!['goldZakatGrams'auto_str_044'.tr()},
+                {'label': 'auto_str_104'.tr(), 'value': '${(_zakatResult!['goldZakatGrams'] as double).toStringAsFixed(1)} ${'auto_str_044'.tr()}'},
                 {'label': 'auto_str_092'.tr(), 'value': '${numberFormat.format(_zakatResult!['totalZakatDue'])} ${country.currencySymbol}'},
               ],
               isHighlight: _zakatResult!['isGoldNisabReached'],
@@ -478,7 +478,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('auto_str_084'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: Text('auto_str_084'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_makingResult != null) ...[
@@ -525,7 +525,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('auto_str_150'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: Text('auto_str_150'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_scrapResult != null) ...[
@@ -533,7 +533,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             _buildResultCard(
               title: 'auto_str_130'.tr(),
               items: [
-                {'label': 'auto_str_171'.tr(), 'value': '${(_scrapResult!['netWeight'auto_str_050'.tr()},
+                {'label': 'auto_str_171'.tr(), 'value': '${(_scrapResult!['netWeight'] as double).toStringAsFixed(1)} ${'auto_str_050'.tr()}'},
                 {'label': 'auto_str_117'.tr(), 'value': '${numberFormat.format(_scrapResult!['totalPayout'])} ${country.currencySymbol}'},
               ],
               isHighlight: false,
@@ -577,14 +577,14 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                       fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                     ),
-                    items: const [
-                      DropdownMenuItem(value: 'gram', child: Text('auto_str_319'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'ounce', child: Text('auto_str_247'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'tola', child: Text('auto_str_254'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'mithqal', child: Text('auto_str_297'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'english', child: Text('auto_str_176'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'rashadi', child: Text('auto_str_209'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
-                      DropdownMenuItem(value: 'kilo', child: Text('auto_str_208'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                    items: [
+                      DropdownMenuItem(value: 'gram', child: Text('auto_str_319'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'ounce', child: Text('auto_str_247'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'tola', child: Text('auto_str_254'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'mithqal', child: Text('auto_str_297'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'english', child: Text('auto_str_176'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'rashadi', child: Text('auto_str_209'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
+                      DropdownMenuItem(value: 'kilo', child: Text('auto_str_208'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
                     ],
                     onChanged: (val) {
                       if (val != null) {
@@ -611,7 +611,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('auto_str_162'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: Text('auto_str_162'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_conversionResult != null) ...[
@@ -619,13 +619,13 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             _buildResultCard(
               title: 'auto_str_070'.tr(),
               items: [
-                {'label': 'auto_str_333'.tr(), 'value': '${_conversionResult!['gram'auto_str_097'.tr()},
-                {'label': 'auto_str_126'.tr(), 'value': '${_conversionResult!['ounce'auto_str_089'.tr()},
-                {'label': 'auto_str_316'.tr(), 'value': '${_conversionResult!['mithqal'auto_str_088'.tr()},
-                {'label': 'auto_str_239'.tr(), 'value': '${_conversionResult!['tola'auto_str_096'.tr()},
-                {'label': 'auto_str_118'.tr(), 'value': '${_conversionResult!['english'auto_str_095'.tr()},
-                {'label': 'auto_str_063'.tr(), 'value': '${_conversionResult!['rashadi'auto_str_095'.tr()},
-                {'label': 'auto_str_274'.tr(), 'value': '${_conversionResult!['kilo'auto_str_107'.tr()},
+                {'label': 'auto_str_333'.tr(), 'value': '${_conversionResult!['gram']} ${'auto_str_097'.tr()}'},
+                {'label': 'auto_str_126'.tr(), 'value': '${_conversionResult!['ounce']} ${'auto_str_089'.tr()}'},
+                {'label': 'auto_str_316'.tr(), 'value': '${_conversionResult!['mithqal']} ${'auto_str_088'.tr()}'},
+                {'label': 'auto_str_239'.tr(), 'value': '${_conversionResult!['tola']} ${'auto_str_096'.tr()}'},
+                {'label': 'auto_str_118'.tr(), 'value': '${_conversionResult!['english']} ${'auto_str_095'.tr()}'},
+                {'label': 'auto_str_063'.tr(), 'value': '${_conversionResult!['rashadi']} ${'auto_str_095'.tr()}'},
+                {'label': 'auto_str_274'.tr(), 'value': '${_conversionResult!['kilo']} ${'auto_str_107'.tr()}'},
               ],
               isHighlight: true,
             ),
@@ -675,7 +675,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text('auto_str_113'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+              child: Text('auto_str_113'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
             ),
           ),
           if (_roiResult != null) ...[
@@ -683,7 +683,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             _buildResultCard(
               title: _roiResult!['isProfit'] ? 'auto_str_231'.tr() : 'auto_str_186'.tr(),
               items: [
-                {'label': 'auto_str_167'.tr(), 'value': '${(_roiResult!['gramsBought'auto_str_050'.tr()},
+                {'label': 'auto_str_167'.tr(), 'value': '${(_roiResult!['gramsBought'] as double).toStringAsFixed(1)} ${'auto_str_050'.tr()}'},
                 {'label': 'auto_str_116'.tr(), 'value': '${numberFormat.format(_roiResult!['currentValue'])} ${country.currencySymbol}'},
                 {'label': 'auto_str_155'.tr(), 'value': '${numberFormat.format(_roiResult!['netProfit'])} ${country.currencySymbol}'},
                 {'label': 'auto_str_112'.tr(), 'value': '${(_roiResult!['roiPercent'] as double).toStringAsFixed(2)}%'},
@@ -729,7 +729,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'auto_str_072'.tr(),
                   style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', fontSize: 15, color: AppColors.gold),
                 ),
@@ -740,7 +740,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                   children: [
                     Expanded(
                       child: ChoiceChip(
-                        label: const Center(child: Text('auto_str_169'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold))),
+                        label: Center(child: Text('auto_str_169'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold))),
                         selected: _isGoalTargetInGrams,
                         selectedColor: AppColors.gold.withValues(alpha: 0.2),
                         onSelected: (val) => setState(() => _isGoalTargetInGrams = true),
@@ -768,7 +768,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 _buildInputField('auto_str_049'.tr(), _goalInitialSavedController, isDark),
 
                 // Duration Selector
-                const Text('auto_str_098'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.mutedText)),
+                Text('auto_str_098'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.mutedText)),
                 SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -806,7 +806,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     ),
-                    child: const Text('auto_str_076'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+                    child: Text('auto_str_076'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
                   ),
                 ),
               ],
@@ -819,9 +819,9 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             _buildResultCard(
               title: 'auto_str_091'.tr(),
               items: [
-                {'label': 'auto_str_237'.tr(), 'value': '${(_savingsPlanResult!['totalTargetGrams'auto_str_050'.tr()},
-                {'label': 'auto_str_132'.tr(), 'value': '${(_savingsPlanResult!['monthlyGramsNeeded'auto_str_042'.tr()},
-                {'label': 'auto_str_114'.tr(), 'value': '${(_savingsPlanResult!['weeklyGramsNeeded'auto_str_039'.tr()},
+                {'label': 'auto_str_237'.tr(), 'value': '${(_savingsPlanResult!['totalTargetGrams'] as double).toStringAsFixed(1)} ${'auto_str_050'.tr()}'},
+                {'label': 'auto_str_132'.tr(), 'value': '${(_savingsPlanResult!['monthlyGramsNeeded'] as double).toStringAsFixed(1)} ${'auto_str_042'.tr()}'},
+                {'label': 'auto_str_114'.tr(), 'value': '${(_savingsPlanResult!['weeklyGramsNeeded'] as double).toStringAsFixed(1)} ${'auto_str_039'.tr()}'},
                 {'label': 'auto_str_134'.tr(), 'value': '${numberFormat.format(_savingsPlanResult!['monthlyCostEstimate'])} ${country.currencySymbol}'},
                 {'label': 'auto_str_046'.tr(), 'value': '${numberFormat.format(_savingsPlanResult!['futureTargetValue'])} ${country.currencySymbol}'},
               ],
@@ -833,7 +833,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
               child: OutlinedButton.icon(
                 onPressed: () => _showCreateGoalDialog(context, gram24, country),
                 icon: const Icon(Icons.bookmark_add_rounded, color: AppColors.gold),
-                label: const Text('auto_str_065'.tr(), style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontFamily: 'Cairo')),
+                label: Text('auto_str_065'.tr(), style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontFamily: 'Cairo')),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: AppColors.gold, width: 1.5),
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1028,7 +1028,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 ElevatedButton.icon(
                   onPressed: () => _showAddGramsDialog(context, goal),
                   icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
-                  label: const Text('auto_str_246'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11, fontFamily: 'Cairo')),
+                  label: Text('auto_str_246'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11, fontFamily: 'Cairo')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.darkGreen,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -1052,26 +1052,26 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('auto_str_123'.tr(), style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.w900, fontSize: 16)),
+        title: Text('auto_str_123'.tr(), style: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.w900, fontSize: 16)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'auto_str_105'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
+                decoration: InputDecoration(labelText: 'auto_str_105'.tr(), labelStyle: const TextStyle(fontFamily: 'Cairo')),
               ),
               SizedBox(height: 10),
               TextField(
                 controller: gramsCtrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'auto_str_109'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
+                decoration: InputDecoration(labelText: 'auto_str_109'.tr(), labelStyle: const TextStyle(fontFamily: 'Cairo')),
               ),
               SizedBox(height: 10),
               TextField(
                 controller: initialCtrl,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'auto_str_099'.tr(), labelStyle: TextStyle(fontFamily: 'Cairo')),
+                decoration: InputDecoration(labelText: 'auto_str_099'.tr(), labelStyle: const TextStyle(fontFamily: 'Cairo')),
               ),
             ],
           ),
@@ -1079,7 +1079,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('auto_str_349'.tr(), style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
+            child: Text('auto_str_349'.tr(), style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1105,14 +1105,14 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
               Navigator.pop(ctx);
               setState(() {});
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('auto_str_083'.tr(), style: TextStyle(fontFamily: 'Cairo')), backgroundColor: AppColors.darkGreen),
+                SnackBar(content: Text('auto_str_083'.tr(), style: TextStyle(fontFamily: 'Cairo')), backgroundColor: AppColors.darkGreen),
               );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.gold,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
-            child: const Text('auto_str_302'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
+            child: Text('auto_str_302'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
           ),
         ],
       ),
@@ -1130,15 +1130,15 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('auto_str_032'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, color: AppColors.mutedText)),
+            Text('auto_str_032'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 12, color: AppColors.mutedText)),
             SizedBox(height: 12),
             TextField(
               controller: addCtrl,
               autofocus: true,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'auto_str_160'.tr(),
-                labelStyle: TextStyle(fontFamily: 'Cairo'),
+                labelStyle: const TextStyle(fontFamily: 'Cairo'),
                 suffixText: 'auto_str_363'.tr(),
               ),
             ),
@@ -1147,7 +1147,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('auto_str_349'.tr(), style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
+            child: Text('auto_str_349'.tr(), style: TextStyle(fontFamily: 'Cairo', color: AppColors.mutedText)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -1160,7 +1160,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.darkGreen, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-            child: const Text('auto_str_224'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
+            child: Text('auto_str_224'.tr(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Cairo')),
           ),
         ],
       ),

@@ -145,7 +145,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Row(
+                          Row(
                             children: [
                               Icon(Icons.add_alert_rounded,
                                   color: AppColors.gold, size: 18),
@@ -206,7 +206,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                                 ),
                                 SizedBox(width: 12),
                                 SegmentedButton<bool>(
-                                  segments: const [
+                                  segments: [
                                     ButtonSegment(
                                         value: true, label: Text('auto_str_327'.tr())),
                                     ButtonSegment(

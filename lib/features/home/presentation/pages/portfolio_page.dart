@@ -44,7 +44,7 @@ class PortfolioPage extends ConsumerWidget {
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 50),
-              title: const Text(
+              title: Text(
                 'auto_str_213'.tr(),
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
@@ -112,7 +112,7 @@ class PortfolioPage extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             'auto_str_074'.tr(),
                             style: TextStyle(
                               color: Colors.white70,
@@ -214,7 +214,7 @@ class PortfolioPage extends ConsumerWidget {
                       _showAddAssetSheet(context, country, ref);
                     },
                     icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 20),
-                    label: const Text(
+                    label: Text(
                       'auto_str_081'.tr(),
                       style: TextStyle(
                         fontFamily: 'Cairo',
@@ -265,12 +265,12 @@ class PortfolioPage extends ConsumerWidget {
                       children: [
                         Icon(Icons.account_balance_wallet_outlined, size: 54, color: AppColors.gold.withValues(alpha: 0.5)),
                         SizedBox(height: 14),
-                        const Text(
+                        Text(
                           'auto_str_101'.tr(),
                           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, fontFamily: 'Cairo'),
                         ),
                         SizedBox(height: 6),
-                        const Text(
+                        Text(
                           'auto_str_017'.tr(),
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 12, color: AppColors.mutedText, fontFamily: 'Cairo'),
@@ -415,7 +415,7 @@ class PortfolioPage extends ConsumerWidget {
                       ),
                     ),
                     SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'auto_str_131'.tr(),
                       style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, fontFamily: 'Cairo'),
                     ),
@@ -516,7 +516,7 @@ class PortfolioPage extends ConsumerWidget {
 
                           if (weight <= 0 || buyPrice <= 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('auto_str_067'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
+                              SnackBar(content: Text('auto_str_067'.tr(), style: TextStyle(fontFamily: 'Cairo'))),
                             );
                             return;
                           }
@@ -541,7 +541,7 @@ class PortfolioPage extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                         ),
-                        child: const Text('auto_str_154'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 15, fontFamily: 'Cairo')),
+                        child: Text('auto_str_154'.tr(), style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontSize: 15, fontFamily: 'Cairo')),
                       ),
                     ),
                   ],

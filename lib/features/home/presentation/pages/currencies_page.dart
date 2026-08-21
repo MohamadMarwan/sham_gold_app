@@ -393,7 +393,7 @@ class CurrenciesPage extends ConsumerWidget {
                           ),
                         ),
                         SizedBox(height: 4),
-                        const Text(
+                        Text(
                           'auto_str_207'.tr(),
                           textAlign: TextAlign.right,
                           style: TextStyle(
@@ -682,7 +682,7 @@ class CurrenciesPage extends ConsumerWidget {
             Icon(Icons.money_off_csred_rounded,
                 size: 80, color: Colors.grey.withValues(alpha: 0.2)),
             SizedBox(height: 20),
-            const Text('auto_str_120'.tr(),
+            Text('auto_str_120'.tr(),
                 style: TextStyle(
                     fontWeight: FontWeight.w900,
                     color: AppColors.mutedText,

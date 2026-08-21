@@ -364,7 +364,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('auto_str_250'.tr(),
+              Text('auto_str_250'.tr(),
                   style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 18,
@@ -458,7 +458,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                     color: AppColors.gold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text('auto_str_358'.tr(),
+                  child: Text('auto_str_358'.tr(),
                       style: TextStyle(
                           fontSize: 10,
                           color: AppColors.gold,
@@ -468,11 +468,11 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           ),
         ),
         if (historyPoints.isEmpty && !isLoading)
-          const Center(
+          Center(
               child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 40),
+            padding: const EdgeInsets.symmetric(vertical: 40),
             child: Text('auto_str_071'.tr(),
-                style: TextStyle(color: Colors.grey)),
+                style: const TextStyle(color: Colors.grey)),
           ))
         else
           ...historyPoints.reversed
@@ -568,7 +568,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
         SizedBox(height: 16),
         Text(errorMessage, style: const TextStyle(color: AppColors.mutedText)),
         TextButton(
-            onPressed: _fetchHistory, child: const Text('auto_str_230'.tr())),
+            onPressed: _fetchHistory, child: Text('auto_str_230'.tr())),
       ],
     );
   }

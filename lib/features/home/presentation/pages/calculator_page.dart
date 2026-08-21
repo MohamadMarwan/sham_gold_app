@@ -22,7 +22,7 @@ class CalculatorPage extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 80),
-              title: const Text(
+              title: Text(
                 'auto_str_232'.tr(),
                 style: TextStyle(
                   fontWeight: FontWeight.w900,

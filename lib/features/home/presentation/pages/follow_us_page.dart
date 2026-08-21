@@ -301,8 +301,7 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
             } else {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('auto_str_053'.tr())),
+                  SnackBar(content: Text('auto_str_053'.tr())),
                 );
               }
             }
@@ -693,9 +692,9 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
   }
 
   Widget _buildSettingsSection(BuildContext context) {
-    final settingsProvider = ref.watch(settingsProvider);
-    final isDark = settingsProvider.themeMode == ThemeMode.dark ||
-        (settingsProvider.themeMode == ThemeMode.system &&
+    final settings = ref.watch(settingsProvider);
+    final isDark = settings.themeMode == ThemeMode.dark ||
+        (settings.themeMode == ThemeMode.system &&
             MediaQuery.of(context).platformBrightness == Brightness.dark);
 
     return Column(
@@ -724,7 +723,7 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                   value: isDark,
                   activeColor: AppColors.gold,
                   onChanged: (val) {
-                    settingsProvider.setThemeMode(
+                    settings.setThemeMode(
                         val ? ThemeMode.dark : ThemeMode.light);
                   },
                 ),
@@ -740,10 +739,10 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                   value: context.locale.languageCode,
                   underline: SizedBox(),
                   icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
-                  items: const [
+                  items: [
                     DropdownMenuItem(value: 'ar', child: Text('auto_str_330'.tr())),
-                    DropdownMenuItem(value: 'en', child: Text('English')),
-                    DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
+                    const DropdownMenuItem(value: 'en', child: Text('English')),
+                    const DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
                   ],
                   onChanged: (String? newValue) {
                     if (newValue != null) {

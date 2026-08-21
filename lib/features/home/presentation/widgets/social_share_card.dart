@@ -172,7 +172,7 @@ class SocialShareCard extends StatelessWidget {
               color: AppColors.gold.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Expanded(
                   flex: 5,
@@ -273,7 +273,7 @@ class SocialShareCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
                   Icon(Icons.verified_rounded, color: AppColors.gold, size: 14),
                   SizedBox(width: 4),

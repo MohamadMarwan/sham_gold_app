@@ -36,7 +36,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
   @override
   Widget build(BuildContext context) {
     final priceService = ref.watch(priceServiceProvider);
-    final countryProvider = ref.watch(countryProvider);
+    final country = ref.watch(countryProvider);
     
     // We want local bullions and coins first. If not found, use global ones.
     final allPrices = priceService.currentPrices;
@@ -133,15 +133,15 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildListView(bullions, countryProvider, isDark),
-            _buildListView(coins, countryProvider, isDark),
+            _buildListView(bullions, country, isDark),
+            _buildListView(coins, country, isDark),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildListView(List<PriceItem> items, CountryProvider countryProvider, bool isDark) {
+  Widget _buildListView(List<PriceItem> items, CountryProvider country, bool isDark) {
     if (items.isEmpty) {
       return ListView.builder(
         padding: const EdgeInsets.all(16),

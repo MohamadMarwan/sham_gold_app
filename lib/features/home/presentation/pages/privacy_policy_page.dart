@@ -69,8 +69,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                 _buildSection('auto_str_311'.tr(),
                     'auto_str_014'.tr()),
                 SizedBox(height: 50),
-                const Center(
-                  child: Text(
+                Center(child: Text(
                     'auto_str_143'.tr(),
                     style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                   ),

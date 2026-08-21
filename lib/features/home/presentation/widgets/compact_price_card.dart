@@ -151,7 +151,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (widget.isFeatured)
-                              const Text(
+                              Text(
                                 'auto_str_124'.tr(),
                                 style: TextStyle(
                                   fontSize: 11,
@@ -256,7 +256,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
+                                Text(
                                   'auto_str_343'.tr(),
                                   style: TextStyle(
                                     fontSize: 10.5,

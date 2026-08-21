@@ -49,7 +49,7 @@ class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('auto_str_206'.tr(),
+        title: Text('auto_str_206'.tr(),
             style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white)),
         backgroundColor: AppColors.darkGreen,
         elevation: 0,
@@ -145,7 +145,7 @@ class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
           Icon(Icons.notifications_none_rounded,
               size: 80, color: Colors.grey[300]),
           SizedBox(height: 20),
-          const Text(
+          Text(
             'auto_str_100'.tr(),
             style: TextStyle(
                 color: AppColors.mutedText,
@@ -153,7 +153,7 @@ class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
                 fontSize: 16),
           ),
           SizedBox(height: 8),
-          const Text(
+          Text(
             'auto_str_037'.tr(),
             style: TextStyle(color: Colors.grey, fontSize: 13),
           ),

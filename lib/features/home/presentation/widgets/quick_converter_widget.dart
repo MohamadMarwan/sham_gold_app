@@ -253,7 +253,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 13),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                   value: 'G24_USD',
                                   child: Text('auto_str_197'.tr())),
@@ -267,8 +267,8 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                                   value: 'G24_SYP',
                                   child: Row(
                                     children: [
-                                      SyrianFlag(width: 24, height: 14),
-                                      SizedBox(width: 10),
+                                      const SyrianFlag(width: 24, height: 14),
+                                      const SizedBox(width: 10),
                                       Text('auto_str_258'.tr()),
                                     ],
                                   )),
@@ -276,8 +276,8 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                                   value: 'G21_SYP',
                                   child: Row(
                                     children: [
-                                      SyrianFlag(width: 24, height: 14),
-                                      SizedBox(width: 10),
+                                      const SyrianFlag(width: 24, height: 14),
+                                      const SizedBox(width: 10),
                                       Text('auto_str_257'.tr()),
                                     ],
                                   )),
@@ -285,8 +285,8 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                                   value: 'G18_SYP',
                                   child: Row(
                                     children: [
-                                      SyrianFlag(width: 24, height: 14),
-                                      SizedBox(width: 10),
+                                      const SyrianFlag(width: 24, height: 14),
+                                      const SizedBox(width: 10),
                                       Text('auto_str_256'.tr()),
                                     ],
                                   )),
@@ -343,8 +343,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                                     text: _result.toStringAsFixed(0)));
                                 HapticFeedback.mediumImpact();
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('auto_str_240'.tr(),
+                                  SnackBar(content: Text('auto_str_240'.tr(),
                                         textAlign: TextAlign.center),
                                     behavior: SnackBarBehavior.floating,
                                     width: 150,
@@ -360,13 +359,13 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                                 color: AppColors.gold.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
-                                  Icon(Icons.copy_rounded,
+                                  const Icon(Icons.copy_rounded,
                                       color: AppColors.gold, size: 14),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text('auto_str_383'.tr(),
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           color: AppColors.gold,
                                           fontSize: 10,
                                           fontWeight: FontWeight.w900)),

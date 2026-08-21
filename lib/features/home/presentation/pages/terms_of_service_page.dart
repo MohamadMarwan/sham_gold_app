@@ -69,8 +69,7 @@ class TermsOfServicePage extends StatelessWidget {
                 _buildSection('auto_str_217'.tr(),
                     'auto_str_008'.tr()),
                 SizedBox(height: 50),
-                const Center(
-                  child: Text(
+                Center(child: Text(
                     'auto_str_143'.tr(),
                     style: TextStyle(color: AppColors.mutedText, fontSize: 12),
                   ),

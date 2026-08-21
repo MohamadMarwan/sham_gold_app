@@ -116,7 +116,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
                       color: AppColors.gold, size: 24),
                 ),
                 SizedBox(width: 12),
-                const Text(
+                Text(
                   'auto_str_232'.tr(),
                   style: TextStyle(
                     fontSize: 18,
@@ -203,7 +203,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'auto_str_144'.tr(),
                 style: TextStyle(
                   fontSize: 12,
@@ -342,7 +342,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
         color: AppColors.darkGreen.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.info_outline_rounded,
               color: AppColors.darkGreen, size: 18),

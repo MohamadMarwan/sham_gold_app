@@ -17,8 +17,8 @@ class TopCountryBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = ref.watch(countryProvider);
-    final country = countryProvider.selectedCountry;
+    final countryState = ref.watch(countryProvider);
+    final country = countryState.selectedCountry;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),

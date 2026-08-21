@@ -87,7 +87,7 @@ class _QuickNewsTickerState extends ConsumerState<QuickNewsTicker> {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             color: AppColors.gold.withValues(alpha: 0.9),
             alignment: Alignment.center,
-            child: const Text(
+            child: Text(
               'auto_str_345'.tr(),
               style: TextStyle(
                 color: Colors.white,

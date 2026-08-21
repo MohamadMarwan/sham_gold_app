@@ -34,8 +34,8 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = ref.watch(countryProvider);
-    final allCountries = countryProvider.allCountries;
+    final countryState = ref.watch(countryProvider);
+    final allCountries = countryState.allCountries;
 
     final filteredCountries = allCountries.where((c) {
       if (_searchQuery.isEmpty) return true;
@@ -98,7 +98,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                           fontFamily: 'Cairo',
                         ),
                       ),
-                      const Text(
+                      Text(
                         'auto_str_035'.tr(),
                         style: TextStyle(
                           fontSize: 12,
@@ -149,12 +149,12 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
               separatorBuilder: (_, __) => SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final country = filteredCountries[index];
-                final isSelected = country.code == countryProvider.selectedCountry.code;
+                final isSelected = country.code == countryState.selectedCountry.code;
 
                 return InkWell(
                   onTap: () async {
                     HapticFeedback.selectionClick();
-                    await countryProvider.selectCountry(country);
+                    await countryState.selectCountry(country);
                     if (context.mounted) {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(

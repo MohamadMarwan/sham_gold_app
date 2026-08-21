@@ -7,6 +7,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/models/country_model.dart';
 import 'social_share_card.dart';
 
@@ -35,9 +36,9 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = ref.watch(countryProvider);
-    final country = widget.forcedCountry ?? countryProvider.selectedCountry;
-    final marketData = countryProvider.currentMarketData;
+    final countryState = ref.watch(countryProvider);
+    final country = widget.forcedCountry ?? countryState.selectedCountry;
+    final marketData = countryState.currentMarketData;
 
     final List<dynamic> items = (marketData != null && marketData['items'] != null)
         ? marketData['items']

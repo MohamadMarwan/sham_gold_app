@@ -42,8 +42,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('auto_str_163'.tr()),
+        SnackBar(content: Text('auto_str_163'.tr()),
           duration: Duration(seconds: 2),
           backgroundColor: Colors.orange,
         ),
@@ -143,7 +142,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
               children: [
                 _buildCircularButton(Icons.arrow_back_ios_new_rounded,
                     () => Navigator.pop(context)),
-                const Text(
+                Text(
                   'auto_str_331'.tr(),
                   style: TextStyle(
                     color: Colors.white,

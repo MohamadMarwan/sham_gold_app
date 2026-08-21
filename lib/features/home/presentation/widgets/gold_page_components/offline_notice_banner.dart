@@ -12,10 +12,10 @@ class OfflineNoticeBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final countryProvider = ref.watch(countryProvider);
-    if (!countryProvider.isOffline) return const SizedBox.shrink();
+    final country = ref.watch(countryProvider);
+    if (!country.isOffline) return const SizedBox.shrink();
 
-    final lastSync = countryProvider.lastOfflineSyncTime;
+    final lastSync = country.lastOfflineSyncTime;
     final lastSyncText = lastSync != null
         ? '${lastSync.hour.toString().padLeft(2, '0')}:${lastSync.minute.toString().padLeft(2, '0')}'
         : 'previously'.tr();
