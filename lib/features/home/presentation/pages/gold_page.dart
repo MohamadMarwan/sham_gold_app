@@ -40,6 +40,7 @@ import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sh
 
 import 'package:gold_sham/features/home/presentation/widgets/interactive_market_chart.dart';
 import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
+import 'package:gold_sham/shared/widgets/staggered_slide_in.dart';
 
 class GoldPage extends ConsumerStatefulWidget {
   final Function(int)? onNavigate;
@@ -405,8 +406,10 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                         itemCount: globalDisplayItems.length > 4
                             ? 4
                             : globalDisplayItems.length,
-                        itemBuilder: (context, index) =>
-                            OunceCard(item: globalDisplayItems[index]),
+                        itemBuilder: (context, index) => StaggeredSlideIn(
+                          index: index,
+                          child: OunceCard(item: globalDisplayItems[index]),
+                        ),
                       ),
                       SizedBox(height: 8),
                     ],
@@ -441,9 +444,12 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                             .map((item) => ReorderableDragStartListener(
                                   key: ValueKey(item.id),
                                   index: _sortKarats(globalKarats).indexOf(item),
-                                  child: _isCompactView
-                                      ? _buildCompactListTile(item, context)
-                                      : KaratCard(item: item),
+                                  child: StaggeredSlideIn(
+                                    index: _sortKarats(globalKarats).indexOf(item),
+                                    child: _isCompactView
+                                        ? _buildCompactListTile(item, context)
+                                        : KaratCard(item: item),
+                                  ),
                                 ))
                             .toList(),
                       ),

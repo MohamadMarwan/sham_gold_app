@@ -18,27 +18,48 @@ class SplashPage extends ConsumerStatefulWidget {
 class _SplashPageState extends ConsumerState<SplashPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
+  late Animation<double> _logoFadeAnimation;
+  late Animation<double> _logoScaleAnimation;
+  late Animation<double> _textFadeAnimation;
+  late Animation<double> _textSlideAnimation;
+  late Animation<double> _loadingFadeAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _logoFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
           parent: _controller,
           curve: const Interval(0.0, 0.4, curve: Curves.easeIn)),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+    _logoScaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
           parent: _controller,
-          curve: const Interval(0.0, 0.6, curve: Curves.elasticOut)),
+          curve: const Interval(0.0, 0.5, curve: Curves.elasticOut)),
+    );
+
+    _textFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.4, 0.7, curve: Curves.easeIn)),
+    );
+
+    _textSlideAnimation = Tween<double>(begin: 20.0, end: 0.0).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.4, 0.8, curve: Curves.easeOutCubic)),
+    );
+
+    _loadingFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+          parent: _controller,
+          curve: const Interval(0.7, 1.0, curve: Curves.easeIn)),
     );
 
     _controller.forward();
@@ -149,9 +170,9 @@ class _SplashPageState extends ConsumerState<SplashPage>
                   children: [
                     const Spacer(flex: 3), // Add top spacing
                     ScaleTransition(
-                      scale: _scaleAnimation,
+                      scale: _logoScaleAnimation,
                       child: FadeTransition(
-                        opacity: _fadeAnimation,
+                        opacity: _logoFadeAnimation,
                         child: PremiumLogo(
                           size: 190,
                           logoUrl: logoUrl,
@@ -160,8 +181,17 @@ class _SplashPageState extends ConsumerState<SplashPage>
                     ),
                     const Spacer(
                         flex: 1), // Dynamic spacing instead of fixed 60
-                    FadeTransition(
-                      opacity: _fadeAnimation,
+                    AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, _textSlideAnimation.value),
+                          child: Opacity(
+                            opacity: _textFadeAnimation.value,
+                            child: child,
+                          ),
+                        );
+                      },
                       child: Column(
                         children: [
                           Text(
@@ -207,7 +237,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                         flex: 2), // Dynamic spacing instead of fixed 120
                     // Elegant loading indicator
                     FadeTransition(
-                      opacity: _fadeAnimation,
+                      opacity: _loadingFadeAnimation,
                       child: Column(
                         children: [
                           SizedBox(

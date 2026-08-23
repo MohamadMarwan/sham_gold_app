@@ -27,13 +27,13 @@ class ShimmerLoading extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Shimmer.fromColors(
-      baseColor: isDark ? AppColors.darkGreen.withValues(alpha: 0.5) : Colors.grey[200]!,
-      highlightColor: isDark ? AppColors.accentGreen.withValues(alpha: 0.5) : Colors.white,
+      baseColor: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.5) : const Color(0xFFF1F5F9),
+      highlightColor: isDark ? const Color(0xFF334155).withValues(alpha: 0.5) : Colors.white,
       child: Container(
         width: width,
         height: height,
         decoration: ShapeDecoration(
-          color: isDark ? AppColors.darkGreen : Colors.grey[400]!,
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
           shape: shapeBorder,
         ),
       ),
@@ -51,8 +51,18 @@ class PremiumCardShimmer extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkGreen : Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.03),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.1),
+        ),
       ),
       child: const Row(
         children: [
@@ -93,8 +103,11 @@ class OunceCardShimmer extends StatelessWidget {
       margin: const EdgeInsets.only(left: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkGreen : Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.1),
+        ),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,8 +146,11 @@ class ChartShimmer extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.darkGreen : Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.1),
+        ),
       ),
       child: const Column(
         children: [

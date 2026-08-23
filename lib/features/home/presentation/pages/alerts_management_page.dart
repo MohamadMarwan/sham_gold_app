@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/models/price_item.dart';
 import '../../../../shared/services/price_service.dart';
+import '../../../../shared/widgets/premium_empty_state.dart';
 
 class AlertsManagementPage extends ConsumerStatefulWidget {
   const AlertsManagementPage({super.key});
@@ -138,27 +140,10 @@ class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.notifications_none_rounded,
-              size: 80, color: Colors.grey[300]),
-          SizedBox(height: 20),
-          Text(
-            'auto_str_100'.tr(),
-            style: TextStyle(
-                color: AppColors.mutedText,
-                fontWeight: FontWeight.bold,
-                fontSize: 16),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'auto_str_037'.tr(),
-            style: TextStyle(color: Colors.grey, fontSize: 13),
-          ),
-        ],
-      ),
+    return PremiumEmptyState(
+      title: 'auto_str_100'.tr(),
+      subtitle: 'auto_str_037'.tr(),
+      icon: Icons.notifications_none_rounded,
     );
   }
 }

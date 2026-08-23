@@ -209,18 +209,24 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: Text(
-                          widget.priceItem.title,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              shadows: [
-                                Shadow(color: Colors.black26, blurRadius: 10)
-                              ]),
+                        child: Hero(
+                          tag: 'title_${widget.priceItem.id}',
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: Text(
+                              widget.priceItem.title,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
+                                  shadows: [
+                                    Shadow(color: Colors.black26, blurRadius: 10)
+                                  ]),
+                            ),
+                          ),
                         ),
                       ),
                     ],

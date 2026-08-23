@@ -123,8 +123,8 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryProvider = ref.watch(countryProvider);
-    final country = countryProvider.selectedCountry;
+    final countryState = ref.watch(countryProvider);
+    final country = countryState.selectedCountry;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -234,12 +234,12 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.08),
+              color: isDark ? Colors.black.withValues(alpha: 0.4) : color.withValues(alpha: 0.08),
               blurRadius: 15,
               offset: const Offset(0, 5),
             )
@@ -267,7 +267,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                       fontFamily: 'Cairo',
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : AppColors.darkGreen,
+                      color: isDark ? Colors.white : AppColors.primaryText,
                     ),
                   ),
                   SizedBox(height: 4),
@@ -876,20 +876,20 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
               ),
-              child: const Center(
+              child: Center(
                 child: Column(
                   children: [
-                    Icon(Icons.flag_rounded, size: 40, color: AppColors.gold),
-                    SizedBox(height: 10),
+                    const Icon(Icons.flag_rounded, size: 40, color: AppColors.gold),
+                    const SizedBox(height: 10),
                     Text(
                       'auto_str_087'.tr(),
-                      style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Cairo', fontSize: 14),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Cairo', fontSize: 14),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'auto_str_033'.tr(),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.mutedText, fontFamily: 'Cairo', fontSize: 12),
+                      style: const TextStyle(color: AppColors.mutedText, fontFamily: 'Cairo', fontSize: 12),
                     ),
                   ],
                 ),

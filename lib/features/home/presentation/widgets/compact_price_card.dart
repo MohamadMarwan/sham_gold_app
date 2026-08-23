@@ -109,7 +109,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF131B2E) : Colors.white,
+            color: Theme.of(context).cardTheme.color,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: widget.isFeatured
@@ -121,7 +121,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
               BoxShadow(
                 color: widget.isFeatured
                     ? AppColors.gold.withValues(alpha: 0.12)
-                    : Colors.black.withValues(alpha: 0.04),
+                    : (isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.04)),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -133,22 +133,34 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                 children: [
                   Row(
                     children: [
-                      _buildKaratBadge(widget.priceItem),
+                      Hero(
+                        tag: 'icon_${widget.priceItem.id}',
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: _buildKaratBadge(widget.priceItem),
+                        ),
+                      ),
                       SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              widget.priceItem.title,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 15,
-                                color: isDark ? Colors.white : AppColors.primaryText,
-                                fontFamily: 'Cairo',
+                            Hero(
+                              tag: 'title_${widget.priceItem.id}',
+                              child: Material(
+                                type: MaterialType.transparency,
+                                child: Text(
+                                  widget.priceItem.title,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 15,
+                                    color: isDark ? Colors.white : AppColors.primaryText,
+                                    fontFamily: 'Cairo',
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                             if (widget.isFeatured)
                               Text(

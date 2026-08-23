@@ -12,7 +12,7 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 import 'core/services/cache_service.dart';
 import 'core/providers/settings_provider.dart';
@@ -21,11 +21,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ar_SA', null);
   
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    debugPrint('Could not load .env file: $e');
-  }
 
   // Start the app immediately to prevent hanging on the native green splash
   await EasyLocalization.ensureInitialized();
@@ -86,6 +81,9 @@ class GoldShamApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: settings.themeMode,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        physics: const BouncingScrollPhysics(),
+      ),
       builder: (context, child) {
         return ShowCaseWidget(
           builder: (context) => child!,

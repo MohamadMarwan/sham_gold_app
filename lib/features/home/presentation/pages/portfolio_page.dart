@@ -4,17 +4,44 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/shimmer_loading.dart';
+import '../../../../shared/widgets/premium_empty_state.dart';
 import '../../../../core/providers/portfolio_provider.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/portfolio_model.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 
-class PortfolioPage extends ConsumerWidget {
+class PortfolioPage extends ConsumerStatefulWidget {
   const PortfolioPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PortfolioPage> createState() => _PortfolioPageState();
+}
+
+class _PortfolioPageState extends ConsumerState<PortfolioPage> {
+  late ScrollController _scrollController;
+  double _scrollOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      setState(() {
+        _scrollOffset = _scrollController.offset;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final portfolioProviderInstance = ref.watch(portfolioProvider);
     final countryProviderInstance = ref.watch(countryProvider);
@@ -33,6 +60,7 @@ class PortfolioPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           // AppBar
@@ -54,10 +82,13 @@ class PortfolioPage extends ConsumerWidget {
                   shadows: [Shadow(color: Colors.black54, blurRadius: 12)],
                 ),
               ),
-              background: Container(
-                decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
-                child: const Center(
-                  child: PremiumLogo(size: 110, isBackground: true),
+              background: Transform.translate(
+                offset: Offset(0, _scrollOffset * 0.5),
+                child: Container(
+                  decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
+                  child: const Center(
+                    child: PremiumLogo(size: 110, isBackground: true),
+                  ),
                 ),
               ),
             ),
@@ -92,15 +123,15 @@ class PortfolioPage extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(28),
+                    border: Border.all(
+                      color: isDark ? AppColors.gold.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.2),
+                      width: 1.5,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
+                        color: isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -115,7 +146,7 @@ class PortfolioPage extends ConsumerWidget {
                           Text(
                             'auto_str_074'.tr(),
                             style: TextStyle(
-                              color: Colors.white70,
+                              color: isDark ? Colors.white70 : AppColors.secondaryText,
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               fontFamily: 'Cairo',
@@ -254,29 +285,10 @@ class PortfolioPage extends ConsumerWidget {
 
                 // Empty State or List
                 if (portfolioProviderInstance.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(Icons.account_balance_wallet_outlined, size: 54, color: AppColors.gold.withValues(alpha: 0.5)),
-                        SizedBox(height: 14),
-                        Text(
-                          'auto_str_101'.tr(),
-                          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, fontFamily: 'Cairo'),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          'auto_str_017'.tr(),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, color: AppColors.mutedText, fontFamily: 'Cairo'),
-                        ),
-                      ],
-                    ),
+                  PremiumEmptyState(
+                    title: 'auto_str_101'.tr(),
+                    subtitle: 'auto_str_017'.tr(),
+                    icon: Icons.account_balance_wallet_outlined,
                   )
                 else
                   ...portfolioProviderInstance.items.map((item) {

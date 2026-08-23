@@ -5,7 +5,9 @@ import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import '../../shared/models/country_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../features/home/data/datasources/prices_remote_datasource.dart';
+import '../services/http_api_service.dart';
+import '../error/app_exception.dart';
 final countryProvider = ChangeNotifierProvider<CountryProvider>((ref) {
   return CountryProvider();
 });
@@ -191,23 +193,19 @@ class CountryProvider with ChangeNotifier {
   Future<void> fetchMarketData() async {
     final code = _selectedCountry.code.toLowerCase();
     try {
-      final url = Uri.parse('${AppConfig.baseUrl}/api/markets/$code');
-      final response = await http.get(url, headers: {
-        'x-api-key': AppConfig.apiAccessKey,
-        'Content-Type': 'application/json',
-      }).timeout(const Duration(seconds: 5));
-
-      if (response.statusCode == 200) {
-        _currentMarketData = json.decode(response.body);
-        _isOffline = false;
-        await _saveMarketDataToCache(code, response.body);
-        notifyListeners();
-      } else {
-        _isOffline = true;
-        await _loadCachedMarketData(code);
-      }
+      final remoteSource = PricesRemoteDataSource(HttpApiService());
+      final data = await remoteSource.getCountryMarketData(code);
+      
+      _currentMarketData = data;
+      _isOffline = false;
+      await _saveMarketDataToCache(code, json.encode(data));
+      notifyListeners();
+    } on AppException catch (e) {
+      debugPrint('Network/API error for ${_selectedCountry.code}: ${e.message}');
+      _isOffline = true;
+      await _loadCachedMarketData(code);
     } catch (e) {
-      debugPrint('Network error, fallback to offline cache for ${_selectedCountry.code}: $e');
+      debugPrint('Unexpected error, fallback to offline cache for ${_selectedCountry.code}: $e');
       _isOffline = true;
       await _loadCachedMarketData(code);
     }

@@ -11,13 +11,13 @@ enum ChartInterval { thirtyMin, day, week, month }
 class InteractiveMarketChart extends StatefulWidget {
   final double currentPrice;
   final String currency;
-  final String title;
+  final String? title;
 
   const InteractiveMarketChart({
     super.key,
     required this.currentPrice,
     this.currency = 'USD',
-    this.title = 'auto_str_241'.tr(),
+    this.title,
   });
 
   @override
@@ -31,6 +31,7 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
   double _maxPrice = 0.0;
   double _periodChange = 0.0;
   double _periodPercent = 0.0;
+  int? _touchedIndex;
 
   @override
   void initState() {
@@ -145,7 +146,7 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.title,
+                    widget.title ?? 'auto_str_241'.tr(),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
@@ -209,6 +210,18 @@ class _InteractiveMarketChartState extends State<InteractiveMarketChart> {
                       minY: _minPrice,
                       maxY: _maxPrice,
                       lineTouchData: LineTouchData(
+                        touchCallback: (FlTouchEvent event, LineTouchResponse? touchResponse) {
+                          if (!event.isInterestedForInteractions || touchResponse == null || touchResponse.lineBarSpots == null) {
+                            return;
+                          }
+                          final index = touchResponse.lineBarSpots!.first.x.toInt();
+                          if (_touchedIndex != index) {
+                            HapticFeedback.selectionClick();
+                            setState(() {
+                              _touchedIndex = index;
+                            });
+                          }
+                        },
                         touchTooltipData: LineTouchTooltipData(
                           tooltipBgColor: const Color(0xFF0F172A),
                           getTooltipItems: (touchedSpots) {

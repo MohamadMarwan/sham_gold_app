@@ -109,76 +109,83 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
 
   @override
   Widget build(BuildContext context) {
-    // If price is very large (e.g. Kilo prices like 168,000), skip decimals for cleaner look
-    final format = widget.price >= 10000
-        ? NumberFormat("#,###", "en_US")
-        : NumberFormat("#,##0.00", "en_US");
-    final formatted = format.format(_displayPrice);
-    final parts = formatted.split('.');
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: _displayPrice),
+      duration: const Duration(milliseconds: 300),
+      builder: (context, animatedPrice, child) {
+        // If price is very large (e.g. Kilo prices like 168,000), skip decimals for cleaner look
+        final format = animatedPrice >= 10000
+            ? NumberFormat("#,###", "en_US")
+            : NumberFormat("#,##0.00", "en_US");
+        final formatted = format.format(animatedPrice);
+        final parts = formatted.split('.');
 
-    return AnimatedBuilder(
-      animation: _pulseController,
-      builder: (context, child) {
-        final flashColor =
-            _colorAnimation.value ?? widget.style.color ?? Colors.black;
-        final isFlashing = _pulseController.isAnimating;
-        final isUp = widget.price >= _displayPrice;
+        return AnimatedBuilder(
+          animation: _pulseController,
+          builder: (context, child) {
+            final flashColor =
+                _colorAnimation.value ?? widget.style.color ?? Colors.black;
+            final isFlashing = _pulseController.isAnimating;
+            final isUp = widget.price >= _displayPrice;
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          textDirection: ui.TextDirection
-              .ltr, // Explicit LTR to keep symbols/decimals correctly positioned
-          children: [
-            if (isFlashing)
-              Icon(
-                isUp
-                    ? Icons.arrow_drop_up_rounded
-                    : Icons.arrow_drop_down_rounded,
-                color: flashColor,
-                size: (widget.style.fontSize ?? 18) * 0.9,
-              ),
-            Transform.scale(
-              scale: isFlashing ? _pulseAnimation.value : 1.0,
-              child: RichText(
-                textDirection: ui.TextDirection.ltr, // Explicit LTR for numbers
-                text: TextSpan(
-                  style: widget.style.copyWith(
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              textDirection: ui.TextDirection
+                  .ltr, // Explicit LTR to keep symbols/decimals correctly positioned
+              children: [
+                if (isFlashing)
+                  Icon(
+                    isUp
+                        ? Icons.arrow_drop_up_rounded
+                        : Icons.arrow_drop_down_rounded,
                     color: flashColor,
-                    shadows: isFlashing
-                        ? [
-                            Shadow(
-                              color: flashColor.withValues(alpha: 0.5),
-                              blurRadius: 10,
-                            ),
-                            Shadow(
-                              color: flashColor.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                            ),
-                          ]
-                        : null,
+                    size: (widget.style.fontSize ?? 18) * 0.9,
                   ),
-                  children: [
-                    if (widget.currency == '\$')
-                      TextSpan(text: widget.currency),
-                    TextSpan(text: parts[0]),
-                    TextSpan(
-                      text: (parts.length > 1) ? '.${parts[1]}' : '',
-                      style: TextStyle(
-                        fontSize: (widget.style.fontSize ?? 18) * 0.75,
-                        fontWeight: FontWeight.w600,
-                        color: flashColor.withValues(alpha: 0.7),
-                        fontFamily: 'Roboto',
+                Transform.scale(
+                  scale: isFlashing ? _pulseAnimation.value : 1.0,
+                  child: RichText(
+                    textDirection: ui.TextDirection.ltr, // Explicit LTR for numbers
+                    text: TextSpan(
+                      style: widget.style.copyWith(
+                        color: flashColor,
+                        shadows: isFlashing
+                            ? [
+                                Shadow(
+                                  color: flashColor.withValues(alpha: 0.5),
+                                  blurRadius: 10,
+                                ),
+                                Shadow(
+                                  color: flashColor.withValues(alpha: 0.3),
+                                  blurRadius: 20,
+                                ),
+                              ]
+                            : null,
                       ),
+                      children: [
+                        if (widget.currency == '\$')
+                          TextSpan(text: widget.currency),
+                        TextSpan(text: parts[0]),
+                        TextSpan(
+                          text: (parts.length > 1) ? '.${parts[1]}' : '',
+                          style: TextStyle(
+                            fontSize: (widget.style.fontSize ?? 18) * 0.75,
+                            fontWeight: FontWeight.w600,
+                            color: flashColor.withValues(alpha: 0.7),
+                            fontFamily: 'Roboto',
+                          ),
+                        ),
+                        if (widget.currency != '\$' && widget.currency.isNotEmpty)
+                          TextSpan(text: ' ${widget.currency}'),
+                      ],
                     ),
-                    if (widget.currency != '\$' && widget.currency.isNotEmpty)
-                      TextSpan(text: ' ${widget.currency}'),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         );
       },
     );
   }
+
 }

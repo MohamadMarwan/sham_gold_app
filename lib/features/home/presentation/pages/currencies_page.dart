@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/services/price_service.dart';
+import 'package:gold_sham/shared/widgets/premium_empty_state.dart';
 import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
 import 'package:gold_sham/shared/widgets/sparkline_widget.dart';
 import 'package:gold_sham/shared/widgets/price_alert_dialog.dart';
@@ -220,7 +221,7 @@ class CurrenciesPage extends ConsumerWidget {
                       delegate: SliverChildListDelegate([
                         if (priceService
                             .shouldShow('currencyShowSummaryWelcome')) ...[
-                          _buildWelcomeCard(),
+                          _buildWelcomeCard(context),
                           SizedBox(height: 32),
                         ],
                         if (syrianCurrencies.isNotEmpty) ...[
@@ -263,20 +264,23 @@ class CurrenciesPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCard(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkGreen.withValues(alpha: 0.2),
+            color: isDark ? Colors.black.withValues(alpha: 0.4) : AppColors.darkGreen.withValues(alpha: 0.2),
             blurRadius: 35,
             offset: const Offset(0, 15),
           ),
         ],
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: isDark ? AppColors.gold.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.2),
+        ),
       ),
       child: Row(
         children: [
@@ -295,7 +299,7 @@ class CurrenciesPage extends ConsumerWidget {
                 color: AppColors.gold, size: 36),
           ),
           SizedBox(width: 20),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -304,13 +308,13 @@ class CurrenciesPage extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.darkGreen,
+                    color: isDark ? Colors.white : AppColors.darkGreen,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   'auto_str_030'.tr(),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppColors.mutedText,
@@ -326,10 +330,11 @@ class CurrenciesPage extends ConsumerWidget {
   }
 
   Widget _buildPremiumCurrencyCard(PriceItem item, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isUp = item.trend == Trend.up;
 
     return Material(
-      color: Colors.white,
+      color: Theme.of(context).cardTheme.color,
       borderRadius: BorderRadius.circular(30),
       child: InkWell(
         borderRadius: BorderRadius.circular(30),
@@ -344,12 +349,15 @@ class CurrenciesPage extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.08)),
+            border: Border.all(
+              color: isDark ? AppColors.gold.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.08),
+            ),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8)),
+                color: isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.04),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
             ],
           ),
           child: Column(
@@ -357,22 +365,25 @@ class CurrenciesPage extends ConsumerWidget {
               Row(
                 children: [
                   // 1. Icon / Flag (RIGHT in RTL)
-                  Container(
-                    width: 58,
-                    height: 58,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4)),
-                      ],
-                      border: Border.all(
-                          color: Colors.grey.withValues(alpha: 0.05)),
+                  Hero(
+                    tag: 'icon_${item.id}',
+                    child: Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: isDark ? AppColors.majlisGreen : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.03),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4)),
+                        ],
+                        border: Border.all(
+                            color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.05)),
+                      ),
+                      child: Center(child: _buildFlagIcon(item.id, item.title)),
                     ),
-                    child: Center(child: _buildFlagIcon(item.id, item.title)),
                   ),
                   SizedBox(width: 18),
 
@@ -381,15 +392,21 @@ class CurrenciesPage extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          _translateTitle(item.title),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.right,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.darkGreen,
+                        Hero(
+                          tag: 'title_${item.id}',
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: Text(
+                              _translateTitle(item.title),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : AppColors.darkGreen,
+                              ),
+                            ),
                           ),
                         ),
                         SizedBox(height: 4),
@@ -675,20 +692,10 @@ class CurrenciesPage extends ConsumerWidget {
 
   Widget _buildEmptyState() {
     return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.money_off_csred_rounded,
-                size: 80, color: Colors.grey.withValues(alpha: 0.2)),
-            SizedBox(height: 20),
-            Text('auto_str_120'.tr(),
-                style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.mutedText,
-                    fontSize: 16)),
-          ],
-        ),
+      child: PremiumEmptyState(
+        title: 'auto_str_120'.tr(),
+        subtitle: 'auto_str_017'.tr(),
+        icon: Icons.money_off_csred_rounded,
       ),
     );
   }

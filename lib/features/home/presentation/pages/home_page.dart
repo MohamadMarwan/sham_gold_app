@@ -18,6 +18,7 @@ import 'follow_us_page.dart';
 import 'price_detail_page.dart';
 import 'splash_page.dart';
 import '../../../../core/services/ad_service.dart';
+import '../../../../core/providers/navigation_provider.dart';
 import 'bullions_coins_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -28,7 +29,6 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
-  int _currentIndex = 0;
   late PageController _pageController;
   DateTime? _pausedTime;
 
@@ -40,7 +40,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: _currentIndex);
+    _pageController = PageController(initialPage: ref.read(navigationIndexProvider));
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkFirstRun();
@@ -194,26 +194,37 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   }
 
   Widget _buildActiveIcon(Widget child) {
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                AppColors.gold.withValues(alpha: 0.25),
-                Colors.transparent,
-              ],
-              radius: 0.8,
-            ),
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0.5, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.elasticOut,
+      builder: (context, scale, childWidget) {
+        return Transform.scale(
+          scale: scale,
+          child: Stack(
+            alignment: Alignment.center,
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      AppColors.gold.withValues(alpha: 0.25),
+                      Colors.transparent,
+                    ],
+                    radius: 0.8,
+                  ),
+                ),
+              ),
+              childWidget!,
+            ],
           ),
-        ),
-        child,
-      ],
+        );
+      },
+      child: child,
     );
   }
 
@@ -226,7 +237,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     final pages = [
       GoldPage(
         onNavigate: (index) {
-          if (_currentIndex != index) {
+          if (ref.read(navigationIndexProvider) != index) {
             _onTabTapped(index);
           }
         },
@@ -238,14 +249,22 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       const FollowUsPage(),
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return PopScope(
+      canPop: ref.watch(navigationIndexProvider) == 0,
+      onPopInvokedWithResult: (didPop, dynamic result) {
+        if (didPop) return;
+        if (ref.read(navigationIndexProvider) != 0) {
+          _onTabTapped(0);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
       extendBody: true,
       body: PageView(
         controller: _pageController,
         physics: const BouncingScrollPhysics(),
         onPageChanged: (index) {
-          setState(() => _currentIndex = index);
+          ref.read(navigationIndexProvider.notifier).state = index;
         },
         children: pages,
       ),
@@ -273,7 +292,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
             child: BottomNavigationBar(
-              currentIndex: _currentIndex,
+              currentIndex: ref.watch(navigationIndexProvider),
               onTap: _onTabTapped,
               selectedItemColor: AppColors.gold,
               unselectedItemColor: isDark ? Colors.white38 : AppColors.mutedText,
@@ -344,7 +363,8 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
   }
 
   void _onTabTapped(int index) {
-    if (_currentIndex != index) {
+    if (ref.read(navigationIndexProvider) != index) {
+      ref.read(navigationIndexProvider.notifier).state = index;
       HapticFeedback.selectionClick();
       _pageController.animateToPage(
         index,

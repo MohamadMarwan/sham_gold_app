@@ -66,4 +66,6 @@ flutter:
     - assets/icons/
     - assets/logo.png
     - assets/translations/
-    - .env
+    # NOTE: .env is intentionally excluded from assets.
+    # Secrets are injected at build time via --dart-define flags.
+    # See: lib/core/config/app_config.dart

@@ -6,6 +6,7 @@ import '../../../../shared/services/price_service.dart';
 import '../../../../shared/services/favorites_service.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../shared/widgets/premium_empty_state.dart';
 import 'price_detail_page.dart';
 import '../../../../shared/widgets/custom_icon.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
@@ -203,28 +204,10 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
 
   Widget _buildEmptyState() {
     return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.star_outline_rounded,
-                size: 100, color: Colors.grey[200]),
-            SizedBox(height: 24),
-            Text(
-              'auto_str_253'.tr(),
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
-                color: Colors.grey[400],
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'auto_str_055'.tr(),
-              style: TextStyle(color: Colors.grey[400], fontSize: 13),
-            ),
-          ],
-        ),
+      child: PremiumEmptyState(
+        title: 'auto_str_253'.tr(),
+        subtitle: 'auto_str_055'.tr(),
+        icon: Icons.star_outline_rounded,
       ),
     );
   }
