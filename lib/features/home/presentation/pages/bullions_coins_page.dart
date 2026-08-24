@@ -9,7 +9,7 @@ import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/services/price_service.dart';
 import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
-import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/square_price_card.dart';
 
 class BullionsCoinsPage extends ConsumerStatefulWidget {
   const BullionsCoinsPage({super.key});
@@ -150,13 +150,19 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       );
     }
 
-    return ListView.builder(
+    return GridView.builder(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 120),
       physics: const BouncingScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 0.85,
+      ),
       itemCount: items.length,
       itemBuilder: (context, index) {
         final item = items[index];
-        return CompactPriceCard(
+        return SquarePriceCard(
           priceItem: item,
           localPrice: item.buyPrice,
           localCurrencySymbol: item.currency,

@@ -8,7 +8,7 @@ import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/models/country_model.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/premium_logo.dart';
-import '../widgets/compact_price_card.dart';
+import '../widgets/square_price_card.dart';
 import '../widgets/country_switcher_sheet.dart';
 import '../widgets/social_share_sheet.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
@@ -233,25 +233,38 @@ class CountryMarketPage extends ConsumerWidget {
                     )
                   else ...[
                     // Standard Karats & Units
-                    ...rawItems.where((item) => item['metalType'] != 'custom_item').map((item) {
-                      final priceItem = PriceItem(
-                        id: item['id'] ?? '',
-                        title: item['title'] ?? item['name'] ?? '',
-                        buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-                        sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
-                        currency: item['currency'] ?? country.currencySymbol,
-                        metalType: item['metalType'] ?? 'gold',
-                        usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
-                      );
+                    GridView.builder(
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 0.85,
+                      ),
+                      itemCount: rawItems.where((item) => item['metalType'] != 'custom_item').length,
+                      itemBuilder: (context, index) {
+                        final item = rawItems.where((item) => item['metalType'] != 'custom_item').toList()[index];
+                        final priceItem = PriceItem(
+                          id: item['id'] ?? '',
+                          title: item['title'] ?? item['name'] ?? '',
+                          buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
+                          sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+                          currency: item['currency'] ?? country.currencySymbol,
+                          metalType: item['metalType'] ?? 'gold',
+                          usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+                        );
 
-                      return CompactPriceCard(
-                        priceItem: priceItem,
-                        localPrice: (item['buyPrice'] as num?)?.toDouble(),
-                        localCurrencySymbol: item['currency'] ?? country.currencySymbol,
-                        usdPrice: (item['usdPrice'] as num?)?.toDouble(),
-                        isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
-                      );
-                    }),
+                        return SquarePriceCard(
+                          priceItem: priceItem,
+                          localPrice: (item['buyPrice'] as num?)?.toDouble(),
+                          localCurrencySymbol: item['currency'] ?? country.currencySymbol,
+                          usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+                          isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
+                        );
+                      },
+                    ),
                     
                     // Custom Items Section
                     if (rawItems.any((item) => item['metalType'] == 'custom_item')) ...[
@@ -282,12 +295,15 @@ class CountryMarketPage extends ConsumerWidget {
                           metalType: item['metalType'] ?? 'gold',
                         );
 
-                        return CompactPriceCard(
-                          priceItem: priceItem,
-                          localPrice: (item['buyPrice'] as num?)?.toDouble(),
-                          localCurrencySymbol: item['currency'] ?? country.currencySymbol,
-                          usdPrice: (item['usdPrice'] as num?)?.toDouble(),
-                          isFeatured: false,
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: SquarePriceCard(
+                            priceItem: priceItem,
+                            localPrice: (item['buyPrice'] as num?)?.toDouble(),
+                            localCurrencySymbol: item['currency'] ?? country.currencySymbol,
+                            usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+                            isFeatured: false,
+                          ),
                         );
                       }),
                     ]

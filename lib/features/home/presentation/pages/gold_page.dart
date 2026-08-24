@@ -35,7 +35,7 @@ import 'package:gold_sham/features/home/presentation/widgets/quick_converter_wid
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:gold_sham/shared/widgets/ad_banner_widget.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
-import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/square_price_card.dart';
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
 
 import 'package:gold_sham/features/home/presentation/widgets/interactive_market_chart.dart';
@@ -750,27 +750,40 @@ class _GoldPageState extends ConsumerState<GoldPage> {
       children: [
         _buildSectionTitle('live_gold_prices'.tr(args: [country.name.tr()]), Icons.auto_graph_rounded),
         SizedBox(height: 12),
-        ...filteredItems.map((item) {
-          final priceItem = PriceItem(
-            id: item['id'] ?? '',
-            title: item['title'] ?? '',
-            buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-            sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
-            currency: item['currency'] ?? country.currencySymbol,
-            metalType: item['metalType'] ?? 'gold',
-            usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
-          );
+        GridView.builder(
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.85,
+          ),
+          itemCount: filteredItems.length,
+          itemBuilder: (context, index) {
+            final item = filteredItems[index];
+            final priceItem = PriceItem(
+              id: item['id'] ?? '',
+              title: item['title'] ?? '',
+              buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
+              sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+              currency: item['currency'] ?? country.currencySymbol,
+              metalType: item['metalType'] ?? 'gold',
+              usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+            );
 
-          final isFeatured = item['karat'] == country.defaultKarat || item['isPopular'] == true;
+            final isFeatured = item['karat'] == country.defaultKarat || item['isPopular'] == true;
 
-          return CompactPriceCard(
-            priceItem: priceItem,
-            localPrice: (item['buyPrice'] as num?)?.toDouble(),
-            localCurrencySymbol: item['currency'] ?? country.currencySymbol,
-            usdPrice: (item['usdPrice'] as num?)?.toDouble(),
-            isFeatured: isFeatured,
-          );
-        }),
+            return SquarePriceCard(
+              priceItem: priceItem,
+              localPrice: (item['buyPrice'] as num?)?.toDouble(),
+              localCurrencySymbol: item['currency'] ?? country.currencySymbol,
+              usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+              isFeatured: isFeatured,
+            );
+          },
+        ),
       ],
     );
   }
