@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
+import '../error/app_exception.dart';
 
 class HttpApiService {
   static String get _baseUrl => AppConfig.baseUrl;
@@ -17,7 +18,11 @@ class HttpApiService {
 
   Future<dynamic> _handleResponse(http.Response response, String url) async {
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      return json.decode(response.body);
+      try {
+        return json.decode(response.body);
+      } catch (e) {
+        throw const ParseException();
+      }
     } else {
       String errorMessage = 'Failed to fetch data from $url, Status: ${response.statusCode}';
       try {
@@ -28,7 +33,7 @@ class HttpApiService {
       } catch (e) {
         // Not a JSON response — use default message
       }
-      throw Exception(errorMessage);
+      throw ServerException(errorMessage, statusCode: response.statusCode);
     }
   }
 
@@ -39,8 +44,10 @@ class HttpApiService {
           .get(Uri.parse('$_baseUrl$endpoint'), headers: headers)
           .timeout(_getTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
-    } on TimeoutException {
-      throw Exception('انتهت مهلة الاتصال. تحقق من اتصالك بالإنترنت وحاول مجدداً.');
+    } on TimeoutException catch (_) {
+      throw const TimeoutException();
+    } catch (e) {
+      throw wrapException(e);
     }
   }
 
@@ -55,8 +62,10 @@ class HttpApiService {
           )
           .timeout(_mutateTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
-    } on TimeoutException {
-      throw Exception('انتهت مهلة الإرسال. تحقق من اتصالك بالإنترنت وحاول مجدداً.');
+    } on TimeoutException catch (_) {
+      throw const TimeoutException();
+    } catch (e) {
+      throw wrapException(e);
     }
   }
 
@@ -71,8 +80,10 @@ class HttpApiService {
           )
           .timeout(_mutateTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
-    } on TimeoutException {
-      throw Exception('انتهت مهلة التحديث. تحقق من اتصالك بالإنترنت وحاول مجدداً.');
+    } on TimeoutException catch (_) {
+      throw const TimeoutException();
+    } catch (e) {
+      throw wrapException(e);
     }
   }
 
@@ -83,8 +94,10 @@ class HttpApiService {
           .delete(Uri.parse('$_baseUrl$endpoint'), headers: headers)
           .timeout(_getTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
-    } on TimeoutException {
-      throw Exception('انتهت مهلة الاتصال. تحقق من اتصالك بالإنترنت وحاول مجدداً.');
+    } on TimeoutException catch (_) {
+      throw const TimeoutException();
+    } catch (e) {
+      throw wrapException(e);
     }
   }
 }
