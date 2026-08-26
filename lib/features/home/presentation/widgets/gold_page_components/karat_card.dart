@@ -8,6 +8,7 @@ import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/widgets/custom_icon.dart';
 import 'package:gold_sham/shared/widgets/live_price_widget.dart';
 import 'package:gold_sham/features/home/presentation/pages/price_detail_page.dart';
+import 'package:gold_sham/shared/widgets/premium_card.dart';
 
 /// بطاقة العيارات (Karat Card)
 /// بطاقة لعرض أسعار عيارات الذهب المحلية (مثل 21, 24, 18).
@@ -40,7 +41,7 @@ class KaratCard extends StatelessWidget {
       default:
         icon = CustomIcon.gold24k(size: 28);
     }
-    return Bounceable(
+    return PremiumCard(
       onTap: () {
           HapticFeedback.lightImpact();
           Navigator.push(
@@ -48,23 +49,9 @@ class KaratCard extends StatelessWidget {
               MaterialPageRoute(
                   builder: (_) => PriceDetailPage(priceItem: item)));
         },
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Row(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
               children: [
                 // 1. Icon Side (Right in RTL - First Child)
                 Container(
@@ -138,9 +125,6 @@ class KaratCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-        ),
-    );
+            );
   }
 }

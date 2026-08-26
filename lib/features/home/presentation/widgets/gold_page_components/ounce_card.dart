@@ -7,6 +7,7 @@ import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/widgets/custom_icon.dart';
 import 'package:gold_sham/shared/widgets/live_price_widget.dart';
 import 'package:gold_sham/features/home/presentation/pages/price_detail_page.dart';
+import 'package:gold_sham/shared/widgets/premium_card.dart';
 
 /// بطاقة الأونصة العالمية (Ounce Card)
 /// تعرض السعر المباشر للأونصة العالمية بالدولار الأمريكي مع الرسوم البيانية التوضيحية
@@ -19,7 +20,7 @@ class OunceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isGold = item.id.toLowerCase().contains('xau');
-    return Bounceable(
+    return PremiumCard(
       onTap: () {
         HapticFeedback.lightImpact();
         Navigator.push(
@@ -27,21 +28,10 @@ class OunceCard extends StatelessWidget {
             MaterialPageRoute(
                 builder: (_) => PriceDetailPage(priceItem: item)));
       },
-      child: Container(
-        height: 160,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-          border: Border.all(color: AppColors.lightGrey.withValues(alpha: 0.3)),
-        ),
+      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.zero,
+      child: SizedBox(
+        height: 128,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

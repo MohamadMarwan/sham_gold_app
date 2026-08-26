@@ -12,6 +12,7 @@ import '../widgets/square_price_card.dart';
 import '../widgets/country_switcher_sheet.dart';
 import '../widgets/social_share_sheet.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
+import '../../../../shared/widgets/premium_card.dart';
 
 class CountryMarketPage extends ConsumerWidget {
   final CountryModel? forcedCountry;
@@ -134,27 +135,9 @@ class CountryMarketPage extends ConsumerWidget {
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   // Market Info Banner
-                  Container(
+                  PremiumCard(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isDark 
-                          ? [const Color(0xFF1E293B), const Color(0xFF0F172A)] 
-                          : [Colors.white, const Color(0xFFF8FAFC)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: AppColors.gold.withValues(alpha: 0.15), width: 1.5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.gold.withValues(alpha: 0.05),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
+                    margin: EdgeInsets.zero,
                     child: Row(
                       children: [
                         Container(

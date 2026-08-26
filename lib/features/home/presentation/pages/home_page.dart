@@ -360,7 +360,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           ),
         ),
       ),
-    );
+    ));
   }
 
   void _onTabTapped(int index) {

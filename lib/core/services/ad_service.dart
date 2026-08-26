@@ -95,11 +95,18 @@ class AdService {
       await MobileAds.instance.initialize();
       debugPrint('✅ All Ad SDKs Initialized');
 
-      // 3. Pre-load App Open Ad immediately with hardcoded unit ID
+      // 3. Pre-load App Open Ad immediately. Check cache first.
       //    (backend settings may not be fetched yet at this point)
-      //    Note: we bypass _isEnabled here because settings haven't arrived yet.
-      _appOpenId = _kAppOpenAdUnitId;
-      _loadAppOpenAdBypass(); // ← bypass _isEnabled check for startup
+      final prefs = await SharedPreferences.getInstance();
+      final bool cachedEnabled = prefs.getBool('cached_ads_enabled') ?? true;
+      final String? cachedAppOpenId = prefs.getString('cached_app_open_id');
+      
+      if (cachedEnabled) {
+        _appOpenId = (cachedAppOpenId != null && cachedAppOpenId.isNotEmpty) ? cachedAppOpenId : _kAppOpenAdUnitId;
+        _loadAppOpenAdBypass(); // ← bypass _isEnabled check for startup
+      } else {
+        debugPrint('🚫 App Open Ad is disabled in cache.');
+      }
     } catch (e) {
       debugPrint('❌ Ads Init Error: $e');
     }
@@ -188,6 +195,14 @@ class AdService {
       } else {
         debugPrint('⚠️ AdService: _isEnabled=false → no ads will load or show');
       }
+
+      // Cache settings so that next startup knows what to do before the API responds
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setBool('cached_ads_enabled', _isEnabled);
+        if (_appOpenId != null && _appOpenId!.isNotEmpty) {
+          prefs.setString('cached_app_open_id', _appOpenId!);
+        }
+      });
     }
   }
 

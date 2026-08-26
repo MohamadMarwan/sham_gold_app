@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/premium_empty_state.dart';
+import '../../../../shared/widgets/premium_card.dart';
 
 class AlertsManagementPage extends ConsumerStatefulWidget {
   const AlertsManagementPage({super.key});
@@ -82,19 +83,9 @@ class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
     final priceId = alert['priceId'];
     final date = DateTime.parse(alert['createdAt']);
 
-    return Container(
+    return PremiumCard(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4)),
-        ],
-      ),
       child: Row(
         children: [
           Container(
@@ -112,12 +103,12 @@ class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'تنبيه على $priceId',
+                  'alert_on_item'.tr(args: [priceId]),
                   style: const TextStyle(
                       fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
-                  'عندما يكون $conditionText $targetPrice',
+                  'alert_condition_text'.tr(args: [conditionText, targetPrice]),
                   style:
                       const TextStyle(color: AppColors.mutedText, fontSize: 13),
                 ),

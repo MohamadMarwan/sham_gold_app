@@ -8,6 +8,8 @@ import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/services/price_service.dart';
 import 'package:gold_sham/shared/widgets/premium_empty_state.dart';
+import 'package:gold_sham/shared/widgets/premium_card.dart';
+import 'package:gold_sham/shared/widgets/section_header.dart';
 import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
 import 'package:gold_sham/shared/widgets/sparkline_widget.dart';
 import 'package:gold_sham/shared/widgets/price_alert_dialog.dart';
@@ -329,63 +331,54 @@ class CurrenciesPage extends ConsumerWidget {
     );
   }
 
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return SectionHeader(
+      title: title,
+      icon: icon,
+      padding: EdgeInsets.zero,
+    );
+  }
+
   Widget _buildPremiumCurrencyCard(PriceItem item, BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isUp = item.trend == Trend.up;
 
-    return Material(
-      color: Theme.of(context).cardTheme.color,
-      borderRadius: BorderRadius.circular(30),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(30),
-        onTap: () {
-          HapticFeedback.lightImpact();
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => PriceDetailPage(priceItem: item)));
-        },
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: isDark ? AppColors.gold.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.08),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.04),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
+    return PremiumCard(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PriceDetailPage(priceItem: item)));
+      },
+      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.zero,
+      child: Column(
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  // 1. Icon / Flag (RIGHT in RTL)
-                  Hero(
-                    tag: 'icon_${item.id}',
-                    child: Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.majlisGreen : Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.03),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4)),
-                        ],
-                        border: Border.all(
-                            color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.05)),
-                      ),
-                      child: Center(child: _buildFlagIcon(item.id, item.title)),
-                    ),
+              // 1. Icon / Flag (RIGHT in RTL)
+              Hero(
+                tag: 'icon_${item.id}',
+                child: Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.majlisGreen : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4)),
+                    ],
+                    border: Border.all(
+                        color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.05)),
                   ),
-                  SizedBox(width: 18),
+                  child: Center(child: _buildFlagIcon(item.id, item.title)),
+                ),
+              ),
+              SizedBox(width: 18),
 
                   // 2. Title & Subtitle (Middle)
                   Expanded(
@@ -463,7 +456,7 @@ class CurrenciesPage extends ConsumerWidget {
                   if (item.lastUpdate != null) ...[
                     SizedBox(width: 12),
                     Text(
-                      'تحديث: ${DateFormat('hh:mm a', 'ar').format(item.lastUpdate!)}',
+                      'update_time'.tr(args: [DateFormat('hh:mm a', 'ar').format(item.lastUpdate!)]),
                       style: const TextStyle(
                           color: AppColors.mutedText,
                           fontSize: 9,
@@ -485,8 +478,6 @@ class CurrenciesPage extends ConsumerWidget {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 
@@ -653,42 +644,6 @@ class CurrenciesPage extends ConsumerWidget {
     return original;
   }
 
-  Widget _buildSectionHeader(String title, IconData icon) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: AppColors.gold.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: AppColors.gold, size: 20),
-        ),
-        SizedBox(width: 12),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w900,
-            color: AppColors.darkGreen,
-          ),
-        ),
-        const Spacer(),
-        Container(
-          width: 40,
-          height: 1.5,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.gold.withValues(alpha: 0.5),
-                Colors.transparent
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildEmptyState() {
     return SliverFillRemaining(

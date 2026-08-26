@@ -10,7 +10,7 @@ import '../../../../shared/widgets/premium_empty_state.dart';
 import 'price_detail_page.dart';
 import '../../../../shared/widgets/custom_icon.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
-
+import '../../../../shared/widgets/premium_card.dart';
 class FavoritesPage extends ConsumerStatefulWidget {
   const FavoritesPage({Key? key}) : super(key: key);
 
@@ -171,7 +171,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                       color: AppColors.gold, size: 20),
                   SizedBox(width: 12),
                   Text(
-                    '$count عنصر في قائمة المتابعة',
+                    'items_in_watchlist'.tr(args: [count.toString()]),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -230,30 +230,15 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
         child: const Icon(Icons.delete_outline_rounded,
             color: Colors.white, size: 32),
       ),
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
+      child: PremiumCard(
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => PriceDetailPage(priceItem: item)),
           ),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
+          padding: const EdgeInsets.all(20),
+          margin: EdgeInsets.zero,
+          child: Row(
               children: [
                 Container(
                   width: 50,
@@ -296,8 +281,6 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                 ),
               ],
             ),
-          ),
-        ),
       ),
     );
   }

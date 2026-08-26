@@ -10,7 +10,7 @@ import '../../../../shared/models/savings_goal_model.dart';
 import '../../../../core/services/savings_goal_service.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/premium_logo.dart';
-
+import '../../../../shared/widgets/premium_card.dart';
 class SmartCalculatorsPage extends ConsumerStatefulWidget {
   const SmartCalculatorsPage({super.key});
 
@@ -227,26 +227,14 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
     required VoidCallback onTap,
     required bool isDark,
   }) {
-    return GestureDetector(
+    return PremiumCard(
       onTap: () {
         HapticFeedback.lightImpact();
         onTap();
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: isDark ? Colors.black.withValues(alpha: 0.4) : color.withValues(alpha: 0.08),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            )
-          ],
-        ),
-        padding: const EdgeInsets.all(20),
-        child: Row(
+      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.zero,
+      child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(16),
@@ -286,7 +274,6 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.mutedText, size: 16),
           ],
         ),
-      ),
     );
   }
 
@@ -451,8 +438,8 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
           ),
           SizedBox(height: 16),
           _buildInputField('auto_str_194'.tr(), _itemWeightController, isDark),
-          _buildInputField('سعر غرام الذهب الخام (${country.currencySymbol})', _goldGramPriceController, isDark),
-          _buildInputField('أجرة المصنعية للغرام الواحد (${country.currencySymbol})', _makingChargeController, isDark),
+          _buildInputField('gold_raw_price_gram'.tr(args: [country.currencySymbol]), _goldGramPriceController, isDark),
+          _buildInputField('making_charge_gram'.tr(args: [country.currencySymbol]), _makingChargeController, isDark),
           _buildInputField('auto_str_079'.tr(), _vatPercentController, isDark),
           SizedBox(
             width: double.infinity,
@@ -501,7 +488,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
           ),
           SizedBox(height: 16),
           _buildInputField('auto_str_051'.tr(), _scrapWeightController, isDark),
-          _buildInputField('سعر شراء الكسر للغرام (${country.currencySymbol})', _scrapPriceController, isDark),
+          _buildInputField('scrap_buy_price_gram'.tr(args: [country.currencySymbol]), _scrapPriceController, isDark),
           _buildInputField('auto_str_059'.tr(), _stoneDeductionController, isDark),
           SizedBox(
             width: double.infinity,
@@ -650,7 +637,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             subtitle: 'auto_str_023'.tr(),
           ),
           SizedBox(height: 16),
-          _buildInputField('إجمالي رأس المال المستثمر (${country.currencySymbol})', _investmentAmountController, isDark),
+          _buildInputField('total_invested_capital'.tr(args: [country.currencySymbol]), _investmentAmountController, isDark),
           _buildInputField('auto_str_110'.tr(), _buyPriceRoiController, isDark),
           _buildInputField('auto_str_146'.tr(), _currentPriceRoiController, isDark),
           SizedBox(
@@ -749,7 +736,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                     SizedBox(width: 8),
                     Expanded(
                       child: ChoiceChip(
-                        label: Center(child: Text('الهدف بالمبلغ (${country.currencySymbol}) 💵', style: const TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold))),
+                        label: Center(child: Text('target_amount_with_currency'.tr(args: [country.currencySymbol]), style: const TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold))),
                         selected: !_isGoalTargetInGrams,
                         selectedColor: AppColors.gold.withValues(alpha: 0.2),
                         onSelected: (val) => setState(() => _isGoalTargetInGrams = false),
@@ -760,7 +747,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 SizedBox(height: 12),
 
                 _buildInputField(
-                  _isGoalTargetInGrams ? 'auto_str_125'.tr() : 'المبلغ المستهدف (${country.currencySymbol})',
+                  _isGoalTargetInGrams ? 'auto_str_125'.tr() : 'target_amount_placeholder'.tr(args: [country.currencySymbol]),
                   _goalTargetAmountController,
                   isDark,
                 ),
@@ -850,7 +837,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'أهدافي الادخارية النشطة (${activeGoals.length})',
+                'active_savings_goals'.tr(args: [activeGoals.length.toString()]),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
@@ -971,7 +958,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                     children: [
                       Text(goal.title, style: const TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', fontSize: 14)),
                       Text(
-                        'المستهدف: ${goal.targetGrams.toStringAsFixed(1)} غرام (${goal.durationMonths} شهر)',
+                        'target_grams_duration'.tr(args: [goal.targetGrams.toStringAsFixed(1), goal.durationMonths.toString()]),
                         style: const TextStyle(color: AppColors.mutedText, fontSize: 11, fontFamily: 'Cairo'),
                       ),
                     ],
@@ -994,7 +981,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('المنجز: ${goal.currentGrams.toStringAsFixed(1)} غرام', style: const TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold)),
+              Text('achieved_grams'.tr(args: [goal.currentGrams.toStringAsFixed(1)]), style: const TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold)),
               Text('${progress.toStringAsFixed(1)}%', style: TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.w900, color: isCompleted ? const Color(0xFF00E676) : AppColors.gold)),
             ],
           ),
@@ -1016,7 +1003,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isCompleted ? 'auto_str_080'.tr() : 'المتبقي: ${goal.remainingGrams.toStringAsFixed(1)} غرام',
+                isCompleted ? 'auto_str_080'.tr() : 'remaining_grams'.tr(args: [goal.remainingGrams.toStringAsFixed(1)]),
                 style: TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w800,
@@ -1126,7 +1113,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('إضافة ادخار لـ "${goal.title}"', style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.w900, fontSize: 16)),
+        title: Text('add_savings_for'.tr(args: [goal.title]), style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.w900, fontSize: 16)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

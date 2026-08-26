@@ -11,6 +11,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../../shared/widgets/price_alert_dialog.dart';
 import '../../../../shared/widgets/favorite_toggle_button.dart';
+import '../../../../shared/widgets/premium_card.dart';
 
 import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../core/services/ad_service.dart';
@@ -275,20 +276,9 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   }
 
   Widget _buildPriceStatsCard(NumberFormat format) {
-    return Container(
+    return PremiumCard(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-            color: AppColors.gold.withValues(alpha: 0.3), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-              color: AppColors.darkGreen.withValues(alpha: 0.12),
-              blurRadius: 40,
-              offset: const Offset(0, 15))
-        ],
-      ),
+      margin: EdgeInsets.zero,
       child: Row(
         children: [
           Expanded(
@@ -589,12 +579,9 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
     final noteText = displaySettings?['historyNoteText'] ??
         'auto_str_028'.tr();
 
-    return Container(
+    return PremiumCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-          color: AppColors.platinum.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: AppColors.platinum.withValues(alpha: 0.2))),
+      margin: EdgeInsets.zero,
       child: Row(
         children: [
           const Icon(Icons.lock_clock_rounded,

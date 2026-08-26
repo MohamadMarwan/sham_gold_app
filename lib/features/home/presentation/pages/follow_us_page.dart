@@ -9,7 +9,8 @@ import 'privacy_policy_page.dart';
 import 'terms_of_service_page.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/providers/settings_provider.dart';
-
+import '../../../../shared/widgets/premium_card.dart';
+import '../../../../shared/widgets/section_header.dart';
 class FollowUsPage extends ConsumerStatefulWidget {
   const FollowUsPage({super.key});
 
@@ -243,30 +244,9 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
   }
 
   Widget _buildSectionHeader(String title) {
-    return Padding(
+    return SectionHeader(
+      title: title,
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Container(
-            width: 5,
-            height: 25,
-            decoration: BoxDecoration(
-              color: AppColors.gold,
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          SizedBox(width: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-              color: AppColors.darkGreen,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -276,28 +256,13 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
       return const SizedBox.shrink();
     }
 
-    return Container(
+    return PremiumCard(
       margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.darkGreen.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () async {
-            final uri = Uri.parse(url);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
+      padding: EdgeInsets.zero,
+      onTap: () async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
             } else {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -345,8 +310,6 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                     color: AppColors.mutedText, size: 16),
               ],
             ),
-          ),
-        ),
       ),
     );
   }
@@ -372,13 +335,9 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
     }
     final whatsappUrl = supportWhatsapp;
 
-    return Container(
+    return PremiumCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.gold.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
-      ),
+      margin: EdgeInsets.zero,
       child: Column(
         children: [
           Row(

@@ -108,7 +108,7 @@ class SocialShareCard extends StatelessWidget {
                     Text(country.flag, style: const TextStyle(fontSize: 16)),
                     SizedBox(width: 6),
                     Text(
-                      'سوق ${country.name.tr()}',
+                      'market_of'.tr(args: [country.name.tr()]),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w900,
@@ -150,7 +150,7 @@ class SocialShareCard extends StatelessWidget {
                   const Icon(Icons.access_time_filled_rounded, size: 12, color: AppColors.gold),
                   SizedBox(width: 4),
                   Text(
-                    'تحديث $timeStr',
+                    'update_time'.tr(args: [timeStr]),
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: 11,

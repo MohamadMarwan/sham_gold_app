@@ -248,7 +248,7 @@ class _SquarePriceCardState extends State<SquarePriceCard>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'مبيع: ${numberFormat.format(sellPrice)}',
+                        '${'auto_str_343'.tr()} ${numberFormat.format(sellPrice)}',
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,

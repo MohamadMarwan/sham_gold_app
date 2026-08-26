@@ -98,7 +98,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                       ),
                       Text(
                         item != null
-                            ? 'إعداد تنبيه خاص بـ: ${item.title}'
+                            ? 'setup_alert_for'.tr(args: [item.title])
                             : 'auto_str_048'.tr(),
                         style: const TextStyle(
                           fontSize: 12,
@@ -228,7 +228,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
                             ),
                           ] else if (_selectedType == AlertType.volatility) ...[
                             Text(
-                              'نسبة التغير للتنبيه: ${_volatilityPercent.toStringAsFixed(1)}%',
+                              'alert_volatility_percent'.tr(args: [_volatilityPercent.toStringAsFixed(1)]),
                               style: const TextStyle(
                                   fontFamily: 'Cairo',
                                   fontSize: 13,
@@ -359,7 +359,7 @@ class _SmartAlertsSheetState extends State<SmartAlertsSheet> {
 
   Widget _buildRuleItem(SmartAlertRule rule, bool isDark) {
     String typeLabel = 'auto_str_288'.tr();
-    if (rule.type == AlertType.volatility) typeLabel = 'تذبذب > ${rule.volatilityThresholdPercent}%';
+    if (rule.type == AlertType.volatility) typeLabel = 'volatility_greater_than'.tr(args: [rule.volatilityThresholdPercent.toString()]);
     if (rule.type == AlertType.dipBuying) typeLabel = 'auto_str_273'.tr();
 
     return Container(

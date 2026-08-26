@@ -290,7 +290,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             ),
                             SizedBox(height: 2),
                             Text(
-                              'شراء: ${numberFormat.format(displayLocalPrice)}',
+                              '${'auto_str_361'.tr()}: ${numberFormat.format(displayLocalPrice)}',
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,

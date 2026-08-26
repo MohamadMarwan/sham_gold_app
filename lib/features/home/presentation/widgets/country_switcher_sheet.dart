@@ -160,7 +160,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'تم تحويل السوق إلى ${country.name.tr()} (${country.currencySymbol})',
+                            'market_switched_to'.tr(args: [country.name.tr(), country.currencySymbol]),
                             style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold),
                           ),
                           backgroundColor: AppColors.darkGreen,

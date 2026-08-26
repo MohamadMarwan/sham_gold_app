@@ -11,7 +11,8 @@ import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/portfolio_model.dart';
 import '../../../../shared/widgets/premium_logo.dart';
-
+import '../../../../shared/widgets/premium_card.dart';
+import '../../../../shared/widgets/premium_button.dart';
 class PortfolioPage extends ConsumerStatefulWidget {
   const PortfolioPage({super.key});
 
@@ -120,23 +121,9 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Wealth Overview Card
-                Container(
+                PremiumCard(
                   padding: const EdgeInsets.all(22),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardTheme.color,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(
-                      color: isDark ? AppColors.gold.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.2),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: isDark ? Colors.black.withValues(alpha: 0.4) : Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
+                  margin: EdgeInsets.zero,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -221,12 +208,12 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                           ),
                           _buildPortfolioStat(
                             title: 'auto_str_170'.tr(),
-                            value: '${portfolioProviderInstance.totalPureWeightGrams.toStringAsFixed(1)} غرام',
+                            value: '${portfolioProviderInstance.totalPureWeightGrams.toStringAsFixed(1)} ${'auto_str_363'.tr()}',
                             color: AppColors.gold,
                           ),
                           _buildPortfolioStat(
                             title: 'auto_str_290'.tr(),
-                            value: '${portfolioProviderInstance.items.length} قطع',
+                            value: 'pieces_count'.tr(args: [portfolioProviderInstance.items.length.toString()]),
                             color: Colors.white,
                           ),
                         ],
@@ -239,27 +226,13 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
 
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: PremiumButton(
                     onPressed: () {
                       HapticFeedback.mediumImpact();
                       _showAddAssetSheet(context, country, ref);
                     },
-                    icon: const Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 20),
-                    label: Text(
-                      'auto_str_081'.tr(),
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontWeight: FontWeight.w900,
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.darkGreen,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      elevation: 4,
-                    ),
+                    text: 'auto_str_081'.tr(),
+                    icon: Icons.add_circle_outline_rounded,
                   ),
                 ),
 
@@ -270,7 +243,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'مقتنياتك المسجلة (${portfolioProviderInstance.items.length})',
+                      'registered_assets_count'.tr(args: [portfolioProviderInstance.items.length.toString()]),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w900,
@@ -372,7 +345,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   ),
                 ),
                 Text(
-                  '${item.weightGrams} غرام • تكلفة الشراء: ${numberFormat.format(item.totalInvestedCost)}',
+                  'asset_weight_and_cost'.tr(args: [item.weightGrams.toString(), numberFormat.format(item.totalInvestedCost)]),
                   style: const TextStyle(fontSize: 12, color: AppColors.mutedText, fontFamily: 'Cairo'),
                 ),
               ],
@@ -453,7 +426,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                           child: DropdownButtonFormField<String>(
                             initialValue: selectedKarat,
                             items: ['24', '22', '21', '18', '14', 'silver']
-                                .map((k) => DropdownMenuItem(value: k, child: Text(k == 'silver' ? 'auto_str_380'.tr() : 'عيار $k', style: const TextStyle(fontFamily: 'Cairo'))))
+                                .map((k) => DropdownMenuItem(value: k, child: Text(k == 'silver' ? 'auto_str_380'.tr() : 'gold_asset_karat'.tr(args: [k]), style: const TextStyle(fontFamily: 'Cairo'))))
                                 .toList(),
                             onChanged: (val) => setModalState(() => selectedKarat = val ?? '24'),
                             decoration: InputDecoration(
@@ -524,7 +497,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                           final weight = double.tryParse(weightController.text) ?? 0;
                           final buyPrice = double.tryParse(buyPriceController.text) ?? 0;
                           final making = double.tryParse(makingChargeController.text) ?? 0;
-                          final title = titleController.text.trim().isEmpty ? 'أصل ذهبي عيار $selectedKarat' : titleController.text.trim();
+                          final title = titleController.text.trim().isEmpty ? 'gold_asset_karat'.tr(args: [selectedKarat]) : titleController.text.trim();
 
                           if (weight <= 0 || buyPrice <= 0) {
                             ScaffoldMessenger.of(context).showSnackBar(

@@ -91,7 +91,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
                         ),
                       ),
                       Text(
-                        'سوق ${country.name.tr()} • تصميم فاخر عالي الدقة',
+                        'market_premium_design'.tr(args: [country.name.tr()]),
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,
@@ -286,7 +286,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('حدث خطأ أثناء تصدير الصورة: $e', style: const TextStyle(fontFamily: 'Cairo')),
+            content: Text('error_exporting_image'.tr(args: [e.toString()]), style: const TextStyle(fontFamily: 'Cairo')),
             backgroundColor: Colors.redAccent,
           ),
         );
