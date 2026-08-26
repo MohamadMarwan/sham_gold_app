@@ -25,9 +25,19 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
   final _zakat24Controller = TextEditingController();
   final _zakat21Controller = TextEditingController();
   final _zakat18Controller = TextEditingController();
-  final _zakatSilverController = TextEditingController();
+  final _zakatCashController = TextEditingController();
   bool _includeJewelry = false;
   Map<String, dynamic>? _zakatResult;
+
+  // Controllers - Silver Calculator
+  final _silverZakatWeightController = TextEditingController();
+  final _silverScrapWeightController = TextEditingController();
+  final _silverScrapPriceController = TextEditingController();
+  final _silverMakingChargeController = TextEditingController();
+  final _silverVatController = TextEditingController(text: '0');
+  Map<String, dynamic>? _silverMakingResult;
+  Map<String, dynamic>? _silverScrapResult;
+  Map<String, dynamic>? _silverZakatResult;
 
   // Controllers - Making Charge & Scrap
   final _itemWeightController = TextEditingController();
@@ -102,7 +112,12 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
     _zakat24Controller.dispose();
     _zakat21Controller.dispose();
     _zakat18Controller.dispose();
-    _zakatSilverController.dispose();
+    _zakatCashController.dispose();
+    _silverZakatWeightController.dispose();
+    _silverScrapWeightController.dispose();
+    _silverScrapPriceController.dispose();
+    _silverMakingChargeController.dispose();
+    _silverVatController.dispose();
     _itemWeightController.dispose();
     _goldGramPriceController.dispose();
     _makingChargeController.dispose();
@@ -212,6 +227,15 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 onTap: () => setState(() => _selectedCalculatorIndex = 4),
                 isDark: isDark,
               ),
+              SizedBox(height: 16),
+              _buildCalculatorCard(
+                title: 'حاسبة الفضة',
+                subtitle: 'زكاة الفضة، وحساب سعر الكسر والمصنعية',
+                icon: Icons.diamond_outlined,
+                color: const Color(0xFF94A3B8), // Silver color
+                onTap: () => setState(() => _selectedCalculatorIndex = 5),
+                isDark: isDark,
+              ),
             ]),
           ),
         ),
@@ -302,6 +326,10 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
         title = 'auto_str_245'.tr();
         content = _buildSavingsGoalTab(isDark, country);
         break;
+      case 5:
+        title = 'حاسبة الفضة';
+        content = _buildSilverCalculatorTab(isDark, country);
+        break;
       default:
         content = SizedBox();
         title = '';
@@ -359,13 +387,13 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
         children: [
           _buildInfoBanner(
             title: 'auto_str_054'.tr(),
-            subtitle: 'auto_str_021'.tr(),
+            subtitle: 'يتم احتساب نصاب الزكاة بجمع ما تملكه من الذهب والسيولة النقدية. إذا بلغت النصاب وجب فيها الزكاة.',
           ),
           SizedBox(height: 16),
           _buildInputField('auto_str_142'.tr(), _zakat24Controller, isDark),
           _buildInputField('auto_str_141'.tr(), _zakat21Controller, isDark),
           _buildInputField('auto_str_140'.tr(), _zakat18Controller, isDark),
-          _buildInputField('auto_str_121'.tr(), _zakatSilverController, isDark),
+          _buildInputField('السيولة النقدية (الكاش)', _zakatCashController, isDark),
           SwitchListTile.adaptive(
             title: Text('auto_str_056'.tr(), style: TextStyle(fontFamily: 'Cairo', fontSize: 13, fontWeight: FontWeight.bold)),
             value: _includeJewelry,
@@ -381,7 +409,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 final g24 = double.tryParse(_zakat24Controller.text) ?? 0;
                 final g21 = double.tryParse(_zakat21Controller.text) ?? 0;
                 final g18 = double.tryParse(_zakat18Controller.text) ?? 0;
-                final sil = double.tryParse(_zakatSilverController.text) ?? 0;
+                final cashAmt = double.tryParse(_zakatCashController.text) ?? 0;
 
                 setState(() {
                   _zakatResult = CalculatorsService.calculateZakat(
@@ -389,9 +417,10 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                     grams22k: 0,
                     grams21k: g21,
                     grams18k: g18,
-                    silverGrams: sil,
+                    silverGrams: 0,
                     price24kPerGram: gram24,
-                    silverPricePerGram: 1.1,
+                    silverPricePerGram: 0,
+                    cashAmount: cashAmt,
                     includeJewelry: _includeJewelry,
                   );
                 });
@@ -1167,6 +1196,167 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
           fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
         ),
+      ),
+    );
+  }
+  Widget _buildSilverCalculatorTab(bool isDark, dynamic country) {
+    final priceService = ref.watch(priceServiceProvider);
+    final allPrices = priceService.currentPrices;
+    final pAg = allPrices.where((p) => p.id == 'xag_usd' || p.id.contains('silver_999')).firstOrNull;
+    final double gramAg = pAg != null ? (pAg.id == 'xag_usd' ? pAg.buyPrice / 31.1035 : pAg.buyPrice) : 1.1;
+
+    final numberFormat = NumberFormat('#,##0.##', 'ar');
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 140),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Zakat Section
+          _buildInfoBanner(
+            title: 'زكاة الفضة',
+            subtitle: 'يبلغ نصاب الفضة 595 جراماً فما فوق. أدخل وزن الفضة لمعرفة الزكاة الواجبة.',
+          ),
+          SizedBox(height: 16),
+          _buildInputField('وزن الفضة (جرام)', _silverZakatWeightController, isDark),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                final weight = double.tryParse(_silverZakatWeightController.text) ?? 0;
+                setState(() {
+                  _silverZakatResult = CalculatorsService.calculateZakat(
+                    grams24k: 0,
+                    grams22k: 0,
+                    grams21k: 0,
+                    grams18k: 0,
+                    silverGrams: weight,
+                    price24kPerGram: 0,
+                    silverPricePerGram: gramAg,
+                    cashAmount: 0,
+                  );
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.gold,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text('حساب الزكاة', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+            ),
+          ),
+          if (_silverZakatResult != null) ...[
+            SizedBox(height: 18),
+            _buildResultCard(
+              title: _silverZakatResult!['isSilverNisabReached'] ? 'بلغ النصاب، تجب الزكاة' : 'لم يبلغ النصاب',
+              items: [
+                {'label': 'قيمة الفضة الإجمالية', 'value': '${numberFormat.format(_silverZakatResult!['silverTotalValue'])} ${country.currencySymbol}'},
+                {'label': 'الزكاة (جرام)', 'value': '${(_silverZakatResult!['silverZakatGrams'] as double).toStringAsFixed(1)} جرام'},
+                {'label': 'إجمالي الزكاة (نقداً)', 'value': '${numberFormat.format(_silverZakatResult!['silverZakatAmount'])} ${country.currencySymbol}'},
+              ],
+              isHighlight: _silverZakatResult!['isSilverNisabReached'],
+            ),
+          ],
+
+          const Divider(height: 36),
+
+          // 2. Making Charge Section
+          _buildInfoBanner(
+            title: 'حساب المصنعية (للشراء)',
+            subtitle: 'حساب التكلفة الإجمالية لقطعة الفضة مع المصنعية.',
+          ),
+          SizedBox(height: 16),
+          _buildInputField('وزن القطعة (جرام)', _silverScrapWeightController, isDark),
+          _buildInputField('سعر الفضة الخام (${country.currencySymbol})', _silverScrapPriceController..text = gramAg.toStringAsFixed(2), isDark),
+          _buildInputField('المصنعية للجرام (${country.currencySymbol})', _silverMakingChargeController, isDark),
+          _buildInputField('الضريبة المضافة (%)', _silverVatController, isDark),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                final w = double.tryParse(_silverScrapWeightController.text) ?? 0;
+                final gp = double.tryParse(_silverScrapPriceController.text) ?? 0;
+                final mc = double.tryParse(_silverMakingChargeController.text) ?? 0;
+                final vat = double.tryParse(_silverVatController.text) ?? 0;
+
+                setState(() {
+                  _silverMakingResult = CalculatorsService.calculateJewelryCost(
+                    weightGrams: w,
+                    goldPricePerGram: gp, // treating as silver
+                    makingChargePerGram: mc,
+                    vatPercent: vat,
+                  );
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.darkGreen,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text('حساب التكلفة', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+            ),
+          ),
+          if (_silverMakingResult != null) ...[
+            SizedBox(height: 18),
+            _buildResultCard(
+              title: 'التكلفة الإجمالية',
+              items: [
+                {'label': 'قيمة الفضة الخام', 'value': '${numberFormat.format(_silverMakingResult!['rawGoldCost'])} ${country.currencySymbol}'},
+                {'label': 'إجمالي المصنعية', 'value': '${numberFormat.format(_silverMakingResult!['totalMakingCharge'])} ${country.currencySymbol}'},
+                {'label': 'الإجمالي النهائي', 'value': '${numberFormat.format(_silverMakingResult!['totalCost'])} ${country.currencySymbol}'},
+              ],
+              isHighlight: true,
+            ),
+          ],
+
+          const Divider(height: 36),
+
+          // 3. Scrap Section
+          _buildInfoBanner(
+            title: 'حساب بيع الكسر',
+            subtitle: 'حساب القيمة التقديرية لبيع الفضة المستعملة.',
+          ),
+          SizedBox(height: 16),
+          _buildInputField('الوزن الإجمالي (جرام)', _silverScrapWeightController, isDark),
+          _buildInputField('سعر شراء الكسر للجرام', _silverScrapPriceController, isDark),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                final w = double.tryParse(_silverScrapWeightController.text) ?? 0;
+                final p = double.tryParse(_silverScrapPriceController.text) ?? 0;
+
+                setState(() {
+                  _silverScrapResult = CalculatorsService.calculateScrapGoldSale(
+                    weightGrams: w,
+                    scrapPricePerGram: p,
+                  );
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF94A3B8),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: Text('حساب قيمة البيع', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Cairo', fontSize: 14)),
+            ),
+          ),
+          if (_silverScrapResult != null) ...[
+            SizedBox(height: 18),
+            _buildResultCard(
+              title: 'القيمة التقديرية للبيع',
+              items: [
+                {'label': 'الوزن الصافي', 'value': '${(_silverScrapResult!['netWeight'] as double).toStringAsFixed(2)} جرام'},
+                {'label': 'القيمة الإجمالية', 'value': '${numberFormat.format(_silverScrapResult!['totalPayout'])} ${country.currencySymbol}'},
+              ],
+              isHighlight: true,
+            ),
+          ],
+        ],
       ),
     );
   }

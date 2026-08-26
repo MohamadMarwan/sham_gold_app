@@ -14,6 +14,7 @@ class CalculatorsService {
     required double silverGrams,
     required double price24kPerGram,
     required double silverPricePerGram,
+    required double cashAmount,
     bool includeJewelry = false,
     double jewelryGrams21k = 0.0,
   }) {
@@ -27,23 +28,30 @@ class CalculatorsService {
       totalEquivalent24k += jewelryGrams21k * (21 / 24);
     }
 
-    final bool isGoldNisabReached = totalEquivalent24k >= goldNisabGrams24k;
+    final double cashEquivalentGoldGrams = price24kPerGram > 0 ? (cashAmount / price24kPerGram) : 0.0;
+    final double totalWealthInGoldGrams = totalEquivalent24k + cashEquivalentGoldGrams;
+
+    final bool isGoldNisabReached = totalWealthInGoldGrams >= goldNisabGrams24k;
     final bool isSilverNisabReached = silverGrams >= silverNisabGrams;
 
     final double goldTotalValue = totalEquivalent24k * price24kPerGram;
     final double silverTotalValue = silverGrams * silverPricePerGram;
+    final double totalWealthValue = goldTotalValue + cashAmount;
 
-    final double goldZakatGrams = isGoldNisabReached ? (totalEquivalent24k * zakatRate) : 0.0;
-    final double goldZakatAmount = isGoldNisabReached ? (goldTotalValue * zakatRate) : 0.0;
+    final double goldZakatGrams = isGoldNisabReached ? (totalWealthInGoldGrams * zakatRate) : 0.0;
+    final double goldZakatAmount = isGoldNisabReached ? (totalWealthValue * zakatRate) : 0.0;
 
     final double silverZakatGrams = isSilverNisabReached ? (silverGrams * zakatRate) : 0.0;
     final double silverZakatAmount = isSilverNisabReached ? (silverTotalValue * zakatRate) : 0.0;
 
     return {
       'totalEquivalent24k': totalEquivalent24k,
+      'cashAmount': cashAmount,
+      'totalWealthInGoldGrams': totalWealthInGoldGrams,
       'isGoldNisabReached': isGoldNisabReached,
       'isSilverNisabReached': isSilverNisabReached,
       'goldTotalValue': goldTotalValue,
+      'totalWealthValue': totalWealthValue,
       'silverTotalValue': silverTotalValue,
       'goldZakatGrams': goldZakatGrams,
       'goldZakatAmount': goldZakatAmount,

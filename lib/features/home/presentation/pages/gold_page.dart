@@ -24,6 +24,7 @@ import 'package:gold_sham/shared/widgets/live_price_widget.dart';
 import 'package:gold_sham/features/home/presentation/pages/price_detail_page.dart';
 import 'package:gold_sham/features/home/presentation/pages/favorites_page.dart';
 import 'package:gold_sham/features/home/presentation/pages/alerts_management_page.dart';
+import 'package:gold_sham/features/home/presentation/pages/portfolio_page.dart';
 import 'package:gold_sham/features/home/presentation/widgets/live_indicator.dart';
 import 'package:gold_sham/shared/widgets/last_update_ticker.dart';
 import 'package:gold_sham/features/home/presentation/widgets/quick_news_ticker.dart';
@@ -302,6 +303,11 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                   CountrySwitcherSheet.show(context);
                 }),
                 SizedBox(width: 8),
+                _buildHeaderIcon(Icons.account_balance_wallet_outlined, () {
+                  HapticFeedback.selectionClick();
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const PortfolioPage()));
+                }),
+                SizedBox(width: 8),
                 _buildHeaderIcon(Icons.notifications_active_outlined, () {
                   HapticFeedback.selectionClick();
                   Navigator.push(
@@ -309,7 +315,7 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                       MaterialPageRoute(
                           builder: (_) => const AlertsManagementPage()));
                 }),
-                SizedBox(width: 12),
+                SizedBox(width: 8),
                 _buildHeaderIcon(Icons.star_rounded, () {
                   HapticFeedback.selectionClick();
                   Navigator.push(context,

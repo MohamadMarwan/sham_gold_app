@@ -27,6 +27,14 @@ class AdService {
   bool _isEnabled = false;
   int _appOpenTimeoutSeconds = 3;
   int get appOpenTimeoutSeconds => _appOpenTimeoutSeconds;
+  
+  bool _showAppOpenOnStartup = true;
+  bool _showAppOpenOnResume = true;
+  int _appOpenResumeTimeoutSeconds = 30;
+  bool get showAppOpenOnStartup => _showAppOpenOnStartup;
+  bool get showAppOpenOnResume => _showAppOpenOnResume;
+  int get appOpenResumeTimeoutSeconds => _appOpenResumeTimeoutSeconds;
+
   bool _showOnPageChange = true;
   int _interstitialInterval = 1;
   int _pageChangeCount = 0;
@@ -99,13 +107,14 @@ class AdService {
       //    (backend settings may not be fetched yet at this point)
       final prefs = await SharedPreferences.getInstance();
       final bool cachedEnabled = prefs.getBool('cached_ads_enabled') ?? true;
+      final bool cachedStartup = prefs.getBool('cached_app_open_on_startup') ?? true;
       final String? cachedAppOpenId = prefs.getString('cached_app_open_id');
       
-      if (cachedEnabled) {
+      if (cachedEnabled && cachedStartup) {
         _appOpenId = (cachedAppOpenId != null && cachedAppOpenId.isNotEmpty) ? cachedAppOpenId : _kAppOpenAdUnitId;
         _loadAppOpenAdBypass(); // ← bypass _isEnabled check for startup
       } else {
-        debugPrint('🚫 App Open Ad is disabled in cache.');
+        debugPrint('🚫 App Open Ad is disabled in cache or startup is disabled.');
       }
     } catch (e) {
       debugPrint('❌ Ads Init Error: $e');
@@ -175,6 +184,13 @@ class AdService {
         _interstitialInterval = interSettings['interval'] ?? 1;
       }
 
+      final appOpenSettings = adSettings['appOpenSettings'];
+      if (appOpenSettings != null) {
+        _showAppOpenOnStartup = appOpenSettings['showOnStartup'] ?? true;
+        _showAppOpenOnResume = appOpenSettings['showOnResume'] ?? true;
+        _appOpenResumeTimeoutSeconds = appOpenSettings['resumeTimeoutSeconds'] ?? 30;
+      }
+
       debugPrint(
           '🔄 AdService Updated: Enabled=$_isEnabled, Interstitial=$_interstitialId, '
           'showOnPageChange=$_showOnPageChange, interval=$_interstitialInterval, '
@@ -199,6 +215,7 @@ class AdService {
       // Cache settings so that next startup knows what to do before the API responds
       SharedPreferences.getInstance().then((prefs) {
         prefs.setBool('cached_ads_enabled', _isEnabled);
+        prefs.setBool('cached_app_open_on_startup', _showAppOpenOnStartup);
         if (_appOpenId != null && _appOpenId!.isNotEmpty) {
           prefs.setString('cached_app_open_id', _appOpenId!);
         }
@@ -478,6 +495,27 @@ class AdService {
     );
 
     _appOpenAd!.show();
+  }
+
+  void showOnResumeAppOpenAd(Duration pausedDuration, {Function? onAdDismissed}) {
+    if (!_isEnabled || isRewardActive || kIsWeb) {
+      onAdDismissed?.call();
+      return;
+    }
+
+    if (!_showAppOpenOnResume) {
+      debugPrint('⚠️ App Open Ad on Resume is disabled from dashboard');
+      onAdDismissed?.call();
+      return;
+    }
+
+    if (pausedDuration.inSeconds < _appOpenResumeTimeoutSeconds) {
+      debugPrint('⚠️ App Open Ad skipped (paused for ${pausedDuration.inSeconds}s, requires $_appOpenResumeTimeoutSeconds s)');
+      onAdDismissed?.call();
+      return;
+    }
+
+    showAppOpenAd(onAdDismissed: onAdDismissed);
   }
 
   /// Shows the App Open Ad on cold start.

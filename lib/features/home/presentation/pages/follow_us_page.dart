@@ -689,6 +689,29 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
               ),
               const Divider(height: 1),
               ListTile(
+                leading: const Icon(Icons.text_fields_rounded, color: AppColors.gold),
+                title: Text(
+                  'حجم الخط',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                trailing: DropdownButton<double>(
+                  value: settings.fontSizeScale,
+                  underline: SizedBox(),
+                  icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
+                  items: const [
+                    DropdownMenuItem(value: 1.0, child: Text('عادي')),
+                    DropdownMenuItem(value: 1.15, child: Text('كبير')),
+                    DropdownMenuItem(value: 1.3, child: Text('كبير جداً')),
+                  ],
+                  onChanged: (double? newValue) {
+                    if (newValue != null) {
+                      settings.setFontSizeScale(newValue);
+                    }
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
                 leading: const Icon(Icons.language_rounded, color: AppColors.gold),
                 title: Text(
                   'language'.tr(),

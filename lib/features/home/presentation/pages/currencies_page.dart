@@ -182,38 +182,32 @@ class CurrenciesPage extends ConsumerWidget {
                     );
                   }
 
-                  final syrianCurrencies =
-                      prices.where((p) => p.id.startsWith('sy_')).toList();
-                  final turkishCurrencies =
-                      prices.where((p) => p.id.startsWith('tr_curr_')).toList();
+                  final countryProviderInstance = ref.watch(countryProvider);
+                  final marketData = countryProviderInstance.currentMarketData;
+                  final List<dynamic> rawItems = marketData?['items'] ?? [];
+                  
+                  final countryCurrencies = rawItems
+                      .where((item) => item['metalType'] == 'currency')
+                      .map((item) => PriceItem(
+                            id: item['id'],
+                            title: item['title'],
+                            buyPrice: (item['buyPrice'] ?? 0).toDouble(),
+                            sellPrice: (item['sellPrice'] ?? 0).toDouble(),
+                            currency: item['currency'] ?? '',
+                            lastUpdate: DateTime.now(),
+                          ))
+                      .toList();
 
-                  // Sort Syrian
-                  syrianCurrencies.sort((a, b) {
-                    final priority = {
-                      'sy_usd': 0,
-                      'sy_eur': 1,
-                      'sy_try': 2,
-                      'sy_sar': 3,
-                      'sy_aed': 4
-                    };
-                    return (priority[a.id] ?? 99)
-                        .compareTo(priority[b.id] ?? 99);
+                  // Optionally sort them (USD first, EUR second, then by ID)
+                  countryCurrencies.sort((a, b) {
+                    if (a.id.endsWith('_usd')) return -1;
+                    if (b.id.endsWith('_usd')) return 1;
+                    if (a.id.endsWith('_eur')) return -1;
+                    if (b.id.endsWith('_eur')) return 1;
+                    return a.id.compareTo(b.id);
                   });
 
-                  // Sort Turkish
-                  turkishCurrencies.sort((a, b) {
-                    final priority = {
-                      'tr_curr_usd': 0,
-                      'tr_curr_eur': 1,
-                      'tr_curr_gbp': 2,
-                      'tr_curr_sar': 3,
-                      'tr_curr_aed': 4
-                    };
-                    return (priority[a.id] ?? 99)
-                        .compareTo(priority[b.id] ?? 99);
-                  });
-
-                  if (syrianCurrencies.isEmpty && turkishCurrencies.isEmpty) {
+                  if (countryCurrencies.isEmpty) {
                     return _buildEmptyState();
                   }
 
@@ -226,27 +220,16 @@ class CurrenciesPage extends ConsumerWidget {
                           _buildWelcomeCard(context),
                           SizedBox(height: 32),
                         ],
-                        if (syrianCurrencies.isNotEmpty) ...[
-                          _buildSectionHeader(
-                              'auto_str_062'.tr(),
-                              Icons.account_balance_rounded),
-                          SizedBox(height: 16),
-                          ...syrianCurrencies.map((item) => Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: _buildPremiumCurrencyCard(item, context),
-                              )),
-                        ],
-                        if (turkishCurrencies.isNotEmpty) ...[
-                          SizedBox(height: 12),
-                          _buildSectionHeader(
-                              'auto_str_061'.tr(),
-                              Icons.currency_lira_rounded),
-                          SizedBox(height: 16),
-                          ...turkishCurrencies.map((item) => Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: _buildPremiumCurrencyCard(item, context),
-                              )),
-                        ],
+                        
+                        _buildSectionHeader(
+                            'أسعار الصرف المتصالبة',
+                            Icons.currency_exchange_rounded),
+                        SizedBox(height: 16),
+                        ...countryCurrencies.map((item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _buildPremiumCurrencyCard(item, context),
+                            )),
+                            
                         // 🧮 Calculator Section
                         if (priceService
                             .shouldShow('currencyShowCalculator')) ...[

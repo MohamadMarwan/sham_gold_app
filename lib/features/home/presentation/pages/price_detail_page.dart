@@ -146,7 +146,11 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                   _buildPriceStatsCard(format),
                   SizedBox(height: 32),
                   _buildChartSection(isGold),
-                  SizedBox(height: 32),
+                  SizedBox(height: 24),
+                  if (historyPoints.isNotEmpty) ...[
+                    _buildPurityAndOHLCCard(format),
+                    SizedBox(height: 32),
+                  ],
                   _buildHistoryList(format),
                   SizedBox(height: 32),
                   _buildMarketInfoTile(),
@@ -597,6 +601,109 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPurityAndOHLCCard(NumberFormat format) {
+    // 1. Calculate OHLC
+    double open = historyPoints.first.price;
+    double close = historyPoints.last.price;
+    double high = historyPoints.map((e) => e.price).reduce((a, b) => a > b ? a : b);
+    double low = historyPoints.map((e) => e.price).reduce((a, b) => a < b ? a : b);
+
+    // 2. Determine Purity String
+    String purity = '';
+    final id = widget.priceItem.id.toLowerCase();
+    if (id.contains('24')) purity = '999.9 (99.9%)';
+    else if (id.contains('22')) purity = '916.6 (91.6%)';
+    else if (id.contains('21')) purity = '875.0 (87.5%)';
+    else if (id.contains('18')) purity = '750.0 (75.0%)';
+    else if (id.contains('14')) purity = '585.0 (58.5%)';
+    else if (id.contains('silver') || id.contains('xag')) purity = '999.0 / 925.0';
+    else if (id.contains('ounce') || id.contains('xau')) purity = '999.9 (99.9%)';
+    
+    return PremiumCard(
+      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.analytics_rounded, color: AppColors.gold, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                'تفاصيل السوق', // Market Details
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.darkGreen,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          if (purity.isNotEmpty) ...[
+            _buildOHLCRow('نسبة النقاء', purity, Icons.diamond_rounded, isString: true),
+            const Divider(color: Colors.black12, height: 24),
+          ],
+          _buildOHLCRow('سعر الافتتاح', format.format(open), Icons.login_rounded),
+          const SizedBox(height: 12),
+          _buildOHLCRow('سعر الإغلاق', format.format(close), Icons.logout_rounded),
+          const Divider(color: Colors.black12, height: 24),
+          _buildOHLCRow('أعلى سعر', format.format(high), Icons.arrow_upward_rounded, color: AppColors.success),
+          const SizedBox(height: 12),
+          _buildOHLCRow('أدنى سعر', format.format(low), Icons.arrow_downward_rounded, color: AppColors.error),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOHLCRow(String label, String value, IconData icon, {Color? color, bool isString = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 16, color: color ?? AppColors.mutedText),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.mutedText,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w900,
+                color: color ?? AppColors.darkGreen,
+                fontFamily: isString ? 'Cairo' : 'Roboto',
+              ),
+            ),
+            if (!isString) ...[
+              const SizedBox(width: 4),
+              Text(
+                widget.priceItem.currency,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.gold,
+                ),
+              ),
+            ]
+          ],
+        ),
+      ],
     );
   }
 }

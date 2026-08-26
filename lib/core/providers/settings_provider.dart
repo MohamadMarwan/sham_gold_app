@@ -21,18 +21,26 @@ class SettingsProvider with ChangeNotifier {
   List<String> currentEnabledCurrencies = ['USD', 'EUR', 'TRY', 'SAR', 'AED', 'KWD', 'JOD'];
   
   ThemeMode themeMode = ThemeMode.system;
+  double fontSizeScale = 1.0;
   
   SettingsProvider() {
-    _loadThemeMode();
+    _loadPreferences();
   }
 
-  Future<void> _loadThemeMode() async {
+  Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
+    
     final themeIndex = prefs.getInt('theme_mode');
     if (themeIndex != null) {
       themeMode = ThemeMode.values[themeIndex];
-      notifyListeners();
     }
+    
+    final fontScale = prefs.getDouble('font_size_scale');
+    if (fontScale != null) {
+      fontSizeScale = fontScale;
+    }
+    
+    notifyListeners();
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
@@ -40,6 +48,13 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('theme_mode', mode.index);
+  }
+
+  Future<void> setFontSizeScale(double scale) async {
+    fontSizeScale = scale;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('font_size_scale', scale);
   }
 
   bool isConnected = false;

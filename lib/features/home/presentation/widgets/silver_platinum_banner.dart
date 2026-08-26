@@ -90,7 +90,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
                       gramPrice: silver999?.buyPrice ?? 0,
                       onTap: () {
                         HapticFeedback.selectionClick();
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => PriceDetailPage(priceItem: silverOunce)));
+                        _showMetalDetails(context, 'silver', silverOunce);
                       },
                     ),
                   ),
@@ -111,7 +111,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
                       gramPrice: plat999?.buyPrice ?? 0,
                       onTap: () {
                         HapticFeedback.selectionClick();
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => PriceDetailPage(priceItem: platOunce)));
+                        _showMetalDetails(context, 'platinum', platOunce);
                       },
                     ),
                   ),
@@ -211,6 +211,155 @@ class SilverPlatinumBanner extends ConsumerWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  void _showMetalDetails(BuildContext context, String type, PriceItem ounce) {
+    final isSilver = type == 'silver';
+    final ouncePrice = ounce.buyPrice;
+    final gram999 = ouncePrice / 31.1035;
+    
+    final gramSecond = isSilver ? (gram999 * 0.925) : (gram999 * 0.950);
+    final title = isSilver ? 'تفاصيل الفضة' : 'تفاصيل البلاتين';
+    final iconColor = isSilver ? const Color(0xFF94A3B8) : const Color(0xFFCBD5E1);
+    
+    final items = [
+      {
+        'title': 'أونصة',
+        'subtitle': '31.1035 غرام',
+        'price': ouncePrice
+      },
+      {
+        'title': isSilver ? 'غرام عيار 999' : 'غرام عيار 999/999.5',
+        'subtitle': 'نقي 100%',
+        'price': gram999
+      },
+      {
+        'title': isSilver ? 'غرام عيار 925' : 'غرام عيار 950',
+        'subtitle': 'صياغة ومجوهرات',
+        'price': gramSecond
+      },
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: AppColors.background,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: iconColor.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.diamond_outlined, color: iconColor),
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.darkGreen,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            ...items.map((item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['title'] as String,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkGreen,
+                          ),
+                        ),
+                        Text(
+                          item['subtitle'] as String,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.mutedText,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '\$ ${(item['price'] as double).toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.gold,
+                            fontFamily: 'Roboto',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            )),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => PriceDetailPage(priceItem: ounce)));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.darkGreen,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text('الرسم البياني وتفاصيل أكثر', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

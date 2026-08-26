@@ -31,7 +31,6 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver {
   late PageController _pageController;
   DateTime? _pausedTime;
-  int _navigationCount = 0; // Added navigation counter for ads
 
   final GlobalKey _globalKey = GlobalKey();
   final GlobalKey _marketKey = GlobalKey();
@@ -63,20 +62,15 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     } else if (state == AppLifecycleState.resumed) {
       if (_pausedTime != null) {
         final duration = DateTime.now().difference(_pausedTime!);
-        if (duration.inMinutes >= 5) {
-          _navigateToSplash();
-        }
+        AdService().showOnResumeAppOpenAd(duration, onAdDismissed: () {
+          if (mounted) {
+            ref.read(priceServiceProvider).refreshPrices(manual: true);
+          }
+        });
+      } else {
+        ref.read(priceServiceProvider).refreshPrices(manual: true);
       }
       _pausedTime = null;
-    }
-  }
-
-  void _navigateToSplash() {
-    if (mounted) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const SplashPage(fromResume: true)),
-        (route) => false,
-      );
     }
   }
 
@@ -372,14 +366,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         duration: const Duration(milliseconds: 320),
         curve: Curves.easeInOutCubic,
       );
-      
-      _navigationCount++;
-      if (_navigationCount >= 5) {
-        _navigationCount = 0;
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (mounted) AdService().showInterstitialOnNavigation();
-        });
-      }
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) AdService().showInterstitialOnNavigation();
+      });
     }
   }
 }

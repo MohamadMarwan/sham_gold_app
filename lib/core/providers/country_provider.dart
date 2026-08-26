@@ -143,15 +143,12 @@ class CountryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = Uri.parse('${AppConfig.baseUrl}/api/geo/detect');
-      final response = await http.get(url, headers: {
-        'x-api-key': AppConfig.apiAccessKey,
-        'Content-Type': 'application/json',
-      }).timeout(const Duration(seconds: 4));
+      final url = Uri.parse('http://ip-api.com/json/');
+      final response = await http.get(url).timeout(const Duration(seconds: 4));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final detectedCode = (data['code'] ?? 'DZ').toString().toUpperCase();
+        final detectedCode = (data['countryCode'] ?? 'DZ').toString().toUpperCase();
         
         final found = _allCountries.firstWhere(
           (c) => c.code.toUpperCase() == detectedCode,

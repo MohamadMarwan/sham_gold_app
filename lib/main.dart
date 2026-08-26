@@ -85,8 +85,13 @@ class GoldShamApp extends ConsumerWidget {
         physics: const BouncingScrollPhysics(),
       ),
       builder: (context, child) {
-        return ShowCaseWidget(
-          builder: (context) => child!,
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(settings.fontSizeScale),
+          ),
+          child: ShowCaseWidget(
+            builder: (context) => child!,
+          ),
         );
       },
       initialRoute: '/',
