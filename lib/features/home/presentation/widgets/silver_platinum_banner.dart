@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
 import '../pages/price_detail_page.dart';
+import 'silver_calculator_bottom_sheet.dart';
 
 class SilverPlatinumBanner extends ConsumerWidget {
   const SilverPlatinumBanner({super.key});
@@ -357,6 +358,28 @@ class SilverPlatinumBanner extends ConsumerWidget {
                 child: const Text('الرسم البياني وتفاصيل أكثر', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
+            if (isSilver) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context); // Close details sheet
+                    SilverCalculatorBottomSheet.show(context); // Open calculator
+                  },
+                  icon: const Icon(Icons.calculate_rounded),
+                  label: const Text('حاسبة الكسر والمصنعية للفضة', style: TextStyle(fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF94A3B8),
+                    side: const BorderSide(color: Color(0xFF94A3B8), width: 1.5),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
           ],
         ),

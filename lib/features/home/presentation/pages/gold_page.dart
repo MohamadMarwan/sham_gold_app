@@ -41,6 +41,7 @@ import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sh
 
 import 'package:gold_sham/features/home/presentation/widgets/interactive_market_chart.dart';
 import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
+import 'package:gold_sham/features/home/presentation/widgets/roi_banner_widget.dart';
 import 'package:gold_sham/shared/widgets/staggered_slide_in.dart';
 
 class GoldPage extends ConsumerStatefulWidget {
@@ -425,7 +426,10 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                       SizedBox(height: 24),
                     ],
                     if (globalKarats.isNotEmpty) ...[
-                      const SilverPlatinumBanner(),
+                      if (priceService.shouldShow('homeShowRoiBanner', defaultValue: true))
+                        const RoiBannerWidget(),
+                      if (priceService.shouldShow('homeShowSilverBanner', defaultValue: true))
+                        const SilverPlatinumBanner(),
                       if (priceService.shouldShow('homeShowGlobalPricesAdBanner'))
                         const Padding(
                           padding: EdgeInsets.only(top: 10, bottom: 24),

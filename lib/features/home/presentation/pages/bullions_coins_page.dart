@@ -113,20 +113,63 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
           SliverPersistentHeader(
             pinned: true,
             delegate: _SliverAppBarDelegate(
-              TabBar(
-                controller: _tabController,
-                indicatorColor: AppColors.gold,
-                indicatorWeight: 4,
-                labelColor: isDark ? Colors.white : AppColors.darkGreen,
-                unselectedLabelColor: AppColors.mutedText,
-                labelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w900, fontSize: 16),
-                unselectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w700, fontSize: 15),
-                tabs: [
-                  Tab(text: 'bullions'.tr()),
-                  Tab(text: 'gold_coins'.tr()),
-                ],
+              Container(
+                height: 50,
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.transparent,
+                    width: 1,
+                  )
+                ),
+                child: TabBar(
+                  controller: _tabController,
+                  indicator: BoxDecoration(
+                    color: AppColors.gold,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.gold.withValues(alpha: 0.3),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelColor: AppColors.darkGreen,
+                  unselectedLabelColor: isDark ? Colors.grey[400] : AppColors.mutedText,
+                  labelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w900, fontSize: 16),
+                  unselectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w700, fontSize: 15),
+                  tabs: [
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.line_weight_rounded, size: 18),
+                          const SizedBox(width: 8),
+                          Text('bullions'.tr()),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.monetization_on_rounded, size: 18),
+                          const SizedBox(width: 8),
+                          Text('gold_coins'.tr()),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               isDark,
+              70.0,
             ),
           ),
         ],
@@ -174,26 +217,28 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
-  final bool _isDark;
+  final Widget child;
+  final bool isDark;
+  final double height;
 
-  _SliverAppBarDelegate(this._tabBar, this._isDark);
+  _SliverAppBarDelegate(this.child, this.isDark, this.height);
 
   @override
-  double get minExtent => _tabBar.preferredSize.height;
+  double get minExtent => height;
   @override
-  double get maxExtent => _tabBar.preferredSize.height;
+  double get maxExtent => height;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
-      color: _isDark ? AppColors.background : Colors.white,
-      child: _tabBar,
+      color: isDark ? AppColors.background : AppColors.background,
+      alignment: Alignment.center,
+      child: child,
     );
   }
 
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
+    return oldDelegate.isDark != isDark || oldDelegate.height != height;
   }
 }

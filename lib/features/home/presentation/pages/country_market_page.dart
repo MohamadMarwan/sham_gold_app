@@ -13,6 +13,7 @@ import '../widgets/country_switcher_sheet.dart';
 import '../widgets/social_share_sheet.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../../shared/widgets/premium_card.dart';
+import '../widgets/zakat_banner_widget.dart';
 
 class CountryMarketPage extends ConsumerWidget {
   final CountryModel? forcedCountry;
@@ -289,7 +290,11 @@ class CountryMarketPage extends ConsumerWidget {
                           ),
                         );
                       }),
-                    ]
+                    ],
+                    
+                    const SizedBox(height: 16),
+                    if (priceService.shouldShow('homeShowZakatBanner', defaultValue: true))
+                      const ZakatBannerWidget(),
                   ],
                 ]),
               ),
