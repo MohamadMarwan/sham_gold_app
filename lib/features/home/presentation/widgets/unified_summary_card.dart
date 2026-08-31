@@ -22,6 +22,7 @@ class UnifiedSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
@@ -29,7 +30,7 @@ class UnifiedSummaryCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? AppColors.trueBlackCard : Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -53,9 +54,9 @@ class UnifiedSummaryCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: themeColor == AppColors.darkGreen
+                      color: isDark ? Colors.white : (themeColor == AppColors.darkGreen
                           ? AppColors.darkGreen
-                          : Colors.blueGrey, // Standard fallback
+                          : Colors.blueGrey),
                     ),
                   ),
                 ),
@@ -73,9 +74,9 @@ class UnifiedSummaryCard extends StatelessWidget {
                 children: metrics.map((metric) {
                   return Padding(
                     padding: const EdgeInsets.only(left: 24.0),
-                    child: _buildMetric(metric.label, metric.price, metric.unit),
+                    child: _buildMetric(metric.label, metric.price, metric.unit, isDark),
                   );
-                }).toList().reversed.toList(), // Reversed for RTL layout to ensure correct padding, wait, padding is left, in RTL left padding creates space on the left (between items)
+                }).toList().reversed.toList(),
               ),
             ),
           ],
@@ -114,16 +115,16 @@ class UnifiedSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetric(String label, double price, String unit) {
+  Widget _buildMetric(String label, double price, String unit, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w700,
-            color: AppColors.mutedText,
+            color: isDark ? Colors.white70 : AppColors.mutedText,
           ),
         ),
         const SizedBox(height: 4),
@@ -133,9 +134,9 @@ class UnifiedSummaryCard extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w900,
-            color: themeColor == AppColors.darkGreen
+            color: isDark ? Colors.white : (themeColor == AppColors.darkGreen
                 ? AppColors.darkGreen
-                : const Color(0xFF1e293b),
+                : const Color(0xFF1e293b)),
           ),
         ),
       ],

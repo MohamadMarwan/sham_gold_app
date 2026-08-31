@@ -57,6 +57,7 @@ class SocketService {
             .setExtraHeaders({'x-api-key': AppConfig.apiAccessKey})
             .disableAutoConnect()
             .setReconnectionDelay(AppConfig.socketOptions['reconnectionDelay'] as int)
+            .setReconnectionDelayMax(AppConfig.socketOptions['reconnectionDelayMax'] as int)
             .setReconnectionAttempts(AppConfig.socketOptions['reconnectionAttempts'] as int)
             .build());
 

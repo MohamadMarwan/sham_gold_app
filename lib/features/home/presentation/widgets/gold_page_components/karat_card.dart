@@ -125,6 +125,7 @@ class KaratCard extends StatelessWidget {
                   ),
                 ),
               ],
-            );
+            ),
+    );
   }
 }

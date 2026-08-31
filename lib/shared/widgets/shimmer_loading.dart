@@ -168,3 +168,38 @@ class ChartShimmer extends StatelessWidget {
     );
   }
 }
+
+class BannerShimmer extends StatelessWidget {
+  const BannerShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      width: double.infinity,
+      height: 140,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardTheme.color,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.1),
+        ),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ShimmerLoading.rectangular(height: 24, width: 150),
+            SizedBox(height: 12),
+            ShimmerLoading.rectangular(height: 16, width: double.infinity),
+            SizedBox(height: 8),
+            ShimmerLoading.rectangular(height: 16, width: 200),
+          ],
+        ),
+      ),
+    );
+  }
+}

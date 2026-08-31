@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:gold_sham/core/utils/web_stubs/ads_wrapper.dart';
 import '../../core/services/ad_service.dart';
 
 class AdBanner extends StatefulWidget {

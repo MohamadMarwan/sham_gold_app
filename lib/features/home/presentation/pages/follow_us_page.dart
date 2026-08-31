@@ -712,6 +712,31 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
               ),
               const Divider(height: 1),
               ListTile(
+                leading: Icon(
+                  settings.isGridLayout ? Icons.grid_view_rounded : Icons.view_agenda_rounded,
+                  color: AppColors.gold,
+                ),
+                title: const Text(
+                  'شكل العرض (الأسعار)',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                trailing: DropdownButton<bool>(
+                  value: settings.isGridLayout,
+                  underline: const SizedBox(),
+                  icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
+                  items: const [
+                    DropdownMenuItem(value: true, child: Text('مربعات (شبكة)')),
+                    DropdownMenuItem(value: false, child: Text('مستطيلات (قائمة)')),
+                  ],
+                  onChanged: (bool? newValue) {
+                    if (newValue != null) {
+                      settings.setIsGridLayout(newValue);
+                    }
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
                 leading: const Icon(Icons.language_rounded, color: AppColors.gold),
                 title: Text(
                   'language'.tr(),

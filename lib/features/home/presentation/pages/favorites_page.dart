@@ -51,6 +51,16 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
     }
   }
 
+  void _onReorder(int oldIndex, int newIndex) async {
+    HapticFeedback.lightImpact();
+    
+    // Save to SharedPreferences via service
+    await _favoritesService.reorderFavorites(oldIndex, newIndex);
+    
+    // Refresh UI
+    await _loadFavorites();
+  }
+
   @override
   Widget build(BuildContext context) {
     final priceService = ref.watch(priceServiceProvider);
@@ -79,8 +89,10 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                             initialData: priceService.currentPrices,
                             builder: (context, snapshot) {
                               final allPrices = snapshot.data ?? [];
-                              final favoritePrices = allPrices
-                                  .where((p) => _favoriteIds.contains(p.id))
+                              // Keep the items ordered based on _favoriteIds order
+                              final favoritePrices = _favoriteIds
+                                  .map((id) => allPrices.where((p) => p.id == id).firstOrNull)
+                                  .whereType<PriceItem>()
                                   .toList();
 
                               if (favoritePrices.isEmpty) {
@@ -90,18 +102,18 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                               return SliverPadding(
                                 padding:
                                     const EdgeInsets.fromLTRB(20, 24, 20, 40),
-                                sliver: SliverList(
-                                  delegate: SliverChildBuilderDelegate(
-                                    (context, index) {
-                                      final item = favoritePrices[index];
-                                      return Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 16),
-                                        child: _buildFavoriteCard(item),
-                                      );
-                                    },
-                                    childCount: favoritePrices.length,
-                                  ),
+                                sliver: SliverReorderableList(
+                                  itemCount: favoritePrices.length,
+                                  onReorder: _onReorder,
+                                  itemBuilder: (context, index) {
+                                    final item = favoritePrices[index];
+                                    return Padding(
+                                      key: ValueKey(item.id),
+                                      padding:
+                                          const EdgeInsets.only(bottom: 16),
+                                      child: _buildFavoriteCard(item),
+                                    );
+                                  },
                                 ),
                               );
                             },

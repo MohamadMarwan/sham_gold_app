@@ -61,6 +61,24 @@ class FavoritesService {
     return await prefs.remove(_favoritesKey);
   }
 
+  /// إعادة ترتيب المفضلة
+  Future<bool> reorderFavorites(int oldIndex, int newIndex) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> favorites = prefs.getStringList(_favoritesKey) ?? [];
+    
+    if (oldIndex < 0 || oldIndex >= favorites.length || newIndex < 0 || newIndex > favorites.length) {
+      return false;
+    }
+    
+    if (newIndex > oldIndex) {
+      newIndex -= 1;
+    }
+    
+    final item = favorites.removeAt(oldIndex);
+    favorites.insert(newIndex, item);
+    return await prefs.setStringList(_favoritesKey, favorites);
+  }
+
   /// عدد العناصر في المفضلة
   Future<int> getFavoritesCount() async {
     final favorites = await getFavorites();

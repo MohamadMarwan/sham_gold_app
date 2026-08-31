@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/services/calculators_service.dart';
+import '../../../../shared/services/price_service.dart';
 
 class ZakatBottomSheet extends ConsumerStatefulWidget {
   const ZakatBottomSheet({super.key});
@@ -40,19 +41,31 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
     super.dispose();
   }
 
-  void _calculateZakat(dynamic country) {
+  void _calculateZakat() {
     final g24 = double.tryParse(_zakat24Controller.text) ?? 0;
     final g21 = double.tryParse(_zakat21Controller.text) ?? 0;
     final g18 = double.tryParse(_zakat18Controller.text) ?? 0;
     final cashAmt = double.tryParse(_zakatCashController.text) ?? 0;
 
+    final priceService = ref.read(priceServiceProvider);
+    final price24 = priceService.currentPrices.firstWhere(
+        (p) => p.title.contains('24'), orElse: () => priceService.currentPrices.first).sellPrice;
+    
+    // Fallback if silver not found, we use 0 or default
+    final silverPrice = priceService.currentPrices.firstWhere(
+        (p) => p.title.contains('999') || p.metalType == 'silver', orElse: () => priceService.currentPrices.first).sellPrice;
+
     setState(() {
       _zakatResult = CalculatorsService.calculateZakat(
-        gold24Grams: g24,
-        gold21Grams: g21,
-        gold18Grams: g18,
+        grams24k: g24,
+        grams22k: 0.0,
+        grams21k: g21,
+        grams18k: g18,
+        silverGrams: 0.0,
+        price24kPerGram: price24,
+        silverPricePerGram: silverPrice,
         cashAmount: cashAmt,
-        isIncludeJewelry: true, // simplified
+        includeJewelry: true,
       );
     });
   }
@@ -133,7 +146,7 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
                   ElevatedButton(
                     onPressed: () {
                       HapticFeedback.heavyImpact();
-                      _calculateZakat(country);
+                      _calculateZakat();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF10B981),

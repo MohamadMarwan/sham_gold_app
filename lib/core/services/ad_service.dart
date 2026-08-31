@@ -1,11 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:facebook_audience_network/facebook_audience_network.dart';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+import '../utils/web_stubs/ads_wrapper.dart';
+import '../utils/web_stubs/fb_ads_wrapper.dart';
+import '../utils/web_stubs/att_wrapper.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
@@ -80,7 +79,7 @@ class AdService {
 
     try {
       // 1. Handle App Tracking Transparency for iOS (Fixes Meta Error #17)
-      if (Platform.isIOS) {
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
         final status = await AppTrackingTransparency.trackingAuthorizationStatus;
         if (status == TrackingStatus.notDetermined) {
           await AppTrackingTransparency.requestTrackingAuthorization();
@@ -149,7 +148,7 @@ class AdService {
       String? newRewardedId;
 
       if (!kIsWeb) {
-        if (Platform.isAndroid) {
+        if (defaultTargetPlatform == TargetPlatform.android) {
           _bannerId = adSettings['android']?['bannerUnitId'];
           
           final dbInterstitial = adSettings['android']?['interstitialUnitId'];
@@ -159,7 +158,7 @@ class AdService {
               
           newRewardedId = adSettings['android']?['rewardedInterstitialUnitId'];
           _appOpenId = adSettings['android']?['appOpenUnitId'];
-        } else if (Platform.isIOS) {
+        } else if (defaultTargetPlatform == TargetPlatform.iOS) {
           _bannerId = adSettings['ios']?['bannerUnitId'];
           
           final dbInterstitial = adSettings['ios']?['interstitialUnitId'];

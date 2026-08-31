@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:gold_sham/core/utils/web_stubs/ads_wrapper.dart';
 import 'package:gold_sham/core/services/ad_service.dart';
 
 import 'package:gold_sham/shared/services/price_service.dart';
@@ -112,7 +112,7 @@ class _AdBannerWidgetState extends ConsumerState<AdBannerWidget> {
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 2),
       alignment: Alignment.center,
       width: widget.size.width.toDouble(),
       height: widget.size.height.toDouble(),

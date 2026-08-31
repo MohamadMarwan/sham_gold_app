@@ -44,10 +44,10 @@ class _RoiBottomSheetState extends ConsumerState<RoiBottomSheet> {
     final currentPrice = double.tryParse(_currentPriceRoiController.text) ?? 0;
 
     setState(() {
-      _roiResult = CalculatorsService.calculateROI(
-        investmentAmount: investment,
-        buyPrice: buyPrice,
-        currentPrice: currentPrice,
+      _roiResult = CalculatorsService.calculateInvestmentReturn(
+        initialInvestment: investment,
+        buyGoldPrice: buyPrice,
+        currentGoldPrice: currentPrice,
       );
     });
   }

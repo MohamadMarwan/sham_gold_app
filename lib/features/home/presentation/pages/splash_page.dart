@@ -5,7 +5,10 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../core/services/ad_service.dart';
 import 'home_page.dart';
+import 'onboarding_page.dart';
 import '../../../../shared/widgets/premium_logo.dart';
+import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   final bool fromResume;
@@ -106,13 +109,16 @@ class _SplashPageState extends ConsumerState<SplashPage>
     _navigateToHome();
   }
 
-  void _navigateToHome() {
+  void _navigateToHome() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           transitionDuration: const Duration(milliseconds: 500),
           pageBuilder: (context, animation, secondaryAnimation) =>
-              const HomePage(),
+              hasSeenOnboarding ? const HomePage() : const OnboardingPage(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -243,9 +249,8 @@ class _SplashPageState extends ConsumerState<SplashPage>
                           SizedBox(
                             width: 35,
                             height: 35,
-                            child: CircularProgressIndicator(
-                              color: AppColors.gold,
-                              strokeWidth: 3,
+                            child: const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
                             ),
                           ),
                           SizedBox(height: 16),

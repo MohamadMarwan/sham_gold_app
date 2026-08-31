@@ -7,6 +7,7 @@ import '../../../../shared/models/price_item.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/price_chart_widget.dart';
 import '../../../../features/home/presentation/widgets/candlestick_chart_widget.dart';
+import '../../../../shared/widgets/interactive_fl_chart.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/shimmer_loading.dart';
 import '../../../../shared/widgets/price_alert_dialog.dart';
@@ -379,13 +380,10 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
             _buildErrorState()
           else
           RepaintBoundary(
-            child: CandlestickChartWidget(
+            child: InteractiveFlChart(
               history: historyPoints,
-              title: '',
               range: selectedRange,
               lineColor: isGold ? AppColors.gold : Colors.blue,
-              dailyChangePercentage:
-                  _dynamicChange ?? widget.priceItem.changePercentage,
             ),
           ),
         ],
@@ -651,9 +649,9 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           const SizedBox(height: 12),
           _buildOHLCRow('سعر الإغلاق', format.format(close), Icons.logout_rounded),
           const Divider(color: Colors.black12, height: 24),
-          _buildOHLCRow('أعلى سعر', format.format(high), Icons.arrow_upward_rounded, color: AppColors.success),
+          _buildOHLCRow('أعلى سعر', format.format(high), Icons.arrow_upward_rounded, color: AppColors.priceUp),
           const SizedBox(height: 12),
-          _buildOHLCRow('أدنى سعر', format.format(low), Icons.arrow_downward_rounded, color: AppColors.error),
+          _buildOHLCRow('أدنى سعر', format.format(low), Icons.arrow_downward_rounded, color: AppColors.priceDown),
         ],
       ),
     );

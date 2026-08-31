@@ -1,9 +1,9 @@
-﻿/// Remote data source for prices.
+/// Remote data source for prices.
 ///
 /// Responsible for HTTP interactions. Maps raw JSON strings into Dart Maps.
 /// Throws [AppException]s on failure.
-import '../../../core/services/http_api_service.dart';
-import '../../../core/error/app_exception.dart';
+import '../../../../core/services/http_api_service.dart';
+import '../../../../core/error/app_exception.dart';
 
 class PricesRemoteDataSource {
   final HttpApiService _httpService;
@@ -15,9 +15,10 @@ class PricesRemoteDataSource {
     try {
       final response = await _httpService.get('/api/markets/$countryCode');
       if (response is Map<String, dynamic>) return response;
-      throw const ParseException('Unexpected response format for market data.');
+      throw ParseException('Unexpected response format for market data.');
     } catch (e) {
-      throw wrapException(e);
+      if (e is AppException) rethrow;
+      throw UnknownException(e.toString());
     }
   }
 
@@ -26,9 +27,10 @@ class PricesRemoteDataSource {
     try {
       final response = await _httpService.get('/api/markets/summary');
       if (response is Map<String, dynamic>) return response;
-      throw const ParseException('Unexpected response format for market summary.');
+      throw ParseException('Unexpected response format for market summary.');
     } catch (e) {
-      throw wrapException(e);
+      if (e is AppException) rethrow;
+      throw UnknownException(e.toString());
     }
   }
 }

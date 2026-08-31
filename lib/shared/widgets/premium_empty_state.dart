@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import 'package:lottie/lottie.dart';
 
 class PremiumEmptyState extends StatelessWidget {
   final String title;
@@ -27,31 +28,12 @@ class PremiumEmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon with subtle glow background
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.gold.withValues(alpha: 0.1) : AppColors.gold.withValues(alpha: 0.05),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.gold.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.gold.withValues(alpha: 0.15),
-                    blurRadius: 30,
-                    spreadRadius: 5,
-                  ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                size: 60,
-                color: AppColors.gold,
-              ),
+            Icon(
+              icon,
+              size: 80,
+              color: isDark ? AppColors.gold.withOpacity(0.5) : AppColors.gold.withOpacity(0.3),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             
             // Title
             Text(

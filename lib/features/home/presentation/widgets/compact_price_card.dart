@@ -150,7 +150,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                               child: Material(
                                 type: MaterialType.transparency,
                                 child: Text(
-                                  widget.priceItem.title,
+                                  widget.priceItem.title.tr(),
                                   style: TextStyle(
                                     fontWeight: FontWeight.w900,
                                     fontSize: 15,

@@ -12,8 +12,10 @@ class AppColors {
   static const Color copper = tertiary;
 
   // Majlis (Elite Dark Mode) Palette
-  static const Color majlisGreen = Color(0xFF020617); // Emerald Darker
+  static const Color majlisGreen = Color(0xFF000000); // True Black for OLED
   static const Color majlisGold = Color(0xFFC5A059); // Royal Gold
+  static const Color trueBlack = Color(0xFF000000); // OLED Black
+  static const Color trueBlackCard = Color(0xFF0A0A0A); // Slightly lighter for cards
 
   static const Color background = warmBeige;
   static const Color primaryText = Color(0xFF1D2121); // Dark charcoal
@@ -24,7 +26,8 @@ class AppColors {
   static const Color priceUp = Color(0xFF2E7D32); // Professional green
   static const Color priceDown = Color(0xFFC62828); // Professional red
   static const Color stable = Color(0xFF757575);
-
+  static const Color success = priceUp;
+  static const Color error = priceDown;
   static const Color platinum = Color(0xFFE5E4E2);
   static const Color liveGreen = Color(0xFF00FF88);
 
@@ -42,7 +45,7 @@ class AppColors {
       );
 
   static LinearGradient get emeraldGradient => const LinearGradient(
-        colors: [Color(0xFF020617), Color(0xFF0F172A), Color(0xFF1E293B)],
+        colors: [Color(0xFF000000), Color(0xFF0A0A0A), Color(0xFF121212)],
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
       );

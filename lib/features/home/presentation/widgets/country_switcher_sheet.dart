@@ -48,7 +48,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.78,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        color: isDark ? AppColors.trueBlackCard : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
         boxShadow: [
           BoxShadow(
@@ -154,9 +154,11 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                 return InkWell(
                   onTap: () async {
                     HapticFeedback.selectionClick();
-                    await countryState.selectCountry(country);
                     if (context.mounted) {
                       Navigator.pop(context);
+                    }
+                    await countryState.selectCountry(country);
+                    if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(

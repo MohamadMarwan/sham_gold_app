@@ -1,23 +1,50 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-class SparklineWidget extends StatelessWidget {
-  final List<double> data;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gold_sham/shared/services/price_service.dart';
+
+class SparklineWidget extends ConsumerWidget {
+  final String priceId;
+  final List<double>? fallbackData;
   final Color color;
   final double lineWidth;
 
   const SparklineWidget({
     Key? key,
-    required this.data,
+    required this.priceId,
+    this.fallbackData,
     this.color = Colors.green,
     this.lineWidth = 2.0,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(60, 30),
-      painter: _SparklinePainter(data, color, lineWidth),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final historyAsyncValue = ref.watch(priceHistoryProvider(priceId));
+
+    return historyAsyncValue.when(
+      data: (data) {
+        final displayData = data.isEmpty ? (fallbackData ?? [0, 0]) : data;
+        return CustomPaint(
+          size: const Size(60, 30),
+          painter: _SparklinePainter(displayData, color, lineWidth),
+        );
+      },
+      loading: () => const SizedBox(
+        width: 60,
+        height: 30,
+        child: Center(
+          child: SizedBox(
+            width: 15,
+            height: 15,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      ),
+      error: (_, __) => CustomPaint(
+        size: const Size(60, 30),
+        painter: _SparklinePainter(fallbackData ?? [0, 0], color.withValues(alpha: 0.5), lineWidth),
+      ),
     );
   }
 }

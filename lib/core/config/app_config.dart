@@ -39,7 +39,8 @@ class AppConfig {
   static const Map<String, dynamic> socketOptions = {
     'transports': ['websocket', 'polling'],
     'autoConnect': false,
-    'reconnectionDelay': 2000,
+    'reconnectionDelay': 1000, // Initial delay (1 second)
+    'reconnectionDelayMax': 5000, // Maximum delay between retries (5 seconds)
     'reconnectionAttempts': 10,
   };
 

@@ -15,8 +15,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 enum RefreshStatus { success, connectionError, serverError }
 
 final priceServiceProvider = ChangeNotifierProvider<PriceService>((ref) {
-  final settings = ref.watch(settingsProvider);
+  final settings = ref.read(settingsProvider);
   return PriceService(SocketService(), HttpApiService(), CacheService(), settings);
+});
+
+final priceHistoryProvider = FutureProvider.family<List<double>, String>((ref, id) async {
+  final service = ref.watch(priceServiceProvider);
+  final history = await service.fetchPriceHistory(id, range: 'day');
+  if (history.isEmpty) return <double>[];
+  return history.map((e) => double.parse(e['buyPrice'].toString())).toList();
 });
 
 class PriceService with ChangeNotifier, WidgetsBindingObserver {
@@ -40,6 +47,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   PriceService(this._socketService, this._httpApiService, this._cacheService, this._settingsProvider) {
     WidgetsBinding.instance.addObserver(this);
+    _settingsProvider.addListener(notifyListeners);
     _init();
   }
 
@@ -100,9 +108,11 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_appState == state) return;
     _appState = state;
     
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.hidden) {
+    // Ignore 'hidden' state as it triggers aggressively on Web when switching tabs
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
       debugPrint('App in background: Pausing Socket to save resources');
       _socketService.pause();
     } else if (state == AppLifecycleState.resumed) {
@@ -281,6 +291,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _settingsProvider.removeListener(notifyListeners);
     _socketService.dispose();
     _notificationController.close();
     _alertTriggeredController.close();

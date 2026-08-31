@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:gold_sham/core/utils/web_stubs/ads_wrapper.dart';
 import 'package:flutter/foundation.dart';
 
 class StaticAdWidget extends StatefulWidget {

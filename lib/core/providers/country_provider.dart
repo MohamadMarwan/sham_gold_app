@@ -7,7 +7,9 @@ import '../../shared/models/country_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/home/data/datasources/prices_remote_datasource.dart';
 import '../services/http_api_service.dart';
+import '../services/cache_service.dart';
 import '../error/app_exception.dart';
+import '../../shared/services/local_market_calculator.dart';
 final countryProvider = ChangeNotifierProvider<CountryProvider>((ref) {
   return CountryProvider();
 });
@@ -76,7 +78,7 @@ class CountryProvider with ChangeNotifier {
       final url = Uri.parse('${AppConfig.baseUrl}/api/countries');
       final response = await http.get(url, headers: {
         'x-api-key': AppConfig.apiAccessKey,
-      }).timeout(const Duration(seconds: 5));
+      }).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -104,12 +106,13 @@ class CountryProvider with ChangeNotifier {
 
   Future<void> _loadCachedMarketData(String countryCode) async {
     try {
+      final cacheService = CacheService();
+      final cachedJson = await cacheService.loadFromCache('cached_market_${countryCode.toLowerCase()}');
       final prefs = await SharedPreferences.getInstance();
-      final String? cachedJson = prefs.getString('cached_market_${countryCode.toLowerCase()}');
       final String? lastSyncStr = prefs.getString('cached_market_sync_${countryCode.toLowerCase()}');
 
       if (cachedJson != null) {
-        _currentMarketData = json.decode(cachedJson);
+        _currentMarketData = cachedJson; // loadFromCache already decodes JSON
         if (lastSyncStr != null) {
           _lastOfflineSyncTime = DateTime.tryParse(lastSyncStr);
         }
@@ -122,9 +125,11 @@ class CountryProvider with ChangeNotifier {
 
   Future<void> _saveMarketDataToCache(String countryCode, String jsonString) async {
     try {
+      final cacheService = CacheService();
+      await cacheService.saveToCache('cached_market_${countryCode.toLowerCase()}', jsonString);
+      
       final prefs = await SharedPreferences.getInstance();
       final now = DateTime.now();
-      await prefs.setString('cached_market_${countryCode.toLowerCase()}', jsonString);
       await prefs.setString('cached_market_sync_${countryCode.toLowerCase()}', now.toIso8601String());
       _lastOfflineSyncTime = now;
     } catch (e) {
@@ -148,7 +153,7 @@ class CountryProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final detectedCode = (data['countryCode'] ?? 'DZ').toString().toUpperCase();
+        final detectedCode = (data['countryCode'] ?? 'SY').toString().toUpperCase();
         
         final found = _allCountries.firstWhere(
           (c) => c.code.toUpperCase() == detectedCode,
@@ -201,10 +206,39 @@ class CountryProvider with ChangeNotifier {
       debugPrint('Network/API error for ${_selectedCountry.code}: ${e.message}');
       _isOffline = true;
       await _loadCachedMarketData(code);
+      // If cache is also empty, try local calculation
+      if (_currentMarketData == null || (_currentMarketData!['items'] as List?)?.isEmpty == true) {
+        await _fallbackToLocalCalculation();
+      }
     } catch (e) {
       debugPrint('Unexpected error, fallback to offline cache for ${_selectedCountry.code}: $e');
       _isOffline = true;
       await _loadCachedMarketData(code);
+      // If cache is also empty, try local calculation
+      if (_currentMarketData == null || (_currentMarketData!['items'] as List?)?.isEmpty == true) {
+        await _fallbackToLocalCalculation();
+      }
+    }
+  }
+
+  /// Fallback: calculate market data locally using global ounce price + FX rates
+  Future<void> _fallbackToLocalCalculation() async {
+    try {
+      debugPrint('⚙️ Falling back to local market calculation for ${_selectedCountry.code}');
+      final calculator = LocalMarketCalculator();
+      final httpService = HttpApiService();
+      await calculator.refreshData(httpService);
+      final localData = calculator.calculateMarketData(_selectedCountry);
+      if (localData != null && (localData['items'] as List).isNotEmpty) {
+        _currentMarketData = localData;
+        _isOffline = false;
+        final code = _selectedCountry.code.toLowerCase();
+        await _saveMarketDataToCache(code, json.encode(localData));
+        debugPrint('✅ Local calculation successful for ${_selectedCountry.code}: ${(localData['items'] as List).length} items');
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('❌ Local calculation also failed: $e');
     }
   }
 

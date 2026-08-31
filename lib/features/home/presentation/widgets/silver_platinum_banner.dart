@@ -5,12 +5,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
+import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
 import '../pages/price_detail_page.dart';
 import 'silver_calculator_bottom_sheet.dart';
 
 class SilverPlatinumBanner extends ConsumerWidget {
-  const SilverPlatinumBanner({super.key});
+  final bool isGrid;
+  const SilverPlatinumBanner({super.key, this.isGrid = true});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,96 +29,121 @@ class SilverPlatinumBanner extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFF1E293B),
-            const Color(0xFF0F172A),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.diamond_outlined, color: Colors.white70, size: 20),
-                SizedBox(width: 8),
-                Text(
-                  'auto_str_135'.tr(),
-                  style: GoogleFonts.tajawal(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // Metals
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                if (silverOunce != null)
-                  Expanded(
-                    child: _buildMetalCard(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('auto_str_135'.tr(), Icons.diamond_outlined),
+        const SizedBox(height: 16),
+        isGrid
+            ? Row(
+                children: [
+                  if (silverOunce != null)
+                    Expanded(
+                      child: _buildMetalCard(
+                        context,
+                        title: 'auto_str_350'.tr(),
+                        iconColor: const Color(0xFF94A3B8),
+                        ouncePrice: silverOunce.buyPrice,
+                        gramPrice: silver999?.buyPrice ?? 0,
+                        isGrid: true,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          _showMetalDetails(context, 'silver', silverOunce);
+                        },
+                      ),
+                    ),
+                  if (silverOunce != null && platOunce != null)
+                    const SizedBox(width: 16),
+                  if (platOunce != null)
+                    Expanded(
+                      child: _buildMetalCard(
+                        context,
+                        title: 'auto_str_314'.tr(),
+                        iconColor: const Color(0xFFCBD5E1),
+                        ouncePrice: platOunce.buyPrice,
+                        gramPrice: plat999?.buyPrice ?? 0,
+                        isGrid: true,
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          _showMetalDetails(context, 'platinum', platOunce);
+                        },
+                      ),
+                    ),
+                ],
+              )
+            : Column(
+                children: [
+                  if (silverOunce != null)
+                    _buildMetalCard(
                       context,
                       title: 'auto_str_350'.tr(),
                       iconColor: const Color(0xFF94A3B8),
                       ouncePrice: silverOunce.buyPrice,
                       gramPrice: silver999?.buyPrice ?? 0,
+                      isGrid: false,
                       onTap: () {
                         HapticFeedback.selectionClick();
                         _showMetalDetails(context, 'silver', silverOunce);
                       },
                     ),
-                  ),
-                if (silverOunce != null && platOunce != null)
-                  Container(
-                    width: 1.5,
-                    height: 80,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    color: Colors.white.withValues(alpha: 0.1),
-                  ),
-                if (platOunce != null)
-                  Expanded(
-                    child: _buildMetalCard(
+                  if (silverOunce != null && platOunce != null)
+                    const SizedBox(height: 12),
+                  if (platOunce != null)
+                    _buildMetalCard(
                       context,
                       title: 'auto_str_314'.tr(),
                       iconColor: const Color(0xFFCBD5E1),
                       ouncePrice: platOunce.buyPrice,
                       gramPrice: plat999?.buyPrice ?? 0,
+                      isGrid: false,
                       onTap: () {
                         HapticFeedback.selectionClick();
                         _showMetalDetails(context, 'platinum', platOunce);
                       },
                     ),
-                  ),
-              ],
+                ],
+              ),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.gold.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: AppColors.gold, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.darkGreen,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 4,
+            width: 40,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AppColors.gold, Colors.orangeAccent],
+              ),
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
         ],
@@ -129,89 +156,252 @@ class SilverPlatinumBanner extends ConsumerWidget {
     required Color iconColor,
     required double ouncePrice,
     required double gramPrice,
+    required bool isGrid,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: iconColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: 6),
-              Text(
-                title,
-                style: GoogleFonts.tajawal(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color ??
+              (isDark ? const Color(0xFF1E293B) : Colors.white),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+            width: 1.0,
           ),
-          SizedBox(height: 12),
-          // Ounce Price
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '\$',
-                style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold, fontSize: 12),
-              ),
-              SizedBox(width: 2),
-              LivePriceWidget(
-                price: ouncePrice,
-                currency: '',
-                style: GoogleFonts.roboto(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 2),
-          Text(
-            'auto_str_335'.tr(),
-            style: GoogleFonts.tajawal(
-              color: Colors.white60,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+          boxShadow: [
+            BoxShadow(
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.4)
+                  : Colors.black.withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
-          ),
-          SizedBox(height: 8),
-          // Gram Price
-          if (gramPrice > 0)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+          ],
+        ),
+        padding: const EdgeInsets.all(12),
+        child: isGrid
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'auto_str_291'.tr(),
-                    style: TextStyle(color: Colors.white70, fontSize: 10, fontFamily: 'Cairo'),
+                  // Title Row
+                  Row(
+                    children: [
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: iconColor.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.diamond_outlined, color: iconColor, size: 14),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        title,
+                        style: GoogleFonts.tajawal(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                          color: isDark ? Colors.white : AppColors.primaryText,
+                        ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 16),
+                  
+                  // Ounce Price
                   Text(
-                    '\$${gramPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                    'auto_str_335'.tr(),
+                    style: GoogleFonts.cairo(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.mutedText,
+                    ),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      LivePriceWidget(
+                        price: ouncePrice,
+                        currency: '',
+                        style: GoogleFonts.roboto(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : AppColors.darkGreen,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        '\$',
+                        style: GoogleFonts.cairo(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.gold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  
+                  // Gram Price (if available)
+                  if (gramPrice > 0)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.black.withValues(alpha: 0.03),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'auto_str_291'.tr(),
+                            style: GoogleFonts.cairo(
+                              color: isDark ? Colors.white70 : AppColors.mutedText,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 10,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          LivePriceWidget(
+                            price: gramPrice,
+                            currency: '',
+                            style: GoogleFonts.roboto(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 11,
+                              color: isDark ? Colors.white70 : AppColors.mutedText,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '\$',
+                            style: GoogleFonts.cairo(
+                              fontSize: 8,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.gold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Title Side
+                  Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: iconColor.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.diamond_outlined, color: iconColor, size: 16),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        title,
+                        style: GoogleFonts.tajawal(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 16,
+                          color: isDark ? Colors.white : AppColors.primaryText,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Price Side
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Text(
+                            'auto_str_335'.tr() + ' ',
+                            style: GoogleFonts.cairo(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.mutedText,
+                            ),
+                          ),
+                          LivePriceWidget(
+                            price: ouncePrice,
+                            currency: '',
+                            style: GoogleFonts.roboto(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : AppColors.darkGreen,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            '\$',
+                            style: GoogleFonts.cairo(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.gold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (gramPrice > 0) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.05)
+                                : Colors.black.withValues(alpha: 0.03),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'auto_str_291'.tr(),
+                                style: GoogleFonts.cairo(
+                                  color: isDark ? Colors.white70 : AppColors.mutedText,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              LivePriceWidget(
+                                price: gramPrice,
+                                currency: '',
+                                style: GoogleFonts.roboto(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 11,
+                                  color: isDark ? Colors.white70 : AppColors.mutedText,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                '\$',
+                                style: GoogleFonts.cairo(
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.gold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
-            ),
-        ],
       ),
     );
   }

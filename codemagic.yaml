@@ -86,10 +86,10 @@ workflows:
         script: flutter pub get
 
       - name: Build APK
-        script: flutter build apk --release
+        script: flutter build apk --release --obfuscate --split-debug-info=./debug_info
 
       - name: Build App Bundle
-        script: flutter build appbundle --release
+        script: flutter build appbundle --release --obfuscate --split-debug-info=./debug_info
 
     artifacts:
       - build/app/outputs/flutter-apk/*.apk

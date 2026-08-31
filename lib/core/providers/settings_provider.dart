@@ -22,6 +22,7 @@ class SettingsProvider with ChangeNotifier {
   
   ThemeMode themeMode = ThemeMode.system;
   double fontSizeScale = 1.0;
+  bool isGridLayout = true;
   
   SettingsProvider() {
     _loadPreferences();
@@ -40,6 +41,8 @@ class SettingsProvider with ChangeNotifier {
       fontSizeScale = fontScale;
     }
     
+    isGridLayout = prefs.getBool('is_grid_layout') ?? true;
+    
     notifyListeners();
   }
 
@@ -55,6 +58,13 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('font_size_scale', scale);
+  }
+
+  Future<void> setIsGridLayout(bool isGrid) async {
+    isGridLayout = isGrid;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_grid_layout', isGrid);
   }
 
   bool isConnected = false;

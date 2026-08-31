@@ -97,6 +97,46 @@ class TopCountryBanner extends ConsumerWidget {
                 visualDensity: VisualDensity.compact,
               ),
               SizedBox(width: 4),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  HapticFeedback.selectionClick();
+                  ref.read(countryProvider.notifier).setKaratFilter(value);
+                },
+                initialValue: countryState.selectedKaratFilter.isEmpty ? 'all' : countryState.selectedKaratFilter,
+                offset: const Offset(0, 40),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.filter_alt_outlined, size: 16, color: AppColors.gold),
+                      const SizedBox(width: 4),
+                      Text(
+                        _getKaratLabel(countryState.selectedKaratFilter),
+                        style: const TextStyle(
+                          color: AppColors.gold,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 10,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 'all', child: Text('all_karats'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontSize: 13))),
+                  PopupMenuItem(value: '24', child: Text('karat_24'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontSize: 13))),
+                  PopupMenuItem(value: '22', child: Text('karat_22'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontSize: 13))),
+                  PopupMenuItem(value: '21', child: Text('karat_21'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontSize: 13))),
+                  PopupMenuItem(value: '18', child: Text('karat_18'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontSize: 13))),
+                  PopupMenuItem(value: 'silver', child: Text('silver'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontSize: 13))),
+                ],
+              ),
+              const SizedBox(width: 4),
               ElevatedButton.icon(
                 onPressed: () {
                   HapticFeedback.selectionClick();
@@ -105,7 +145,7 @@ class TopCountryBanner extends ConsumerWidget {
                 icon: const Icon(Icons.tune_rounded, size: 15, color: Colors.white),
                 label: Text(
                   'change_country'.tr(),
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 11.5),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 11.5),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkGreen,
@@ -119,5 +159,16 @@ class TopCountryBanner extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _getKaratLabel(String key) {
+    switch (key) {
+      case '24': return 'karat_24'.tr();
+      case '22': return 'karat_22'.tr();
+      case '21': return 'karat_21'.tr();
+      case '18': return 'karat_18'.tr();
+      case 'silver': return 'silver'.tr();
+      default: return 'all_karats'.tr();
+    }
   }
 }

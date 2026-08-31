@@ -52,18 +52,17 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
     setState(() {
       if (_isScrapMode) {
         _silverMakingResult = null;
-        _silverScrapResult = CalculatorsService.calculateScrapSale(
-          itemWeightGrams: weight,
+        _silverScrapResult = CalculatorsService.calculateScrapGoldSale(
+          weightGrams: weight,
           scrapPricePerGram: gramPrice,
-          stoneDeductionGrams: 0,
         );
       } else {
         _silverScrapResult = null;
-        _silverMakingResult = CalculatorsService.calculateMakingCharge(
-          itemWeightGrams: weight,
+        _silverMakingResult = CalculatorsService.calculateJewelryCost(
+          weightGrams: weight,
           goldPricePerGram: gramPrice,
           makingChargePerGram: makingCharge,
-          vatPercentage: vatPercent,
+          vatPercent: vatPercent,
         );
       }
     });

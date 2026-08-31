@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// خدمة مشاركة الشاشات للتطبيق
@@ -35,26 +35,73 @@ class ShareService {
         return;
       }
 
-      // حفظ الصورة في ملف مؤقت
-      final directory = await getTemporaryDirectory();
-      final imagePath =
-          '${directory.path}/gold_sham_prices_${DateTime.now().millisecondsSinceEpoch}.png';
-      final imageFile = File(imagePath);
-      await imageFile.writeAsBytes(imageBytes);
-
       // النص المرافق للمشاركة
       final shareText = customText ??
           '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n⏰ ${DateTime.now().toString().split('.')[0]}';
 
       // مشاركة الصورة مع النص
       await Share.shareXFiles(
-        [XFile(imagePath)],
+        [
+          XFile.fromData(
+            imageBytes,
+            mimeType: 'image/png',
+            name: 'gold_sham_prices_${DateTime.now().millisecondsSinceEpoch}.png'
+          )
+        ],
         text: shareText,
         subject: 'auto_str_073'.tr(),
       );
 
-      // حذف الملف المؤقت بعد المشاركة
-      await imageFile.delete();
+      if (context.mounted) {
+        _showSuccess(context, 'auto_str_173'.tr());
+      }
+    } catch (e) {
+      if (context.mounted) {
+        _showError(context, 'حدث خطأ أثناء المشاركة: ${e.toString()}');
+      }
+    }
+  }
+
+  /// مشاركة ودجت محدد كصورة بناءً على GlobalKey
+  static Future<void> shareWidgetAsImage({
+    required BuildContext context,
+    required GlobalKey widgetKey,
+    String? customText,
+  }) async {
+    if (kIsWeb) {
+      _showError(context, 'auto_str_041'.tr());
+      return;
+    }
+    try {
+      final boundary = widgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        if (context.mounted) _showError(context, 'auto_str_190'.tr());
+        return;
+      }
+
+      final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final Uint8List? imageBytes = byteData?.buffer.asUint8List();
+
+      if (imageBytes == null) {
+        if (context.mounted) _showError(context, 'auto_str_190'.tr());
+        return;
+      }
+
+      final shareText = customText ??
+          '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n⏰ ${DateTime.now().toString().split('.')[0]}';
+
+      await Share.shareXFiles(
+        [
+          XFile.fromData(
+            imageBytes,
+            mimeType: 'image/png',
+            name: 'gold_sham_prices_${DateTime.now().millisecondsSinceEpoch}.png'
+          )
+        ],
+        text: shareText,
+        subject: 'auto_str_073'.tr(),
+      );
 
       if (context.mounted) {
         _showSuccess(context, 'auto_str_173'.tr());

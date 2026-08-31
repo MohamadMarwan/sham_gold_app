@@ -25,13 +25,13 @@ class AppTheme {
     final baseTheme = ThemeData(
       brightness: Brightness.dark,
       primaryColor: AppColors.majlisGold,
-      scaffoldBackgroundColor: AppColors.majlisGreen,
+      scaffoldBackgroundColor: AppColors.trueBlack,
       useMaterial3: true,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.majlisGold,
-        onPrimary: Color(0xFF0F172A),
+        onPrimary: AppColors.trueBlack,
         secondary: AppColors.majlisGold,
-        surface: Color(0xFF0F172A),
+        surface: AppColors.trueBlackCard,
         onSurface: Colors.white,
       ),
     );
@@ -99,7 +99,7 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: isDark ? const Color(0xFF0F172A) : AppColors.cardBackground,
+        color: isDark ? AppColors.trueBlackCard : AppColors.cardBackground,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),

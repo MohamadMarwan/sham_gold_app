@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 import '../widgets/calculator_widget.dart';
+import '../widgets/roi_banner_widget.dart';
 
 class CalculatorPage extends StatelessWidget {
   const CalculatorPage({super.key});
@@ -72,6 +73,8 @@ class CalculatorPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 160),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                const RoiBannerWidget(),
+                const SizedBox(height: 24),
                 const CalculatorWidget(showHeader: false),
               ]),
             ),
