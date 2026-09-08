@@ -1,4 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
+import '../../core/utils/currency_utils.dart';
+
 class CountryModel {
   final String code;
   final String name;
@@ -9,6 +11,54 @@ class CountryModel {
   final String region;
   final List<String> availableKarats;
   final List<String> specialUnits;
+  String get currency => currencyCode;
+
+  /// Returns the localized country name based on the current app language.
+  String get localizedName {
+    final key = 'country_${code.toLowerCase()}';
+    final val = key.tr();
+    if (val.isNotEmpty && val != key) return val;
+    if (name.isNotEmpty && !name.startsWith('country_')) return name;
+    return fallbackName(code);
+  }
+
+  static String fallbackName(String code) {
+    switch (code.toUpperCase()) {
+      case 'DZ': return 'الجزائر';
+      case 'EG': return 'مصر';
+      case 'SA': return 'السعودية';
+      case 'AE': return 'الإمارات';
+      case 'IQ': return 'العراق';
+      case 'KW': return 'الكويت';
+      case 'QA': return 'قطر';
+      case 'JO': return 'الأردن';
+      case 'LB': return 'لبنان';
+      case 'LY': return 'ليبيا';
+      case 'SY': return 'سوريا';
+      case 'TR': return 'تركيا';
+      case 'OM': return 'سلطنة عُمان';
+      case 'BH': return 'البحرين';
+      case 'PS': return 'فلسطين';
+      case 'YE': return 'اليمن';
+      case 'MA': return 'المغرب';
+      case 'TN': return 'تونس';
+      case 'SD': return 'السودان';
+      case 'MR': return 'موريتانيا';
+      case 'SO': return 'الصومال';
+      case 'US': return 'الولايات المتحدة';
+      case 'GB': return 'المملكة المتحدة';
+      case 'CH': return 'سويسرا';
+      case 'EU': return 'أوروبا';
+      case 'DE': return 'ألمانيا';
+      case 'FR': return 'فرنسا';
+      case 'CA': return 'كندا';
+      case 'AU': return 'أستراليا';
+      default: return 'البورصة العالمية';
+    }
+  }
+
+  /// Returns the localized currency symbol based on the current app language.
+  String get localizedCurrencySymbol => CurrencyUtils.getSymbol(currencyCode);
 
   const CountryModel({
     required this.code,
@@ -23,12 +73,17 @@ class CountryModel {
   });
 
   factory CountryModel.fromJson(Map<String, dynamic> json) {
+    final countryCode = (json['code'] ?? 'GLOBAL').toString().toUpperCase();
+    final nameKey = 'country_${countryCode.toLowerCase()}';
+    final rawName = (json['name'] ?? json['nameAr'] ?? '').toString();
+    final curr = (json['currency'] ?? json['currencyCode'] ?? 'USD').toString();
+
     return CountryModel(
-      code: json['code'] ?? 'GLOBAL',
-      name: json['name'] ?? 'country_global',
+      code: countryCode,
+      name: (rawName.isNotEmpty && !rawName.startsWith('country_')) ? rawName : nameKey,
       flag: json['flag'] ?? '🌐',
-      currencyCode: json['currency'] ?? json['currencyCode'] ?? 'USD',
-      currencySymbol: json['symbol'] ?? json['currencySymbol'] ?? '\$',
+      currencyCode: curr,
+      currencySymbol: json['symbol'] ?? json['currencySymbol'] ?? CurrencyUtils.getSymbol(curr),
       defaultKarat: json['defaultKarat'] ?? '24',
       region: json['region'] ?? 'region_arab',
       availableKarats: (json['availableKarats'] as List<dynamic>?)
@@ -53,12 +108,12 @@ class CountryModel {
       };
 
   static List<CountryModel> get defaultCountries => [
-        CountryModel(
+        const CountryModel(
           code: 'DZ',
           name: 'country_dz',
           flag: '🇩🇿',
           currencyCode: 'DZD',
-          currencySymbol: 'auto_str_372'.tr(),
+          currencySymbol: 'د.ج',
           defaultKarat: '21',
           region: 'region_north_africa',
           availableKarats: ['24', '22', '21', '18', '14', '9'],
@@ -69,18 +124,18 @@ class CountryModel {
           name: 'country_eg',
           flag: '🇪🇬',
           currencyCode: 'EGP',
-          currencySymbol: 'auto_str_369'.tr(),
+          currencySymbol: 'ج.م',
           defaultKarat: '21',
           region: 'region_north_africa',
           availableKarats: ['24', '22', '21', '18', '14', '12'],
           specialUnits: ['auto_str_182'.tr(), 'auto_str_321'.tr(), 'auto_str_318'.tr(), 'auto_str_353'.tr()],
         ),
-        CountryModel(
+        const CountryModel(
           code: 'SA',
           name: 'country_sa',
           flag: '🇸🇦',
           currencyCode: 'SAR',
-          currencySymbol: 'auto_str_377'.tr(),
+          currencySymbol: 'ر.س',
           defaultKarat: '24',
           region: 'region_arabian_gulf',
           availableKarats: ['24', '22', '21', '18'],
@@ -91,7 +146,7 @@ class CountryModel {
           name: 'country_ae',
           flag: '🇦🇪',
           currencyCode: 'AED',
-          currencySymbol: 'auto_str_371'.tr(),
+          currencySymbol: 'د.إ',
           defaultKarat: '24',
           region: 'region_arabian_gulf',
           availableKarats: ['24', '22', '21', '18'],
@@ -102,77 +157,176 @@ class CountryModel {
           name: 'country_iq',
           flag: '🇮🇶',
           currencyCode: 'IQD',
-          currencySymbol: 'auto_str_373'.tr(),
+          currencySymbol: 'د.ع',
           defaultKarat: '21',
           region: 'region_levant',
           availableKarats: ['24', '22', '21', '18'],
           specialUnits: ['auto_str_211'.tr(), 'auto_str_212'.tr(), 'auto_str_295'.tr()],
         ),
-        CountryModel(
+        const CountryModel(
           code: 'KW',
           name: 'country_kw',
           flag: '🇰🇼',
           currencyCode: 'KWD',
-          currencySymbol: 'auto_str_374'.tr(),
+          currencySymbol: 'د.ك',
           defaultKarat: '21',
           region: 'region_arabian_gulf',
           availableKarats: ['24', '22', '21', '18'],
           specialUnits: ['unit_gold_tola', 'unit_gold_lira', 'unit_gold_ounce'],
         ),
-        CountryModel(
+        const CountryModel(
           code: 'QA',
           name: 'country_qa',
           flag: '🇶🇦',
           currencyCode: 'QAR',
-          currencySymbol: 'auto_str_378'.tr(),
+          currencySymbol: 'ر.ق',
           defaultKarat: '22',
           region: 'region_arabian_gulf',
           availableKarats: ['24', '22', '21', '18'],
           specialUnits: ['unit_gold_ounce', 'unit_1kg_gold', 'unit_gold_bullions'],
+        ),
+        const CountryModel(
+          code: 'OM',
+          name: 'country_om',
+          flag: '🇴🇲',
+          currencyCode: 'OMR',
+          currencySymbol: 'ر.ع',
+          defaultKarat: '22',
+          region: 'region_arabian_gulf',
+          availableKarats: ['24', '22', '21', '18'],
+          specialUnits: ['unit_gold_ounce', 'unit_1kg_gold'],
+        ),
+        const CountryModel(
+          code: 'BH',
+          name: 'country_bh',
+          flag: '🇧🇭',
+          currencyCode: 'BHD',
+          currencySymbol: 'د.ب',
+          defaultKarat: '21',
+          region: 'region_arabian_gulf',
+          availableKarats: ['24', '22', '21', '18'],
+          specialUnits: ['unit_gold_ounce', 'unit_1kg_gold'],
         ),
         CountryModel(
           code: 'JO',
           name: 'country_jo',
           flag: '🇯🇴',
           currencyCode: 'JOD',
-          currencySymbol: 'auto_str_370'.tr(),
+          currencySymbol: 'د.أ',
           defaultKarat: '21',
           region: 'region_levant',
           availableKarats: ['24', '21', '18', '14'],
           specialUnits: ['auto_str_152'.tr(), 'auto_str_133'.tr(), 'auto_str_348'.tr()],
         ),
-        CountryModel(
+        const CountryModel(
           code: 'LB',
           name: 'country_lb',
           flag: '🇱🇧',
           currencyCode: 'LBP',
-          currencySymbol: 'auto_str_382'.tr(),
+          currencySymbol: 'ل.ل',
           defaultKarat: '21',
           region: 'region_levant',
           availableKarats: ['24', '22', '21', '18', '14'],
           specialUnits: ['unit_gold_lira', 'unit_gold_ounce', 'unit_usd_pricing'],
         ),
-        CountryModel(
+        const CountryModel(
           code: 'LY',
           name: 'country_ly',
           flag: '🇱🇾',
           currencyCode: 'LYD',
-          currencySymbol: 'auto_str_375'.tr(),
+          currencySymbol: 'د.ل',
           defaultKarat: '18',
           region: 'region_north_africa',
           availableKarats: ['24', '21', '18', '14'],
           specialUnits: ['unit_scrap_gold_18k', 'unit_scrap_gold_21k', 'unit_cast_gold', 'unit_lira'],
         ),
-        CountryModel(
+        const CountryModel(
           code: 'SY',
           name: 'country_sy',
           flag: '🇸🇾',
           currencyCode: 'SYP',
-          currencySymbol: 'auto_str_381'.tr(),
+          currencySymbol: 'ل.س',
           defaultKarat: '21',
           region: 'region_levant',
           availableKarats: ['24', '22', '21', '18', '14'],
           specialUnits: ['unit_syrian_ounce', 'unit_gold_lira', 'unit_21k_gram'],
+        ),
+        const CountryModel(
+          code: 'PS',
+          name: 'country_ps',
+          flag: '🇵🇸',
+          currencyCode: 'ILS',
+          currencySymbol: '₪',
+          defaultKarat: '21',
+          region: 'region_levant',
+          availableKarats: ['24', '22', '21', '18', '14'],
+          specialUnits: ['unit_gold_lira', 'unit_gold_ounce'],
+        ),
+        const CountryModel(
+          code: 'YE',
+          name: 'country_ye',
+          flag: '🇾🇪',
+          currencyCode: 'YER',
+          currencySymbol: 'ر.ي',
+          defaultKarat: '21',
+          region: 'region_arab',
+          availableKarats: ['24', '22', '21', '18'],
+          specialUnits: ['unit_gold_ounce', 'unit_gold_lira'],
+        ),
+        const CountryModel(
+          code: 'MA',
+          name: 'country_ma',
+          flag: '🇲🇦',
+          currencyCode: 'MAD',
+          currencySymbol: 'د.م.',
+          defaultKarat: '18',
+          region: 'region_north_africa',
+          availableKarats: ['24', '22', '21', '18', '14'],
+          specialUnits: ['unit_scrap_gold_18k', 'unit_gold_ounce'],
+        ),
+        const CountryModel(
+          code: 'TN',
+          name: 'country_tn',
+          flag: '🇹🇳',
+          currencyCode: 'TND',
+          currencySymbol: 'د.ت',
+          defaultKarat: '18',
+          region: 'region_north_africa',
+          availableKarats: ['24', '22', '21', '18', '14'],
+          specialUnits: ['unit_scrap_gold_18k', 'unit_gold_ounce'],
+        ),
+        const CountryModel(
+          code: 'SD',
+          name: 'country_sd',
+          flag: '🇸🇩',
+          currencyCode: 'SDG',
+          currencySymbol: 'ج.س.',
+          defaultKarat: '21',
+          region: 'region_arab',
+          availableKarats: ['24', '22', '21', '18', '14'],
+          specialUnits: ['unit_gold_ounce'],
+        ),
+        const CountryModel(
+          code: 'MR',
+          name: 'country_mr',
+          flag: '🇲🇷',
+          currencyCode: 'MRU',
+          currencySymbol: 'أ.م',
+          defaultKarat: '21',
+          region: 'region_arab',
+          availableKarats: ['24', '22', '21', '18'],
+          specialUnits: ['unit_gold_ounce'],
+        ),
+        const CountryModel(
+          code: 'SO',
+          name: 'country_so',
+          flag: '🇸🇴',
+          currencyCode: 'SOS',
+          currencySymbol: 'ش.ص',
+          defaultKarat: '21',
+          region: 'region_arab',
+          availableKarats: ['24', '22', '21', '18'],
+          specialUnits: ['unit_gold_ounce'],
         ),
         CountryModel(
           code: 'TR',
@@ -185,7 +339,7 @@ class CountryModel {
           availableKarats: ['24', '22', '18', '14'],
           specialUnits: ['auto_str_187'.tr(), 'auto_str_216'.tr(), 'auto_str_227'.tr(), 'auto_str_304'.tr()],
         ),
-        CountryModel(
+        const CountryModel(
           code: 'EU',
           name: 'country_eu',
           flag: '🇪🇺',
@@ -195,6 +349,39 @@ class CountryModel {
           region: 'region_europe',
           availableKarats: ['24', '22', '18', '14', '9'],
           specialUnits: ['unit_euro_ounce', 'unit_1kg_gold', 'unit_investment_bullions'],
+        ),
+        const CountryModel(
+          code: 'US',
+          name: 'country_us',
+          flag: '🇺🇸',
+          currencyCode: 'USD',
+          currencySymbol: '\$',
+          defaultKarat: '24',
+          region: 'region_global',
+          availableKarats: ['24', '22', '21', '18', '14'],
+          specialUnits: ['unit_gold_ounce', 'unit_1kg_gold'],
+        ),
+        const CountryModel(
+          code: 'GB',
+          name: 'country_gb',
+          flag: '🇬🇧',
+          currencyCode: 'GBP',
+          currencySymbol: '£',
+          defaultKarat: '24',
+          region: 'region_europe',
+          availableKarats: ['24', '22', '18', '14', '9'],
+          specialUnits: ['unit_gold_ounce', 'unit_gold_sovereign'],
+        ),
+        const CountryModel(
+          code: 'CH',
+          name: 'country_ch',
+          flag: '🇨🇭',
+          currencyCode: 'CHF',
+          currencySymbol: 'Fr',
+          defaultKarat: '24',
+          region: 'region_europe',
+          availableKarats: ['24', '22', '18', '14', '9'],
+          specialUnits: ['unit_gold_ounce', 'unit_1kg_gold'],
         ),
         CountryModel(
           code: 'GLOBAL',

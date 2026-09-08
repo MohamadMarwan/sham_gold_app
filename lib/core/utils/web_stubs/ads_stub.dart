@@ -20,7 +20,7 @@ class BannerAdListener {
   const BannerAdListener({this.onAdLoaded, this.onAdFailedToLoad});
 }
 
-class BannerAd {
+class BannerAd implements Ad {
   final String adUnitId;
   final AdSize size;
   final AdRequest request;
@@ -29,6 +29,7 @@ class BannerAd {
   Future<void> load() async {
     listener.onAdFailedToLoad?.call(this, 'Web unsupported');
   }
+  @override
   void dispose() {}
 }
 
@@ -38,7 +39,7 @@ class AdWidget extends StatelessWidget {
   @override Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
-class InterstitialAd {
+class InterstitialAd implements Ad {
   static Future<void> load({
     required String adUnitId,
     required AdRequest request,
@@ -48,10 +49,11 @@ class InterstitialAd {
   }
   dynamic fullScreenContentCallback;
   void show() {}
+  @override
   void dispose() {}
 }
 
-class RewardedAd {
+class RewardedAd implements Ad {
   static Future<void> load({
     required String adUnitId,
     required AdRequest request,
@@ -61,10 +63,11 @@ class RewardedAd {
   }
   dynamic fullScreenContentCallback;
   void show({required Function(AdWithoutView, RewardItem) onUserEarnedReward}) {}
+  @override
   void dispose() {}
 }
 
-class AppOpenAd {
+class AppOpenAd implements Ad {
   static Future<void> load({
     required String adUnitId,
     required AdRequest request,
@@ -74,6 +77,7 @@ class AppOpenAd {
   }
   dynamic fullScreenContentCallback;
   void show() {}
+  @override
   void dispose() {}
 }
 
@@ -107,7 +111,7 @@ class LoadAdError {
   final dynamic responseInfo;
   const LoadAdError(this.code, this.domain, this.message, this.responseInfo);
   @override
-  String toString() => '$domain: $message';
+  String toString() => "$domain: $message";
 }
 
 class AdWithoutView {}
@@ -126,3 +130,62 @@ class FullScreenContentCallback {
     this.onAdFailedToShowFullScreenContent,
   });
 }
+
+// Stubs for Native Ad
+enum TemplateType { small, medium }
+enum NativeTemplateFontStyle { normal, bold, italic, monospace }
+
+class NativeTemplateTextStyle {
+  final Color? textColor;
+  final Color? backgroundColor;
+  final NativeTemplateFontStyle? style;
+  final double? size;
+  const NativeTemplateTextStyle({this.textColor, this.backgroundColor, this.style, this.size});
+}
+
+class NativeTemplateStyle {
+  final TemplateType templateType;
+  final Color? mainBackgroundColor;
+  final double? cornerRadius;
+  final NativeTemplateTextStyle? callToActionTextStyle;
+  final NativeTemplateTextStyle? primaryTextStyle;
+  final NativeTemplateTextStyle? secondaryTextStyle;
+  final NativeTemplateTextStyle? tertiaryTextStyle;
+  const NativeTemplateStyle({
+    required this.templateType,
+    this.mainBackgroundColor,
+    this.cornerRadius,
+    this.callToActionTextStyle,
+    this.primaryTextStyle,
+    this.secondaryTextStyle,
+    this.tertiaryTextStyle,
+  });
+}
+
+class NativeAdListener {
+  final void Function(Ad)? onAdLoaded;
+  final void Function(Ad, LoadAdError)? onAdFailedToLoad;
+  const NativeAdListener({this.onAdLoaded, this.onAdFailedToLoad});
+}
+
+class NativeAd implements Ad {
+  final String adUnitId;
+  final AdRequest request;
+  final NativeAdListener listener;
+  final NativeTemplateStyle? nativeTemplateStyle;
+  
+  NativeAd({
+    required this.adUnitId,
+    required this.request,
+    required this.listener,
+    this.nativeTemplateStyle,
+  });
+  
+  Future<void> load() async {
+    listener.onAdFailedToLoad?.call(this, const LoadAdError(0, 'web', 'web unsupported', null));
+  }
+  @override
+  void dispose() {}
+}
+
+class Ad { void dispose() {} }

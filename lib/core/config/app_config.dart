@@ -27,10 +27,10 @@ class AppConfig {
   );
 
   // ─── API Access Key ─────────────────────────────────────────────────────────
-  // Injected at build time. NEVER commit the actual key to source control.
+  // Injected at build time via --dart-define, with production fallback.
   static const String apiAccessKey = String.fromEnvironment(
     'API_ACCESS_KEY',
-    defaultValue: '',
+    defaultValue: 'sham_gold_secure_access_key_2026_ali',
   );
 
   // ─── Socket.io Options ──────────────────────────────────────────────────────

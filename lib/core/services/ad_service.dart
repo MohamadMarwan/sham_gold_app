@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +22,7 @@ class AdService {
   String? _interstitialId;
   String? _rewardedId;
   String? _appOpenId;
+  String? _nativeId;
   bool _isEnabled = false;
   int _appOpenTimeoutSeconds = 3;
   int get appOpenTimeoutSeconds => _appOpenTimeoutSeconds;
@@ -57,6 +57,7 @@ class AdService {
   String? get interstitialId => _interstitialId;
   String? get rewardedId => _rewardedId;
   String? get appOpenId => _appOpenId;
+  String? get nativeId => _nativeId;
   bool get isAppOpenAdLoaded => _isAppOpenAdLoaded;
   bool get isShowingAd => _isShowingAd;
 
@@ -158,6 +159,7 @@ class AdService {
               
           newRewardedId = adSettings['android']?['rewardedInterstitialUnitId'];
           _appOpenId = adSettings['android']?['appOpenUnitId'];
+          _nativeId = adSettings['android']?['nativeUnitId'];
         } else if (defaultTargetPlatform == TargetPlatform.iOS) {
           _bannerId = adSettings['ios']?['bannerUnitId'];
           
@@ -168,6 +170,7 @@ class AdService {
               
           newRewardedId = adSettings['ios']?['rewardedInterstitialUnitId'];
           _appOpenId = adSettings['ios']?['appOpenUnitId'];
+          _nativeId = adSettings['ios']?['nativeUnitId'];
         }
       }
 

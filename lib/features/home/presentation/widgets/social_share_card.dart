@@ -1,9 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/models/country_model.dart';
 import '../../../../shared/widgets/premium_logo.dart';
+import '../../../../core/utils/currency_utils.dart';
 
 enum ShareCardFormat { square, story }
 
@@ -22,9 +22,9 @@ class SocialShareCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final dateStr = DateFormat('auto_str_177'.tr(), 'ar').format(now);
-    final timeStr = DateFormat('hh:mm a', 'ar').format(now);
-    final numberFormat = NumberFormat('#,##0.##', 'ar');
+    final dateStr = DateFormat('auto_str_177'.tr(), context.locale.languageCode).format(now);
+    final timeStr = DateFormat('hh:mm a', context.locale.languageCode).format(now);
+    final numberFormat = NumberFormat('#,##0.##', context.locale.languageCode);
 
     final isStory = format == ShareCardFormat.story;
     final width = isStory ? 380.0 : 400.0;
@@ -68,13 +68,13 @@ class SocialShareCard extends StatelessWidget {
               Row(
                 children: [
                   const PremiumLogo(size: 38),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'auto_str_303'.tr(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: AppColors.gold,
                           fontWeight: FontWeight.w900,
                           fontSize: 18,
@@ -106,7 +106,7 @@ class SocialShareCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(country.flag, style: const TextStyle(fontSize: 16)),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(
                       'market_of'.tr(args: [country.name.tr()]),
                       style: const TextStyle(
@@ -122,9 +122,9 @@ class SocialShareCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Container(height: 1, color: AppColors.gold.withValues(alpha: 0.3)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
           // Date & Time Bar
           Row(
@@ -133,7 +133,7 @@ class SocialShareCard extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.gold),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     dateStr,
                     style: TextStyle(
@@ -148,7 +148,7 @@ class SocialShareCard extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.access_time_filled_rounded, size: 12, color: AppColors.gold),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     'update_time'.tr(args: [timeStr]),
                     style: TextStyle(
@@ -163,7 +163,7 @@ class SocialShareCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           // Table Header
           Container(
@@ -178,7 +178,7 @@ class SocialShareCard extends StatelessWidget {
                   flex: 5,
                   child: Text(
                     'auto_str_235'.tr(),
-                    style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
+                    style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
                   ),
                 ),
                 Expanded(
@@ -186,7 +186,7 @@ class SocialShareCard extends StatelessWidget {
                   child: Text(
                     'auto_str_286'.tr(),
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
+                    style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
                   ),
                 ),
                 Expanded(
@@ -194,14 +194,14 @@ class SocialShareCard extends StatelessWidget {
                   child: Text(
                     'auto_str_287'.tr(),
                     textAlign: TextAlign.left,
-                    style: TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
+                    style: const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 11, fontFamily: 'Cairo'),
                   ),
                 ),
               ],
             ),
           ),
 
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
 
           // Price Rows
           Expanded(
@@ -214,7 +214,7 @@ class SocialShareCard extends StatelessWidget {
                 final item = displayItems[index];
                 final double buy = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
                 final double sell = (item['sellPrice'] as num?)?.toDouble() ?? (buy * 1.008);
-                final String currency = item['currency'] ?? country.currencySymbol;
+                final String currency = CurrencyUtils.getSymbol(item['currency'] ?? country.currencyCode, context: context);
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -269,17 +269,17 @@ class SocialShareCard extends StatelessWidget {
 
           // Footer & Watermark
           Container(height: 1, color: AppColors.gold.withValues(alpha: 0.3)),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 children: [
-                  Icon(Icons.verified_rounded, color: AppColors.gold, size: 14),
-                  SizedBox(width: 4),
+                  const Icon(Icons.verified_rounded, color: AppColors.gold, size: 14),
+                  const SizedBox(width: 4),
                   Text(
                     'auto_str_094'.tr(),
-                    style: TextStyle(color: Colors.white70, fontSize: 9.5, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                    style: const TextStyle(color: Colors.white70, fontSize: 9.5, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
                   ),
                 ],
               ),
@@ -291,7 +291,7 @@ class SocialShareCard extends StatelessWidget {
                 ),
                 child: Text(
                   'auto_str_198'.tr(),
-                  style: TextStyle(color: AppColors.gold, fontSize: 9.5, fontWeight: FontWeight.w900, fontFamily: 'Cairo'),
+                  style: const TextStyle(color: AppColors.gold, fontSize: 9.5, fontWeight: FontWeight.w900, fontFamily: 'Cairo'),
                 ),
               ),
             ],

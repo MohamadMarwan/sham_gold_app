@@ -20,7 +20,7 @@ class CustomIcon extends StatelessWidget {
   });
 
   factory CustomIcon.gold24k(
-      {double size = 32.0, Color? color, bool showLabel = true}) {
+      {double size = 24.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'gold_bar',
         size: size,
@@ -30,7 +30,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.gold22k(
-      {double size = 32.0, Color? color, bool showLabel = true}) {
+      {double size = 24.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'gold_bar',
         size: size,
@@ -40,7 +40,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.gold21k(
-      {double size = 32.0, Color? color, bool showLabel = true}) {
+      {double size = 24.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'gold_bar',
         size: size,
@@ -50,7 +50,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.gold18k(
-      {double size = 32.0, Color? color, bool showLabel = true}) {
+      {double size = 24.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'gold_bar',
         size: size,
@@ -60,7 +60,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.gold14k(
-      {double size = 32.0, Color? color, bool showLabel = true}) {
+      {double size = 24.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'gold_bar',
         size: size,
@@ -70,7 +70,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.goldOunce(
-      {double size = 48.0, Color? color, bool showLabel = true}) {
+      {double size = 28.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'gold_ounce',
         size: size,
@@ -80,7 +80,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.silverOunce(
-      {double size = 48.0, Color? color, bool showLabel = true}) {
+      {double size = 28.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'silver_ounce',
         size: size,
@@ -90,7 +90,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.goldKilo(
-      {double size = 48.0, Color? color, bool showLabel = true}) {
+      {double size = 28.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'gold_kilo',
         size: size,
@@ -100,7 +100,7 @@ class CustomIcon extends StatelessWidget {
   }
 
   factory CustomIcon.silverKilo(
-      {double size = 48.0, Color? color, bool showLabel = true}) {
+      {double size = 28.0, Color? color, bool showLabel = true}) {
     return CustomIcon(
         type: 'silver_kilo',
         size: size,
@@ -109,7 +109,7 @@ class CustomIcon extends StatelessWidget {
         showLabel: showLabel);
   }
 
-  factory CustomIcon.currencyExchange({double size = 32.0, Color? color}) {
+  factory CustomIcon.currencyExchange({double size = 24.0, Color? color}) {
     return CustomIcon(type: 'currency', size: size, color: color);
   }
 

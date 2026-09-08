@@ -73,12 +73,13 @@ class _QuickNewsTickerState extends ConsumerState<QuickNewsTicker> {
               : 'auto_str_018'.tr());
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       height: 34,
       decoration: BoxDecoration(
-        color: AppColors.darkGreen.withValues(alpha: 0.05),
+        color: isDark ? AppColors.darkSurface : AppColors.darkGreen.withValues(alpha: 0.05),
         border: Border.symmetric(
-          horizontal: BorderSide(color: Colors.grey.withValues(alpha: 0.1)),
+          horizontal: BorderSide(color: isDark ? AppColors.darkBorder : Colors.grey.withValues(alpha: 0.1)),
         ),
       ),
       child: Row(
@@ -89,7 +90,7 @@ class _QuickNewsTickerState extends ConsumerState<QuickNewsTicker> {
             alignment: Alignment.center,
             child: Text(
               'auto_str_345'.tr(),
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 10,
                 fontWeight: FontWeight.w900,
@@ -108,10 +109,10 @@ class _QuickNewsTickerState extends ConsumerState<QuickNewsTicker> {
                   child: Center(
                     child: Text(
                       news,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: AppColors.darkGreen,
+                        color: isDark ? Colors.white : AppColors.darkGreen,
                       ),
                     ),
                   ),

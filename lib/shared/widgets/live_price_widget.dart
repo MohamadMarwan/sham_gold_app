@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
+import '../../core/utils/currency_utils.dart';
 
 class LivePriceWidget extends StatefulWidget {
   final double price;
@@ -109,6 +110,11 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
 
   @override
   Widget build(BuildContext context) {
+    final displayCurrency = widget.currency.isEmpty
+        ? ''
+        : CurrencyUtils.getSymbol(widget.currency, context: context);
+    final isDollar = displayCurrency == '\$';
+
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(end: _displayPrice),
       duration: const Duration(milliseconds: 300),
@@ -162,8 +168,8 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
                             : null,
                       ),
                       children: [
-                        if (widget.currency == '\$')
-                          TextSpan(text: widget.currency),
+                        if (isDollar)
+                          TextSpan(text: displayCurrency),
                         TextSpan(text: parts[0]),
                         TextSpan(
                           text: (parts.length > 1) ? '.${parts[1]}' : '',
@@ -174,8 +180,8 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
                             fontFamily: 'Roboto',
                           ),
                         ),
-                        if (widget.currency != '\$' && widget.currency.isNotEmpty)
-                          TextSpan(text: ' ${widget.currency}'),
+                        if (!isDollar && displayCurrency.isNotEmpty)
+                          TextSpan(text: ' $displayCurrency'),
                       ],
                     ),
                   ),

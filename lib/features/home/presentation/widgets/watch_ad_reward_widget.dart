@@ -69,11 +69,11 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
       child: Column(
         children: [
           _buildHeader(isRewardActive),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildTitle(isRewardActive),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _buildSubtitle(isRewardActive),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildActionButton(isRewardActive),
         ],
       ),
@@ -97,18 +97,20 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
   }
 
   Widget _buildTitle(bool isActive) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       isActive ? 'premium_active'.tr() : 'watch_ad_reward'.tr(),
-      style: const TextStyle(
+      style: TextStyle(
         fontWeight: FontWeight.w900,
         fontSize: 18,
-        color: AppColors.darkGreen,
+        color: isDark ? Colors.white : AppColors.darkGreen,
         letterSpacing: -0.5,
       ),
     );
   }
 
   Widget _buildSubtitle(bool isActive) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (isActive) {
       return Column(
         children: [
@@ -116,12 +118,12 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
             'no_banner_ads'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.darkGreen,
+              color: isDark ? Colors.white70 : AppColors.darkGreen,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
@@ -132,7 +134,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.timer_outlined, color: Colors.white, size: 14),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'remaining_time'.tr(args: [_adService.remainingRewardTime]),
                   style: const TextStyle(
@@ -152,7 +154,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
     return Text(
       'watch_ad_desc'.tr(),
       textAlign: TextAlign.center,
-      style: TextStyle(
+      style: const TextStyle(
         color: AppColors.secondaryText,
         fontSize: 12,
         height: 1.5,
@@ -189,7 +191,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
                     content: Text(
                         'reward_activated'.tr(),
                         textAlign: TextAlign.right,
-                        style: TextStyle(fontFamily: 'Cairo')),
+                        style: const TextStyle(fontFamily: 'Cairo')),
                     backgroundColor: Colors.green,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -203,7 +205,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
                     content: Text(
                         'no_ad_available'.tr(),
                         textAlign: TextAlign.right,
-                        style: TextStyle(fontFamily: 'Cairo')),
+                        style: const TextStyle(fontFamily: 'Cairo')),
                     backgroundColor: Colors.orange,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -224,7 +226,7 @@ class _WatchAdRewardWidgetState extends State<WatchAdRewardWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.play_circle_fill_rounded, size: 22),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Text(
               'watch_and_activate'.tr(),
               style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),

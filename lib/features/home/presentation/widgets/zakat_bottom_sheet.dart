@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/services/calculators_service.dart';
 import '../../../../shared/services/price_service.dart';
+import '../../../../core/utils/currency_utils.dart';
 
 class ZakatBottomSheet extends ConsumerStatefulWidget {
   const ZakatBottomSheet({super.key});
@@ -49,11 +49,11 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
 
     final priceService = ref.read(priceServiceProvider);
     final price24 = priceService.currentPrices.firstWhere(
-        (p) => p.title.contains('24'), orElse: () => priceService.currentPrices.first).sellPrice;
+        (p) => p.translatedTitle.contains('24'), orElse: () => priceService.currentPrices.first).sellPrice;
     
     // Fallback if silver not found, we use 0 or default
     final silverPrice = priceService.currentPrices.firstWhere(
-        (p) => p.title.contains('999') || p.metalType == 'silver', orElse: () => priceService.currentPrices.first).sellPrice;
+        (p) => p.translatedTitle.contains('999') || p.metalType == 'silver', orElse: () => priceService.currentPrices.first).sellPrice;
 
     setState(() {
       _zakatResult = CalculatorsService.calculateZakat(
@@ -75,12 +75,12 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final countryState = ref.watch(countryProvider);
     final country = countryState.selectedCountry;
-    final numberFormat = NumberFormat('#,##0.##', 'ar');
+    final numberFormat = NumberFormat('#,##0.##', context.locale.languageCode);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.background : Colors.white,
+        color: isDark ? AppColors.darkSurfaceRaised : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -140,7 +140,7 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
                   _buildInputField('auto_str_142'.tr(), _zakat24Controller, isDark),
                   _buildInputField('auto_str_141'.tr(), _zakat21Controller, isDark),
                   _buildInputField('auto_str_140'.tr(), _zakat18Controller, isDark),
-                  _buildInputField('السيولة النقدية (الكاش)', _zakatCashController, isDark),
+                  _buildInputField('cash_liquidity'.tr(), _zakatCashController, isDark),
                   
                   const SizedBox(height: 24),
                   ElevatedButton(
@@ -173,9 +173,9 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
                       isHighlight: _zakatResult!['isGoldNisabReached'],
                       rows: [
                         {'label': 'auto_str_136'.tr(), 'value': '${(_zakatResult!['totalEquivalent24k'] as double).toStringAsFixed(1)} ${'auto_str_050'.tr()}'},
-                        {'label': 'auto_str_122'.tr(), 'value': '${numberFormat.format(_zakatResult!['goldTotalValue'])} ${country.currencySymbol}'},
+                        {'label': 'auto_str_122'.tr(), 'value': '${numberFormat.format(_zakatResult!['goldTotalValue'])} ${CurrencyUtils.getSymbol(country.currencyCode, context: context)}'},
                         {'label': 'auto_str_104'.tr(), 'value': '${(_zakatResult!['goldZakatGrams'] as double).toStringAsFixed(1)} ${'auto_str_044'.tr()}'},
-                        {'label': 'auto_str_092'.tr(), 'value': '${numberFormat.format(_zakatResult!['totalZakatDue'])} ${country.currencySymbol}'},
+                        {'label': 'auto_str_092'.tr(), 'value': '${numberFormat.format(_zakatResult!['totalZakatDue'])} ${CurrencyUtils.getSymbol(country.currencyCode, context: context)}'},
                       ],
                     ),
                   ],
@@ -216,7 +216,7 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: const Color(0xFF10B981), width: 1.5),
+            borderSide: const BorderSide(color: Color(0xFF10B981), width: 1.5),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
@@ -259,6 +259,22 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
                   ),
                 ),
               ),
+              if (isHighlight)
+                IconButton(
+                  icon: const Icon(Icons.copy_rounded, size: 20),
+                  color: color,
+                  onPressed: () {
+                    final textToCopy = "$title\n${rows.map((r) => "${r['label']}: ${r['value']}").join("\n")}";
+                    Clipboard.setData(ClipboardData(text: textToCopy));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('results_copied'.tr(), style: GoogleFonts.cairo()),
+                        backgroundColor: const Color(0xFF10B981),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                ),
             ],
           ),
           if (isHighlight) ...[
@@ -293,3 +309,4 @@ class _ZakatBottomSheetState extends ConsumerState<ZakatBottomSheet> {
     );
   }
 }
+

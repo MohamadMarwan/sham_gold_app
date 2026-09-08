@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/widgets/custom_icon.dart';
@@ -56,7 +55,7 @@ class OunceCard extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              item.title,
+              item.translatedTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.tajawal(
@@ -65,19 +64,19 @@ class OunceCard extends StatelessWidget {
                 color: AppColors.secondaryText,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Row(
                 textDirection: TextDirection.ltr, // Keep price LTR internally
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     '\$ ',
                     style: TextStyle(
                       fontWeight: FontWeight.w900,
                       fontSize: 18,
-                      color: AppColors.darkGreen,
+                      color: Theme.of(context).brightness == Brightness.dark ? AppColors.gold : AppColors.darkGreen,
                     ),
                   ),
                   LivePriceWidget(
@@ -86,7 +85,7 @@ class OunceCard extends StatelessWidget {
                     style: GoogleFonts.roboto(
                       fontWeight: FontWeight.w900,
                       fontSize: 26,
-                      color: AppColors.darkGreen,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
                     ),
                   ),
                 ],
@@ -138,7 +137,7 @@ class OunceCard extends StatelessWidget {
               fontFamily: 'Roboto',
             ),
           ),
-          SizedBox(width: 2),
+          const SizedBox(width: 2),
           Icon(
             isUp ? Icons.arrow_drop_up_rounded : Icons.arrow_drop_down_rounded,
             color: color,
@@ -149,3 +148,4 @@ class OunceCard extends StatelessWidget {
     );
   }
 }
+

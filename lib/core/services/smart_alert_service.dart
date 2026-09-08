@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../shared/models/price_item.dart';
 import 'http_api_service.dart';
 import 'cache_service.dart';
@@ -102,12 +102,10 @@ class SmartAlertService extends ChangeNotifier {
 
   Future<void> _loadRulesFromStorage() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final String? data = prefs.getString('smart_alert_rules_v2');
-      if (data != null) {
-        final List<dynamic> list = jsonDecode(data);
+      final data = await CacheService().loadFromCache('smart_alert_rules_v2');
+      if (data != null && data is List) {
         _rules.clear();
-        _rules.addAll(list.map((e) => SmartAlertRule.fromJson(e)));
+        _rules.addAll(data.map((e) => SmartAlertRule.fromJson(e)));
       }
       
       // Fetch target alerts from server
@@ -121,7 +119,7 @@ class SmartAlertService extends ChangeNotifier {
         _rules.add(SmartAlertRule(
           id: sAlert['_id'],
           priceItemId: sAlert['priceId'],
-          title: 'تنبيه سعر ${sAlert['priceId']}',
+          title: 'set_alert_title'.tr(args: [sAlert['priceId']?.toString() ?? '']),
           type: AlertType.targetPrice,
           targetPrice: (sAlert['targetPrice'] as num).toDouble(),
           isAbove: sAlert['condition'] == 'above',
@@ -138,9 +136,8 @@ class SmartAlertService extends ChangeNotifier {
 
   Future<void> _saveRulesToStorage() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
       final String data = jsonEncode(_rules.map((e) => e.toJson()).toList());
-      await prefs.setString('smart_alert_rules_v2', data);
+      await CacheService().saveToCache('smart_alert_rules_v2', data);
     } catch (e) {
       debugPrint('Error saving smart alerts: $e');
     }
@@ -249,10 +246,14 @@ class SmartAlertService extends ChangeNotifier {
                   ((item.buyPrice - initialPrice) / initialPrice) * 100;
               if (percentChange.abs() >= rule.volatilityThresholdPercent) {
                 shouldTrigger = true;
-                final dir = percentChange > 0 ? 'ارتفاع حاد 📈' : 'هبوط حاد 📉';
-                alertTitle = '⚡ تنبيه تذبذب قوي في السوق ($dir)';
-                alertBody =
-                    'تحرك سعر ${item.title} بنسبة ${percentChange.toStringAsFixed(2)}% مسجلاً ${item.buyPrice} ${item.currency}';
+                final dir = percentChange > 0 ? 'alert_title_sharp_rise'.tr() : 'alert_title_sharp_drop'.tr();
+                alertTitle = 'alert_strong_volatility'.tr(args: [dir]);
+                alertBody = 'alert_price_moved'.tr(args: [
+                  item.translatedTitle,
+                  percentChange.toStringAsFixed(2),
+                  item.buyPrice.toString(),
+                  item.currency,
+                ]);
               }
             }
             break;
@@ -266,9 +267,12 @@ class SmartAlertService extends ChangeNotifier {
               final p3 = history[history.length - 1];
               if (p0 > p1 && p1 > p2 && p3 > p2) {
                 shouldTrigger = true;
-                alertTitle = '💎 فرصة شراء وارتداد (Dip Buying)';
-                alertBody =
-                    'ارتد سعر ${item.title} بعد موجة هبوط مسجلاً ${item.buyPrice} ${item.currency}';
+                alertTitle = 'alert_dip_buying_title'.tr();
+                alertBody = 'alert_dip_buying_body'.tr(args: [
+                  item.translatedTitle,
+                  item.buyPrice.toString(),
+                  item.currency,
+                ]);
               }
             }
             break;
@@ -287,11 +291,11 @@ class SmartAlertService extends ChangeNotifier {
     try {
       HapticFeedback.heavyImpact();
 
-      const AndroidNotificationDetails androidDetails =
+      final AndroidNotificationDetails androidDetails =
           AndroidNotificationDetails(
         'smart_price_alerts_v2',
-        'تنبيهات الأسعار الذكية',
-        channelDescription: 'إشعارات الأهداف السعرية والتذبذب اللحظي للذهب',
+        'smart_alerts_channel_name'.tr(),
+        channelDescription: 'smart_alerts_channel_desc'.tr(),
         importance: Importance.max,
         priority: Priority.high,
         showWhen: true,
@@ -303,7 +307,7 @@ class SmartAlertService extends ChangeNotifier {
         presentSound: true,
       );
 
-      const NotificationDetails details = NotificationDetails(
+      final NotificationDetails details = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );

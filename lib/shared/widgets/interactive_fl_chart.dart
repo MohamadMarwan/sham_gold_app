@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'price_chart_widget.dart';
 import '../../core/constants/app_colors.dart';
 
@@ -8,20 +8,22 @@ class InteractiveFlChart extends StatelessWidget {
   final List<PriceHistoryPoint> history;
   final String range;
   final Color lineColor;
+  final bool showMA;
 
   const InteractiveFlChart({
     super.key,
     required this.history,
     required this.range,
     required this.lineColor,
+    this.showMA = false,
   });
 
   @override
   Widget build(BuildContext context) {
     if (history.isEmpty) {
-      return const SizedBox(
+      return SizedBox(
         height: 250,
-        child: Center(child: Text('لا توجد بيانات كافية للرسم البياني')),
+        child: Center(child: Text('no_data_for_chart'.tr())),
       );
     }
 
@@ -36,6 +38,19 @@ class InteractiveFlChart extends StatelessWidget {
     final spots = history.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.price);
     }).toList();
+
+    List<FlSpot> maSpots = [];
+    if (showMA) {
+      int period = 5;
+      for (int i = 0; i < history.length; i++) {
+        if (i < period - 1) continue;
+        double sum = 0;
+        for (int j = 0; j < period; j++) {
+          sum += history[i - j].price;
+        }
+        maSpots.add(FlSpot(i.toDouble(), sum / period));
+      }
+    }
 
     return SizedBox(
       height: 250,
@@ -71,6 +86,8 @@ class InteractiveFlChart extends StatelessWidget {
                     text = DateFormat.Hm('ar_SA').format(date);
                   } else if (range == 'week') {
                     text = DateFormat.E('ar_SA').format(date);
+                  } else if (range == 'year') {
+                    text = DateFormat('MMM', 'ar_SA').format(date);
                   } else {
                     text = DateFormat.Md('ar_SA').format(date);
                   }
@@ -120,6 +137,16 @@ class InteractiveFlChart extends StatelessWidget {
                 ),
               ),
             ),
+            if (showMA && maSpots.isNotEmpty)
+              LineChartBarData(
+                spots: maSpots,
+                isCurved: true,
+                color: Colors.orange,
+                barWidth: 2,
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: false),
+                dashArray: [5, 5],
+              ),
           ],
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(

@@ -15,7 +15,7 @@ class PricesRemoteDataSource {
     try {
       final response = await _httpService.get('/api/markets/$countryCode');
       if (response is Map<String, dynamic>) return response;
-      throw ParseException('Unexpected response format for market data.');
+      throw const ParseException('Unexpected response format for market data.');
     } catch (e) {
       if (e is AppException) rethrow;
       throw UnknownException(e.toString());
@@ -27,7 +27,7 @@ class PricesRemoteDataSource {
     try {
       final response = await _httpService.get('/api/markets/summary');
       if (response is Map<String, dynamic>) return response;
-      throw ParseException('Unexpected response format for market summary.');
+      throw const ParseException('Unexpected response format for market summary.');
     } catch (e) {
       if (e is AppException) rethrow;
       throw UnknownException(e.toString());

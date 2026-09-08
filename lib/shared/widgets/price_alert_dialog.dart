@@ -65,6 +65,7 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom + 32,
@@ -72,9 +73,9 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
         left: 24,
         right: 24,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurfaceRaised : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -84,11 +85,11 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'set_alert_title'.tr(args: [widget.priceItem.title]),
-                style: const TextStyle(
+                'set_alert_title'.tr(args: [widget.priceItem.translatedTitle]),
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.darkGreen,
+                  color: isDark ? Colors.white : AppColors.darkGreen,
                 ),
               ),
               IconButton(
@@ -97,27 +98,27 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
               ),
             ],
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Text(
             'notify_when_price'.tr(),
-            style: TextStyle(fontSize: 14, color: AppColors.mutedText),
+            style: const TextStyle(fontSize: 14, color: AppColors.mutedText),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
               _buildConditionChip('above'.tr(), 'above'),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               _buildConditionChip('below'.tr(), 'below'),
             ],
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           TextField(
             controller: _controller,
             keyboardType: TextInputType.number,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkGreen,
+                color: isDark ? Colors.white : AppColors.darkGreen,
                 fontFamily: 'Roboto'),
             decoration: InputDecoration(
               labelText: 'enter_target_price'.tr(),
@@ -130,7 +131,7 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
               ),
             ),
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           SizedBox(
             width: double.infinity,
             height: 60,
@@ -146,7 +147,7 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
                   ? const CircularProgressIndicator(color: Colors.white)
                   : Text('save_alert'.tr(),
                       style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -166,7 +167,7 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.gold.withValues(alpha: 0.2)
-              : AppColors.background,
+              : (Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurfaceRaised : AppColors.background),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.gold : Colors.transparent,
@@ -183,3 +184,4 @@ class _PriceAlertDialogState extends ConsumerState<PriceAlertDialog> {
     );
   }
 }
+

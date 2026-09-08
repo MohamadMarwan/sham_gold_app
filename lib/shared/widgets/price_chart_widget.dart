@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 
 class PriceChartWidget extends StatefulWidget {
@@ -62,7 +61,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index >= widget.history.length) {
-                        return SizedBox();
+                        return const SizedBox();
                       }
 
                       // Filter labels to avoid crowding
@@ -71,7 +70,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
                           : 4;
                       if (index % interval != 0 &&
                           index != widget.history.length - 1) {
-                        return SizedBox();
+                        return const SizedBox();
                       }
 
                       String text = '';
@@ -171,7 +170,9 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
                   }
                 },
                 touchTooltipData: LineTouchTooltipData(
-                  tooltipBgColor: AppColors.darkGreen,
+                  tooltipBgColor: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.darkSurface
+                      : AppColors.darkGreen,
                   tooltipRoundedRadius: 12,
                   getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                     return touchedBarSpots.map((barSpot) {
@@ -194,13 +195,14 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
             ),
           ),
         ),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         _buildQuickStats(),
       ],
     );
   }
 
   Widget _buildQuickStats() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final max = _getMaxPrice();
     final min = _getMinPrice();
     final change = _getChange();
@@ -215,8 +217,8 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildStatItem('highest'.tr(), max, AppColors.darkGreen),
-        _buildStatItem('lowest'.tr(), min, AppColors.mutedText),
+        _buildStatItem('highest'.tr(), max, isDark ? Colors.white : AppColors.darkGreen),
+        _buildStatItem('lowest'.tr(), min, isDark ? Colors.white70 : AppColors.mutedText),
         _buildStatItem('change'.tr(), change, changeColor),
       ],
     );
@@ -231,7 +233,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
                 fontSize: 10,
                 color: AppColors.mutedText,
                 fontWeight: FontWeight.bold)),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(value,
             style: TextStyle(
                 fontSize: 14,
@@ -252,7 +254,7 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
       ),
       child: Center(
         child: Text('no_chart_data'.tr(),
-            style: TextStyle(color: AppColors.mutedText)),
+            style: const TextStyle(color: AppColors.mutedText)),
       ),
     );
   }

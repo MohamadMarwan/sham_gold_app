@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/constants/app_colors.dart';
 
 class WeatherIndicator extends StatefulWidget {
@@ -52,7 +53,7 @@ class _WeatherIndicatorState extends State<WeatherIndicator> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _temp == '--') {
-      return SizedBox(
+      return const SizedBox(
         width: 80,
         height: 32,
         child: Center(
@@ -79,9 +80,9 @@ class _WeatherIndicatorState extends State<WeatherIndicator> {
             color: _isDay ? AppColors.gold : Colors.lightBlueAccent,
             size: 16,
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
-            'دمشق: $_temp°C',
+            'weather_damascus'.tr(args: [_temp]),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 12,

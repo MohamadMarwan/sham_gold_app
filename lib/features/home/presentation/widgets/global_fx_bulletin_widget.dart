@@ -4,7 +4,6 @@ import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/core/services/http_api_service.dart';
 import 'package:gold_sham/shared/widgets/section_header.dart';
 import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
-import 'package:intl/intl.dart';
 
 class GlobalFxBulletinWidget extends StatefulWidget {
   const GlobalFxBulletinWidget({super.key});
@@ -54,21 +53,12 @@ class _GlobalFxBulletinWidgetState extends State<GlobalFxBulletinWidget> {
   }
 
   String _getCurrencyName(String code) {
-    switch (code) {
-      case 'EUR': return 'يورو أوروبي';
-      case 'TRY': return 'ليرة تركية';
-      case 'SYP': return 'ليرة سورية';
-      case 'SAR': return 'ريال سعودي';
-      case 'AED': return 'درهم إماراتي';
-      case 'KWD': return 'دينار كويتي';
-      case 'JOD': return 'دينار أردني';
-      case 'QAR': return 'ريال قطري';
-      case 'EGP': return 'جنيه مصري';
-      case 'DZD': return 'دينار جزائري';
-      case 'IQD': return 'دينار عراقي';
-      case 'LBP': return 'ليرة لبنانية';
-      default: return code;
+    final trKey = 'currency_${code.toLowerCase()}';
+    final translated = trKey.tr();
+    if (translated.isNotEmpty && translated != trKey) {
+      return translated;
     }
+    return code;
   }
 
   String _getFlagEmoji(String code) {
@@ -98,7 +88,7 @@ class _GlobalFxBulletinWidgetState extends State<GlobalFxBulletinWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader(
-          title: 'نشرة أسعار الصرف العالمية',
+          title: 'global_fx_bulletin'.tr(),
           icon: Icons.public_rounded,
         ),
         const SizedBox(height: 16),
@@ -132,7 +122,7 @@ class _GlobalFxBulletinWidgetState extends State<GlobalFxBulletinWidget> {
                         const Text('🇺🇸', style: TextStyle(fontSize: 16)),
                         const SizedBox(width: 8),
                         Text(
-                          'الأساس: 1 دولار أمريكي (USD)',
+                          'base_1_usd'.tr(),
                           style: TextStyle(
                             color: isDark ? Colors.white : Colors.black87,
                             fontSize: 12,
@@ -162,7 +152,7 @@ class _GlobalFxBulletinWidgetState extends State<GlobalFxBulletinWidget> {
                 Center(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text('عذراً، فشل تحميل النشرة', style: TextStyle(color: Colors.red[300])),
+                    child: Text('failed_to_load_bulletin'.tr(), style: TextStyle(color: Colors.red[300])),
                   ),
                 )
               else if (_isLoading && _rates == null)
@@ -207,7 +197,7 @@ class _GlobalFxBulletinWidgetState extends State<GlobalFxBulletinWidget> {
                                 ),
                                 Text(
                                   code,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: AppColors.mutedText,
                                     fontSize: 12,
                                   ),
@@ -217,7 +207,7 @@ class _GlobalFxBulletinWidgetState extends State<GlobalFxBulletinWidget> {
                           ),
                           Text(
                             formatter.format(rate),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.w800,
                               color: AppColors.gold,
                               fontSize: 16,

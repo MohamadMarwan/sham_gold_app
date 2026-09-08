@@ -32,7 +32,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('auto_str_135'.tr(), Icons.diamond_outlined),
+        _buildSectionTitle(context, 'auto_str_135'.tr(), Icons.diamond_outlined),
         const SizedBox(height: 16),
         isGrid
             ? Row(
@@ -107,7 +107,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionTitle(String title, IconData icon) {
+  Widget _buildSectionTitle(BuildContext context, String title, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
@@ -126,10 +126,10 @@ class SilverPlatinumBanner extends ConsumerWidget {
               const SizedBox(width: 14),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: AppColors.darkGreen,
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -327,7 +327,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
-                            'auto_str_335'.tr() + ' ',
+                            '${'auto_str_335'.tr()} ',
                             style: GoogleFonts.cairo(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
@@ -412,23 +412,23 @@ class SilverPlatinumBanner extends ConsumerWidget {
     final gram999 = ouncePrice / 31.1035;
     
     final gramSecond = isSilver ? (gram999 * 0.925) : (gram999 * 0.950);
-    final title = isSilver ? 'تفاصيل الفضة' : 'تفاصيل البلاتين';
+    final title = isSilver ? 'silver_details'.tr() : 'platinum_details'.tr();
     final iconColor = isSilver ? const Color(0xFF94A3B8) : const Color(0xFFCBD5E1);
     
     final items = [
       {
-        'title': 'أونصة',
-        'subtitle': '31.1035 غرام',
+        'title': 'ounce'.tr(),
+        'subtitle': '31.1035 ${'gram'.tr()}',
         'price': ouncePrice
       },
       {
-        'title': isSilver ? 'غرام عيار 999' : 'غرام عيار 999/999.5',
-        'subtitle': 'نقي 100%',
+        'title': isSilver ? 'gram_karat_999'.tr() : 'gram_karat_999_plat'.tr(),
+        'subtitle': 'pure_100'.tr(),
         'price': gram999
       },
       {
-        'title': isSilver ? 'غرام عيار 925' : 'غرام عيار 950',
-        'subtitle': 'صياغة ومجوهرات',
+        'title': isSilver ? 'gram_karat_925'.tr() : 'gram_karat_950'.tr(),
+        'subtitle': 'jewelry_grade'.tr(),
         'price': gramSecond
       },
     ];
@@ -437,9 +437,9 @@ class SilverPlatinumBanner extends ConsumerWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurfaceRaised : AppColors.background,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -470,10 +470,10 @@ class SilverPlatinumBanner extends ConsumerWidget {
                 const SizedBox(width: 16),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.darkGreen,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
                   ),
                 ),
               ],
@@ -484,9 +484,9 @@ class SilverPlatinumBanner extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.grey.shade200),
+                  border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkBorder : Colors.grey.shade200),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -496,10 +496,10 @@ class SilverPlatinumBanner extends ConsumerWidget {
                       children: [
                         Text(
                           item['title'] as String,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.darkGreen,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
                           ),
                         ),
                         Text(
@@ -545,7 +545,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text('الرسم البياني وتفاصيل أكثر', style: TextStyle(fontWeight: FontWeight.bold)),
+                child: Text('chart_and_more_details'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
             if (isSilver) ...[
@@ -558,7 +558,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
                     SilverCalculatorBottomSheet.show(context); // Open calculator
                   },
                   icon: const Icon(Icons.calculate_rounded),
-                  label: const Text('حاسبة الكسر والمصنعية للفضة', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: Text('silver_scrap_and_making_calc'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF94A3B8),
                     side: const BorderSide(color: Color(0xFF94A3B8), width: 1.5),

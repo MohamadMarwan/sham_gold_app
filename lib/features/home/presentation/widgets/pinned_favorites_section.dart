@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/core/providers/settings_provider.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
-import '../../../../shared/widgets/premium_card.dart';
-import 'unified_price_card/unified_price_card.dart';
+import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/services/price_service.dart';
 import 'package:gold_sham/shared/services/favorites_service.dart';
-import 'package:gold_sham/features/home/presentation/widgets/unified_price_card/unified_price_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/square_price_card.dart';
+import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
 import 'package:gold_sham/features/home/presentation/pages/favorites_page.dart';
 import 'package:gold_sham/shared/widgets/price_alert_dialog.dart';
 
@@ -94,10 +93,10 @@ class _PinnedFavoritesSectionState extends ConsumerState<PinnedFavoritesSection>
                       const SizedBox(width: 10),
                       Text(
                         'auto_str_001'.tr(), // Favorites or similar
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.darkGreen,
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -139,12 +138,11 @@ class _PinnedFavoritesSectionState extends ConsumerState<PinnedFavoritesSection>
                       final item = favoritePrices[index];
                       return Stack(
                         children: [
-                          UnifiedPriceCard(
-                            item: item,
+                          SquarePriceCard(
+                            priceItem: item,
                             localPrice: item.currency.toLowerCase() == 'usd' ? item.buyPrice * fxRate : item.buyPrice,
-                            localCurrencySymbol: item.currency.toLowerCase() == 'usd' ? country.currencySymbol : item.currency,
+                            localCurrencySymbol: item.currency.toLowerCase() == 'usd' ? country.currencyCode : item.currency,
                             usdPrice: item.currency.toLowerCase() == 'usd' ? item.buyPrice : item.usdPrice,
-                            isGrid: true,
                           ),
                           Positioned(
                             left: 8,
@@ -174,9 +172,8 @@ class _PinnedFavoritesSectionState extends ConsumerState<PinnedFavoritesSection>
                     padding: EdgeInsets.zero,
                     buildDefaultDragHandles: false,
                     onReorderStart: (index) => HapticFeedback.selectionClick(),
-                    onReorder: (oldIndex, newIndex) async {
+                    onReorderItem: (oldIndex, newIndex) async {
                       HapticFeedback.mediumImpact();
-                      if (newIndex > oldIndex) newIndex -= 1;
                       // Move in local state first for immediate UI update
                       setState(() {
                         final item = _favoriteIds.removeAt(oldIndex);
@@ -184,7 +181,7 @@ class _PinnedFavoritesSectionState extends ConsumerState<PinnedFavoritesSection>
                       });
                       await _favoritesService.reorderFavorites(oldIndex, newIndex);
                     },
-                    children: favoritePrices.map((item) {
+                    children: favoritePrices.map((PriceItem item) {
                       final index = favoritePrices.indexOf(item);
                       return ReorderableDragStartListener(
                         key: ValueKey(item.id),
@@ -193,12 +190,11 @@ class _PinnedFavoritesSectionState extends ConsumerState<PinnedFavoritesSection>
                           margin: const EdgeInsets.only(bottom: 12),
                           child: Stack(
                             children: [
-                              UnifiedPriceCard(
-                                item: item,
+                              CompactPriceCard(
+                                priceItem: item,
                                 localPrice: item.currency.toLowerCase() == 'usd' ? item.buyPrice * fxRate : item.buyPrice,
-                                localCurrencySymbol: item.currency.toLowerCase() == 'usd' ? country.currencySymbol : item.currency,
+                                localCurrencySymbol: item.currency.toLowerCase() == 'usd' ? country.currencyCode : item.currency,
                                 usdPrice: item.currency.toLowerCase() == 'usd' ? item.buyPrice : item.usdPrice,
-                                isGrid: false,
                               ),
                               Positioned(
                                 left: 8,

@@ -25,14 +25,15 @@ class AppTheme {
     final baseTheme = ThemeData(
       brightness: Brightness.dark,
       primaryColor: AppColors.majlisGold,
-      scaffoldBackgroundColor: AppColors.trueBlack,
+      scaffoldBackgroundColor: AppColors.darkScaffold,
       useMaterial3: true,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.majlisGold,
-        onPrimary: AppColors.trueBlack,
+        onPrimary: AppColors.darkScaffold,
         secondary: AppColors.majlisGold,
-        surface: AppColors.trueBlackCard,
+        surface: AppColors.darkSurface,
         onSurface: Colors.white,
+        surfaceContainerHighest: AppColors.darkSurfaceRaised,
       ),
     );
 
@@ -46,6 +47,7 @@ class AppTheme {
     final mutedTextColor = isDark ? Colors.white54 : AppColors.mutedText;
 
     return baseTheme.copyWith(
+      scaffoldBackgroundColor: isDark ? AppColors.darkScaffold : AppColors.background,
       textTheme: GoogleFonts.cairoTextTheme(baseTheme.textTheme).copyWith(
         headlineLarge: GoogleFonts.cairo(
           color: textColor,
@@ -99,23 +101,67 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: isDark ? AppColors.trueBlackCard : AppColors.cardBackground,
+        color: isDark ? AppColors.darkSurface : AppColors.cardBackground,
         elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(
+            color: isDark ? AppColors.gold.withValues(alpha: 0.25) : Colors.grey.withValues(alpha: 0.15),
+            width: 1.2,
+          ),
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: isDark ? AppColors.darkSurfaceRaised : Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(28),
           side: BorderSide(
-            color: isDark ? AppColors.gold.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.2),
+            color: isDark ? AppColors.gold.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.15),
+            width: 1.2,
+          ),
+        ),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: isDark ? AppColors.darkSurfaceRaised : Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.15),
+        thickness: 1,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: isDark ? AppColors.darkSurface : Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.2),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.2),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(
+            color: AppColors.gold,
             width: 1.5,
           ),
         ),
-        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: isDark ? AppColors.majlisGold : AppColors.darkGreen,
           foregroundColor: isDark ? AppColors.majlisGreen : Colors.white,
-          elevation: 8,
-          shadowColor: AppColors.gold.withValues(alpha: 0.2),
+          elevation: 4,
+          shadowColor: AppColors.gold.withValues(alpha: 0.25),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -124,6 +170,15 @@ class AppTheme {
             fontSize: 16,
           ),
         ),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
+          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+          TargetPlatform.macOS: ZoomPageTransitionsBuilder(),
+          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+        },
       ),
     );
   }

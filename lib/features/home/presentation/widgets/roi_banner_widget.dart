@@ -57,7 +57,7 @@ class RoiBannerWidget extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'حاسبة الربح والخسارة',
+                    'roi_profit_loss_calc'.tr(),
                     style: GoogleFonts.tajawal(
                       color: Colors.white,
                       fontSize: 20,
@@ -66,7 +66,7 @@ class RoiBannerWidget extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'احسب عائد الاستثمار الخاص بك بدقة',
+                    'roi_banner_subtitle'.tr(),
                     style: GoogleFonts.tajawal(
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 13,

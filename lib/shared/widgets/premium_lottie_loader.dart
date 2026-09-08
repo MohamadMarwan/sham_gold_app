@@ -22,9 +22,17 @@ class PremiumLottieLoader extends StatelessWidget {
           SizedBox(
             width: width,
             height: height,
-            child: const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+            child: Center(
+              child: Lottie.asset(
+                'assets/lottie/loading.json',
+                width: width * 0.8,
+                height: height * 0.8,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                  );
+                },
               ),
             ),
           ),

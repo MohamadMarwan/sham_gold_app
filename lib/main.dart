@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/config/app_config.dart';
-import 'features/home/presentation/pages/home_page.dart';
-import 'features/home/presentation/pages/splash_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'core/services/notification_service.dart'; // Updated path
 import 'core/services/ad_service.dart'; // Added AdService
@@ -12,13 +10,24 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-
-
 import 'core/services/cache_service.dart';
+import 'core/services/widget_service.dart';
 import 'core/providers/settings_provider.dart';
+import 'core/routes/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Global uncaught error handling for rock-solid production stability
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    debugPrint('[FlutterError] ${details.exceptionAsString()}');
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('[PlatformDispatcher Error] $error\n$stack');
+    return true;
+  };
+
   await initializeDateFormatting('ar_SA', null);
   
 
@@ -26,6 +35,7 @@ void main() async {
   await EasyLocalization.ensureInitialized();
   
   await CacheService.init();
+  await WidgetService.initialize();
   
   runApp(
     ProviderScope(
@@ -72,7 +82,7 @@ class GoldShamApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
     
-    return MaterialApp(
+    return MaterialApp.router(
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
@@ -85,20 +95,19 @@ class GoldShamApp extends ConsumerWidget {
         physics: const BouncingScrollPhysics(),
       ),
       builder: (context, child) {
+        final systemScaler = MediaQuery.of(context).textScaler;
+        final combinedScale = systemScaler.scale(settings.fontSizeScale);
+        
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(settings.fontSizeScale),
+            textScaler: TextScaler.linear(combinedScale),
           ),
           child: ShowCaseWidget(
             builder: (context) => child!,
           ),
         );
       },
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const SplashPage(),
-        '/home': (context) => const HomePage(),
-      },
+      routerConfig: AppRouter.router,
     );
   }
 }

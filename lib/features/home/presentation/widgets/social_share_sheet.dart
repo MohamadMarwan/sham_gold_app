@@ -76,7 +76,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
                   ),
                   child: const Icon(Icons.share_rounded, color: AppColors.gold, size: 22),
                 ),
-                SizedBox(width: 14),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +122,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
                     icon: Icons.crop_square_rounded,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: _buildFormatButton(
                     format: ShareCardFormat.story,
@@ -164,7 +164,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
               child: ElevatedButton.icon(
                 onPressed: _isExporting ? null : () => _shareCardAsImage(country, items),
                 icon: _isExporting
-                    ? SizedBox(
+                    ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
@@ -219,7 +219,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
         child: Row(
           children: [
             Icon(icon, color: isSelected ? AppColors.gold : AppColors.mutedText, size: 24),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

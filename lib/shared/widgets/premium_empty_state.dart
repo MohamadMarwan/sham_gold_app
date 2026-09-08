@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
-import 'package:lottie/lottie.dart';
 
 class PremiumEmptyState extends StatelessWidget {
   final String title;
@@ -31,7 +30,7 @@ class PremiumEmptyState extends StatelessWidget {
             Icon(
               icon,
               size: 80,
-              color: isDark ? AppColors.gold.withOpacity(0.5) : AppColors.gold.withOpacity(0.3),
+              color: isDark ? AppColors.gold.withValues(alpha: 0.5) : AppColors.gold.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
             

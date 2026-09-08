@@ -40,7 +40,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
     final filteredCountries = allCountries.where((c) {
       if (_searchQuery.isEmpty) return true;
       final q = _searchQuery.toLowerCase();
-      return c.name.tr().toLowerCase().contains(q) ||
+      return c.localizedName.toLowerCase().contains(q) ||
           c.currencyCode.toLowerCase().contains(q) ||
           c.code.toLowerCase().contains(q);
     }).toList();
@@ -84,7 +84,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                   ),
                   child: const Icon(Icons.language_rounded, color: AppColors.gold, size: 22),
                 ),
-                SizedBox(width: 14),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +100,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                       ),
                       Text(
                         'auto_str_035'.tr(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,
                           fontFamily: 'Cairo',
@@ -138,7 +138,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
             ),
           ),
 
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           // Country List
           Expanded(
@@ -146,7 +146,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               itemCount: filteredCountries.length,
-              separatorBuilder: (_, __) => SizedBox(height: 8),
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final country = filteredCountries[index];
                 final isSelected = country.code == countryState.selectedCountry.code;
@@ -162,7 +162,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'market_switched_to'.tr(args: [country.name.tr(), country.currencySymbol]),
+                            'market_switched_to'.tr(args: [country.localizedName, country.localizedCurrencySymbol]),
                             style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold),
                           ),
                           backgroundColor: AppColors.darkGreen,
@@ -189,13 +189,13 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                     child: Row(
                       children: [
                         Text(country.flag, style: const TextStyle(fontSize: 28)),
-                        SizedBox(width: 14),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                country.name.tr(),
+                                country.localizedName,
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w800,
@@ -204,7 +204,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                                 ),
                               ),
                               Text(
-                                '${country.currencyCode} (${country.currencySymbol}) • ${country.region.tr()}',
+                                '${country.currencyCode} (${country.localizedCurrencySymbol}) • ${country.region.tr()}',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,

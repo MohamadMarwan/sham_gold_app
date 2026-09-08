@@ -31,7 +31,7 @@ class OfflineNoticeBanner extends ConsumerWidget {
       child: Row(
         children: [
           const Icon(Icons.wifi_off_rounded, color: Color(0xFFB45309), size: 20),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               'offline_notice'.tr(args: [lastSyncText]),

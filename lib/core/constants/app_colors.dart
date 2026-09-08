@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Core Brand Colors
   static const Color gold = Color(0xFFC5A059); // Premium muted gold
+  static const Color primaryGold = gold;
   static const Color darkGreen = Color(0xFF0F172A); // Emerald Dark
   static const Color accentGreen = Color(0xFF1E293B); // Emerald Light
   static const Color warmBrown = Color(0xFF8B6B2D); // Primary Gold Dark
@@ -11,11 +12,15 @@ class AppColors {
   static const Color tertiary = Color(0xFFB87333); // Copper accent
   static const Color copper = tertiary;
 
-  // Majlis (Elite Dark Mode) Palette
-  static const Color majlisGreen = Color(0xFF000000); // True Black for OLED
+  // Majlis (Elite Luxury Dark Mode) Palette
+  static const Color majlisGreen = Color(0xFF070A09); // Deep Emerald Void
   static const Color majlisGold = Color(0xFFC5A059); // Royal Gold
-  static const Color trueBlack = Color(0xFF000000); // OLED Black
-  static const Color trueBlackCard = Color(0xFF0A0A0A); // Slightly lighter for cards
+  static const Color trueBlack = Color(0xFF0A0D0C); // OLED Obsidian Black
+  static const Color trueBlackCard = Color(0xFF121715); // Deep Charcoal Emerald
+  static const Color darkScaffold = Color(0xFF0A0D0C); // OLED Obsidian background
+  static const Color darkSurface = Color(0xFF121715); // Card surface
+  static const Color darkSurfaceRaised = Color(0xFF18201C); // Dialogs / Sheets
+  static const Color darkBorder = Color(0x33C5A059); // Subtle luxury gold border
 
   static const Color background = warmBeige;
   static const Color primaryText = Color(0xFF1D2121); // Dark charcoal
@@ -31,6 +36,15 @@ class AppColors {
   static const Color platinum = Color(0xFFE5E4E2);
   static const Color liveGreen = Color(0xFF00FF88);
 
+  // Dynamic Theme Helpers
+  static Color getBackground(bool isDark) => isDark ? darkScaffold : warmBeige;
+  static Color getCardSurface(bool isDark) => isDark ? darkSurface : Colors.white;
+  static Color getElevatedSurface(bool isDark) => isDark ? darkSurfaceRaised : Colors.white;
+  static Color getTextColor(bool isDark) => isDark ? Colors.white : primaryText;
+  static Color getSecondaryTextColor(bool isDark) => isDark ? Colors.white70 : secondaryText;
+  static Color getMutedTextColor(bool isDark) => isDark ? Colors.white54 : mutedText;
+  static Color getBorderColor(bool isDark) => isDark ? darkBorder : Colors.grey.withValues(alpha: 0.15);
+
   // --- Premium Metallic Gradients ---
   static LinearGradient get goldGradient => const LinearGradient(
         colors: [Color(0xFFD4AF37), Color(0xFFF9D423), Color(0xFFC5A059)],
@@ -45,7 +59,7 @@ class AppColors {
       );
 
   static LinearGradient get emeraldGradient => const LinearGradient(
-        colors: [Color(0xFF000000), Color(0xFF0A0A0A), Color(0xFF121212)],
+        colors: [Color(0xFF070A09), Color(0xFF0E1512), Color(0xFF141C18)],
         begin: Alignment.topRight,
         end: Alignment.bottomLeft,
       );

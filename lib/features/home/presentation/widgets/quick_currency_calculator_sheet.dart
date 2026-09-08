@@ -49,8 +49,8 @@ class _QuickCurrencyCalculatorSheetState extends State<QuickCurrencyCalculatorSh
       }
     }
 
-    String fromCurrency = _isBaseToTarget ? widget.baseCurrencyId.toUpperCase() : widget.item.title;
-    String toCurrency = _isBaseToTarget ? widget.item.title : widget.baseCurrencyId.toUpperCase();
+    String fromCurrency = _isBaseToTarget ? widget.baseCurrencyId.toUpperCase() : widget.item.translatedTitle;
+    String toCurrency = _isBaseToTarget ? widget.item.translatedTitle : widget.baseCurrencyId.toUpperCase();
 
     return Container(
       padding: EdgeInsets.only(
@@ -143,10 +143,10 @@ class _QuickCurrencyCalculatorSheetState extends State<QuickCurrencyCalculatorSh
                 const SizedBox(height: 8),
                 Text(
                   '${result.toStringAsFixed(2)} $toCurrency',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkGreen,
+                    color: Theme.of(context).brightness == Brightness.dark ? AppColors.gold : AppColors.darkGreen,
                   ),
                 ),
               ],
@@ -158,3 +158,4 @@ class _QuickCurrencyCalculatorSheetState extends State<QuickCurrencyCalculatorSh
     );
   }
 }
+

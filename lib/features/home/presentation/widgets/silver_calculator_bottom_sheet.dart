@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,12 +72,12 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final countryState = ref.watch(countryProvider);
     final country = countryState.selectedCountry;
-    final numberFormat = NumberFormat('#,##0.##', 'ar');
+    final numberFormat = NumberFormat('#,##0.##');
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.background : Colors.white,
+        color: isDark ? AppColors.darkSurfaceRaised : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -110,7 +109,7 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    'حاسبة الكسر والمصنعية للفضة',
+                    'silver_scrap_and_making_calc'.tr(),
                     style: GoogleFonts.tajawal(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -133,7 +132,7 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
               children: [
                 Expanded(
                   child: _buildToggleButton(
-                    title: 'حساب المصنعية (شراء)',
+                    title: 'making_charge_buy_tab'.tr(),
                     isActive: !_isScrapMode,
                     onTap: () {
                       setState(() {
@@ -147,7 +146,7 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildToggleButton(
-                    title: 'حساب الكسر (بيع)',
+                    title: 'scrap_sell_tab'.tr(),
                     isActive: _isScrapMode,
                     onTap: () {
                       setState(() {
@@ -170,12 +169,12 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _buildInputField('وزن الفضة (جرام)', _silverScrapWeightController, isDark),
-                  _buildInputField('سعر جرام الفضة', _silverScrapPriceController, isDark),
+                  _buildInputField('silver_weight_gram'.tr(), _silverScrapWeightController, isDark),
+                  _buildInputField('silver_gram_price'.tr(), _silverScrapPriceController, isDark),
                   
                   if (!_isScrapMode) ...[
-                    _buildInputField('المصنعية للجرام', _silverMakingChargeController, isDark),
-                    _buildInputField('الضريبة (%)', _silverVatController, isDark),
+                    _buildInputField('making_charge_per_gram'.tr(), _silverMakingChargeController, isDark),
+                    _buildInputField('tax_percent'.tr(), _silverVatController, isDark),
                   ],
                   
                   const SizedBox(height: 16),
@@ -204,14 +203,14 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
                   if (_silverMakingResult != null && !_isScrapMode) ...[
                     const SizedBox(height: 24),
                     _buildResultCard(
-                      title: 'نتيجة حساب المصنعية',
+                      title: 'making_charge_result'.tr(),
                       isDark: isDark,
                       color: const Color(0xFF94A3B8),
                       rows: [
-                        {'label': 'سعر الفضة الخام', 'value': '${numberFormat.format(_silverMakingResult!['pureGoldPrice'])} ${country.currencySymbol}'},
-                        {'label': 'إجمالي المصنعية', 'value': '${numberFormat.format(_silverMakingResult!['totalMakingCharge'])} ${country.currencySymbol}'},
-                        {'label': 'قيمة الضريبة', 'value': '${numberFormat.format(_silverMakingResult!['totalVat'])} ${country.currencySymbol}'},
-                        {'label': 'الإجمالي النهائي', 'value': '${numberFormat.format(_silverMakingResult!['finalPrice'])} ${country.currencySymbol}'},
+                        {'label': 'raw_silver_value'.tr(), 'value': '${numberFormat.format(_silverMakingResult!['pureGoldPrice'])} ${country.localizedCurrencySymbol}'},
+                        {'label': 'total_making_charge'.tr(), 'value': '${numberFormat.format(_silverMakingResult!['totalMakingCharge'])} ${country.localizedCurrencySymbol}'},
+                        {'label': 'vat_amount'.tr(), 'value': '${numberFormat.format(_silverMakingResult!['totalVat'])} ${country.localizedCurrencySymbol}'},
+                        {'label': 'final_total'.tr(), 'value': '${numberFormat.format(_silverMakingResult!['finalPrice'])} ${country.localizedCurrencySymbol}'},
                       ],
                     ),
                   ],
@@ -219,12 +218,12 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
                   if (_silverScrapResult != null && _isScrapMode) ...[
                     const SizedBox(height: 24),
                     _buildResultCard(
-                      title: 'نتيجة حساب الكسر (البيع)',
+                      title: 'scrap_sale_result'.tr(),
                       isDark: isDark,
                       color: const Color(0xFF94A3B8),
                       rows: [
-                        {'label': 'الوزن الصافي', 'value': '${(_silverScrapResult!['netWeight'] as double).toStringAsFixed(2)} جرام'},
-                        {'label': 'إجمالي سعر البيع', 'value': '${numberFormat.format(_silverScrapResult!['totalValue'])} ${country.currencySymbol}'},
+                        {'label': 'net_weight'.tr(), 'value': '${(_silverScrapResult!['netWeight'] as double).toStringAsFixed(2)} ${'gram'.tr()}'},
+                        {'label': 'total_sale_price'.tr(), 'value': '${numberFormat.format(_silverScrapResult!['totalValue'])} ${country.localizedCurrencySymbol}'},
                       ],
                     ),
                   ],
@@ -290,7 +289,7 @@ class _SilverCalculatorBottomSheetState extends ConsumerState<SilverCalculatorBo
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: const Color(0xFF94A3B8), width: 1.5),
+            borderSide: const BorderSide(color: Color(0xFF94A3B8), width: 1.5),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),

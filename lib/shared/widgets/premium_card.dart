@@ -28,7 +28,7 @@ class PremiumCard extends StatelessWidget {
     
     // Default background color if not provided
     Color bgColor = customBackgroundColor ?? (isDark 
-        ? const Color(0xFF1E293B) // Dark elegant color
+        ? AppColors.darkSurface
         : Colors.white);
 
     // Border color based on theme

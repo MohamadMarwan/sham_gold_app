@@ -1,4 +1,4 @@
-﻿import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,7 +47,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
     
     final baseItem = PriceItem(
       id: 'base_currency',
-      title: country.currencySymbol == 'SYP' ? 'auto_str_381'.tr() : country.name.tr(),
+      title: '${country.localizedName} (${country.localizedCurrencySymbol})',
       buyPrice: 1.0,
       sellPrice: 1.0,
       currency: country.currencyCode,
@@ -137,19 +137,21 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
     final fromItem = items.firstWhere((p) => p.id == _fromId, orElse: () => items.first);
     final toItem = items.firstWhere((p) => p.id == _toId, orElse: () => items.first);
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkGreen.withValues(alpha: 0.1),
+            color: isDark ? Colors.black45 : AppColors.darkGreen.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+        border: Border.all(color: isDark ? AppColors.gold.withValues(alpha: 0.25) : Colors.grey.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,27 +167,27 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
                   ),
                   child: const Icon(Icons.currency_exchange_rounded, color: AppColors.gold, size: 24),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
-                  'حاسبة العملات التقاطعية',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: AppColors.darkGreen),
+                  'cross_currency_calculator'.tr(),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: isDark ? Colors.white : AppColors.darkGreen),
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
           
           // FROM Section
           _buildSelector(items, _fromId, (val) {
             setState(() { _fromId = val; });
             _onAmountChanged();
-          }, 'من (أبيع)'),
-          SizedBox(height: 12),
+          }, 'from_sell'.tr()),
+          const SizedBox(height: 12),
           _buildTextField(
             controller: _amountController,
-            label: 'المبلغ',
+            label: 'amount'.tr(),
             hint: '0.00',
-            suffix: fromItem.metalType == 'currency' ? CurrencyUtils.getSymbol(fromItem.currency, id: fromItem.id) : 'جرام',
+            suffix: fromItem.metalType == 'currency' ? CurrencyUtils.getSymbol(fromItem.currency, id: fromItem.id, context: context) : 'gram'.tr(),
             icon: Icons.upload_rounded,
             onTap: () => setState(() => _isReverse = false),
             isActive: !_isReverse,
@@ -198,9 +200,9 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.background,
+                  color: isDark ? AppColors.darkSurfaceRaised : AppColors.background,
                   shape: BoxShape.circle,
-                  border: Border.all(color: AppColors.darkGreen.withValues(alpha: 0.1)),
+                  border: Border.all(color: isDark ? AppColors.gold.withValues(alpha: 0.3) : AppColors.darkGreen.withValues(alpha: 0.1)),
                 ),
                 child: const Icon(Icons.swap_vert_rounded, color: AppColors.gold, size: 28),
               ),
@@ -211,20 +213,20 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
           _buildSelector(items, _toId, (val) {
             setState(() { _toId = val; });
             _onAmountChanged();
-          }, 'إلى (أشتري)'),
-          SizedBox(height: 12),
+          }, 'to_buy'.tr()),
+          const SizedBox(height: 12),
           _buildTextField(
             controller: _totalController,
-            label: 'النتيجة',
+            label: 'result'.tr(),
             hint: '0.00',
-            suffix: toItem.metalType == 'currency' ? CurrencyUtils.getSymbol(toItem.currency, id: toItem.id) : 'جرام',
+            suffix: toItem.metalType == 'currency' ? CurrencyUtils.getSymbol(toItem.currency, id: toItem.id, context: context) : 'gram'.tr(),
             icon: Icons.download_rounded,
             onTap: () => setState(() => _isReverse = true),
             isActive: _isReverse,
             isBold: true,
           ),
           
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildInfoBanner(),
         ],
       ),
@@ -232,6 +234,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
   }
 
   Widget _buildSelector(List<PriceItem> items, String? selectedId, Function(String?) onChanged, String label) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -242,15 +245,15 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: isDark ? AppColors.darkSurfaceRaised : AppColors.background,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+            border: Border.all(color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.1)),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: selectedId,
               isExpanded: true,
-              dropdownColor: Colors.white,
+              dropdownColor: isDark ? AppColors.darkSurfaceRaised : Colors.white,
               borderRadius: BorderRadius.circular(16),
               icon: const Icon(Icons.expand_more_rounded, color: AppColors.gold),
               items: items.map((p) {
@@ -258,13 +261,13 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
                   value: p.id,
                   child: Row(
                     children: [
-                      _getFlagForId(p.id, p.title),
-                      SizedBox(width: 12),
+                      _getFlagForId(p.id, p.translatedTitle),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text(p.title,
+                        child: Text(p.translatedTitle,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.darkGreen)),
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: isDark ? Colors.white : AppColors.darkGreen)),
                       ),
                     ],
                   ),
@@ -291,18 +294,21 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
     required bool isActive,
     bool isBold = false,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? Colors.white : AppColors.background,
+        color: isActive
+            ? (isDark ? AppColors.darkSurfaceRaised : Colors.white)
+            : (isDark ? AppColors.darkSurfaceRaised.withValues(alpha: 0.5) : AppColors.background),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isActive ? AppColors.gold : Colors.grey.withValues(alpha: 0.1),
+          color: isActive ? AppColors.gold : (isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.1)),
           width: isActive ? 2 : 1,
         ),
         boxShadow: isActive
             ? [
                 BoxShadow(
-                  color: AppColors.gold.withValues(alpha: 0.1),
+                  color: AppColors.gold.withValues(alpha: 0.15),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 )
@@ -316,7 +322,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
         style: TextStyle(
           fontSize: 18,
           fontWeight: isBold ? FontWeight.w900 : FontWeight.bold,
-          color: AppColors.darkGreen,
+          color: isDark ? Colors.white : AppColors.darkGreen,
           fontFamily: 'Roboto',
         ),
         decoration: InputDecoration(
@@ -340,7 +346,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
                   suffix,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.darkGreen.withValues(alpha: 0.5),
+                    color: isDark ? Colors.white70 : AppColors.darkGreen.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -352,24 +358,25 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
   }
 
   Widget _buildInfoBanner() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.withValues(alpha: 0.05),
+        color: isDark ? Colors.blue.withValues(alpha: 0.12) : Colors.blue.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withValues(alpha: 0.1)),
+        border: Border.all(color: isDark ? Colors.blue.withValues(alpha: 0.25) : Colors.blue.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.info_outline_rounded,
-              color: Colors.blue, size: 20),
-          SizedBox(width: 8),
+          Icon(Icons.info_outline_rounded,
+              color: isDark ? Colors.blue.shade300 : Colors.blue, size: 20),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'تعتمد هذه الحاسبة التقاطعية على أسعار الشراء والمبيع الحقيقية لضمان دقة التحويلات.',
+              'calculator_info_banner'.tr(),
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.blue.shade700,
+                color: isDark ? Colors.blue.shade200 : Colors.blue.shade700,
                 height: 1.5,
               ),
             ),
@@ -381,7 +388,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
 
   Widget _getFlagForId(String id, String title) {
     if (id == 'base_currency') {
-      return const Text('💵', style: TextStyle(fontSize: 24));
+      return const Icon(Icons.account_balance_wallet_outlined, color: AppColors.gold, size: 22);
     }
     
     final t = title.toLowerCase();
@@ -417,12 +424,13 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
     if (emojiWidget != null) return emojiWidget;
 
     if (d.contains('gold') || d.contains('xau') || t.contains('ذهب') || t.contains('غرام') || t.contains('عيار')) {
-      return const DynamicAssetIcon('gold_bar', size: 24, fallback: Text('🪙', style: TextStyle(fontSize: 24)));
+      return const DynamicAssetIcon('gold_bar', size: 24, fallback: Icon(Icons.monetization_on_outlined, color: AppColors.gold, size: 22));
     }
     if (d.contains('silver') || d.contains('xag') || t.contains('فضة')) {
-      return const DynamicAssetIcon('silver_bar', size: 24, fallback: Text('🔗', style: TextStyle(fontSize: 24)));
+      return const DynamicAssetIcon('silver_bar', size: 24, fallback: Icon(Icons.circle_outlined, color: Color(0xFF94A3B8), size: 22));
     }
 
-    return const Text('💵', style: TextStyle(fontSize: 24));
+    return const Icon(Icons.payments_outlined, color: AppColors.gold, size: 22);
   }
 }
+

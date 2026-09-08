@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -105,21 +104,22 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final format = NumberFormat('#,##0', 'ar_SY');
+    final format = NumberFormat('#,##0', context.locale.languageCode);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? AppColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(35),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkGreen.withValues(alpha: 0.35),
+            color: isDark ? Colors.black45 : AppColors.darkGreen.withValues(alpha: 0.35),
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
         ],
-        border: Border.all(color: Colors.grey.withValues(alpha: 0.4)),
+        border: Border.all(color: isDark ? AppColors.gold.withValues(alpha: 0.25) : Colors.grey.withValues(alpha: 0.4)),
       ),
       child: Stack(
         children: [
@@ -154,7 +154,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                       child: const Icon(Icons.currency_exchange_rounded,
                           color: AppColors.gold, size: 24),
                     ),
-                    SizedBox(width: 18),
+                    const SizedBox(width: 18),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -163,7 +163,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
-                            color: AppColors.darkGreen,
+                            color: isDark ? Colors.white : AppColors.darkGreen,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -172,14 +172,14 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.darkGreen.withValues(alpha: 0.6),
+                            color: isDark ? Colors.white70 : AppColors.darkGreen.withValues(alpha: 0.6),
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                SizedBox(height: 28),
+                const SizedBox(height: 28),
                 Row(
                   children: [
                     // Amount Input
@@ -190,16 +190,16 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontWeight: FontWeight.w900,
-                            color: AppColors.darkGreen,
+                            color: isDark ? Colors.white : AppColors.darkGreen,
                             fontSize: 22,
                             fontFamily: 'Roboto'),
                         decoration: InputDecoration(
                           hintText: '0.00',
                           labelText: 'auto_str_339'.tr(),
                           labelStyle: TextStyle(
-                              color: AppColors.darkGreen.withValues(alpha: 0.6),
+                              color: isDark ? AppColors.gold : AppColors.darkGreen.withValues(alpha: 0.6),
                               fontWeight: FontWeight.bold,
                               fontSize: 12),
                           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -208,11 +208,11 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 20),
                           filled: true,
-                          fillColor: AppColors.background,
+                          fillColor: isDark ? AppColors.darkSurfaceRaised : AppColors.background,
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
                             borderSide: BorderSide(
-                                color: Colors.grey.withValues(alpha: 0.3)),
+                                color: isDark ? Colors.white12 : Colors.grey.withValues(alpha: 0.3)),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(20),
@@ -222,7 +222,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     // Type Dropdown
                     Expanded(
                       flex: 3,
@@ -230,11 +230,12 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         height: 64,
                         decoration: BoxDecoration(
-                          color: AppColors.darkGreen,
+                          color: isDark ? AppColors.darkSurfaceRaised : AppColors.darkGreen,
                           borderRadius: BorderRadius.circular(20),
+                          border: isDark ? Border.all(color: AppColors.darkBorder) : null,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.darkGreen.withValues(alpha: 0.3),
+                              color: isDark ? Colors.black26 : AppColors.darkGreen.withValues(alpha: 0.3),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -312,7 +313,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                     ),
                   ],
                 ),
-                SizedBox(height: 28),
+                const SizedBox(height: 28),
                 // Result
                 Container(
                   width: double.infinity,
@@ -331,7 +332,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                         children: [
                           Text(
                             'auto_str_185'.tr(),
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: AppColors.mutedText,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w900),
@@ -347,7 +348,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                                         textAlign: TextAlign.center),
                                     behavior: SnackBarBehavior.floating,
                                     width: 150,
-                                    duration: Duration(seconds: 1),
+                                    duration: const Duration(seconds: 1),
                                   ),
                                 );
                               }
@@ -375,7 +376,7 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       FittedBox(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -384,15 +385,15 @@ class _QuickConverterWidgetState extends ConsumerState<QuickConverterWidget> {
                           children: [
                             Text(
                               format.format(_result),
-                              style: const TextStyle(
-                                color: AppColors.darkGreen,
+                              style: TextStyle(
+                                color: isDark ? Colors.white : AppColors.darkGreen,
                                 fontWeight: FontWeight.w900,
                                 fontSize: 42,
                                 fontFamily: 'Roboto',
                                 letterSpacing: -1,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
                               _resultCurrency,
                               style: const TextStyle(

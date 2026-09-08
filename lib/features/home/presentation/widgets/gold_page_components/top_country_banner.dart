@@ -37,7 +37,7 @@ class TopCountryBanner extends ConsumerWidget {
       child: Row(
         children: [
           Text(country.flag, style: const TextStyle(fontSize: 26)),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +45,7 @@ class TopCountryBanner extends ConsumerWidget {
                 Row(
                   children: [
                     Text(
-                      'market_of'.tr(args: [country.name.tr()]),
+                      'market_of'.tr(args: [country.localizedName]),
                       style: TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 15,
@@ -53,7 +53,7 @@ class TopCountryBanner extends ConsumerWidget {
                         fontFamily: 'Cairo',
                       ),
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
@@ -61,7 +61,7 @@ class TopCountryBanner extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        country.currencySymbol,
+                        country.localizedCurrencySymbol,
                         style: const TextStyle(
                           color: AppColors.gold,
                           fontSize: 10,
@@ -72,7 +72,7 @@ class TopCountryBanner extends ConsumerWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   'default_karat_label'.tr(args: [country.defaultKarat.toString()]),
                   style: const TextStyle(
@@ -96,7 +96,7 @@ class TopCountryBanner extends ConsumerWidget {
                 tooltip: 'share_bulletin_image'.tr(),
                 visualDensity: VisualDensity.compact,
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               PopupMenuButton<String>(
                 onSelected: (value) {
                   HapticFeedback.selectionClick();

@@ -4,11 +4,9 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../core/services/ad_service.dart';
-import 'home_page.dart';
-import 'onboarding_page.dart';
 import '../../../../shared/widgets/premium_logo.dart';
-import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:go_router/go_router.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   final bool fromResume;
@@ -114,16 +112,11 @@ class _SplashPageState extends ConsumerState<SplashPage>
     final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
 
     if (mounted) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 500),
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              hasSeenOnboarding ? const HomePage() : const OnboardingPage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      if (hasSeenOnboarding) {
+        context.go('/home');
+      } else {
+        context.go('/onboarding');
+      }
     }
   }
 
@@ -216,7 +209,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                               ],
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 10),
@@ -228,7 +221,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                             ),
                             child: Text(
                               'app_tagline'.tr(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.gold,
                                 fontWeight: FontWeight.w900,
@@ -246,17 +239,17 @@ class _SplashPageState extends ConsumerState<SplashPage>
                       opacity: _loadingFadeAnimation,
                       child: Column(
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 35,
                             height: 35,
-                            child: const CircularProgressIndicator(
+                            child: CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'loading_data'.tr(),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 10,
                               fontWeight: FontWeight.w900,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,12 +56,12 @@ class _RoiBottomSheetState extends ConsumerState<RoiBottomSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final countryState = ref.watch(countryProvider);
     final country = countryState.selectedCountry;
-    final numberFormat = NumberFormat('#,##0.##', 'ar');
+    final numberFormat = NumberFormat('#,##0.##');
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: isDark ? AppColors.background : Colors.white,
+        color: isDark ? AppColors.darkSurfaceRaised : Colors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
@@ -96,7 +95,7 @@ class _RoiBottomSheetState extends ConsumerState<RoiBottomSheet> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    'حاسبة الربح والخسارة',
+                    'roi_profit_loss_calc'.tr(),
                     style: GoogleFonts.tajawal(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -149,14 +148,14 @@ class _RoiBottomSheetState extends ConsumerState<RoiBottomSheet> {
                   if (_roiResult != null) ...[
                     const SizedBox(height: 32),
                     _buildResultCard(
-                      title: _roiResult!['isProfit'] ? 'ربح ممتاز!' : 'خسارة',
+                      title: _roiResult!['isProfit'] ? 'excellent_profit'.tr() : 'loss'.tr(),
                       isDark: isDark,
                       isProfit: _roiResult!['isProfit'],
                       rows: [
-                        {'label': 'الكمية המشتراة (تقريباً)', 'value': '${(_roiResult!['totalUnits'] as double).toStringAsFixed(2)}'},
-                        {'label': 'القيمة الحالية', 'value': '${numberFormat.format(_roiResult!['currentValue'])} ${country.currencySymbol}'},
-                        {'label': 'الربح / الخسارة', 'value': '${numberFormat.format(_roiResult!['profitOrLoss'])} ${country.currencySymbol}'},
-                        {'label': 'العائد (ROI)', 'value': '${(_roiResult!['roiPercentage'] as double).toStringAsFixed(2)}%'},
+                        {'label': 'purchased_quantity'.tr(), 'value': (_roiResult!['totalUnits'] as double).toStringAsFixed(2)},
+                        {'label': 'current_value'.tr(), 'value': '${numberFormat.format(_roiResult!['currentValue'])} ${country.localizedCurrencySymbol}'},
+                        {'label': 'profit_or_loss'.tr(), 'value': '${numberFormat.format(_roiResult!['profitOrLoss'])} ${country.localizedCurrencySymbol}'},
+                        {'label': 'roi_yield'.tr(), 'value': '${(_roiResult!['roiPercentage'] as double).toStringAsFixed(2)}%'},
                       ],
                     ),
                   ],
@@ -197,7 +196,7 @@ class _RoiBottomSheetState extends ConsumerState<RoiBottomSheet> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: const Color(0xFF3B82F6), width: 1.5),
+            borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 1.5),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),

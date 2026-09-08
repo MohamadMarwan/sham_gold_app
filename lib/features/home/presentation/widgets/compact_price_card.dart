@@ -2,13 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/favorite_toggle_button.dart';
 import '../pages/price_detail_page.dart';
 import 'smart_alerts_sheet.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
+import '../../../../core/utils/currency_utils.dart';
 
 class CompactPriceCard extends StatefulWidget {
   final PriceItem priceItem;
@@ -76,11 +76,13 @@ class _CompactPriceCardState extends State<CompactPriceCard>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final numberFormat = NumberFormat('#,##0.##', 'ar');
+    final numberFormat = NumberFormat('#,##0.##', context.locale.toString());
     final double displayLocalPrice =
         widget.localPrice ?? widget.priceItem.buyPrice;
-    final String currencySymbol =
-        widget.localCurrencySymbol ?? widget.priceItem.currency;
+    final String currencySymbol = CurrencyUtils.getSymbol(
+        widget.localCurrencySymbol ?? widget.priceItem.currency,
+        id: widget.priceItem.id,
+        context: context);
     final double displayUsdPrice = widget.usdPrice ?? 0.0;
     final double sellPrice = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : displayLocalPrice * 1.008;
 
@@ -128,195 +130,203 @@ class _CompactPriceCardState extends State<CompactPriceCard>
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              child: Column(
-                children: [
-                  Row(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            child: Row(
+              children: [
+                // 1. Karat Badge & Title
+                Hero(
+                  tag: 'icon_${widget.priceItem.id}',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: _buildKaratBadge(widget.priceItem),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Hero(
-                        tag: 'icon_${widget.priceItem.id}',
+                        tag: 'title_${widget.priceItem.id}',
                         child: Material(
                           type: MaterialType.transparency,
-                          child: _buildKaratBadge(widget.priceItem),
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Hero(
-                              tag: 'title_${widget.priceItem.id}',
-                              child: Material(
-                                type: MaterialType.transparency,
-                                child: Text(
-                                  widget.priceItem.title.tr(),
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 15,
-                                    color: isDark ? Colors.white : AppColors.primaryText,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
+                          child: Text(
+                            widget.priceItem.translatedTitle,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 13.5,
+                              color: isDark ? Colors.white : AppColors.primaryText,
+                              fontFamily: 'Cairo',
+                              height: 1.2,
                             ),
-                            if (widget.isFeatured)
-                              Text(
-                                'auto_str_124'.tr(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.gold,
-                                  fontFamily: 'Cairo',
-                                ),
-                              ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                      IconButton(
-                        visualDensity: VisualDensity.compact,
-                        icon: const Icon(Icons.notifications_none_rounded, size: 20, color: AppColors.mutedText),
-                        onPressed: () {
-                          HapticFeedback.selectionClick();
-                          SmartAlertsSheet.show(context, preselectedItem: widget.priceItem);
-                        },
-                      ),
-                      // Favorite button
-                      FavoriteToggleButton(priceId: widget.priceItem.id),
-                    ],
-                  ),
-
-                  SizedBox(height: 12),
-                  const Divider(height: 1, color: Color(0x15000000)),
-                  SizedBox(height: 12),
-
-                  // --- Row 2: Prominent Local Price & Global USD Subtext ---
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      // Main Local Price (Big & Bold)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 2),
+                      Row(
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              LivePriceWidget(
-                                price: displayLocalPrice,
-                                currency: '',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w900,
-                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
-                                  fontFamily: 'Cairo',
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                currencySymbol,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.gold,
-                                  fontFamily: 'Cairo',
-                                ),
-                              ),
-                            ],
+                          FavoriteToggleButton(priceId: widget.priceItem.id, size: 16),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () {
+                              HapticFeedback.selectionClick();
+                              SmartAlertsSheet.show(context, preselectedItem: widget.priceItem);
+                            },
+                            child: const Icon(Icons.notifications_none_rounded, size: 16, color: AppColors.mutedText),
                           ),
-                          // Global USD Equivalent (Subtext)
-                          if (displayUsdPrice > 0) ...[
-                            SizedBox(height: 2),
-                            Row(
-                              children: [
-                                const Icon(Icons.public, size: 12, color: AppColors.mutedText),
-                                SizedBox(width: 4),
-                                Text(
-                                  '≈ \$${displayUsdPrice.toStringAsFixed(2)} USD',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.mutedText,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                ),
-                              ],
+                          if (widget.isFeatured) ...[
+                            const SizedBox(width: 4),
+                            Text(
+                              'auto_str_124'.tr(),
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.gold,
+                                fontFamily: 'Cairo',
+                              ),
                             ),
                           ],
                         ],
                       ),
+                    ],
+                  ),
+                ),
 
-                      // Buy / Sell Spread or Trend
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.05)
-                              : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
-                          ),
+                const SizedBox(width: 8),
+
+                // 2. Buy Column (الشراء)
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'auto_str_361'.tr(),
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.mutedText,
+                          fontFamily: 'Cairo',
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                      ),
+                      const SizedBox(height: 1),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'auto_str_343'.tr(),
-                                  style: TextStyle(
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.mutedText,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                ),
-                                Text(
-                                  numberFormat.format(sellPrice),
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w900,
-                                    color: isDark ? Colors.white : AppColors.primaryText,
-                                    fontFamily: 'Cairo',
-                                  ),
-                                ),
-                              ],
+                            LivePriceWidget(
+                              price: displayLocalPrice,
+                              currency: '',
+                              style: TextStyle(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                fontFamily: 'Cairo',
+                                letterSpacing: -0.3,
+                              ),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(width: 2),
                             Text(
-                              '${'auto_str_361'.tr()}: ${numberFormat.format(displayLocalPrice)}',
+                              currencySymbol,
                               style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.mutedText,
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.gold,
                                 fontFamily: 'Cairo',
                               ),
                             ),
                           ],
                         ),
                       ),
+                      if (displayUsdPrice > 0)
+                        Text(
+                          '≈ \$${displayUsdPrice.toStringAsFixed(1)}',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.mutedText,
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
                     ],
                   ),
-                  
-                  // --- Row 3: Metrics (Purity, Open, High/Low) ---
-                  SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+
+                // Vertical Separator
+                Container(
+                  height: 32,
+                  width: 1,
+                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                  color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                ),
+
+                // 3. Sell Column (المبيع)
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildMetricBadge('auto_str_332'.tr(), _getPurity(widget.priceItem), Icons.diamond_outlined),
-                      _buildMetricBadge('auto_str_313'.tr(), numberFormat.format(displayLocalPrice / (1 + (widget.priceItem.changePercentage / 100))), Icons.login_rounded),
-                      _buildMetricBadge('auto_str_299'.tr(), '${numberFormat.format(displayLocalPrice * 1.002)} / ${numberFormat.format(displayLocalPrice * 0.998)}', Icons.swap_vert_rounded),
+                      Text(
+                        'auto_str_343'.tr(),
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.mutedText,
+                          fontFamily: 'Cairo',
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              numberFormat.format(sellPrice),
+                              style: TextStyle(
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w900,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                fontFamily: 'Cairo',
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Text(
+                              currencySymbol,
+                              style: const TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.gold,
+                                fontFamily: 'Cairo',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (displayUsdPrice > 0)
+                        Text(
+                          '≈ \$${((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice).toStringAsFixed(1)}',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.mutedText,
+                            fontFamily: 'Cairo',
+                          ),
+                        ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
           ),
         ),
       );
@@ -351,8 +361,8 @@ class _CompactPriceCardState extends State<CompactPriceCard>
     }
 
     return Container(
-      width: 44,
-      height: 44,
+      width: 28,
+      height: 28,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -362,12 +372,12 @@ class _CompactPriceCardState extends State<CompactPriceCard>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(7),
         boxShadow: [
           BoxShadow(
-            color: badgeColor.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: badgeColor.withValues(alpha: 0.25),
+            blurRadius: 4,
+            offset: const Offset(0, 1.5),
           ),
         ],
       ),
@@ -377,57 +387,12 @@ class _CompactPriceCardState extends State<CompactPriceCard>
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
-            fontSize: 13,
+            fontSize: 10,
             fontFamily: 'Cairo',
           ),
         ),
       ),
     );
   }
-
-  String _getPurity(PriceItem item) {
-    final id = item.id.toLowerCase();
-    if (id.contains('24') || id.contains('ounce') || id.contains('xau') || id.contains('999')) return '999.9';
-    if (id.contains('22')) return '916.6';
-    if (id.contains('21')) return '875.0';
-    if (id.contains('18')) return '750.0';
-    if (id.contains('14')) return '583.3';
-    if (id.contains('silver') || id.contains('xag')) return '999.0';
-    if (id.contains('pt') || id.contains('plat')) return '999.5';
-    return '---';
-  }
-
-  Widget _buildMetricBadge(String label, String value, IconData icon) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 12, color: AppColors.mutedText),
-        SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                color: AppColors.mutedText,
-                fontFamily: 'Cairo',
-              ),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                color: isDark ? Colors.white : AppColors.primaryText,
-                fontFamily: 'Roboto',
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
 }
+

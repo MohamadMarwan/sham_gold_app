@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
-import 'package:gold_sham/features/home/presentation/pages/home_page.dart';
+import 'package:go_router/go_router.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -17,22 +17,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
-  final List<OnboardingContent> _contents = [
+  List<OnboardingContent> get _contents => [
     OnboardingContent(
-      title: "أسعار بلمسة واحدة",
-      description: "اضغط على أيقونة الحاسبة بجانب أي عملة لمعرفة القيمة الفورية بدون الحاجة لمغادرة الصفحة.",
+      title: "onboarding_title_1".tr(),
+      description: "onboarding_desc_1".tr(),
       icon: Icons.calculate_rounded,
       color: AppColors.gold,
     ),
     OnboardingContent(
-      title: "رتب ما يهمك أولاً",
-      description: "في قسم المفضلة، اضغط مطولاً واسحب العملات أو عيارات الذهب لترتيبها حسب اهتمامك.",
+      title: "onboarding_title_2".tr(),
+      description: "onboarding_desc_2".tr(),
       icon: Icons.touch_app_rounded,
       color: Colors.greenAccent,
     ),
     OnboardingContent(
-      title: "سوقك المحلي بذكاء",
-      description: "يقوم التطبيق أوتوماتيكياً بعرض أسعار الذهب والعملات بناءً على تسعيرة السوق المحلي لبلدك بدقة واحترافية.",
+      title: "onboarding_title_3".tr(),
+      description: "onboarding_desc_3".tr(),
       icon: Icons.public_rounded,
       color: Colors.blueAccent,
     ),
@@ -49,16 +49,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     await prefs.setBool('has_seen_onboarding', true);
 
     if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (context, animation, secondaryAnimation) => const HomePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-        ),
-      );
+      context.go('/home');
     }
   }
 
@@ -91,7 +82,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   child: TextButton(
                     onPressed: _completeOnboarding,
                     child: Text(
-                      'تخطي',
+                      'skip'.tr(),
                       style: GoogleFonts.cairo(
                         color: isDark ? Colors.white54 : AppColors.mutedText,
                         fontWeight: FontWeight.bold,
@@ -179,7 +170,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                _currentPage == _contents.length - 1 ? 'ابدأ الآن' : 'التالي',
+                                _currentPage == _contents.length - 1 ? 'start_now'.tr() : 'next'.tr(),
                                 style: GoogleFonts.cairo(
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w900,

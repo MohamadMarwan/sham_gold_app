@@ -10,6 +10,8 @@ import '../../core/services/http_api_service.dart';
 import '../../core/services/cache_service.dart';
 import '../../core/providers/settings_provider.dart';
 import '../../core/services/smart_alert_service.dart';
+import '../../core/services/widget_service.dart';
+import 'local_market_calculator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum RefreshStatus { success, connectionError, serverError }
@@ -39,6 +41,9 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   AppLifecycleState _appState = AppLifecycleState.resumed;
   DateTime _lastVibrationTime = DateTime.fromMillisecondsSinceEpoch(0);
 
+  final StreamController<List<PriceItem>> _pricesController = StreamController<List<PriceItem>>.broadcast();
+  Stream<List<PriceItem>> get pricesStream => _pricesController.stream;
+
   final StreamController<Map<String, dynamic>> _notificationController = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get notificationStream => _notificationController.stream;
 
@@ -53,6 +58,10 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<void> _init() async {
     await _loadFromCache();
+    LocalMarketCalculator().updateFromLivePrices(currentPrices);
+    LocalMarketCalculator().refreshData(_httpApiService).catchError((e) {
+      debugPrint('Error refreshing LocalMarketCalculator on init: $e');
+    });
     _socketService.initSocket();
     
     _socketService.connectionStream.listen((isConnected) {
@@ -147,12 +156,21 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
     currentPrices = prices;
     lastSyncTime = DateTime.now();
+
+    // Sync LocalMarketCalculator engine with latest prices
+    LocalMarketCalculator().updateFromLivePrices(prices);
     
     // Process real-time price rules for smart alerts
     SmartAlertService().processPriceUpdates(prices);
+    
+    // Update Home Screen Widget
+    WidgetService.updateWidgetData(prices);
 
     if (saveData && originalJson != null) {
       _cacheService.saveToCache('cached_prices', json.encode(originalJson));
+    }
+    if (!_pricesController.isClosed) {
+      _pricesController.add(prices);
     }
     notifyListeners();
   }
@@ -182,7 +200,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
       await _settingsProvider.loadFromCache();
       notifyListeners();
     } catch (e) {
-      debugPrint('Error loading from cache: $e');
+      debugPrint('Error loading cached data: $e');
     }
   }
 
@@ -254,12 +272,22 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
         'deviceToken': deviceToken,
         'priceId': priceId,
         'targetPrice': targetPrice,
-        'condition': condition
+        'condition': condition,
       });
-      return true; // since HttpApiService throws on non-200
+      return true;
     } catch (e) {
       return false;
     }
+  }
+
+  Future<bool> setPriceAlert({
+    required String priceId,
+    required double targetPrice,
+    required String condition,
+    required String currency,
+    required String deviceToken,
+  }) async {
+    return await createAlert(deviceToken, priceId, targetPrice, condition);
   }
 
   Future<List<Map<String, dynamic>>> fetchAlerts(String deviceToken) async {
@@ -283,7 +311,6 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   // Expose necessary getters that were used
   bool get isConnected => _settingsProvider.isConnected;
   List<String> get currentEnabledCurrencies => _settingsProvider.currentEnabledCurrencies;
-  Stream<List<PriceItem>> get pricesStream => Stream.value(currentPrices); // Simplified since UI just calls currentPrices
   Stream<List<BannerItem>> get bannersStream => Stream.value(currentBanners);
   Stream<Map<String, dynamic>> get settingsStream => Stream.value(_settingsProvider.currentSettings ?? {});
   Map<String, dynamic>? get currentSettings => _settingsProvider.currentSettings;
@@ -293,6 +320,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _settingsProvider.removeListener(notifyListeners);
     _socketService.dispose();
+    _pricesController.close();
     _notificationController.close();
     _alertTriggeredController.close();
     super.dispose();

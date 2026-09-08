@@ -74,7 +74,7 @@ class UnifiedSummaryCard extends StatelessWidget {
                 children: metrics.map((metric) {
                   return Padding(
                     padding: const EdgeInsets.only(left: 24.0),
-                    child: _buildMetric(metric.label, metric.price, metric.unit, isDark),
+                    child: _buildMetric(metric.label, metric.price, metric.unit, metric.usdPrice, isDark),
                   );
                 }).toList().reversed.toList(),
               ),
@@ -115,7 +115,7 @@ class UnifiedSummaryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMetric(String label, double price, String unit, bool isDark) {
+  Widget _buildMetric(String label, double price, String unit, double? usdPrice, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -139,6 +139,18 @@ class UnifiedSummaryCard extends StatelessWidget {
                 : const Color(0xFF1e293b)),
           ),
         ),
+        if (usdPrice != null && usdPrice > 0) ...[
+          const SizedBox(height: 2),
+          Text(
+            '≈ \$${usdPrice.toStringAsFixed(2)}',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: isDark ? Colors.white60 : AppColors.mutedText,
+              fontFamily: 'Cairo',
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -148,10 +160,13 @@ class MetricItem {
   final String label;
   final double price;
   final String unit;
+  final double? usdPrice;
 
   MetricItem({
     required this.label,
     required this.price,
     required this.unit,
+    this.usdPrice,
   });
 }
+

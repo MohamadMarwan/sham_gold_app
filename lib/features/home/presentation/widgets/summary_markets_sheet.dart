@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
+import '../../../../core/utils/currency_utils.dart';
 
 class SummaryMarketsSheet extends ConsumerStatefulWidget {
   final List<String> initialSelectedCodes;
@@ -115,7 +116,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                   ),
                   child: const Icon(Icons.dashboard_customize_rounded, color: AppColors.gold, size: 22),
                 ),
-                SizedBox(width: 14),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +132,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                       ),
                       Text(
                         'select_up_to_two'.tr(),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,
                           fontFamily: 'Cairo',
@@ -169,7 +170,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
             ),
           ),
 
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           // Country List
           Expanded(
@@ -177,7 +178,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               itemCount: filteredCountries.length,
-              separatorBuilder: (_, __) => SizedBox(height: 8),
+              separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemBuilder: (context, index) {
                 final country = filteredCountries[index];
                 final isSelected = _selectedCodes.contains(country.code);
@@ -200,7 +201,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                     child: Row(
                       children: [
                         Text(country.flag, style: const TextStyle(fontSize: 28)),
-                        SizedBox(width: 14),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +216,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                                 ),
                               ),
                               Text(
-                                '${country.currencyCode} (${country.currencySymbol})',
+                                '${country.currencyCode} (${CurrencyUtils.getSymbol(country.currencyCode, context: context)})',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,

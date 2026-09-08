@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/country_model.dart';
 import '../../core/services/http_api_service.dart';
+import '../../core/utils/currency_utils.dart';
 
 /// Local market calculation engine.
 ///
@@ -19,40 +20,86 @@ class LocalMarketCalculator {
   LocalMarketCalculator._();
 
   // Fallback FX rates (used when live fetch fails)
-  Map<String, double> _fxRates = {
+  final Map<String, double> _fxRates = {
     'USD': 1.0,
     'DZD': 134.5,
-    'EGP': 50.0,
+    'EGP': 50.89,
     'SAR': 3.75,
     'AED': 3.6725,
     'IQD': 1310.0,
-    'KWD': 0.307,
+    'KWD': 0.308,
     'QAR': 3.64,
     'JOD': 0.709,
     'LBP': 89500.0,
     'LYD': 4.85,
-    'TRY': 38.5,
-    'EUR': 0.93,
-    'SYP': 13500.0,
+    'TRY': 48.46,
+    'EUR': 0.86,
+    'SYP': 130.0,
     'BHD': 0.376,
     'OMR': 0.385,
+    'MAD': 10.05,
+    'TND': 3.12,
+    'SDG': 600.0,
+    'YER': 250.0,
+    'GBP': 0.74,
+    'CAD': 1.41,
+    'AUD': 1.58,
+    'CHF': 0.89,
   };
 
-  double _goldOunceUSD = 0;
-  double _silverOunceUSD = 0;
+  double _goldOunceUSD = 4400.0;
+  double _silverOunceUSD = 65.0;
   DateTime? _lastUpdate;
   String _goldSource = 'fallback';
   String _fxSource = 'fallback';
 
   /// All scraped prices from /api/prices (keyed by id)
-  Map<String, Map<String, dynamic>> _scrapedPrices = {};
+  final Map<String, Map<String, dynamic>> _scrapedPrices = {};
 
   DateTime? get lastUpdate => _lastUpdate;
   String get goldSource => _goldSource;
   String get fxSource => _fxSource;
 
+  Map<String, double> get fxRates => Map.unmodifiable(_fxRates);
+  double get goldOunceUSD => _goldOunceUSD;
+  double get silverOunceUSD => _silverOunceUSD;
+
   /// Look up a scraped price by id. Returns null if not found.
   Map<String, dynamic>? getScrapedPrice(String id) => _scrapedPrices[id];
+
+  /// Seamlessly update local calculation engine with live PriceItem stream
+  void updateFromLivePrices(List<dynamic> prices) {
+    if (prices.isEmpty) return;
+
+    for (final p in prices) {
+      final id = (p.id ?? '').toString().toLowerCase();
+      if (id.isEmpty) continue;
+
+      final buyPrice = (p.buyPrice as num?)?.toDouble() ?? 0.0;
+      final sellPrice = (p.sellPrice as num?)?.toDouble() ?? buyPrice;
+
+      _scrapedPrices[id] = {
+        'id': p.id,
+        'title': p.title,
+        'buyPrice': buyPrice,
+        'sellPrice': sellPrice,
+        'currency': p.currency,
+        'metalType': p.metalType,
+      };
+
+      if (id == 'xau_usd' && buyPrice > 0) {
+        _goldOunceUSD = buyPrice;
+        _goldSource = 'Live PriceService (xau_usd)';
+      }
+      if (id == 'xag_usd' && buyPrice > 0) {
+        _silverOunceUSD = buyPrice;
+      }
+      if (id == 'sy_usd' && buyPrice > 10) {
+        _fxRates['SYP'] = buyPrice;
+      }
+    }
+    _lastUpdate = DateTime.now();
+  }
 
   /// Fetch live gold ounce price, FX rates, and country-specific prices.
   Future<void> refreshData(HttpApiService httpService) async {
@@ -73,6 +120,10 @@ class LocalMarketCalculator {
           }
           if (id == 'xag_usd' && p['buyPrice'] != null) {
             _silverOunceUSD = (p['buyPrice'] as num).toDouble();
+          }
+          if (id == 'sy_usd' && p['buyPrice'] != null) {
+            final val = (p['buyPrice'] as num).toDouble();
+            if (val > 10) _fxRates['SYP'] = val;
           }
         }
       }
@@ -108,14 +159,14 @@ class LocalMarketCalculator {
     final currencySymbol = country.currencySymbol;
     final rate = _fxRates[currencyCode] ?? _fxRates[code] ?? 1.0;
 
-    final double spreadPercent = 0.5 / 100;
+    const double spreadPercent = 0.5 / 100;
     final double g24USD = _goldOunceUSD / 31.1035;
     final double silverGramUSD = (_silverOunceUSD > 0 ? _silverOunceUSD : 31.5) / 31.1035;
 
     /// Try to use scraped price if available (e.g. sy_gold_21, tr_gold_24)
     /// Falls back to calculated price if not found.
     Map<String, dynamic> getGramPrice(String karatStr, double karatFraction) {
-      final calcSpread = spreadPercent;
+      const calcSpread = spreadPercent;
       final baseUSD = g24USD * karatFraction;
       final baseLocal = baseUSD * rate;
       final calcBuy = double.parse((baseLocal * (1 - calcSpread)).toStringAsFixed(2));
@@ -262,6 +313,34 @@ class LocalMarketCalculator {
       'countryCode': code,
     });
 
+    final silverOunceUSD = _silverOunceUSD > 0 ? _silverOunceUSD : (silverGramUSD * 31.1035);
+    items.add({
+      'id': '${code.toLowerCase()}_silver_ounce',
+      'title': 'أونصة الفضة',
+      'subtitle': '31.1035 غرام (فضة 999)',
+      'buyPrice': double.parse((silverOunceUSD * rate * 0.97).toStringAsFixed(2)),
+      'sellPrice': double.parse((silverOunceUSD * rate * 1.03).toStringAsFixed(2)),
+      'usdPrice': double.parse(silverOunceUSD.toStringAsFixed(2)),
+      'currency': currencySymbol,
+      'currencyCode': currencyCode,
+      'metalType': 'silver',
+      'countryCode': code,
+    });
+
+    final silverKiloUSD = silverGramUSD * 1000;
+    items.add({
+      'id': '${code.toLowerCase()}_silver_kilo',
+      'title': 'كيلو الفضة',
+      'subtitle': '1000 غرام (سبيكة فضة 999)',
+      'buyPrice': double.parse((silverKiloUSD * rate * 0.97).toStringAsFixed(2)),
+      'sellPrice': double.parse((silverKiloUSD * rate * 1.03).toStringAsFixed(2)),
+      'usdPrice': double.parse(silverKiloUSD.toStringAsFixed(2)),
+      'currency': currencySymbol,
+      'currencyCode': currencyCode,
+      'metalType': 'silver',
+      'countryCode': code,
+    });
+
     // ════════════════════════════════════════════
     // 4. CURRENCY EXCHANGE RATES
     // ════════════════════════════════════════════
@@ -387,19 +466,27 @@ class LocalMarketCalculator {
     String currencySymbol,
     double localRate,
   ) {
-    const majorCurrencies = ['USD', 'EUR', 'TRY', 'SYP', 'SAR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR'];
+    const majorCurrencies = ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR', 'JOD', 'EGP', 'TRY', 'SYP', 'CAD', 'AUD', 'CHF'];
     const currencyNames = {
-      'USD': 'الدولار الأمريكي',
-      'EUR': 'اليورو الأوروبي',
-      'TRY': 'الليرة التركية',
-      'SYP': 'الليرة السورية',
+      'USD': 'الدولار',
+      'EUR': 'اليورو',
+      'GBP': 'الإسترليني',
       'SAR': 'الريال السعودي',
       'AED': 'الدرهم الإماراتي',
       'KWD': 'الدينار الكويتي',
       'QAR': 'الريال القطري',
       'BHD': 'الدينار البحريني',
       'OMR': 'الريال العماني',
+      'JOD': 'الدينار الأردني',
+      'EGP': 'الجنيه المصري',
+      'TRY': 'الليرة التركية',
+      'SYP': 'الليرة السورية',
+      'CAD': 'الدولار الكندي',
+      'AUD': 'الدولار الأسترالي',
+      'CHF': 'الفرنك السويسري',
     };
+
+    final shortSymbol = CurrencyUtils.getSymbol(currencyCode);
 
     for (final targetCurr in majorCurrencies) {
       if (targetCurr == currencyCode) continue; // Skip self
@@ -407,19 +494,16 @@ class LocalMarketCalculator {
       final targetRateToUsd = _fxRates[targetCurr] ?? 1.0;
 
       // Cross rate: 1 TargetCurrency = X LocalCurrency
-      // localRate = how many local units per 1 USD
-      // targetRateToUsd = how many target units per 1 USD
-      // crossRate = localRate / targetRateToUsd
       final crossRate = localRate / targetRateToUsd;
 
       items.add({
         'id': '${code.toLowerCase()}_fx_${targetCurr.toLowerCase()}',
-        'title': 'سعر صرف ${currencyNames[targetCurr] ?? targetCurr} مقابل $currencySymbol',
-        'subtitle': '1 $targetCurr = ${crossRate.toStringAsFixed(3)} $currencyCode',
+        'title': '${currencyNames[targetCurr] ?? targetCurr} مقابل $shortSymbol',
+        'subtitle': '1 $targetCurr = ${crossRate.toStringAsFixed(3)} $shortSymbol',
         'buyPrice': double.parse((crossRate * 0.998).toStringAsFixed(3)),
         'sellPrice': double.parse((crossRate * 1.002).toStringAsFixed(3)),
         'usdPrice': double.parse((1 / targetRateToUsd).toStringAsFixed(4)),
-        'currency': currencySymbol,
+        'currency': shortSymbol,
         'currencyCode': currencyCode,
         'metalType': 'currency',
         'countryCode': code,

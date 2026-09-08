@@ -237,15 +237,15 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                             children: [
                               Text(
                                 'details'.tr(),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w900,
                                   fontFamily: 'Cairo',
                                 ),
                               ),
-                              SizedBox(width: 4),
-                              Icon(
+                              const SizedBox(width: 4),
+                              const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 color: Colors.white,
                                 size: 10,

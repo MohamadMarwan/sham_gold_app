@@ -37,7 +37,7 @@ class ShareService {
 
       // النص المرافق للمشاركة
       final shareText = customText ??
-          '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n⏰ ${DateTime.now().toString().split('.')[0]}';
+          '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n${DateTime.now().toString().split('.')[0]}';
 
       // مشاركة الصورة مع النص
       await Share.shareXFiles(
@@ -57,7 +57,7 @@ class ShareService {
       }
     } catch (e) {
       if (context.mounted) {
-        _showError(context, 'حدث خطأ أثناء المشاركة: ${e.toString()}');
+        _showError(context, 'share_error'.tr(args: [e.toString()]));
       }
     }
   }
@@ -89,7 +89,7 @@ class ShareService {
       }
 
       final shareText = customText ??
-          '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n⏰ ${DateTime.now().toString().split('.')[0]}';
+          '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n${DateTime.now().toString().split('.')[0]}';
 
       await Share.shareXFiles(
         [
@@ -108,7 +108,7 @@ class ShareService {
       }
     } catch (e) {
       if (context.mounted) {
-        _showError(context, 'حدث خطأ أثناء المشاركة: ${e.toString()}');
+        _showError(context, 'share_error'.tr(args: [e.toString()]));
       }
     }
   }
@@ -136,12 +136,13 @@ class ShareService {
     required double sellPrice,
     String? currency,
   }) async {
+    final curr = currency ?? 'auto_str_381'.tr();
     final content = '''
-🏆 $itemName
-📊 سعر الشراء: ${buyPrice.toStringAsFixed(0)} ${currency ?? 'auto_str_381'.tr()}
-💵 سعر المبيع: ${sellPrice.toStringAsFixed(0)} ${currency ?? 'auto_str_381'.tr()}
+$itemName
+• ${'buy_price'.tr()}: ${buyPrice.toStringAsFixed(0)} $curr
+• ${'sell_price'.tr()}: ${sellPrice.toStringAsFixed(0)} $curr
 
-⏰ ${DateTime.now().toString().split('.')[0]}''';
+${DateTime.now().toString().split('.')[0]}''';
 
     await ShareService.shareText(text: content);
 
@@ -157,7 +158,7 @@ class ShareService {
         content: Row(
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Text(message),
           ],
         ),
@@ -176,7 +177,7 @@ class ShareService {
         content: Row(
           children: [
             const Icon(Icons.error_outline, color: Colors.white),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(child: Text(message)),
           ],
         ),
