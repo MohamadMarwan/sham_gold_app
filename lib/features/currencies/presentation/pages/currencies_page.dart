@@ -159,9 +159,6 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
         stream: priceService.settingsStream,
         initialData: priceService.currentSettings,
         builder: (context, settingsSnapshot) {
-          final appName =
-              settingsSnapshot.data?['appName'] as String? ?? 'auto_str_278'.tr();
-
           return CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -188,7 +185,7 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
                   titlePadding: const EdgeInsets.only(bottom: 100),
-                  title: Text(appName,
+                  title: Text('auto_str_278'.tr(),
                       style: TextStyle(
                           fontWeight: FontWeight.w900,
                           color: Colors.white,

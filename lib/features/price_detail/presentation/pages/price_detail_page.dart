@@ -107,8 +107,8 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
             );
           }).toList();
 
-          // Calculate dynamic change if in day view
-          if (selectedRange == 'day' && historyPoints.length >= 2) {
+          // Calculate dynamic change across the selected timeframe
+          if (historyPoints.length >= 2) {
             final first = historyPoints.first.price;
             final last = historyPoints.last.price;
             if (first > 0) {
@@ -852,8 +852,14 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
 
     if (!showNote) return const SizedBox.shrink();
 
-    final noteText = displaySettings?['historyNoteText'] ??
-        'auto_str_028'.tr();
+    final rawNote = displaySettings?['historyNoteText'] as String?;
+    const defaultArNote =
+        'ملاحظة: البيانات التاريخية تُحدث كل 5-20 دقيقة حسب حركة السوق العالمية.';
+    final noteText = (rawNote != null &&
+            rawNote.isNotEmpty &&
+            rawNote.trim() != defaultArNote.trim())
+        ? rawNote
+        : 'auto_str_028'.tr();
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return PremiumCard(
@@ -910,15 +916,43 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Icon(Icons.analytics_rounded, color: AppColors.gold, size: 24),
-              const SizedBox(width: 12),
-              Text(
-                'market_details'.tr(),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
+              Row(
+                children: [
+                  const Icon(Icons.analytics_rounded, color: AppColors.gold, size: 24),
+                  const SizedBox(width: 12),
+                  Text(
+                    'market_details'.tr(),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.gold.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  selectedRange == 'day'
+                      ? 'range_24h'.tr()
+                      : (selectedRange == 'week'
+                          ? 'range_1w'.tr()
+                          : (selectedRange == 'month'
+                              ? 'range_1m'.tr()
+                              : 'range_1y'.tr())),
+                  style: const TextStyle(
+                    color: AppColors.gold,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Cairo',
+                  ),
                 ),
               ),
             ],

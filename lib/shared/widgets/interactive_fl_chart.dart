@@ -18,6 +18,20 @@ class InteractiveFlChart extends StatelessWidget {
     this.showMA = false,
   });
 
+  String _formatPrice(double value, double diff) {
+    if (diff < 0.05) {
+      return value.toStringAsFixed(3);
+    } else if (diff < 2) {
+      return value.toStringAsFixed(2);
+    } else if (diff < 50) {
+      return value.toStringAsFixed(1);
+    } else if (value >= 1000000) {
+      return NumberFormat.compact().format(value);
+    } else {
+      return NumberFormat('#,##0', 'en_US').format(value);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (history.isEmpty) {
@@ -29,11 +43,12 @@ class InteractiveFlChart extends StatelessWidget {
 
     final minPrice = history.map((e) => e.price).reduce((a, b) => a < b ? a : b);
     final maxPrice = history.map((e) => e.price).reduce((a, b) => a > b ? a : b);
-    final diff = maxPrice - minPrice;
+    final rawDiff = maxPrice - minPrice;
+    final diff = rawDiff == 0 ? (maxPrice * 0.02).clamp(0.1, 10.0) : rawDiff;
     
-    // Add 10% padding to top and bottom
-    final maxY = maxPrice + (diff * 0.1);
-    final minY = (minPrice - (diff * 0.1)).clamp(0.0, double.infinity);
+    // Add 12% padding to top and bottom for visual breathing room
+    final maxY = maxPrice + (diff * 0.12);
+    final minY = (minPrice - (diff * 0.12)).clamp(0.0, double.infinity);
 
     final spots = history.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.price);
@@ -52,6 +67,8 @@ class InteractiveFlChart extends StatelessWidget {
       }
     }
 
+    final localeStr = context.locale.toString();
+
     return SizedBox(
       height: 250,
       child: LineChart(
@@ -59,10 +76,10 @@ class InteractiveFlChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: diff == 0 ? 1 : diff / 4,
+            horizontalInterval: diff / 4 > 0 ? diff / 4 : 1.0,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: Colors.grey.withValues(alpha: 0.2),
+                color: Colors.grey.withValues(alpha: 0.15),
                 strokeWidth: 1,
                 dashArray: [5, 5],
               );
@@ -76,24 +93,31 @@ class InteractiveFlChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 30,
-                interval: (spots.length / 5).clamp(1.0, double.infinity),
+                interval: (spots.length <= 5) ? 1.0 : (spots.length / 4),
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
                   if (index < 0 || index >= history.length) return const SizedBox.shrink();
                   final date = history[index].timestamp;
                   String text = '';
                   if (range == 'day') {
-                    text = DateFormat.Hm('ar_SA').format(date);
+                    text = DateFormat.Hm(localeStr).format(date);
                   } else if (range == 'week') {
-                    text = DateFormat.E('ar_SA').format(date);
+                    text = DateFormat.E(localeStr).format(date);
                   } else if (range == 'year') {
-                    text = DateFormat('MMM', 'ar_SA').format(date);
+                    text = DateFormat('MMM', localeStr).format(date);
                   } else {
-                    text = DateFormat.Md('ar_SA').format(date);
+                    text = DateFormat('d MMM', localeStr).format(date);
                   }
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(text, style: const TextStyle(color: AppColors.mutedText, fontSize: 10)),
+                    child: Text(
+                      text,
+                      style: const TextStyle(
+                        color: AppColors.mutedText,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   );
                 },
               ),
@@ -101,12 +125,19 @@ class InteractiveFlChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 40,
+                reservedSize: 52,
                 getTitlesWidget: (value, meta) {
-                  if (value == maxY || value == minY) return const SizedBox.shrink();
-                  return Text(
-                    NumberFormat.compact().format(value),
-                    style: const TextStyle(color: AppColors.mutedText, fontSize: 10, fontWeight: FontWeight.bold),
+                  if (value >= maxY || value <= minY) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 6.0),
+                    child: Text(
+                      _formatPrice(value, diff),
+                      style: const TextStyle(
+                        color: AppColors.mutedText,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   );
                 },
               ),
@@ -121,6 +152,8 @@ class InteractiveFlChart extends StatelessWidget {
             LineChartBarData(
               spots: spots,
               isCurved: true,
+              preventCurveOverShooting: true,
+              curveSmoothness: 0.2,
               color: lineColor,
               barWidth: 3,
               isStrokeCapRound: true,
@@ -129,7 +162,7 @@ class InteractiveFlChart extends StatelessWidget {
                 show: true,
                 gradient: LinearGradient(
                   colors: [
-                    lineColor.withValues(alpha: 0.3),
+                    lineColor.withValues(alpha: 0.25),
                     lineColor.withValues(alpha: 0.0),
                   ],
                   begin: Alignment.topCenter,
@@ -141,6 +174,8 @@ class InteractiveFlChart extends StatelessWidget {
               LineChartBarData(
                 spots: maSpots,
                 isCurved: true,
+                preventCurveOverShooting: true,
+                curveSmoothness: 0.2,
                 color: Colors.orange,
                 barWidth: 2,
                 isStrokeCapRound: true,
@@ -150,14 +185,17 @@ class InteractiveFlChart extends StatelessWidget {
           ],
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(
-              tooltipRoundedRadius: 8,
+              tooltipRoundedRadius: 10,
+              tooltipBgColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E293B)
+                  : const Color(0xFF0F2E25),
               getTooltipItems: (touchedSpots) {
                 return touchedSpots.map((spot) {
                   final date = history[spot.x.toInt()].timestamp;
-                  final timeStr = DateFormat('dd MMM - HH:mm', 'ar_SA').format(date);
+                  final timeStr = DateFormat('dd MMM yyyy - HH:mm', localeStr).format(date);
                   return LineTooltipItem(
-                    '${NumberFormat('#,##0.##').format(spot.y)}\n',
-                    const TextStyle(color: AppColors.gold, fontWeight: FontWeight.bold, fontSize: 14),
+                    '${NumberFormat('#,##0.##', 'en_US').format(spot.y)}\n',
+                    const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 14),
                     children: [
                       TextSpan(
                         text: timeStr,

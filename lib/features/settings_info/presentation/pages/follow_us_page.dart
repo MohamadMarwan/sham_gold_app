@@ -194,7 +194,12 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                   _buildLogo(settings),
                   const SizedBox(height: 16),
                   Text(
-                    settings['appName'] ?? 'auto_str_320'.tr(),
+                    (settings['appName'] != null &&
+                            settings['appName'].toString().trim().isNotEmpty &&
+                            settings['appName'].toString().trim() != 'غولد شام' &&
+                            settings['appName'].toString().trim() != 'شام غولد')
+                        ? settings['appName'].toString()
+                        : 'auto_str_320'.tr(),
                     style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,

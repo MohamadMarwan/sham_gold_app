@@ -162,7 +162,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
               builder: (context, snapshot) {
                 final settings = snapshot.data;
                 final logoUrl = settings?['logoUrl'] as String?;
-                final appName = settings?['appName'] as String? ?? 'auto_str_320'.tr();
+                final rawAppName = settings?['appName'] as String?;
+                final appName = (rawAppName != null &&
+                        rawAppName.trim().isNotEmpty &&
+                        rawAppName.trim() != 'غولد شام' &&
+                        rawAppName.trim() != 'شام غولد')
+                    ? rawAppName
+                    : 'auto_str_320'.tr();
 
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
