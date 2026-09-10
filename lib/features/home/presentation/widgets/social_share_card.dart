@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/models/country_model.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 
 enum ShareCardFormat { square, story }
 
@@ -105,7 +106,7 @@ class SocialShareCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(country.flag, style: const TextStyle(fontSize: 16)),
+                    CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 16),
                     const SizedBox(width: 6),
                     Text(
                       'market_of'.tr(args: [country.name.tr()]),

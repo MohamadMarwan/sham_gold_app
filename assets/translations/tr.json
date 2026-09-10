@@ -924,5 +924,12 @@
   "alert_dip_buying_title": "Dip Alım Fırsatı (Toparlanma)",
   "alert_dip_buying_body": "{} fiyatı düşüşün ardından toparlanarak {} {} seviyesine ulaştı",
   "smart_alerts_channel_name": "Akıllı Fiyat Uyarıları",
-  "smart_alerts_channel_desc": "Fiyat hedefleri ve anlık altın dalgalanmaları için bildirimler"
+  "smart_alerts_channel_desc": "Fiyat hedefleri ve anlık altın dalgalanmaları için bildirimler",
+  "no_market_data": "Bu piyasa için veri bulunamadı",
+  "favorite_markets": "Favori Piyasalar",
+  "choose_favorite_markets": "Favori Piyasalarınızı Seçin",
+  "select_up_to_two": "Başlangıçta ana kart olarak görüntülemek için en fazla iki piyasa seçebilirsiniz",
+  "market_of_now": "Mevcut Piyasanız",
+  "exchange_rate": "Döviz Kuru",
+  "chart_update_note": "Not: Geçmiş veriler küresel piyasa hareketlerine bağlı olarak 5-20 dakikada bir güncellenmektedir."
 }

@@ -4,6 +4,7 @@ import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/core/services/http_api_service.dart';
 import 'package:gold_sham/shared/widgets/section_header.dart';
 import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
+import 'package:gold_sham/shared/widgets/country_flag_widget.dart';
 
 class GlobalFxBulletinWidget extends StatefulWidget {
   const GlobalFxBulletinWidget({super.key});
@@ -180,7 +181,7 @@ class _GlobalFxBulletinWidgetState extends State<GlobalFxBulletinWidget> {
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                       child: Row(
                         children: [
-                          Text(_getFlagEmoji(code), style: const TextStyle(fontSize: 20)),
+                          CountryFlagWidget(countryCode: code, flagEmoji: _getFlagEmoji(code), size: 20),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(

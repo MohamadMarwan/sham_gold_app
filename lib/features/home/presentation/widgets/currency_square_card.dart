@@ -9,6 +9,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/services/price_service.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 import 'smart_alerts_sheet.dart';
 
 class CurrencySquareCard extends ConsumerStatefulWidget {
@@ -192,9 +193,10 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                   border: Border.all(color: Colors.white24, width: 0.8),
                                 ),
                                 child: Center(
-                                  child: Text(
-                                    widget.flagEmoji,
-                                    style: const TextStyle(fontSize: 13),
+                                  child: CountryFlagWidget(
+                                    flagEmoji: widget.flagEmoji,
+                                    countryCode: widget.currencyCode,
+                                    size: 13,
                                   ),
                                 ),
                               ),
@@ -547,7 +549,11 @@ class CompactCurrencyCard extends StatelessWidget {
                 color: isDark ? Colors.white10 : const Color(0xFFF1F5F9),
               ),
               child: Center(
-                child: Text(flagEmoji, style: const TextStyle(fontSize: 14)),
+                child: CountryFlagWidget(
+                  flagEmoji: flagEmoji,
+                  countryCode: currencyCode,
+                  size: 14,
+                ),
               ),
             ),
             const SizedBox(width: 8),

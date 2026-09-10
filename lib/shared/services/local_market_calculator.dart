@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../models/country_model.dart';
 import '../../core/services/http_api_service.dart';
 import '../../core/utils/currency_utils.dart';
@@ -37,15 +38,54 @@ class LocalMarketCalculator {
     'SYP': 130.0,
     'BHD': 0.376,
     'OMR': 0.385,
-    'MAD': 10.05,
+    'MAD': 9.95,
+    'ILS': 3.65,
     'TND': 3.12,
     'SDG': 600.0,
     'YER': 250.0,
+    'MRU': 39.5,
+    'SOS': 571.0,
     'GBP': 0.74,
     'CAD': 1.41,
     'AUD': 1.58,
     'CHF': 0.89,
+    'JPY': 150.0,
+    'CNY': 7.20,
   };
+
+  static double _defaultFallbackFor(String currencyCode, String countryCode) {
+    switch (currencyCode.toUpperCase()) {
+      case 'MRU': return 39.5;
+      case 'SOS': return 571.0;
+      case 'ILS': return 3.65;
+      case 'MAD': return 9.95;
+      case 'BHD': return 0.376;
+      case 'OMR': return 0.385;
+      case 'KWD': return 0.308;
+      case 'QAR': return 3.64;
+      case 'JOD': return 0.709;
+      case 'SAR': return 3.75;
+      case 'AED': return 3.6725;
+      case 'EGP': return 50.89;
+      case 'IQD': return 1310.0;
+      case 'DZD': return 134.5;
+      case 'LBP': return 89500.0;
+      case 'LYD': return 4.85;
+      case 'TRY': return 48.46;
+      case 'EUR': return 0.86;
+      case 'GBP': return 0.74;
+      case 'SYP': return 130.0;
+      case 'TND': return 3.12;
+      case 'SDG': return 600.0;
+      case 'YER': return 250.0;
+      case 'CAD': return 1.41;
+      case 'AUD': return 1.58;
+      case 'CHF': return 0.89;
+      case 'JPY': return 150.0;
+      case 'CNY': return 7.20;
+      default: return 1.0;
+    }
+  }
 
   double _goldOunceUSD = 4400.0;
   double _silverOunceUSD = 65.0;
@@ -137,7 +177,9 @@ class LocalMarketCalculator {
       if (fxResponse is Map && fxResponse['rates'] != null) {
         final rates = fxResponse['rates'] as Map<String, dynamic>;
         for (final entry in rates.entries) {
-          _fxRates[entry.key] = (entry.value as num).toDouble();
+          final val = (entry.value as num).toDouble();
+          _fxRates[entry.key.toUpperCase()] = val;
+          _fxRates[entry.key.toLowerCase()] = val;
         }
         _fxSource = 'API /api/currencies/cross-rates (live)';
       }
@@ -157,7 +199,20 @@ class LocalMarketCalculator {
     final lowerCode = code.toLowerCase();
     final currencyCode = country.currencyCode;
     final currencySymbol = country.currencySymbol;
-    final rate = _fxRates[currencyCode] ?? _fxRates[code] ?? 1.0;
+
+    final rateLookup = _fxRates[currencyCode.toUpperCase()] ??
+        _fxRates[currencyCode.toLowerCase()] ??
+        _fxRates[code.toUpperCase()] ??
+        _fxRates[code.toLowerCase()];
+
+    final double rate;
+    if (rateLookup != null && rateLookup > 0) {
+      rate = rateLookup;
+    } else if (currencyCode.toUpperCase() == 'USD' || code == 'US' || code == 'GLOBAL') {
+      rate = 1.0;
+    } else {
+      rate = _defaultFallbackFor(currencyCode, code);
+    }
 
     const double spreadPercent = 0.5 / 100;
     final double g24USD = _goldOunceUSD / 31.1035;
@@ -200,8 +255,8 @@ class LocalMarketCalculator {
     // ════════════════════════════════════════════
     items.add({
       'id': '${code.toLowerCase()}_gold_24k',
-      'title': 'ذهب عيار 24',
-      'subtitle': 'ذهب خالص 999.9',
+      'title': 'gold_24k'.tr(),
+      'subtitle': 'ذهب خالص 999.9'.tr(),
       'karat': '24',
       ...k24,
       'currency': currencySymbol,
@@ -213,8 +268,8 @@ class LocalMarketCalculator {
 
     items.add({
       'id': '${code.toLowerCase()}_gold_22k',
-      'title': 'ذهب عيار 22',
-      'subtitle': 'عيار المجوهرات والسبائك',
+      'title': 'gold_22k'.tr(),
+      'subtitle': 'عيار المجوهرات والسبائك'.tr(),
       'karat': '22',
       ...k22,
       'currency': currencySymbol,
@@ -225,8 +280,8 @@ class LocalMarketCalculator {
 
     items.add({
       'id': '${code.toLowerCase()}_gold_21k',
-      'title': 'ذهب عيار 21',
-      'subtitle': 'الأكثر تداولاً في الأسواق',
+      'title': 'gold_21k'.tr(),
+      'subtitle': 'الأكثر تداولاً في الأسواق'.tr(),
       'karat': '21',
       ...k21,
       'currency': currencySymbol,
@@ -238,8 +293,8 @@ class LocalMarketCalculator {
 
     items.add({
       'id': '${code.toLowerCase()}_gold_18k',
-      'title': 'ذهب عيار 18',
-      'subtitle': 'عيار المشغولات الإيطالية',
+      'title': 'gold_18k'.tr(),
+      'subtitle': 'عيار المشغولات الإيطالية'.tr(),
       'karat': '18',
       ...k18,
       'currency': currencySymbol,
@@ -251,8 +306,8 @@ class LocalMarketCalculator {
 
     items.add({
       'id': '${code.toLowerCase()}_gold_14k',
-      'title': 'ذهب عيار 14',
-      'subtitle': 'المشغولات الخفيفة',
+      'title': 'gold_14k'.tr(),
+      'subtitle': 'المشغولات الخفيفة'.tr(),
       'karat': '14',
       ...k14,
       'currency': currencySymbol,
@@ -268,7 +323,7 @@ class LocalMarketCalculator {
     final ounceLocalSell = double.parse((_goldOunceUSD * rate * (1 + spreadPercent)).toStringAsFixed(2));
     items.add({
       'id': '${code.toLowerCase()}_gold_ounce',
-      'title': 'أونصة الذهب',
+      'title': 'gold_ounce'.tr(),
       'subtitle': '31.1035 غرام (عيار 24)',
       'buyPrice': ounceLocalBuy,
       'sellPrice': ounceLocalSell,
@@ -283,7 +338,7 @@ class LocalMarketCalculator {
     final kiloLocalSell = double.parse((_goldOunceUSD * 32.1507 * rate * (1 + spreadPercent * 0.5)).toStringAsFixed(2));
     items.add({
       'id': '${code.toLowerCase()}_gold_kilo',
-      'title': 'كيلو الذهب',
+      'title': 'gold_kilo'.tr(),
       'subtitle': '1000 غرام (سبيكة 24K)',
       'buyPrice': kiloLocalBuy,
       'sellPrice': kiloLocalSell,
@@ -302,7 +357,7 @@ class LocalMarketCalculator {
     // ════════════════════════════════════════════
     items.add({
       'id': '${code.toLowerCase()}_silver_gram',
-      'title': 'غرام الفضة النقية',
+      'title': 'silver_pure_gram'.tr(),
       'subtitle': 'فضة عيار 999',
       'buyPrice': double.parse((silverGramUSD * rate * 0.97).toStringAsFixed(2)),
       'sellPrice': double.parse((silverGramUSD * rate * 1.03).toStringAsFixed(2)),
@@ -316,7 +371,7 @@ class LocalMarketCalculator {
     final silverOunceUSD = _silverOunceUSD > 0 ? _silverOunceUSD : (silverGramUSD * 31.1035);
     items.add({
       'id': '${code.toLowerCase()}_silver_ounce',
-      'title': 'أونصة الفضة',
+      'title': 'silver_ounce'.tr(),
       'subtitle': '31.1035 غرام (فضة 999)',
       'buyPrice': double.parse((silverOunceUSD * rate * 0.97).toStringAsFixed(2)),
       'sellPrice': double.parse((silverOunceUSD * rate * 1.03).toStringAsFixed(2)),
@@ -330,7 +385,7 @@ class LocalMarketCalculator {
     final silverKiloUSD = silverGramUSD * 1000;
     items.add({
       'id': '${code.toLowerCase()}_silver_kilo',
-      'title': 'كيلو الفضة',
+      'title': 'silver_1kg_bar'.tr(),
       'subtitle': '1000 غرام (سبيكة فضة 999)',
       'buyPrice': double.parse((silverKiloUSD * rate * 0.97).toStringAsFixed(2)),
       'sellPrice': double.parse((silverKiloUSD * rate * 1.03).toStringAsFixed(2)),
@@ -379,7 +434,7 @@ class LocalMarketCalculator {
       final poundBuy = double.parse((k21['buyPrice'] * 8).toStringAsFixed(2));
       final poundSell = double.parse((k21['sellPrice'] * 8).toStringAsFixed(2));
       items.add({
-        'id': 'eg_gold_pound', 'title': 'الجنيه الذهب',
+        'id': 'eg_gold_pound', 'title': 'الجنيه الذهب'.tr(),
         'subtitle': '8 غرام عيار 21',
         'buyPrice': poundBuy, 'sellPrice': poundSell,
         'usdPrice': double.parse((k21['usdPrice'] * 8).toStringAsFixed(2)),
@@ -387,7 +442,7 @@ class LocalMarketCalculator {
         'metalType': 'gold_coin', 'countryCode': code, 'isPopular': true,
       });
       items.add({
-        'id': 'eg_half_pound', 'title': 'نصف جنيه ذهب',
+        'id': 'eg_half_pound', 'title': 'نصف جنيه ذهب'.tr(),
         'subtitle': '4 غرام عيار 21',
         'buyPrice': double.parse((poundBuy / 2).toStringAsFixed(2)),
         'sellPrice': double.parse((poundSell / 2).toStringAsFixed(2)),
@@ -399,7 +454,7 @@ class LocalMarketCalculator {
       final mBuy = double.parse((k21['buyPrice'] * 5).toStringAsFixed(0));
       final mSell = double.parse((k21['sellPrice'] * 5).toStringAsFixed(0));
       items.add({
-        'id': 'iq_mithqal_gulf', 'title': 'مثقال الذهب الخليجي (21)',
+        'id': 'iq_mithqal_gulf', 'title': 'مثقال الذهب الخليجي (21)'.tr(),
         'subtitle': '5 غرام عيار 21 خليجي وبارس',
         'buyPrice': mBuy, 'sellPrice': mSell,
         'usdPrice': double.parse((k21['usdPrice'] * 5).toStringAsFixed(2)),
@@ -407,7 +462,7 @@ class LocalMarketCalculator {
         'metalType': 'gold_unit', 'countryCode': code, 'isPopular': true,
       });
       items.add({
-        'id': 'iq_mithqal_local', 'title': 'مثقال الذهب العراقي (21)',
+        'id': 'iq_mithqal_local', 'title': 'مثقال الذهب العراقي (21)'.tr(),
         'subtitle': '5 غرام عيار 21 صياغة محلية',
         'buyPrice': double.parse((mBuy * 0.98).toStringAsFixed(0)),
         'sellPrice': double.parse((mSell * 0.98).toStringAsFixed(0)),
@@ -419,7 +474,7 @@ class LocalMarketCalculator {
       final tolaBuy = double.parse((k24['buyPrice'] * 11.6638).toStringAsFixed(2));
       final tolaSell = double.parse((k24['sellPrice'] * 11.6638).toStringAsFixed(2));
       items.add({
-        'id': '${code.toLowerCase()}_gold_tola', 'title': 'تولة الذهب',
+        'id': '${code.toLowerCase()}_gold_tola', 'title': 'تولة الذهب'.tr(),
         'subtitle': '11.66 غرام (عيار 24)',
         'buyPrice': tolaBuy, 'sellPrice': tolaSell,
         'usdPrice': double.parse((k24['usdPrice'] * 11.6638).toStringAsFixed(2)),
@@ -428,7 +483,7 @@ class LocalMarketCalculator {
       });
     } else if (code == 'JO') {
       items.add({
-        'id': 'jo_rashadi_lira', 'title': 'الليرة الرشادية',
+        'id': 'jo_rashadi_lira', 'title': 'الليرة الرشادية'.tr(),
         'subtitle': '7 غرام عيار 21',
         'buyPrice': double.parse((k21['buyPrice'] * 7).toStringAsFixed(2)),
         'sellPrice': double.parse((k21['sellPrice'] * 7).toStringAsFixed(2)),
@@ -437,7 +492,7 @@ class LocalMarketCalculator {
         'metalType': 'gold_coin', 'countryCode': code, 'isPopular': true,
       });
       items.add({
-        'id': 'jo_english_lira', 'title': 'الليرة الإنجليزية',
+        'id': 'jo_english_lira', 'title': 'الليرة الإنجليزية'.tr(),
         'subtitle': '8 غرام عيار 21 (جورج / فكتوريا)',
         'buyPrice': double.parse((k21['buyPrice'] * 8).toStringAsFixed(2)),
         'sellPrice': double.parse((k21['sellPrice'] * 8).toStringAsFixed(2)),
@@ -447,7 +502,7 @@ class LocalMarketCalculator {
       });
     } else if (code == 'LY' || code == 'DZ') {
       items.add({
-        'id': '${code.toLowerCase()}_scrap_18k', 'title': 'ذهب كسر (عيار 18)',
+        'id': '${code.toLowerCase()}_scrap_18k', 'title': 'ذهب كسر (عيار 18)'.tr(),
         'subtitle': 'سعر شراء المستعمل من الزبون',
         'buyPrice': double.parse((k18['buyPrice'] * 0.985).toStringAsFixed(2)),
         'sellPrice': double.parse((k18['sellPrice'] * 0.985).toStringAsFixed(2)),
@@ -466,40 +521,30 @@ class LocalMarketCalculator {
     String currencySymbol,
     double localRate,
   ) {
-    const majorCurrencies = ['USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR', 'JOD', 'EGP', 'TRY', 'SYP', 'CAD', 'AUD', 'CHF'];
-    const currencyNames = {
-      'USD': 'الدولار',
-      'EUR': 'اليورو',
-      'GBP': 'الإسترليني',
-      'SAR': 'الريال السعودي',
-      'AED': 'الدرهم الإماراتي',
-      'KWD': 'الدينار الكويتي',
-      'QAR': 'الريال القطري',
-      'BHD': 'الدينار البحريني',
-      'OMR': 'الريال العماني',
-      'JOD': 'الدينار الأردني',
-      'EGP': 'الجنيه المصري',
-      'TRY': 'الليرة التركية',
-      'SYP': 'الليرة السورية',
-      'CAD': 'الدولار الكندي',
-      'AUD': 'الدولار الأسترالي',
-      'CHF': 'الفرنك السويسري',
-    };
+    const majorCurrencies = [
+      'USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD', 'QAR', 'BHD', 'OMR', 'JOD',
+      'EGP', 'TRY', 'SYP', 'MAD', 'ILS', 'CAD', 'AUD', 'CHF', 'MRU', 'SOS'
+    ];
 
     final shortSymbol = CurrencyUtils.getSymbol(currencyCode);
 
     for (final targetCurr in majorCurrencies) {
-      if (targetCurr == currencyCode) continue; // Skip self
+      if (targetCurr.toUpperCase() == currencyCode.toUpperCase()) continue; // Skip self
 
-      final targetRateToUsd = _fxRates[targetCurr] ?? 1.0;
+      final targetRateToUsd = _fxRates[targetCurr.toUpperCase()] ??
+          _fxRates[targetCurr.toLowerCase()] ??
+          _defaultFallbackFor(targetCurr, targetCurr);
 
       // Cross rate: 1 TargetCurrency = X LocalCurrency
       final crossRate = localRate / targetRateToUsd;
 
+      final pairTitle = CurrencyUtils.getCompactPairTitle(targetCurr, currencyCode);
+      final formula = CurrencyUtils.getCompactFormula(targetCurr, crossRate, currencyCode);
+
       items.add({
         'id': '${code.toLowerCase()}_fx_${targetCurr.toLowerCase()}',
-        'title': '${currencyNames[targetCurr] ?? targetCurr} مقابل $shortSymbol',
-        'subtitle': '1 $targetCurr = ${crossRate.toStringAsFixed(3)} $shortSymbol',
+        'title': pairTitle,
+        'subtitle': formula,
         'buyPrice': double.parse((crossRate * 0.998).toStringAsFixed(3)),
         'sellPrice': double.parse((crossRate * 1.002).toStringAsFixed(3)),
         'usdPrice': double.parse((1 / targetRateToUsd).toStringAsFixed(4)),

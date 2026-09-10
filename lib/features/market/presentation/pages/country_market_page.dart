@@ -18,6 +18,7 @@ import 'package:gold_sham/features/home/presentation/widgets/zakat_banner_widget
 import 'package:gold_sham/features/home/presentation/widgets/live_price_ticker.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/services/local_market_calculator.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 
 class CountryMarketPage extends ConsumerStatefulWidget {
   final CountryModel? forcedCountry;
@@ -111,7 +112,7 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                 title: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(country.flag, style: const TextStyle(fontSize: 22)),
+                    CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 22),
                     const SizedBox(width: 8),
                     Text(
                       'market_of'.tr(args: [country.localizedName]),
@@ -221,7 +222,7 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                             shape: BoxShape.circle,
                             border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
                           ),
-                          child: Text(country.flag, style: const TextStyle(fontSize: 24)),
+                          child: CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 24),
                         ),
                         const SizedBox(width: 14),
                         Expanded(

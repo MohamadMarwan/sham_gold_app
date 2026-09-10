@@ -6,6 +6,7 @@ import 'package:gold_sham/core/constants/app_colors.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
 import 'package:gold_sham/features/home/presentation/widgets/social_share_sheet.dart';
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
+import 'package:gold_sham/shared/widgets/country_flag_widget.dart';
 
 /// شريط الدولة الحالي (Top Country Banner)
 /// يعرض الدولة المحددة حالياً (علم، اسم، عملة) ويتيح للمستخدم النقر
@@ -36,7 +37,7 @@ class TopCountryBanner extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Text(country.flag, style: const TextStyle(fontSize: 26)),
+          CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 26),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

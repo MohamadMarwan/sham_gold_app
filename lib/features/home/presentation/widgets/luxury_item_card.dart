@@ -6,6 +6,7 @@ import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/price_chart_widget.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 import 'social_share_card.dart'; // For ShareCardFormat
 
 class LuxuryItemCard extends StatelessWidget {
@@ -123,7 +124,7 @@ class LuxuryItemCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(country.flag, style: const TextStyle(fontSize: 16)),
+                    CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 16),
                     const SizedBox(width: 6),
                     Text(
                       country.name.tr(),

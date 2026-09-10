@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 
 class CountrySwitcherSheet extends ConsumerStatefulWidget {
   const CountrySwitcherSheet({super.key});
@@ -188,7 +189,7 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
                     ),
                     child: Row(
                       children: [
-                        Text(country.flag, style: const TextStyle(fontSize: 28)),
+                        CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 28),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(

@@ -20,6 +20,7 @@ import '../../../../core/services/ad_service.dart';
 import '../../../../core/providers/navigation_provider.dart';
 import 'bullions_coins_page.dart';
 import '../../../../shared/widgets/ticker_tape_widget.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -284,9 +285,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
               key: _marketKey,
               title: country.localizedName,
               description: 'showcase_market_desc'.tr(),
-              child: Text(country.flag, style: const TextStyle(fontSize: 18)),
+              child: CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
             ),
-            activeIcon: _buildActiveIcon(Text(country.flag, style: const TextStyle(fontSize: 22))),
+            activeIcon: _buildActiveIcon(CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 22)),
             label: country.localizedName,
           ),
         ),

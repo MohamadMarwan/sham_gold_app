@@ -101,6 +101,8 @@ class CurrencyUtils {
         return 'SOS';
       case 'شيكل':
       case 'الشيكل':
+      case 'شيكل فلسطيني':
+      case 'شيكل إسرائيلي':
       case '₪':
         return 'ILS';
       case 'ليرة تركية':
@@ -257,6 +259,7 @@ class CurrencyUtils {
         case 'CAD': return 'كندي';
         case 'AUD': return 'أسترالي';
         case 'CHF': return 'فرنك';
+        case 'ILS': return 'شيكل';
         default: return code;
       }
     }

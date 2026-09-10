@@ -930,5 +930,6 @@
   "alert_dip_buying_title": "Dip Buying Opportunity (Rebound)",
   "alert_dip_buying_body": "Price of {} rebounded after a decline, reaching {} {}",
   "smart_alerts_channel_name": "Smart Price Alerts",
-  "smart_alerts_channel_desc": "Notifications for price targets and instant gold volatility"
+  "smart_alerts_channel_desc": "Notifications for price targets and instant gold volatility",
+  "chart_update_note": "Note: Historical data is updated every 5-20 minutes based on global market movements."
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 
 class SummaryMarketsSheet extends ConsumerStatefulWidget {
   final List<String> initialSelectedCodes;
@@ -200,7 +201,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                     ),
                     child: Row(
                       children: [
-                        Text(country.flag, style: const TextStyle(fontSize: 28)),
+                        CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 28),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(
