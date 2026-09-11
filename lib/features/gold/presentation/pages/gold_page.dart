@@ -33,6 +33,7 @@ import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sh
 
 import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
 import 'package:gold_sham/features/home/presentation/widgets/live_price_ticker.dart';
+import 'package:gold_sham/shared/widgets/banner_placement_widget.dart';
 
 class GoldPage extends ConsumerStatefulWidget {
   final Function(int)? onNavigate;
@@ -319,8 +320,15 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 160),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    // Offline Status Notice Banner (Shown when network is unavailable)
-                    const OfflineNoticeBanner(),
+                    // Offline Status Notice Banner (Shown when network is unavailable and enabled by admin)
+                    if (priceService.shouldShow('homeShowOfflineBanner', defaultValue: true))
+                      const OfflineNoticeBanner(),
+
+                    // ── [1] إعلان أعلى الصفحة الرئيسية ──
+                    const BannerPlacementWidget(
+                      location: 'home_top',
+                      margin: EdgeInsets.only(bottom: 12),
+                    ),
 
                     if (priceService.shouldShow('homeShowPriceTicker', defaultValue: true)) ...[
                       const LivePriceTicker(),
@@ -333,7 +341,14 @@ class _GoldPageState extends ConsumerState<GoldPage> {
 
                     // Smart Dual-Pricing Cards Section for Selected Country (Grid or List)
                     _buildCountrySmartCards(context, allPrices),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
+
+                    // ── [2] إعلان منتصف الصفحة الرئيسية ──
+                    const BannerPlacementWidget(
+                      location: 'home_mid',
+                      fallbackLocations: ['global_gold_mid'],
+                      margin: EdgeInsets.only(bottom: 14),
+                    ),
 
                     if (_showNewsTicker && priceService.shouldShow('homeShowNewsTicker')) ...[
                       const QuickNewsTicker(),
@@ -353,6 +368,13 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                       const QuickConverterWidget(),
                       const SizedBox(height: 14),
                     ],
+
+                    // ── [3] إعلان أسفل الصفحة الرئيسية ──
+                    const BannerPlacementWidget(
+                      location: 'home_bottom',
+                      margin: EdgeInsets.only(bottom: 14),
+                    ),
+
                     const SizedBox(height: 24),
                   ]),
                 ),

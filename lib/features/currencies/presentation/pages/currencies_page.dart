@@ -16,6 +16,7 @@ import '../../../../core/providers/country_provider.dart';
 import '../../../../core/providers/price_selectors.dart';
 import 'package:gold_sham/features/home/presentation/widgets/calculator_widget.dart';
 import 'package:gold_sham/features/home/presentation/widgets/currency_square_card.dart';
+import 'package:gold_sham/shared/widgets/banner_placement_widget.dart';
 
 class CurrenciesPage extends ConsumerStatefulWidget {
   const CurrenciesPage({super.key});
@@ -406,6 +407,12 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // ── [1] إعلان أعلى صفحة العملات ──
+                              const BannerPlacementWidget(
+                                location: 'currencies_top',
+                                margin: EdgeInsets.only(bottom: 14),
+                              ),
+
                               if (priceService
                                   .shouldShow('currencyShowSummaryWelcome')) ...[
                                 _buildWelcomeCard(context),
@@ -503,13 +510,25 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                               const SizedBox(height: 10),
                               _isGridView ? buildGrid(unpinnedList) : buildList(unpinnedList),
 
+                              // ── [2] إعلان منتصف صفحة العملات ──
+                              const BannerPlacementWidget(
+                                location: 'currencies_mid',
+                                margin: EdgeInsets.symmetric(vertical: 14),
+                              ),
+
                               // Calculator Section
                               if (priceService
                                   .shouldShow('currencyShowCalculator')) ...[
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 10),
                                 const CalculatorWidget(),
                                 const SizedBox(height: 16),
                               ],
+
+                              // ── [3] إعلان أسفل صفحة العملات ──
+                              const BannerPlacementWidget(
+                                location: 'currencies_bottom',
+                                margin: EdgeInsets.only(top: 14),
+                              ),
                             ],
                           ),
                         ),

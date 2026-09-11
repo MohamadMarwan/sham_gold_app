@@ -19,6 +19,7 @@ import 'package:gold_sham/features/home/presentation/widgets/live_price_ticker.d
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/services/local_market_calculator.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
+import '../../../../shared/widgets/banner_placement_widget.dart';
 
 class CountryMarketPage extends ConsumerStatefulWidget {
   final CountryModel? forcedCountry;
@@ -205,6 +206,14 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                 delegate: SliverChildListDelegate([
                   const LivePriceTicker(),
                   const SizedBox(height: 12),
+
+                  // ── [1] إعلان أعلى صفحة سوق الدولة ──
+                  const BannerPlacementWidget(
+                    location: 'country_market_top',
+                    fallbackLocations: ['market_top', 'syria_market_top', 'turkish_market_top'],
+                    margin: EdgeInsets.only(bottom: 14),
+                  ),
+
                   // Market Info Banner
                   PremiumCard(
                     padding: const EdgeInsets.all(16),
@@ -348,9 +357,16 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                         },
                       ),
                     
+                    // ── [2] إعلان منتصف صفحة سوق الدولة ──
+                    const BannerPlacementWidget(
+                      location: 'country_market_mid',
+                      fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
+                      margin: EdgeInsets.symmetric(vertical: 14),
+                    ),
+
                     // Custom Items Section
                     if (customItems.isNotEmpty) ...[
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           const Icon(Icons.stars_rounded, color: AppColors.gold, size: 20),
@@ -393,6 +409,13 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                     const SizedBox(height: 16),
                     if (priceService.shouldShow('homeShowZakatBanner', defaultValue: true))
                       const ZakatBannerWidget(),
+
+                    // ── [3] إعلان أسفل صفحة سوق الدولة ──
+                    const BannerPlacementWidget(
+                      location: 'country_market_bottom',
+                      fallbackLocations: ['market_bottom', 'syria_market_bottom', 'turkish_market_bottom'],
+                      margin: EdgeInsets.only(top: 14),
+                    ),
                   ],
                 ]),
               ),

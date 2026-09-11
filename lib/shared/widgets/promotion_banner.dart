@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/utils/web_stubs/ads_wrapper.dart';
 import 'package:gold_sham/core/services/ad_service.dart';
+import 'package:gold_sham/core/config/app_config.dart';
 import '../models/banner_item.dart';
 import 'ad_banner_widget.dart';
 
@@ -43,12 +44,25 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
     super.dispose();
   }
 
+  String _resolveImageUrl(String url) {
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    final base = AppConfig.baseUrl.endsWith('/')
+        ? AppConfig.baseUrl.substring(0, AppConfig.baseUrl.length - 1)
+        : AppConfig.baseUrl;
+    final path = url.startsWith('/') ? url : '/$url';
+    return '$base$path';
+  }
+
   Future<void> _handleTap() async {
     _controller.forward().then((_) => _controller.reverse());
     if (widget.banner.linkUrl.isNotEmpty) {
-      final uri = Uri.tryParse(widget.banner.linkUrl);
-      if (uri != null && await canLaunchUrl(uri)) {
-        await launchUrl(uri);
+      try {
+        final uri = Uri.tryParse(widget.banner.linkUrl);
+        if (uri != null && await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      } catch (e) {
+        debugPrint('Error launching banner URL: $e');
       }
     }
   }
@@ -58,7 +72,7 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
     if (widget.banner.type == 'ad') {
       if (AdService().isRewardActive) return const SizedBox.shrink();
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
+        margin: const EdgeInsets.symmetric(vertical: 6),
         alignment: Alignment.center,
         child: AdBannerWidget(
           adUnitId: widget.banner.adCode.isNotEmpty ? widget.banner.adCode : null,
@@ -71,7 +85,82 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
       );
     }
 
-    final bannerColor = Color(widget.banner.color);
+    // ── Pure Image Banner ──
+    if (widget.banner.type == 'image' && widget.banner.imageUrl != null && widget.banner.imageUrl!.isNotEmpty) {
+      return GestureDetector(
+        onTapDown: (_) => _controller.forward(),
+        onTapUp: (_) => _handleTap(),
+        onTapCancel: () => _controller.reverse(),
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
+            width: double.infinity,
+            height: widget.height ?? 95,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    _resolveImageUrl(widget.banner.imageUrl!),
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: const Color(0xFF1E293B),
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.broken_image_rounded, color: Colors.white38, size: 28),
+                    ),
+                  ),
+                  // Clickable indicator if link is provided
+                  if (widget.banner.linkUrl.isNotEmpty)
+                    Positioned(
+                      bottom: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.55),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white24, width: 0.8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.open_in_new_rounded, color: Colors.white, size: 11),
+                            SizedBox(width: 4),
+                            Text(
+                              'إعلان',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Cairo',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final bannerColor = Color(widget.banner.color != 0 ? widget.banner.color : 0xFF8B4513);
 
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
@@ -142,7 +231,7 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                 if (widget.banner.imageUrl != null && widget.banner.imageUrl!.isNotEmpty)
                   Positioned.fill(
                     child: Image.network(
-                      widget.banner.imageUrl!,
+                      _resolveImageUrl(widget.banner.imageUrl!),
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
                     ),

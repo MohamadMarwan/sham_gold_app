@@ -10,6 +10,7 @@ import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
 import 'package:gold_sham/features/home/presentation/widgets/square_price_card.dart';
 import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
+import 'package:gold_sham/shared/widgets/banner_placement_widget.dart';
 
 class BullionsCoinsPage extends ConsumerStatefulWidget {
   const BullionsCoinsPage({super.key});
@@ -144,9 +145,9 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
-                  labelColor: AppColors.darkGreen,
-                  unselectedLabelColor: isDark ? Colors.grey[400] : AppColors.mutedText,
-                  labelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w900, fontSize: 16),
+                  labelColor: Colors.black,
+                  unselectedLabelColor: isDark ? Colors.grey[400] : Colors.grey[600],
+                  labelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w900, fontSize: 15),
                   unselectedLabelStyle: GoogleFonts.tajawal(fontWeight: FontWeight.w700, fontSize: 15),
                   tabs: [
                     Tab(
@@ -197,43 +198,126 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       );
     }
 
-    if (_isCompactView) {
-      return ListView.separated(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 120),
-        physics: const BouncingScrollPhysics(),
-        itemCount: items.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return CompactPriceCard(
-            priceItem: item,
-            localPrice: item.buyPrice,
-            localCurrencySymbol: item.currency,
-            usdPrice: item.usdPrice,
-          );
-        },
-      );
-    }
+    final int midIndex = items.length > 3 ? (items.length / 2).ceil() : items.length;
+    final firstItems = items.sublist(0, midIndex);
+    final secondItems = midIndex < items.length ? items.sublist(midIndex) : <PriceItem>[];
 
-    return GridView.builder(
-      padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 120),
+    return CustomScrollView(
       physics: const BouncingScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 1.15,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return SquarePriceCard(
-          priceItem: item,
-          localPrice: item.buyPrice,
-          localCurrencySymbol: item.currency,
-          usdPrice: item.usdPrice,
-        );
-      },
+      slivers: [
+        // ── [1] إعلان أعلى صفحة السبائك والليرات ──
+        const SliverBannerPlacementWidget(
+          location: 'bullions_top',
+          margin: EdgeInsets.fromLTRB(16, 10, 16, 6),
+        ),
+
+        // First items
+        if (_isCompactView)
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final item = firstItems[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: CompactPriceCard(
+                      priceItem: item,
+                      localPrice: item.buyPrice,
+                      localCurrencySymbol: item.currency,
+                      usdPrice: item.usdPrice,
+                    ),
+                  );
+                },
+                childCount: firstItems.length,
+              ),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1.15,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final item = firstItems[index];
+                  return SquarePriceCard(
+                    priceItem: item,
+                    localPrice: item.buyPrice,
+                    localCurrencySymbol: item.currency,
+                    usdPrice: item.usdPrice,
+                  );
+                },
+                childCount: firstItems.length,
+              ),
+            ),
+          ),
+
+        // ── [2] إعلان منتصف صفحة السبائك والليرات ──
+        const SliverBannerPlacementWidget(
+          location: 'bullions_mid',
+          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        ),
+
+        // Second items (if any)
+        if (secondItems.isNotEmpty)
+          if (_isCompactView)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final item = secondItems[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: CompactPriceCard(
+                        priceItem: item,
+                        localPrice: item.buyPrice,
+                        localCurrencySymbol: item.currency,
+                        usdPrice: item.usdPrice,
+                      ),
+                    );
+                  },
+                  childCount: secondItems.length,
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  childAspectRatio: 1.15,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final item = secondItems[index];
+                    return SquarePriceCard(
+                      priceItem: item,
+                      localPrice: item.buyPrice,
+                      localCurrencySymbol: item.currency,
+                      usdPrice: item.usdPrice,
+                    );
+                  },
+                  childCount: secondItems.length,
+                ),
+              ),
+            ),
+
+        // ── [3] إعلان أسفل صفحة السبائك والليرات ──
+        const SliverBannerPlacementWidget(
+          location: 'bullions_bottom',
+          margin: EdgeInsets.fromLTRB(16, 8, 16, 120),
+        ),
+      ],
     );
   }
 

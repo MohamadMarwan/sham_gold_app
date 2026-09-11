@@ -13,6 +13,8 @@ class BannerItem {
   final String linkUrl;
   final String adCode;
   final String adSize;
+  final bool active;
+  final int order;
 
   BannerItem({
     required this.id,
@@ -26,6 +28,8 @@ class BannerItem {
     this.linkUrl = '',
     this.adCode = '',
     this.adSize = 'banner',
+    this.active = true,
+    this.order = 0,
   });
 
   String getLocalizedTitle(BuildContext context) {
@@ -70,6 +74,8 @@ class BannerItem {
       linkUrl: json['linkUrl'] ?? '',
       adCode: json['adCode'] ?? '',
       adSize: json['adSize'] ?? 'banner',
+      active: json['active'] == null ? true : (json['active'] == true || json['active'].toString() == 'true'),
+      order: json['order'] is int ? json['order'] : int.tryParse(json['order']?.toString() ?? '0') ?? 0,
     );
   }
 
@@ -86,6 +92,8 @@ class BannerItem {
       'linkUrl': linkUrl,
       'adCode': adCode,
       'adSize': adSize,
+      'active': active,
+      'order': order,
     };
   }
 }

@@ -11,6 +11,8 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/providers/settings_provider.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/section_header.dart';
+import '../../../../shared/widgets/banner_placement_widget.dart';
+
 class FollowUsPage extends ConsumerStatefulWidget {
   const FollowUsPage({super.key});
 
@@ -47,9 +49,15 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
             slivers: [
               _buildPremiumHeader(settings),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 30, 20, 160),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 160),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    // ── [1] إعلان أعلى صفحة المزيد ──
+                    const BannerPlacementWidget(
+                      location: 'more_top',
+                      margin: EdgeInsets.only(bottom: 16),
+                    ),
+
                     _buildSectionHeader('our_channels'.tr()),
                     const SizedBox(height: 20),
                     
@@ -109,7 +117,14 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                         legacyLinks['website'],
                       ),
                     ],
-                    const SizedBox(height: 30),
+
+                    // ── [2] إعلان منتصف صفحة المزيد ──
+                    const BannerPlacementWidget(
+                      location: 'more_mid',
+                      margin: EdgeInsets.symmetric(vertical: 16),
+                    ),
+
+                    const SizedBox(height: 10),
                     _buildSettingsSection(context),
                     const SizedBox(height: 30),
                     _buildSupportInfo(),
@@ -119,7 +134,14 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                     _buildLegalLinks(),
                     const SizedBox(height: 40),
                     _buildDeveloperInfo(),
-                    const SizedBox(height: 30),
+
+                    // ── [3] إعلان أسفل صفحة المزيد ──
+                    const BannerPlacementWidget(
+                      location: 'more_bottom',
+                      margin: EdgeInsets.symmetric(vertical: 16),
+                    ),
+
+                    const SizedBox(height: 20),
                     Center(
                       child: Text(
                         'version'.tr(args: ['2.5.0']),

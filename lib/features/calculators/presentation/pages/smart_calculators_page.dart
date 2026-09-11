@@ -12,6 +12,7 @@ import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../shared/widgets/banner_placement_widget.dart';
 class SmartCalculatorsPage extends ConsumerStatefulWidget {
   const SmartCalculatorsPage({super.key});
 
@@ -199,6 +200,12 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
+              // ── [1] إعلان أعلى صفحة الحاسبة ──
+              const BannerPlacementWidget(
+                location: 'calculator_top',
+                margin: EdgeInsets.only(bottom: 14),
+              ),
+
               _buildCalculatorCard(
                 title: 'zakat_calculator'.tr(),
                 subtitle: 'zakat_calculator_desc'.tr(),
@@ -225,6 +232,13 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 onTap: () => setState(() => _selectedCalculatorIndex = 2),
                 isDark: isDark,
               ),
+
+              // ── [2] إعلان منتصف صفحة الحاسبة ──
+              const BannerPlacementWidget(
+                location: 'calculator_mid',
+                margin: EdgeInsets.symmetric(vertical: 12),
+              ),
+
               const SizedBox(height: 16),
               _buildCalculatorCard(
                 title: 'roi_calculator'.tr(),
@@ -260,6 +274,12 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
                 color: const Color(0xFF0EA5E9),
                 onTap: () => setState(() => _selectedCalculatorIndex = 6),
                 isDark: isDark,
+              ),
+
+              // ── [3] إعلان أسفل صفحة الحاسبة ──
+              const BannerPlacementWidget(
+                location: 'calculator_bottom',
+                margin: EdgeInsets.only(top: 16),
               ),
             ]),
           ),
@@ -399,6 +419,10 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
               ),
             ],
           ),
+        ),
+        const BannerPlacementWidget(
+          location: 'calculator_top',
+          margin: EdgeInsets.fromLTRB(16, 10, 16, 0),
         ),
         Expanded(child: content),
       ],

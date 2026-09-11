@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
+import 'package:gold_sham/shared/services/price_service.dart';
 
 /// شريط عدم الاتصال (Offline Notice Banner)
 /// يظهر للمستخدم في الجزء العلوي من الشاشة عندما ينقطع الاتصال بالإنترنت
@@ -12,6 +13,11 @@ class OfflineNoticeBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final priceService = ref.watch(priceServiceProvider);
+    if (!priceService.shouldShow('homeShowOfflineBanner', defaultValue: true)) {
+      return const SizedBox.shrink();
+    }
+
     final country = ref.watch(countryProvider);
     if (!country.isOffline) return const SizedBox.shrink();
 

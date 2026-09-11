@@ -18,6 +18,7 @@ import '../../../../core/services/ad_service.dart';
 import '../../../../core/utils/currency_utils.dart';
 import 'package:gold_sham/features/home/presentation/widgets/item_share_sheet.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../shared/widgets/banner_placement_widget.dart';
 
 enum ChartType { area, candlestick }
 
@@ -68,24 +69,19 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
       final currentItem =
           prices.where((p) => p.id == widget.priceItem.id).firstOrNull;
       if (currentItem != null && currentItem.lastUpdate != null) {
-        // Only append if price actually changed significantly
-        final lastPoint = historyPoints.lastOrNull;
-        if (lastPoint == null ||
-            (currentItem.lastUpdate!.isAfter(lastPoint.timestamp) &&
-                (currentItem.buyPrice - lastPoint.price).abs() > 0.001)) {
-          setState(() {
-            historyPoints.add(PriceHistoryPoint(
-              timestamp: currentItem.lastUpdate!,
-              price: currentItem.buyPrice,
-            ));
-            // Keep memory low
-            if (historyPoints.length > 50) historyPoints.removeAt(0);
-          });
+        if (widget.priceItem.lastUpdate == null ||
+            currentItem.lastUpdate!.isAfter(widget.priceItem.lastUpdate!)) {
+          if (mounted) {
+            setState(() {
+              _dynamicChange = currentItem.changePercentage;
+              _dynamicTrend = currentItem.trend;
+            });
+            _fetchHistory();
+          }
         }
       }
     });
   }
-
 
   Future<void> _fetchHistory() async {
     setState(() {
@@ -170,30 +166,49 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           key: _repaintBoundaryKey,
           child: CustomScrollView(
             physics: const BouncingScrollPhysics(),
-          slivers: [
-            _buildPremiumHeader(),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 50),
-                child: Column(
-                  children: [
-                    _buildPriceStatsCard(format),
-                    const SizedBox(height: 32),
-                    _buildChartSection(isGold),
-                    const SizedBox(height: 24),
-                    if (historyPoints.isNotEmpty) ...[
-                      _buildPurityAndOHLCCard(format),
+            slivers: [
+              _buildPremiumHeader(),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 50),
+                  child: Column(
+                    children: [
+                      // ── [1] إعلان أعلى صفحة تفاصيل السعر ──
+                      const BannerPlacementWidget(
+                        location: 'price_detail_top',
+                        margin: EdgeInsets.only(bottom: 16),
+                      ),
+
+                      _buildPriceStatsCard(format),
+                      const SizedBox(height: 20),
+
+                      // ── [2] إعلان منتصف صفحة تفاصيل السعر ──
+                      const BannerPlacementWidget(
+                        location: 'price_detail_mid',
+                        margin: EdgeInsets.only(bottom: 16),
+                      ),
+
+                      _buildChartSection(isGold),
+                      const SizedBox(height: 24),
+                      if (historyPoints.isNotEmpty) ...[
+                        _buildPurityAndOHLCCard(format),
+                        const SizedBox(height: 32),
+                      ],
+                      _buildHistoryList(format),
                       const SizedBox(height: 32),
+                      _buildMarketInfoTile(),
+
+                      // ── [3] إعلان أسفل صفحة تفاصيل السعر ──
+                      const BannerPlacementWidget(
+                        location: 'price_detail_bottom',
+                        margin: EdgeInsets.only(top: 20),
+                      ),
                     ],
-                    _buildHistoryList(format),
-                    const SizedBox(height: 32),
-                    _buildMarketInfoTile(),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );
