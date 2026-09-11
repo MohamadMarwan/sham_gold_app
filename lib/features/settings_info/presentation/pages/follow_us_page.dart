@@ -328,11 +328,22 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
       return const SizedBox.shrink();
     }
 
-    final title = priceService.getDisplaySetting('supportTitle',
-        defaultValue: 'support_title_default'.tr());
-    final subtitle = priceService.getDisplaySetting('supportSubtitle',
-        defaultValue:
-            'support_subtitle_default'.tr());
+    final rawTitle = priceService.getDisplaySetting('supportTitle') as String?;
+    const defaultArTitle = 'دعم فني وتواصل';
+    final isDefaultTitle = rawTitle == null ||
+        rawTitle.trim().isEmpty ||
+        rawTitle.trim() == defaultArTitle ||
+        rawTitle.trim() == 'الدعم الفني';
+    final title = isDefaultTitle ? 'support_title_default'.tr() : rawTitle.trim();
+
+    final rawSubtitle = priceService.getDisplaySetting('supportSubtitle') as String?;
+    const defaultArSubtitle = 'فريقنا متاح للرد على استفساراتكم وملاحظاتكم على مدار الساعة.';
+    final isDefaultSubtitle = rawSubtitle == null ||
+        rawSubtitle.trim().isEmpty ||
+        rawSubtitle.trim() == defaultArSubtitle ||
+        rawSubtitle.trim().contains('فريقنا متاح للرد على استفساراتكم') ||
+        rawSubtitle.trim() == 'تواصل معنا';
+    final subtitle = isDefaultSubtitle ? 'support_subtitle_default'.tr() : rawSubtitle.trim();
     String supportWhatsapp =
         priceService.getDisplaySetting('supportWhatsapp') ?? '';
     if (supportWhatsapp.trim().isEmpty) {
@@ -366,14 +377,16 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                       style: TextStyle(
                           fontWeight: FontWeight.w900,
                           color: isDark ? Colors.white : AppColors.darkGreen,
+                          fontFamily: 'Cairo',
                           fontSize: 16),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? AppColors.mutedText : AppColors.darkGreen,
+                          fontSize: 13,
+                          color: isDark ? Colors.white70 : AppColors.secondaryText,
+                          fontFamily: 'Cairo',
                           height: 1.4,
                           fontWeight: FontWeight.w500),
                     ),
@@ -416,6 +429,7 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
                       color: Color(0xFF25D366),
                     ),
                   ),

@@ -108,6 +108,21 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
     });
   }
 
+  String _formatConversionValue(dynamic val, {int maxDecimals = 4}) {
+    if (val == null) return '0';
+    final double? numVal = val is num ? val.toDouble() : double.tryParse(val.toString());
+    if (numVal == null) return '0';
+    if (numVal == 0) return '0';
+    String formatted = numVal.toStringAsFixed(maxDecimals);
+    if (formatted.contains('.')) {
+      formatted = formatted.replaceAll(RegExp(r'0+$'), '');
+      if (formatted.endsWith('.')) {
+        formatted = formatted.substring(0, formatted.length - 1);
+      }
+    }
+    return formatted;
+  }
+
   @override
   void dispose() {
     _zakat24Controller.dispose();
@@ -781,13 +796,13 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
             _buildResultCard(
               title: 'auto_str_070'.tr(),
               items: [
-                {'label': 'auto_str_333'.tr(), 'value': '${_conversionResult!['gram']} ${'auto_str_097'.tr()}'},
-                {'label': 'auto_str_126'.tr(), 'value': '${_conversionResult!['ounce']} ${'auto_str_089'.tr()}'},
-                {'label': 'auto_str_316'.tr(), 'value': '${_conversionResult!['mithqal']} ${'auto_str_088'.tr()}'},
-                {'label': 'auto_str_239'.tr(), 'value': '${_conversionResult!['tola']} ${'auto_str_096'.tr()}'},
-                {'label': 'auto_str_118'.tr(), 'value': '${_conversionResult!['english']} ${'auto_str_095'.tr()}'},
-                {'label': 'auto_str_063'.tr(), 'value': '${_conversionResult!['rashadi']} ${'auto_str_095'.tr()}'},
-                {'label': 'auto_str_274'.tr(), 'value': '${_conversionResult!['kilo']} ${'auto_str_107'.tr()}'},
+                {'label': 'auto_str_333'.tr(), 'value': '${_formatConversionValue(_conversionResult!['gram'])} ${'auto_str_097'.tr()}'},
+                {'label': 'auto_str_126'.tr(), 'value': '${_formatConversionValue(_conversionResult!['ounce'])} ${'auto_str_089'.tr()}'},
+                {'label': 'auto_str_316'.tr(), 'value': '${_formatConversionValue(_conversionResult!['mithqal'])} ${'auto_str_088'.tr()}'},
+                {'label': 'auto_str_239'.tr(), 'value': '${_formatConversionValue(_conversionResult!['tola'])} ${'auto_str_096'.tr()}'},
+                {'label': 'auto_str_118'.tr(), 'value': '${_formatConversionValue(_conversionResult!['english'])} ${'auto_str_095'.tr()}'},
+                {'label': 'auto_str_063'.tr(), 'value': '${_formatConversionValue(_conversionResult!['rashadi'])} ${'auto_str_095'.tr()}'},
+                {'label': 'auto_str_274'.tr(), 'value': '${_formatConversionValue(_conversionResult!['kilo'], maxDecimals: 5)} ${'auto_str_107'.tr()}'},
               ],
               isHighlight: true,
             ),
