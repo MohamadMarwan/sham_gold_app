@@ -35,7 +35,7 @@ class LocalMarketCalculator {
     'LYD': 4.85,
     'TRY': 48.46,
     'EUR': 0.86,
-    'SYP': 130.0,
+    'SYP': 132.0,
     'BHD': 0.376,
     'OMR': 0.385,
     'MAD': 9.95,
@@ -74,7 +74,7 @@ class LocalMarketCalculator {
       case 'TRY': return 48.46;
       case 'EUR': return 0.86;
       case 'GBP': return 0.74;
-      case 'SYP': return 130.0;
+      case 'SYP': return 132.0;
       case 'TND': return 3.12;
       case 'SDG': return 600.0;
       case 'YER': return 250.0;
@@ -135,7 +135,7 @@ class LocalMarketCalculator {
         _silverOunceUSD = buyPrice;
       }
       if (id == 'sy_usd' && buyPrice > 10) {
-        _fxRates['SYP'] = buyPrice;
+        _fxRates['SYP'] = buyPrice > 1000 ? buyPrice / 100 : buyPrice;
       }
     }
     _lastUpdate = DateTime.now();
@@ -163,7 +163,7 @@ class LocalMarketCalculator {
           }
           if (id == 'sy_usd' && p['buyPrice'] != null) {
             final val = (p['buyPrice'] as num).toDouble();
-            if (val > 10) _fxRates['SYP'] = val;
+            if (val > 10) _fxRates['SYP'] = val > 1000 ? val / 100 : val;
           }
         }
       }
@@ -177,7 +177,10 @@ class LocalMarketCalculator {
       if (fxResponse is Map && fxResponse['rates'] != null) {
         final rates = fxResponse['rates'] as Map<String, dynamic>;
         for (final entry in rates.entries) {
-          final val = (entry.value as num).toDouble();
+          double val = (entry.value as num).toDouble();
+          if (entry.key.toUpperCase() == 'SYP' && val > 1000) {
+            val = val / 100;
+          }
           _fxRates[entry.key.toUpperCase()] = val;
           _fxRates[entry.key.toLowerCase()] = val;
         }
@@ -232,9 +235,15 @@ class LocalMarketCalculator {
       final scrapedId = '${lowerCode}_gold_$karatStr';
       final scraped = _scrapedPrices[scrapedId];
       if (scraped != null && scraped['buyPrice'] != null && (scraped['buyPrice'] as num) > 0) {
+        double sBuy = (scraped['buyPrice'] as num).toDouble();
+        double sSell = (scraped['sellPrice'] as num?)?.toDouble() ?? sBuy;
+        if (code == 'SY' && sBuy > 100000) {
+          sBuy = sBuy / 100;
+          sSell = sSell / 100;
+        }
         return {
-          'buyPrice': (scraped['buyPrice'] as num).toDouble(),
-          'sellPrice': (scraped['sellPrice'] as num?)?.toDouble() ?? (scraped['buyPrice'] as num).toDouble(),
+          'buyPrice': sBuy,
+          'sellPrice': sSell,
           'usdPrice': usdPrice,
         };
       }
@@ -531,9 +540,12 @@ class LocalMarketCalculator {
     for (final targetCurr in majorCurrencies) {
       if (targetCurr.toUpperCase() == currencyCode.toUpperCase()) continue; // Skip self
 
-      final targetRateToUsd = _fxRates[targetCurr.toUpperCase()] ??
+      final targetRateRaw = _fxRates[targetCurr.toUpperCase()] ??
           _fxRates[targetCurr.toLowerCase()] ??
           _defaultFallbackFor(targetCurr, targetCurr);
+      final double targetRateToUsd = (targetCurr.toUpperCase() == 'SYP' && targetRateRaw > 1000)
+          ? targetRateRaw / 100
+          : targetRateRaw;
 
       // Cross rate: 1 TargetCurrency = X LocalCurrency
       final crossRate = localRate / targetRateToUsd;

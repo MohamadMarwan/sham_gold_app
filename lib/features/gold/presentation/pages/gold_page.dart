@@ -824,16 +824,18 @@ class _GoldPageState extends ConsumerState<GoldPage> {
 
   double _getSyriaUsdPrice(List<PriceItem> allPrices) {
     final syriaItems = allPrices.where((p) => p.id.startsWith('sy_')).toList();
-    if (syriaItems.isEmpty) return 15000.0;
+    if (syriaItems.isEmpty) return 132.0;
     final usdItem = syriaItems.firstWhere((p) => p.id == 'sy_usd', orElse: () => syriaItems.first);
-    return usdItem.buyPrice > 0 ? usdItem.buyPrice : 15000.0;
+    final val = usdItem.buyPrice > 0 ? usdItem.buyPrice : 132.0;
+    return val > 1000 ? (val / 100) : val;
   }
 
   double _getSyriaGold21Price(List<PriceItem> allPrices) {
     final syriaItems = allPrices.where((p) => p.id.startsWith('sy_')).toList();
-    if (syriaItems.isEmpty) return 1120000.0;
-    final gold21 = syriaItems.firstWhere((p) => p.id == 'sy_gold_21', orElse: () => syriaItems.first);
-    return gold21.buyPrice > 0 ? gold21.buyPrice : 1120000.0;
+    if (syriaItems.isEmpty) return 11500.0;
+    final gold21 = syriaItems.firstWhere((p) => p.id == 'sy_gold_21' || p.id == 'sy_gold_21k', orElse: () => syriaItems.first);
+    final val = gold21.buyPrice > 0 ? gold21.buyPrice : 11500.0;
+    return val > 100000 ? (val / 100) : val;
   }
 
   double _getTurkeyUsdPrice(List<PriceItem> allPrices) {
