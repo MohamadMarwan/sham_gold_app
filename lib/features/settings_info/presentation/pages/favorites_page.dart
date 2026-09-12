@@ -12,6 +12,8 @@ import 'package:gold_sham/features/price_detail/presentation/pages/price_detail_
 import '../../../../shared/widgets/custom_icon.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
 import '../../../../shared/widgets/premium_card.dart';
+import '../../../../shared/widgets/banner_placement_widget.dart';
+
 class FavoritesPage extends ConsumerStatefulWidget {
   const FavoritesPage({Key? key}) : super(key: key);
 
@@ -77,6 +79,14 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
               physics: const BouncingScrollPhysics(),
               slivers: [
                 _buildPremiumHeader(_favoriteIds.length),
+
+                // ── [1] إعلان أعلى المفضلة ──
+                const SliverBannerPlacementWidget(
+                  location: 'favorites_top',
+                  fallbackLocations: ['home_top'],
+                  margin: EdgeInsets.fromLTRB(16, 14, 16, 8),
+                ),
+
                 _isLoading
                     ? const SliverFillRemaining(
                         child: Center(
@@ -119,6 +129,13 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                               );
                             },
                           ),
+
+                // ── [2] إعلان أسفل المفضلة ──
+                const SliverBannerPlacementWidget(
+                  location: 'favorites_bottom',
+                  fallbackLocations: ['home_bottom'],
+                  margin: EdgeInsets.fromLTRB(16, 8, 16, 32),
+                ),
               ],
             );
           },

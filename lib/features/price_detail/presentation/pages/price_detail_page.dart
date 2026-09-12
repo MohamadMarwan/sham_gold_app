@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -97,9 +98,13 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
       if (mounted) {
         setState(() {
           historyPoints = data.map((item) {
+            final buy = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
+            final sell = (item['sellPrice'] as num?)?.toDouble() ?? buy;
             return PriceHistoryPoint(
               timestamp: DateTime.parse(item['timestamp']),
-              price: (item['buyPrice'] as num).toDouble(),
+              price: buy,
+              buyPrice: buy,
+              sellPrice: sell,
             );
           }).toList();
 
@@ -945,11 +950,16 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   }
 
   Widget _buildPurityAndOHLCCard(NumberFormat format) {
-    // 1. Calculate OHLC
-    double open = historyPoints.first.price;
-    double close = historyPoints.last.price;
-    double high = historyPoints.map((e) => e.price).reduce((a, b) => a > b ? a : b);
-    double low = historyPoints.map((e) => e.price).reduce((a, b) => a < b ? a : b);
+    // 1. Calculate OHLC with financial accuracy:
+    // High represents peak selling price (أعلى سعر مبيع), Low represents floor buying price (أدنى سعر شراء)
+    final effectiveSell = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : widget.priceItem.buyPrice;
+    final effectiveBuy = widget.priceItem.buyPrice > 0 ? widget.priceItem.buyPrice : effectiveSell;
+    double open = historyPoints.first.sellPrice;
+    double close = effectiveSell;
+    double high = historyPoints.map((e) => e.sellPrice > 0 ? e.sellPrice : e.price).reduce(max);
+    high = max(high, effectiveSell);
+    double low = historyPoints.map((e) => e.buyPrice > 0 ? e.buyPrice : e.price).reduce(min);
+    low = min(low, effectiveBuy);
 
     // 2. Determine Purity String
     String purity = '';

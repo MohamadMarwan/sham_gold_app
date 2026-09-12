@@ -306,5 +306,14 @@ class _PriceChartWidgetState extends State<PriceChartWidget> {
 class PriceHistoryPoint {
   final DateTime timestamp;
   final double price;
-  PriceHistoryPoint({required this.timestamp, required this.price});
+  final double buyPrice;
+  final double sellPrice;
+
+  PriceHistoryPoint({
+    required this.timestamp,
+    required this.price,
+    double? buyPrice,
+    double? sellPrice,
+  })  : buyPrice = buyPrice ?? price,
+        sellPrice = sellPrice ?? price;
 }

@@ -14,6 +14,7 @@ import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/premium_button.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../home/presentation/widgets/zakat_bottom_sheet.dart';
+import '../../../../shared/widgets/banner_placement_widget.dart';
 
 class PortfolioPage extends ConsumerStatefulWidget {
   const PortfolioPage({super.key});
@@ -196,6 +197,13 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 140),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // ── [1] إعلان أعلى محفظة الذهب ──
+                const BannerPlacementWidget(
+                  location: 'portfolio_top',
+                  fallbackLocations: ['home_top'],
+                  margin: EdgeInsets.only(bottom: 14),
+                ),
+
                 // 1. Wealth Overview Card
                 _buildWealthOverviewCard(
                   context: context,
@@ -247,7 +255,16 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
+
+                // ── [2] إعلان منتصف محفظة الذهب ──
+                const BannerPlacementWidget(
+                  location: 'portfolio_mid',
+                  fallbackLocations: ['home_mid'],
+                  margin: EdgeInsets.only(bottom: 6),
+                ),
+
+                const SizedBox(height: 14),
 
                 // 5. Filter & Sort Bar
                 if (portfolioProviderInstance.items.isNotEmpty) ...[
@@ -309,6 +326,15 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                       currentPrices: currentPrices,
                     );
                   }),
+
+                const SizedBox(height: 14),
+
+                // ── [3] إعلان أسفل محفظة الذهب ──
+                const BannerPlacementWidget(
+                  location: 'portfolio_bottom',
+                  fallbackLocations: ['home_bottom'],
+                  margin: EdgeInsets.only(top: 8, bottom: 20),
+                ),
               ]),
             ),
           ),

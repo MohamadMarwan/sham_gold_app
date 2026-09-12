@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -43,12 +44,28 @@ class LuxuryItemCard extends StatelessWidget {
         ? (item.sellPrice / item.buyPrice) * buyUsd
         : 0.0;
 
-    // Compute High / Low if history available
-    double highPrice = item.buyPrice;
-    double lowPrice = item.buyPrice;
+    // Compute High / Low accurately:
+    // - Highest Price represents the market peak selling price (أعلى سعر مبيع في السوق)
+    // - Lowest Price represents the market floor buying price (أدنى سعر شراء في السوق)
+    final effectiveSell = item.sellPrice > 0 ? item.sellPrice : item.buyPrice;
+    final effectiveBuy = item.buyPrice > 0 ? item.buyPrice : effectiveSell;
+    double highPrice = effectiveSell;
+    double lowPrice = effectiveBuy;
+
     if (history.isNotEmpty) {
-      highPrice = history.map((e) => e.price).reduce((a, b) => a > b ? a : b);
-      lowPrice = history.map((e) => e.price).reduce((a, b) => a < b ? a : b);
+      final maxSell = history.map((e) => e.sellPrice > 0 ? e.sellPrice : e.price).reduce((a, b) => a > b ? a : b);
+      final minBuy = history.map((e) => e.buyPrice > 0 ? e.buyPrice : e.price).reduce((a, b) => a < b ? a : b);
+      highPrice = max(effectiveSell, maxSell);
+      lowPrice = min(effectiveBuy, minBuy);
+    } else if (item.changePercentage != 0.0) {
+      // If history points haven't loaded yet, factor in the daily change percentage
+      final openSell = effectiveSell / (1.0 + (item.changePercentage / 100.0));
+      final openBuy = effectiveBuy / (1.0 + (item.changePercentage / 100.0));
+      if (item.changePercentage > 0) {
+        lowPrice = min(effectiveBuy, openBuy);
+      } else {
+        highPrice = max(effectiveSell, openSell);
+      }
     }
 
     return Container(

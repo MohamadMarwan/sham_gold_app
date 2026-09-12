@@ -349,7 +349,14 @@ class MetalDetailPage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
+            // ── [1.5] إعلان وسط صفحة تفاصيل المعدن ──
+            const BannerPlacementWidget(
+              location: 'metal_detail_mid',
+              fallbackLocations: ['metal_detail_top', 'global_gold_mid', 'home_mid'],
+              margin: EdgeInsets.only(top: 16, bottom: 8),
+            ),
+
+            const SizedBox(height: 12),
 
             Text(
               'unit_prices'.tr(),

@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/premium_empty_state.dart';
 import '../../../../shared/widgets/premium_card.dart';
+import '../../../../shared/widgets/banner_placement_widget.dart';
 
 class AlertsManagementPage extends ConsumerStatefulWidget {
   const AlertsManagementPage({super.key});
@@ -63,16 +64,32 @@ class _AlertsManagementPageState extends ConsumerState<AlertsManagementPage> {
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.gold))
-          : _alerts.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.all(20),
-                  itemCount: _alerts.length,
-                  itemBuilder: (context, index) {
-                    final alert = _alerts[index];
-                    return _buildAlertCard(alert);
-                  },
+          : Column(
+              children: [
+                const BannerPlacementWidget(
+                  location: 'alerts_top',
+                  fallbackLocations: ['home_top'],
+                  margin: EdgeInsets.fromLTRB(16, 12, 16, 8),
                 ),
+                Expanded(
+                  child: _alerts.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          itemCount: _alerts.length,
+                          itemBuilder: (context, index) {
+                            final alert = _alerts[index];
+                            return _buildAlertCard(alert);
+                          },
+                        ),
+                ),
+                const BannerPlacementWidget(
+                  location: 'alerts_bottom',
+                  fallbackLocations: ['home_bottom'],
+                  margin: EdgeInsets.fromLTRB(16, 8, 16, 16),
+                ),
+              ],
+            ),
     );
   }
 
