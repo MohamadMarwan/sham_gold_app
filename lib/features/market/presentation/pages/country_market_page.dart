@@ -20,6 +20,7 @@ import '../../../../shared/services/price_service.dart';
 import '../../../../shared/services/local_market_calculator.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
+import '../../../../core/providers/settings_provider.dart';
 
 class CountryMarketPage extends ConsumerStatefulWidget {
   final CountryModel? forcedCountry;
@@ -30,7 +31,6 @@ class CountryMarketPage extends ConsumerStatefulWidget {
 }
 
 class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
-  bool _isGridView = true;
   List<String> _favoriteIds = [];
   final FavoritesService _favoritesService = FavoritesService();
 
@@ -85,9 +85,6 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
       
       return 0;
     });
-
-    final standardItems = rawItems.where((item) => item['metalType'] != 'custom_item').toList();
-    final customItems = rawItems.where((item) => item['metalType'] == 'custom_item').toList();
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -149,12 +146,11 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                 IconButton(
                   onPressed: () {
                     HapticFeedback.selectionClick();
-                    setState(() {
-                      _isGridView = !_isGridView;
-                    });
+                    final currentGrid = ref.read(settingsProvider).isGridLayout;
+                    ref.read(settingsProvider.notifier).setIsGridLayout(!currentGrid);
                   },
-                  icon: Icon(_isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded, color: AppColors.gold, size: 20),
-                  tooltip: _isGridView ? 'view_as_list'.tr() : 'view_as_grid'.tr(),
+                  icon: Icon(ref.watch(settingsProvider).isGridLayout ? Icons.view_list_rounded : Icons.grid_view_rounded, color: AppColors.gold, size: 20),
+                  tooltip: ref.watch(settingsProvider).isGridLayout ? 'view_as_list'.tr() : 'view_as_grid'.tr(),
                 ),
                 TextButton.icon(
                   onPressed: () {
@@ -265,24 +261,6 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
 
                   const SizedBox(height: 20),
 
-                  // Section Title
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'karats_and_units'.tr(args: [country.localizedName]),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? Colors.white : AppColors.primaryText,
-                          fontFamily: 'Cairo',
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
                   // Dynamic Market Items
                   if (rawItems.isEmpty)
                     Padding(
@@ -294,129 +272,191 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                         )),
                       ),
                     )
-                  else ...[
-                    // Standard Karats & Units
-                    _isGridView 
-                    ? GridView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 1.15,
-                        ),
-                        itemCount: standardItems.length,
-                        itemBuilder: (context, index) {
-                          final item = standardItems[index];
-                          final priceItem = PriceItem(
-                            id: item['id'] ?? '',
-                            title: item['title'] ?? item['name'] ?? '',
-                            buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-                            sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
-                            currency: item['currency'] ?? country.localizedCurrencySymbol,
-                            metalType: item['metalType'] ?? 'gold',
-                            usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
-                          );
+                  else ...() {
+                    final settings = ref.watch(settingsProvider);
+                    final isGridView = settings.isGridLayout;
+                    final fontScale = settings.fontSizeScale;
+                    final gridAspectRatio = fontScale >= 1.3 ? 0.98 : (fontScale >= 1.15 ? 1.05 : 1.15);
 
-                          return SquarePriceCard(
-                            priceItem: priceItem,
-                            localPrice: (item['buyPrice'] as num?)?.toDouble(),
-                            localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
-                            usdPrice: (item['usdPrice'] as num?)?.toDouble(),
-                            isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
-                          );
-                        },
-                      )
-                    : ListView.separated(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: standardItems.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final item = standardItems[index];
-                          final priceItem = PriceItem(
-                            id: item['id'] ?? '',
-                            title: item['title'] ?? item['name'] ?? '',
-                            buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-                            sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
-                            currency: item['currency'] ?? country.localizedCurrencySymbol,
-                            metalType: item['metalType'] ?? 'gold',
-                            usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
-                          );
+                    bool isSilverItem(dynamic item) {
+                      final metalType = (item['metalType'] ?? '').toString().toLowerCase();
+                      final id = (item['id'] ?? '').toString().toLowerCase();
+                      final title = (item['title'] ?? item['name'] ?? '').toString().toLowerCase();
+                      return metalType == 'silver' || id.contains('silver') || id.contains('xag') || title.contains('فضة') || title.contains('فضه');
+                    }
 
-                          return CompactPriceCard(
-                            priceItem: priceItem,
-                            localPrice: (item['buyPrice'] as num?)?.toDouble(),
-                            localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
-                            usdPrice: (item['usdPrice'] as num?)?.toDouble(),
-                            isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
-                          );
-                        },
-                      ),
-                    
-                    // ── [2] إعلان منتصف صفحة سوق الدولة ──
-                    const BannerPlacementWidget(
-                      location: 'country_market_mid',
-                      fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
-                      margin: EdgeInsets.symmetric(vertical: 14),
-                    ),
+                    bool isCurrencyItem(dynamic item) {
+                      final metalType = (item['metalType'] ?? '').toString().toLowerCase();
+                      final id = (item['id'] ?? '').toString().toLowerCase();
+                      return metalType == 'currency' || id.contains('_fx_') || id.contains('currency');
+                    }
 
-                    // Custom Items Section
-                    if (customItems.isNotEmpty) ...[
-                      const SizedBox(height: 12),
-                      Row(
+                    final goldItems = rawItems.where((item) => !isSilverItem(item) && !isCurrencyItem(item) && item['metalType'] != 'custom_item').toList();
+                    final silverItems = rawItems.where((item) => isSilverItem(item)).toList();
+                    final currencyItems = rawItems.where((item) => isCurrencyItem(item) || item['metalType'] == 'custom_item').toList();
+
+                    final showGold = priceService.shouldShow('marketShowGold', defaultValue: true);
+                    final showSilver = priceService.shouldShow('marketShowSilver', defaultValue: true);
+                    final showCurrencies = priceService.shouldShow('marketShowCurrencies', defaultValue: true);
+
+                    final dynamic rawOrder = priceService.currentSettings?['displaySettings']?['marketSectionsOrder'];
+                    final List<String> sectionsOrder = (rawOrder is List && rawOrder.isNotEmpty)
+                        ? rawOrder.map((e) => e.toString()).toList()
+                        : ['gold', 'silver', 'currencies'];
+
+                    Widget buildItemsList(List<dynamic> items) {
+                      return isGridView
+                          ? GridView.builder(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                                childAspectRatio: gridAspectRatio,
+                              ),
+                              itemCount: items.length,
+                              itemBuilder: (context, index) {
+                                final item = items[index];
+                                final priceItem = PriceItem(
+                                  id: item['id'] ?? '',
+                                  title: item['title'] ?? item['name'] ?? '',
+                                  buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
+                                  sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+                                  currency: item['currency'] ?? country.localizedCurrencySymbol,
+                                  metalType: item['metalType'] ?? 'gold',
+                                  usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+                                );
+
+                                return SquarePriceCard(
+                                  priceItem: priceItem,
+                                  localPrice: (item['buyPrice'] as num?)?.toDouble(),
+                                  localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
+                                  usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+                                  isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
+                                );
+                              },
+                            )
+                          : ListView.separated(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: items.length,
+                              separatorBuilder: (context, index) => const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                final item = items[index];
+                                final priceItem = PriceItem(
+                                  id: item['id'] ?? '',
+                                  title: item['title'] ?? item['name'] ?? '',
+                                  buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
+                                  sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+                                  currency: item['currency'] ?? country.localizedCurrencySymbol,
+                                  metalType: item['metalType'] ?? 'gold',
+                                  usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+                                );
+
+                                return CompactPriceCard(
+                                  priceItem: priceItem,
+                                  localPrice: (item['buyPrice'] as num?)?.toDouble(),
+                                  localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
+                                  usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+                                  isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
+                                );
+                              },
+                            );
+                    }
+
+                    Widget buildSectionWidget(String title, IconData icon, Color color, List<dynamic> items) {
+                      if (items.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.stars_rounded, color: AppColors.gold, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            'auto_str_168'.tr(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : AppColors.primaryText,
-                              fontFamily: 'Cairo',
-                            ),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(icon, color: color, size: 18),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                title,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  color: isDark ? Colors.white : AppColors.primaryText,
+                                  fontFamily: 'Cairo',
+                                ),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 12),
+                          buildItemsList(items),
+                          const SizedBox(height: 16),
                         ],
-                      ),
-                      const SizedBox(height: 12),
-                      ...customItems.map((item) {
-                        final priceItem = PriceItem(
-                          id: item['id'] ?? '',
-                          title: item['title'] ?? item['name'] ?? '',
-                          buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-                          sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
-                          currency: item['currency'] ?? country.localizedCurrencySymbol,
-                          metalType: item['metalType'] ?? 'gold',
-                        );
+                      );
+                    }
 
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: SquarePriceCard(
-                            priceItem: priceItem,
-                            localPrice: (item['buyPrice'] as num?)?.toDouble(),
-                            localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
-                            usdPrice: (item['usdPrice'] as num?)?.toDouble(),
-                            isFeatured: false,
-                          ),
-                        );
-                      }),
-                    ],
+                    final List<Widget> sectionsWidgets = [];
+                    int renderedCount = 0;
+
+                    for (var sectionKey in sectionsOrder) {
+                      if (sectionKey == 'gold' && showGold && goldItems.isNotEmpty) {
+                        sectionsWidgets.add(buildSectionWidget('gold_section'.tr(), Icons.auto_graph_rounded, AppColors.gold, goldItems));
+                        renderedCount++;
+                        if (renderedCount == 1) {
+                          sectionsWidgets.add(
+                            const BannerPlacementWidget(
+                              location: 'country_market_mid',
+                              fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                            ),
+                          );
+                        }
+                      } else if (sectionKey == 'silver' && showSilver && silverItems.isNotEmpty) {
+                        sectionsWidgets.add(buildSectionWidget('silver_section'.tr(), Icons.diamond_outlined, const Color(0xFF94A3B8), silverItems));
+                        renderedCount++;
+                        if (renderedCount == 1) {
+                          sectionsWidgets.add(
+                            const BannerPlacementWidget(
+                              location: 'country_market_mid',
+                              fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                            ),
+                          );
+                        }
+                      } else if (sectionKey == 'currencies' && showCurrencies && currencyItems.isNotEmpty) {
+                        sectionsWidgets.add(buildSectionWidget('currencies_section'.tr(), Icons.currency_exchange_rounded, const Color(0xFF10B981), currencyItems));
+                        renderedCount++;
+                        if (renderedCount == 1) {
+                          sectionsWidgets.add(
+                            const BannerPlacementWidget(
+                              location: 'country_market_mid',
+                              fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
+                              margin: EdgeInsets.symmetric(vertical: 10),
+                            ),
+                          );
+                        }
+                      }
+                    }
+
+                    return sectionsWidgets;
+                  }(),
                     
-                    const SizedBox(height: 16),
-                    if (priceService.shouldShow('homeShowZakatBanner', defaultValue: true))
-                      const ZakatBannerWidget(),
+                  const SizedBox(height: 16),
+                  if (priceService.shouldShow('homeShowZakatBanner', defaultValue: true))
+                    const ZakatBannerWidget(),
 
-                    // ── [3] إعلان أسفل صفحة سوق الدولة ──
-                    const BannerPlacementWidget(
-                      location: 'country_market_bottom',
-                      fallbackLocations: ['market_bottom', 'syria_market_bottom', 'turkish_market_bottom'],
-                      margin: EdgeInsets.only(top: 14),
-                    ),
-                  ],
+                  // ── [3] إعلان أسفل صفحة سوق الدولة ──
+                  const BannerPlacementWidget(
+                    location: 'country_market_bottom',
+                    fallbackLocations: ['market_bottom', 'syria_market_bottom', 'turkish_market_bottom'],
+                    margin: EdgeInsets.only(top: 14),
+                  ),
                 ]),
               ),
             ),

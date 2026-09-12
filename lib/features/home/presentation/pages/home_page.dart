@@ -291,6 +291,16 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             label: country.localizedName,
           ),
         ),
+      if (priceService.shouldShow('navShowCurrencies', defaultValue: true))
+        _NavTabItem(
+          id: 'currencies',
+          page: const CurrenciesPage(),
+          barItem: BottomNavigationBarItem(
+            icon: const Icon(Icons.currency_exchange_rounded, size: 21),
+            activeIcon: _buildActiveIcon(const Icon(Icons.currency_exchange_rounded, size: 24, color: AppColors.gold)),
+            label: 'currencies'.tr(),
+          ),
+        ),
       if (priceService.shouldShow('navShowBullions', defaultValue: true))
         _NavTabItem(
           id: 'bullions',
@@ -321,16 +331,6 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             ),
             activeIcon: _buildActiveIcon(const Icon(Icons.calculate_rounded, size: 24, color: AppColors.gold)),
             label: 'calculator'.tr(),
-          ),
-        ),
-      if (priceService.shouldShow('navShowCurrencies', defaultValue: true))
-        _NavTabItem(
-          id: 'currencies',
-          page: const CurrenciesPage(),
-          barItem: BottomNavigationBarItem(
-            icon: const Icon(Icons.currency_exchange_rounded, size: 21),
-            activeIcon: _buildActiveIcon(const Icon(Icons.currency_exchange_rounded, size: 24, color: AppColors.gold)),
-            label: 'currencies'.tr(),
           ),
         ),
       if (priceService.shouldShow('navShowMore', defaultValue: true))

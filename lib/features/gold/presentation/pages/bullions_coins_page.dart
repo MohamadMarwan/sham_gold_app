@@ -11,6 +11,7 @@ import 'package:gold_sham/core/providers/country_provider.dart';
 import 'package:gold_sham/features/home/presentation/widgets/square_price_card.dart';
 import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
 import 'package:gold_sham/shared/widgets/banner_placement_widget.dart';
+import '../../../../core/providers/settings_provider.dart';
 
 class BullionsCoinsPage extends ConsumerStatefulWidget {
   const BullionsCoinsPage({super.key});
@@ -21,7 +22,6 @@ class BullionsCoinsPage extends ConsumerStatefulWidget {
 
 class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _isCompactView = false;
 
   @override
   void initState() {
@@ -61,13 +61,14 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
               IconButton(
                 onPressed: () {
                   HapticFeedback.selectionClick();
-                  setState(() => _isCompactView = !_isCompactView);
+                  final isGrid = ref.read(settingsProvider).isGridLayout;
+                  ref.read(settingsProvider.notifier).setIsGridLayout(!isGrid);
                 },
                 icon: Icon(
-                  _isCompactView ? Icons.grid_view_rounded : Icons.view_agenda_rounded,
+                  !ref.watch(settingsProvider).isGridLayout ? Icons.grid_view_rounded : Icons.view_agenda_rounded,
                   color: AppColors.gold,
                 ),
-                tooltip: _isCompactView ? 'detailed_view'.tr() : 'compact_view'.tr(),
+                tooltip: !ref.watch(settingsProvider).isGridLayout ? 'detailed_view'.tr() : 'compact_view'.tr(),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -202,6 +203,10 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     final firstItems = items.sublist(0, midIndex);
     final secondItems = midIndex < items.length ? items.sublist(midIndex) : <PriceItem>[];
 
+    final isCompactView = !ref.watch(settingsProvider).isGridLayout;
+    final fontScale = ref.watch(settingsProvider).fontSizeScale;
+    final gridAspectRatio = fontScale >= 1.3 ? 0.98 : (fontScale >= 1.15 ? 1.05 : 1.15);
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
@@ -212,7 +217,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         ),
 
         // First items
-        if (_isCompactView)
+        if (isCompactView)
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverList(
@@ -237,11 +242,11 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
-                childAspectRatio: 1.15,
+                childAspectRatio: gridAspectRatio,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -266,7 +271,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
 
         // Second items (if any)
         if (secondItems.isNotEmpty)
-          if (_isCompactView)
+          if (isCompactView)
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverList(
@@ -291,11 +296,11 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
-                  childAspectRatio: 1.15,
+                  childAspectRatio: gridAspectRatio,
                 ),
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -315,7 +320,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         // ── [3] إعلان أسفل صفحة السبائك والليرات ──
         const SliverBannerPlacementWidget(
           location: 'bullions_bottom',
-          margin: EdgeInsets.fromLTRB(16, 8, 16, 120),
+          margin: EdgeInsets.fromLTRB(16, 8, 16, 170),
         ),
       ],
     );

@@ -21,8 +21,8 @@ class SettingsProvider with ChangeNotifier {
   List<String> currentEnabledCurrencies = ['USD', 'EUR', 'TRY', 'SAR', 'AED', 'KWD', 'JOD'];
   
   ThemeMode themeMode = ThemeMode.system;
-  double fontSizeScale = 1.0;
-  bool isGridLayout = true;
+  double fontSizeScale = 1.15;
+  bool isGridLayout = false;
   
   SettingsProvider() {
     _loadPreferences();
@@ -37,11 +37,9 @@ class SettingsProvider with ChangeNotifier {
     }
     
     final fontScale = prefs.getDouble('font_size_scale');
-    if (fontScale != null) {
-      fontSizeScale = fontScale;
-    }
+    fontSizeScale = fontScale ?? 1.15;
     
-    isGridLayout = prefs.getBool('is_grid_layout') ?? true;
+    isGridLayout = prefs.getBool('is_grid_layout') ?? false;
     
     notifyListeners();
   }

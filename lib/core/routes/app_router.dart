@@ -7,6 +7,8 @@ import '../../features/home/presentation/pages/onboarding_page.dart';
 import '../../shared/models/price_item.dart';
 import '../../features/home/presentation/pages/price_detail_page.dart';
 
+import '../../features/market/presentation/pages/metal_detail_page.dart';
+
 class AppRouter {
   static final router = GoRouter(
     initialLocation: '/',
@@ -82,6 +84,46 @@ class AppRouter {
 
               var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
               
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
+          );
+        },
+      ),
+      GoRoute(
+        path: '/metal-detail',
+        name: 'metal-detail',
+        pageBuilder: (context, state) {
+          final args = state.extra as Map<String, dynamic>?;
+          final type = args?['type'] as String? ?? 'silver';
+          final ounce = args?['item'] as PriceItem?;
+
+          if (ounce == null) {
+            return CustomTransitionPage(
+              key: state.pageKey,
+              child: const HomePage(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
+            );
+          }
+
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: MetalDetailPage(
+              type: type,
+              ounce: ounce,
+            ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(0.0, 0.08);
+              const end = Offset.zero;
+              const curve = Curves.easeOutQuart;
+
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
               return SlideTransition(
                 position: animation.drive(tween),
                 child: FadeTransition(

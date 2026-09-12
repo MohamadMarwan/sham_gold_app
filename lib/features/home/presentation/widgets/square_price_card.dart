@@ -79,7 +79,6 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final numberFormat = NumberFormat('#,##0.00');
 
     final double displayLocalPrice =
         widget.localPrice ?? widget.priceItem.buyPrice;
@@ -296,7 +295,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                 ),
                                 if (displayUsdPrice > 0)
                                   Text(
-                                    '≈ \$${displayUsdPrice.toStringAsFixed(1)}',
+                                    '≈ \$${CurrencyUtils.formatLocalizedNumber(displayUsdPrice, context, decimals: 1)}',
                                     style: const TextStyle(
                                       fontSize: 8.0,
                                       fontWeight: FontWeight.w700,
@@ -334,11 +333,12 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                 const SizedBox(height: 0.5),
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
+                                  alignment: AlignmentDirectional.centerStart,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        numberFormat.format(sellPrice),
+                                        CurrencyUtils.formatLocalizedNumber(sellPrice, context, decimals: 2, compactLarge: sellPrice >= 100000),
                                         style: TextStyle(
                                           fontSize: 13.5,
                                           fontWeight: FontWeight.w900,
@@ -362,7 +362,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                 ),
                                 if (displayUsdPrice > 0)
                                   Text(
-                                    '≈ \$${((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice).toStringAsFixed(1)}',
+                                    '≈ \$${CurrencyUtils.formatLocalizedNumber(((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice), context, decimals: 1)}',
                                     style: const TextStyle(
                                       fontSize: 8.0,
                                       fontWeight: FontWeight.w700,
@@ -381,15 +381,20 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '${'spread'.tr()}: ${numberFormat.format((sellPrice - displayLocalPrice).abs())}',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? Colors.white60 : AppColors.mutedText,
-                            fontFamily: 'Cairo',
+                        Expanded(
+                          child: Text(
+                            '${'spread'.tr()}: ${CurrencyUtils.formatLocalizedNumber((sellPrice - displayLocalPrice).abs(), context, decimals: 2, compactLarge: (sellPrice - displayLocalPrice).abs() >= 100000)}',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? Colors.white60 : AppColors.mutedText,
+                              fontFamily: 'Cairo',
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        const SizedBox(width: 4),
                         _buildTrendIcon(),
                       ],
                     ),

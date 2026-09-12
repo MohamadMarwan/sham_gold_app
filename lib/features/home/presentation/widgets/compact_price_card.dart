@@ -76,7 +76,6 @@ class _CompactPriceCardState extends State<CompactPriceCard>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final numberFormat = NumberFormat('#,##0.##', context.locale.toString());
     final double displayLocalPrice =
         widget.localPrice ?? widget.priceItem.buyPrice;
     final String currencySymbol = CurrencyUtils.getSymbol(
@@ -246,7 +245,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                       ),
                       if (displayUsdPrice > 0)
                         Text(
-                          '≈ \$${displayUsdPrice.toStringAsFixed(1)}',
+                          '≈ \$${CurrencyUtils.formatLocalizedNumber(displayUsdPrice, context, decimals: 1)}',
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -289,7 +288,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              numberFormat.format(sellPrice),
+                              CurrencyUtils.formatLocalizedNumber(sellPrice, context, decimals: 2, compactLarge: sellPrice >= 100000),
                               style: TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.w900,
@@ -313,7 +312,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                       ),
                       if (displayUsdPrice > 0)
                         Text(
-                          '≈ \$${((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice).toStringAsFixed(1)}',
+                          '≈ \$${CurrencyUtils.formatLocalizedNumber(((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice), context, decimals: 1)}',
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,

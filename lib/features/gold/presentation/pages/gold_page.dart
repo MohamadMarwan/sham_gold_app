@@ -34,6 +34,7 @@ import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sh
 import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
 import 'package:gold_sham/features/home/presentation/widgets/live_price_ticker.dart';
 import 'package:gold_sham/shared/widgets/banner_placement_widget.dart';
+import 'package:gold_sham/core/providers/settings_provider.dart';
 
 class GoldPage extends ConsumerStatefulWidget {
   final Function(int)? onNavigate;
@@ -44,7 +45,6 @@ class GoldPage extends ConsumerStatefulWidget {
 }
 
 class _GoldPageState extends ConsumerState<GoldPage> {
-  bool _isCompactView = false;
   bool _showSyriaSummary = true;
   bool _showTurkishSummary = true;
   bool _showSilverBanner = true;
@@ -59,7 +59,6 @@ class _GoldPageState extends ConsumerState<GoldPage> {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _isCompactView = prefs.getBool('home_compact_view') ?? false;
       _showSyriaSummary = prefs.getBool('home_show_syria_summary') ?? true;
       _showTurkishSummary = prefs.getBool('home_show_turkish_summary') ?? true;
       _showSilverBanner = prefs.getBool('home_show_silver_banner') ?? true;
@@ -68,12 +67,9 @@ class _GoldPageState extends ConsumerState<GoldPage> {
     });
   }
 
-  Future<void> _toggleCompactView() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isCompactView = !_isCompactView;
-      prefs.setBool('home_compact_view', _isCompactView);
-    });
+  void _toggleCompactView() {
+    final isGrid = ref.read(settingsProvider).isGridLayout;
+    ref.read(settingsProvider.notifier).setIsGridLayout(!isGrid);
   }
 
   @override
@@ -330,7 +326,7 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                       margin: EdgeInsets.only(bottom: 12),
                     ),
 
-                    if (priceService.shouldShow('homeShowPriceTicker', defaultValue: true)) ...[
+                    if (_showNewsTicker && priceService.shouldShow('homeShowPriceTicker', defaultValue: true)) ...[
                       const LivePriceTicker(),
                       const SizedBox(height: 12),
                     ],
@@ -516,6 +512,11 @@ class _GoldPageState extends ConsumerState<GoldPage> {
       return getPriority(a).compareTo(getPriority(b));
     });
 
+    final settings = ref.watch(settingsProvider);
+    final isCompactView = !settings.isGridLayout;
+    final fontScale = settings.fontSizeScale;
+    final gridAspectRatio = fontScale >= 1.3 ? 0.98 : (fontScale >= 1.15 ? 1.05 : 1.15);
+
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       switchInCurve: Curves.easeOutCubic,
@@ -524,7 +525,7 @@ class _GoldPageState extends ConsumerState<GoldPage> {
         return FadeTransition(opacity: animation, child: child);
       },
       child: KeyedSubtree(
-        key: ValueKey('country_cards_${country.code}_${selectedKarat}_$_isCompactView'),
+        key: ValueKey('country_cards_${country.code}_${selectedKarat}_$isCompactView'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -557,11 +558,11 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                       _toggleCompactView();
                     },
                     icon: Icon(
-                      _isCompactView ? Icons.grid_view_rounded : Icons.view_agenda_rounded,
+                      isCompactView ? Icons.grid_view_rounded : Icons.view_agenda_rounded,
                       color: AppColors.gold,
                       size: 22,
                     ),
-                    tooltip: _isCompactView ? 'detailed_view'.tr() : 'compact_view'.tr(),
+                    tooltip: isCompactView ? 'detailed_view'.tr() : 'compact_view'.tr(),
                   ),
                 ],
               ),
@@ -569,7 +570,7 @@ class _GoldPageState extends ConsumerState<GoldPage> {
           ),
         ),
         const SizedBox(height: 12),
-        if (_isCompactView)
+        if (isCompactView)
           ListView.separated(
             padding: EdgeInsets.zero,
             shrinkWrap: true,
@@ -604,11 +605,11 @@ class _GoldPageState extends ConsumerState<GoldPage> {
             padding: EdgeInsets.zero,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
-              childAspectRatio: 1.15,
+              childAspectRatio: gridAspectRatio,
             ),
             itemCount: filteredItems.length,
             itemBuilder: (context, index) {
@@ -854,9 +855,11 @@ class _GoldPageState extends ConsumerState<GoldPage> {
     return goldGramItem.buyPrice > 0 ? goldGramItem.buyPrice : 3400.0;
   }
 
-  void _showCustomizationSheet(BuildContext context) {
+  void _showCustomizationSheet([BuildContext? ctx]) {
+    final activeContext = ctx ?? context;
+    final priceService = ref.read(priceServiceProvider);
     showModalBottomSheet(
-      context: context,
+      context: activeContext,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) {
@@ -907,20 +910,19 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                       style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                     subtitle: Text(
-                      _isCompactView ? 'compact_cards_list'.tr() : 'modern_squares_grid'.tr(),
+                      !ref.watch(settingsProvider).isGridLayout ? 'compact_cards_list'.tr() : 'modern_squares_grid'.tr(),
                       style: GoogleFonts.cairo(fontSize: 11, color: AppColors.mutedText),
                     ),
                     trailing: SegmentedButton<bool>(
                       segments: const [
-                        ButtonSegment(value: false, icon: Icon(Icons.grid_view_rounded, size: 18)),
-                        ButtonSegment(value: true, icon: Icon(Icons.view_agenda_rounded, size: 18)),
+                        ButtonSegment(value: true, icon: Icon(Icons.grid_view_rounded, size: 18)),
+                        ButtonSegment(value: false, icon: Icon(Icons.view_agenda_rounded, size: 18)),
                       ],
-                      selected: {_isCompactView},
+                      selected: {ref.watch(settingsProvider).isGridLayout},
                       onSelectionChanged: (set) {
                         final val = set.first;
-                        setState(() => _isCompactView = val);
+                        ref.read(settingsProvider.notifier).setIsGridLayout(val);
                         setModalState(() {});
-                        SharedPreferences.getInstance().then((p) => p.setBool('home_compact_view', val));
                       },
                     ),
                   ),
@@ -946,11 +948,12 @@ class _GoldPageState extends ConsumerState<GoldPage> {
                     setModalState(() {});
                     SharedPreferences.getInstance().then((p) => p.setBool('home_show_news_ticker', val));
                   }),
-                  _buildCustomizationSwitch('banner_quick_converter'.tr(), _showConverter, (val) {
-                    setState(() => _showConverter = val);
-                    setModalState(() {});
-                    SharedPreferences.getInstance().then((p) => p.setBool('home_show_converter', val));
-                  }),
+                  if (priceService.shouldShow('homeShowQuickConverter'))
+                    _buildCustomizationSwitch('banner_quick_converter'.tr(), _showConverter, (val) {
+                      setState(() => _showConverter = val);
+                      setModalState(() {});
+                      SharedPreferences.getInstance().then((p) => p.setBool('home_show_converter', val));
+                    }),
                 ],
               ),
             );

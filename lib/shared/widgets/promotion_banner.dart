@@ -94,7 +94,7 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
         child: ScaleTransition(
           scale: _scaleAnimation,
           child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 6),
+            margin: EdgeInsets.zero,
             width: double.infinity,
             height: widget.height ?? 95,
             decoration: BoxDecoration(
@@ -169,7 +169,7 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
+          margin: EdgeInsets.zero,
           width: double.infinity,
           height: widget.height ?? 80,
           decoration: BoxDecoration(

@@ -1,10 +1,12 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
@@ -145,10 +147,13 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: FittedBox(
                   fit: BoxFit.contain,
-                  child: SocialShareCard(
-                    country: country,
-                    items: items,
-                    format: _selectedFormat,
+                  child: Screenshot(
+                    controller: _screenshotController,
+                    child: SocialShareCard(
+                      country: country,
+                      items: items,
+                      format: _selectedFormat,
+                    ),
                   ),
                 ),
               ),
@@ -255,31 +260,43 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
     HapticFeedback.mediumImpact();
 
     try {
-      final imageBytes = await _screenshotController.captureFromWidget(
-        Material(
-          color: Colors.transparent,
-          child: SocialShareCard(
-            country: country,
-            items: items,
-            format: _selectedFormat,
-          ),
-        ),
+      final Uint8List? imageBytes = await _screenshotController.capture(
         pixelRatio: 3.0,
-        delay: const Duration(milliseconds: 150),
+        delay: const Duration(milliseconds: 100),
       );
+
+      if (imageBytes == null) {
+        throw Exception('Failed to capture card image');
+      }
 
       final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-      final xFile = XFile.fromData(
-        imageBytes,
-        mimeType: 'image/png',
-        name: 'gold_sham_bulletin_$timestamp.png',
-      );
 
-      if (mounted) {
-        await Share.shareXFiles(
-          [xFile],
-          text: 'auto_str_020'.tr(),
+      if (kIsWeb) {
+        final xFile = XFile.fromData(
+          imageBytes,
+          mimeType: 'image/png',
+          name: 'gold_sham_bulletin_$timestamp.png',
         );
+
+        if (mounted) {
+          await Share.shareXFiles(
+            [xFile],
+            text: 'auto_str_020'.tr(),
+          );
+        }
+      } else {
+        final tempDir = await getTemporaryDirectory();
+        final file = await File(
+          '${tempDir.path}/gold_sham_bulletin_$timestamp.png',
+        ).create();
+        await file.writeAsBytes(imageBytes);
+
+        if (mounted) {
+          await Share.shareXFiles(
+            [XFile(file.path, mimeType: 'image/png')],
+            text: 'auto_str_020'.tr(),
+          );
+        }
       }
     } catch (e) {
       debugPrint('Error sharing price card: $e');

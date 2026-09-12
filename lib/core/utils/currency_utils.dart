@@ -219,10 +219,31 @@ class CurrencyUtils {
     return Intl.defaultLocale ?? 'ar_SY';
   }
 
+  /// Formats numbers strictly respecting the app locale (Arabic numerals for Arabic, Western for other languages)
+  static String formatLocalizedNumber(
+    double number,
+    BuildContext context, {
+    int decimals = 2,
+    bool compactLarge = false,
+  }) {
+    final isAr = context.locale.languageCode == 'ar';
+    final locale = isAr ? 'ar' : 'en_US';
+    
+    if (compactLarge && number >= 10000) {
+      return NumberFormat("#,###", locale).format(number);
+    }
+    
+    final pattern = decimals == 0 ? "#,##0" : "#,##0.${'0' * decimals}";
+    return NumberFormat(pattern, locale).format(number);
+  }
+
   static String formatPrice(double price, String currency, {String id = '', BuildContext? context}) {
     final symbol = getSymbol(currency, id: id, context: context);
-    final locale = context?.locale.toString() ?? Intl.defaultLocale ?? 'ar_SY';
-    final format = NumberFormat("#,##0.##", locale);
+    if (context != null) {
+      final formatted = formatLocalizedNumber(price, context, decimals: 2, compactLarge: price >= 10000);
+      return '$formatted $symbol';
+    }
+    final format = NumberFormat("#,##0.##", 'en_US');
     return '${format.format(price)} $symbol';
   }
 
@@ -284,18 +305,26 @@ class CurrencyUtils {
     }
   }
 
-  /// Returns a compact formula string with symbols (e.g. '1 $ = 36.50 ₺' or '1 $ = 3.67 د.إ')
+  /// Returns a compact formula string with symbols (e.g. '1 $ = 36.50 ₺' or '1 $ = 132.50 ل.س')
   static String getCompactFormula(String targetCode, double rate, String baseCode, {BuildContext? context}) {
     final targetSymbol = getSymbol(targetCode, context: context);
     final baseSymbol = getSymbol(baseCode, context: context);
-    
+    final isAr = (context != null)
+        ? context.locale.languageCode == 'ar'
+        : (Intl.defaultLocale?.startsWith('ar') ?? true);
+    final locale = isAr ? 'ar' : 'en_US';
+    final normalizedBase = normalizeCurrencyCode(baseCode);
+    final isSyp = normalizedBase == 'SYP' || baseCode.contains('ل.س');
+
     final String formattedRate;
-    if (rate >= 100) {
-      formattedRate = NumberFormat('#,##0', 'en_US').format(rate);
+    if (isSyp || (rate < 1000 && rate % 1 != 0)) {
+      formattedRate = NumberFormat('#,##0.00', locale).format(rate);
+    } else if (rate >= 1000) {
+      formattedRate = NumberFormat('#,##0', locale).format(rate);
     } else if (rate >= 10) {
-      formattedRate = NumberFormat('#,##0.00', 'en_US').format(rate);
+      formattedRate = NumberFormat('#,##0.00', locale).format(rate);
     } else {
-      formattedRate = NumberFormat('#,##0.000', 'en_US').format(rate);
+      formattedRate = NumberFormat('#,##0.000', locale).format(rate);
     }
 
     return '1 $targetSymbol = $formattedRate $baseSymbol';

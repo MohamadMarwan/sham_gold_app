@@ -80,13 +80,19 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
     super.dispose();
   }
 
-  String _formatPrice(double price) {
-    if (price >= 100) {
-      return NumberFormat('#,##0', 'en_US').format(price);
+  String _formatPrice(double price, BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    final locale = isAr ? 'ar' : 'en_US';
+    final isSyp = widget.baseCurrencyCode == 'SYP' || widget.priceItem.currency == 'SYP' || widget.baseCurrencySymbol.contains('ل.س');
+
+    if (isSyp || (price < 1000 && price % 1 != 0)) {
+      return NumberFormat('#,##0.00', locale).format(price);
+    } else if (price >= 1000) {
+      return NumberFormat('#,##0', locale).format(price);
     } else if (price >= 10) {
-      return NumberFormat('#,##0.00', 'en_US').format(price);
+      return NumberFormat('#,##0.00', locale).format(price);
     } else {
-      return NumberFormat('#,##0.000', 'en_US').format(price);
+      return NumberFormat('#,##0.000', locale).format(price);
     }
   }
 
@@ -319,7 +325,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                     ),
                                   ),
                                   Text(
-                                    _formatPrice(buyPrice),
+                                    _formatPrice(buyPrice, context),
                                     style: TextStyle(
                                       fontFamily: 'Cairo',
                                       fontSize: 11.5,
@@ -353,7 +359,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                     ),
                                   ),
                                   Text(
-                                    _formatPrice(sellPrice),
+                                    _formatPrice(sellPrice, context),
                                     style: const TextStyle(
                                       fontFamily: 'Cairo',
                                       fontSize: 11.5,
@@ -492,13 +498,19 @@ class CompactCurrencyCard extends StatelessWidget {
     this.onTap,
   });
 
-  String _formatPrice(double price) {
-    if (price >= 100) {
-      return NumberFormat('#,##0', 'en_US').format(price);
+  String _formatPrice(double price, BuildContext context) {
+    final isAr = context.locale.languageCode == 'ar';
+    final locale = isAr ? 'ar' : 'en_US';
+    final isSyp = baseCurrencyCode == 'SYP' || priceItem.currency == 'SYP' || baseCurrencySymbol.contains('ل.س');
+
+    if (isSyp || (price < 1000 && price % 1 != 0)) {
+      return NumberFormat('#,##0.00', locale).format(price);
+    } else if (price >= 1000) {
+      return NumberFormat('#,##0', locale).format(price);
     } else if (price >= 10) {
-      return NumberFormat('#,##0.00', 'en_US').format(price);
+      return NumberFormat('#,##0.00', locale).format(price);
     } else {
-      return NumberFormat('#,##0.000', 'en_US').format(price);
+      return NumberFormat('#,##0.000', locale).format(price);
     }
   }
 
@@ -636,7 +648,7 @@ class CompactCurrencyCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      _formatPrice(buyPrice),
+                      _formatPrice(buyPrice, context),
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: 11.5,
@@ -659,7 +671,7 @@ class CompactCurrencyCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      _formatPrice(sellPrice),
+                      _formatPrice(sellPrice, context),
                       style: const TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: 11.5,

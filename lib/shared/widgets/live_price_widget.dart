@@ -119,12 +119,14 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
       tween: Tween<double>(end: _displayPrice),
       duration: const Duration(milliseconds: 300),
       builder: (context, animatedPrice, child) {
-        // If price is very large (e.g. Kilo prices like 168,000), skip decimals for cleaner look
+        final isAr = Localizations.localeOf(context).languageCode == 'ar';
+        final locale = isAr ? 'ar' : 'en_US';
         final format = animatedPrice >= 10000
-            ? NumberFormat("#,###", "en_US")
-            : NumberFormat("#,##0.00", "en_US");
+            ? NumberFormat("#,###", locale)
+            : NumberFormat("#,##0.00", locale);
         final formatted = format.format(animatedPrice);
-        final parts = formatted.split('.');
+        final decSep = format.symbols.DECIMAL_SEP;
+        final parts = formatted.split(decSep);
 
         return AnimatedBuilder(
           animation: _pulseController,
@@ -136,8 +138,7 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
 
             return Row(
               mainAxisSize: MainAxisSize.min,
-              textDirection: ui.TextDirection
-                  .ltr, // Explicit LTR to keep symbols/decimals correctly positioned
+              textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,
               children: [
                 if (isFlashing)
                   Icon(
@@ -150,7 +151,7 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
                 Transform.scale(
                   scale: isFlashing ? _pulseAnimation.value : 1.0,
                   child: RichText(
-                    textDirection: ui.TextDirection.ltr, // Explicit LTR for numbers
+                    textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,
                     text: TextSpan(
                       style: widget.style.copyWith(
                         color: flashColor,
@@ -168,18 +169,21 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
                             : null,
                       ),
                       children: [
-                        if (isDollar)
+                        if (isDollar && !isAr)
                           TextSpan(text: displayCurrency),
                         TextSpan(text: parts[0]),
-                        TextSpan(
-                          text: (parts.length > 1) ? '.${parts[1]}' : '',
-                          style: TextStyle(
-                            fontSize: (widget.style.fontSize ?? 18) * 0.75,
-                            fontWeight: FontWeight.w600,
-                            color: flashColor.withValues(alpha: 0.7),
-                            fontFamily: 'Roboto',
+                        if (parts.length > 1)
+                          TextSpan(
+                            text: '$decSep${parts[1]}',
+                            style: TextStyle(
+                              fontSize: (widget.style.fontSize ?? 18) * 0.75,
+                              fontWeight: FontWeight.w600,
+                              color: flashColor.withValues(alpha: 0.7),
+                              fontFamily: isAr ? 'Cairo' : 'Roboto',
+                            ),
                           ),
-                        ),
+                        if (isDollar && isAr)
+                          TextSpan(text: ' $displayCurrency'),
                         if (!isDollar && displayCurrency.isNotEmpty)
                           TextSpan(text: ' $displayCurrency'),
                       ],

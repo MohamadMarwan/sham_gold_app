@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
-import '../pages/price_detail_page.dart';
-import 'silver_calculator_bottom_sheet.dart';
 
 class SilverPlatinumBanner extends ConsumerWidget {
   final bool isGrid;
@@ -407,173 +406,9 @@ class SilverPlatinumBanner extends ConsumerWidget {
   }
 
   void _showMetalDetails(BuildContext context, String type, PriceItem ounce) {
-    final isSilver = type == 'silver';
-    final ouncePrice = ounce.buyPrice;
-    final gram999 = ouncePrice / 31.1035;
-    
-    final gramSecond = isSilver ? (gram999 * 0.925) : (gram999 * 0.950);
-    final title = isSilver ? 'silver_details'.tr() : 'platinum_details'.tr();
-    final iconColor = isSilver ? const Color(0xFF94A3B8) : const Color(0xFFCBD5E1);
-    
-    final items = [
-      {
-        'title': 'ounce'.tr(),
-        'subtitle': '31.1035 ${'gram'.tr()}',
-        'price': ouncePrice
-      },
-      {
-        'title': isSilver ? 'gram_karat_999'.tr() : 'gram_karat_999_plat'.tr(),
-        'subtitle': 'pure_100'.tr(),
-        'price': gram999
-      },
-      {
-        'title': isSilver ? 'gram_karat_925'.tr() : 'gram_karat_950'.tr(),
-        'subtitle': 'jewelry_grade'.tr(),
-        'price': gramSecond
-      },
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurfaceRaised : AppColors.background,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.diamond_outlined, color: iconColor),
-                ),
-                const SizedBox(width: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkSurface : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? AppColors.darkBorder : Colors.grey.shade200),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['title'] as String,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.darkGreen,
-                          ),
-                        ),
-                        Text(
-                          item['subtitle'] as String,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.mutedText,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '\$ ${(item['price'] as double).toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.gold,
-                            fontFamily: 'Roboto',
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            )),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => PriceDetailPage(priceItem: ounce)));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkGreen,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: Text('chart_and_more_details'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ),
-            if (isSilver) ...[
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context); // Close details sheet
-                    SilverCalculatorBottomSheet.show(context); // Open calculator
-                  },
-                  icon: const Icon(Icons.calculate_rounded),
-                  label: Text('silver_scrap_and_making_calc'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF94A3B8),
-                    side: const BorderSide(color: Color(0xFF94A3B8), width: 1.5),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
+    context.push('/metal-detail', extra: {
+      'type': type,
+      'item': ounce,
+    });
   }
 }

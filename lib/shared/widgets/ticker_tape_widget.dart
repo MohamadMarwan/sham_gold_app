@@ -72,7 +72,6 @@ class TickerTapeWidget extends ConsumerWidget {
         final isDark = Theme.of(context).brightness == Brightness.dark;
 
         return Container(
-          height: 34,
           width: double.infinity,
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0B1121) : AppColors.darkGreen,
@@ -93,20 +92,23 @@ class TickerTapeWidget extends ConsumerWidget {
           child: SafeArea(
             bottom: false,
             top: true,
-            child: Marquee(
-              text: tickerText,
-              style: const TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppColors.gold,
-                fontSize: 13,
-                fontFamily: 'Cairo',
+            child: SizedBox(
+              height: 34,
+              child: Marquee(
+                text: tickerText,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.gold,
+                  fontSize: 13,
+                  fontFamily: 'Cairo',
+                ),
+                scrollAxis: Axis.horizontal,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                blankSpace: 60.0,
+                velocity: 40.0,
+                startPadding: 10.0,
+                textDirection: context.locale.languageCode == 'ar' ? ui.TextDirection.rtl : ui.TextDirection.ltr,
               ),
-              scrollAxis: Axis.horizontal,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              blankSpace: 60.0,
-              velocity: 40.0,
-              startPadding: 10.0,
-              textDirection: context.locale.languageCode == 'ar' ? ui.TextDirection.rtl : ui.TextDirection.ltr,
             ),
           ),
         );

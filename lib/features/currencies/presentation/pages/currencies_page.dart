@@ -17,6 +17,7 @@ import '../../../../core/providers/price_selectors.dart';
 import 'package:gold_sham/features/home/presentation/widgets/calculator_widget.dart';
 import 'package:gold_sham/features/home/presentation/widgets/currency_square_card.dart';
 import 'package:gold_sham/shared/widgets/banner_placement_widget.dart';
+import '../../../../core/providers/settings_provider.dart';
 
 class CurrenciesPage extends ConsumerStatefulWidget {
   const CurrenciesPage({super.key});
@@ -26,7 +27,6 @@ class CurrenciesPage extends ConsumerStatefulWidget {
 }
 
 class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
-  bool _isGridView = true;
   List<String> _pinnedCodes = [];
 
   @override
@@ -39,19 +39,15 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
       setState(() {
-        _isGridView = prefs.getBool('currency_grid_view') ?? true;
         _pinnedCodes = prefs.getStringList('pinned_currency_codes') ?? ['USD', 'EUR'];
       });
     }
   }
 
-  Future<void> _toggleViewMode() async {
+  void _toggleViewMode() {
     HapticFeedback.selectionClick();
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isGridView = !_isGridView;
-    });
-    await prefs.setBool('currency_grid_view', _isGridView);
+    final isGrid = ref.read(settingsProvider).isGridLayout;
+    ref.read(settingsProvider.notifier).setIsGridLayout(!isGrid);
   }
 
   Future<void> _togglePin(String currencyCode) async {
@@ -175,11 +171,11 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                   IconButton(
                     onPressed: _toggleViewMode,
                     icon: Icon(
-                      _isGridView ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
+                      ref.watch(settingsProvider).isGridLayout ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
                       color: AppColors.gold,
                       size: 24,
                     ),
-                    tooltip: _isGridView ? 'layout_list'.tr() : 'layout_grid'.tr(),
+                    tooltip: ref.watch(settingsProvider).isGridLayout ? 'layout_list'.tr() : 'layout_grid'.tr(),
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -331,16 +327,20 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                       .where((item) => !_pinnedCodes.contains(_extractCurrencyCode(item)))
                       .toList();
 
+                  final isGridView = ref.watch(settingsProvider).isGridLayout;
+                  final fontScale = ref.watch(settingsProvider).fontSizeScale;
+                  final gridAspectRatio = fontScale >= 1.3 ? 0.98 : (fontScale >= 1.15 ? 1.05 : 1.15);
+
                   Widget buildGrid(List<PriceItem> items) {
                     return GridView.builder(
                       padding: EdgeInsets.zero,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
-                        childAspectRatio: 1.15,
+                        childAspectRatio: gridAspectRatio,
                       ),
                       itemCount: items.length,
                       itemBuilder: (context, index) {
@@ -403,13 +403,14 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                           return FadeTransition(opacity: animation, child: child);
                         },
                         child: KeyedSubtree(
-                          key: ValueKey('currencies_${selectedCountry.code}_$_isGridView'),
+                          key: ValueKey('currencies_${selectedCountry.code}_$isGridView'),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // ── [1] إعلان أعلى صفحة العملات ──
                               const BannerPlacementWidget(
                                 location: 'currencies_top',
+                                height: 95.0,
                                 margin: EdgeInsets.only(bottom: 14),
                               ),
 
@@ -461,7 +462,7 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                                   ],
                                 ),
                                 const SizedBox(height: 10),
-                                _isGridView ? buildGrid(pinnedList) : buildList(pinnedList),
+                                isGridView ? buildGrid(pinnedList) : buildList(pinnedList),
                                 const SizedBox(height: 20),
                               ],
 
@@ -499,20 +500,21 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                                   IconButton(
                                     onPressed: _toggleViewMode,
                                     icon: Icon(
-                                      _isGridView ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
+                                      isGridView ? Icons.view_agenda_rounded : Icons.grid_view_rounded,
                                       color: AppColors.gold,
                                       size: 20,
                                     ),
-                                    tooltip: _isGridView ? 'list_view'.tr() : 'grid_view'.tr(),
+                                    tooltip: isGridView ? 'list_view'.tr() : 'grid_view'.tr(),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 10),
-                              _isGridView ? buildGrid(unpinnedList) : buildList(unpinnedList),
+                              isGridView ? buildGrid(unpinnedList) : buildList(unpinnedList),
 
                               // ── [2] إعلان منتصف صفحة العملات ──
                               const BannerPlacementWidget(
                                 location: 'currencies_mid',
+                                height: 95.0,
                                 margin: EdgeInsets.symmetric(vertical: 14),
                               ),
 
@@ -527,6 +529,7 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
                               // ── [3] إعلان أسفل صفحة العملات ──
                               const BannerPlacementWidget(
                                 location: 'currencies_bottom',
+                                height: 95.0,
                                 margin: EdgeInsets.only(top: 14),
                               ),
                             ],
