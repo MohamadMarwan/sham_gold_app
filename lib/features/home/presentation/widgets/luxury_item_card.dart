@@ -26,12 +26,12 @@ class LuxuryItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final dateStr = DateFormat('auto_str_177'.tr(), 'ar').format(now);
-    final timeStr = DateFormat('hh:mm a', 'ar').format(now);
+    final dateStr = DateFormat('auto_str_177'.tr(), context.locale.languageCode).format(now);
+    final timeStr = DateFormat('hh:mm a', context.locale.languageCode).format(now);
 
     final isStory = format == ShareCardFormat.story;
-    final width = isStory ? 380.0 : 380.0;
-    final height = isStory ? 675.0 : 380.0;
+    final width = isStory ? 390.0 : 390.0;
+    final height = isStory ? 690.0 : 390.0;
 
     final change = item.changePercentage;
     final isBull = change >= 0;
@@ -54,7 +54,7 @@ class LuxuryItemCard extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      padding: EdgeInsets.all(isStory ? 24 : 18),
+      padding: EdgeInsets.all(isStory ? 20 : 16),
       decoration: BoxDecoration(
         gradient: const RadialGradient(
           center: Alignment(0.0, -0.4),
@@ -84,55 +84,71 @@ class LuxuryItemCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  const PremiumLogo(size: 38),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'auto_str_303'.tr(),
-                        style: const TextStyle(
-                          color: AppColors.gold,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18,
-                          fontFamily: 'Cairo',
-                          letterSpacing: -0.5,
-                        ),
+              Expanded(
+                child: Row(
+                  children: [
+                    const PremiumLogo(size: 38),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'auto_str_303'.tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.gold,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17,
+                              fontFamily: 'Cairo',
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          Text(
+                            'auto_str_068'.tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Cairo',
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'auto_str_068'.tr(),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               // Country Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                constraints: const BoxConstraints(maxWidth: 165),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: AppColors.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 16),
                     const SizedBox(width: 6),
-                    Text(
-                      country.name.tr(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 12,
-                        fontFamily: 'Cairo',
+                    Flexible(
+                      child: Text(
+                        country.localizedName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 11.5,
+                          fontFamily: 'Cairo',
+                        ),
                       ),
                     ),
                   ],

@@ -121,9 +121,9 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
       builder: (context, animatedPrice, child) {
         final isAr = Localizations.localeOf(context).languageCode == 'ar';
         final locale = isAr ? 'ar' : 'en_US';
-        final format = animatedPrice >= 10000
+        final format = animatedPrice >= 100000
             ? NumberFormat("#,###", locale)
-            : NumberFormat("#,##0.00", locale);
+            : NumberFormat("#,##0.##", locale);
         final formatted = format.format(animatedPrice);
         final decSep = format.symbols.DECIMAL_SEP;
         final parts = formatted.split(decSep);
@@ -175,10 +175,8 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
                         if (parts.length > 1)
                           TextSpan(
                             text: '$decSep${parts[1]}',
-                            style: TextStyle(
-                              fontSize: (widget.style.fontSize ?? 18) * 0.75,
-                              fontWeight: FontWeight.w600,
-                              color: flashColor.withValues(alpha: 0.7),
+                            style: widget.style.copyWith(
+                              color: flashColor,
                               fontFamily: isAr ? 'Cairo' : 'Roboto',
                             ),
                           ),

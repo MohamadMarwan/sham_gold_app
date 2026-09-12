@@ -20,8 +20,11 @@ class BullionsCoinsPage extends ConsumerStatefulWidget {
   ConsumerState<BullionsCoinsPage> createState() => _BullionsCoinsPageState();
 }
 
-class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with SingleTickerProviderStateMixin {
+class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   late TabController _tabController;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -37,6 +40,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final priceService = ref.watch(priceServiceProvider);
     final country = ref.watch(countryProvider);
     final allPrices = priceService.currentPrices;
@@ -193,7 +197,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
   Widget _buildListView(List<PriceItem> items, CountryProvider country, bool isDark) {
     if (items.isEmpty) {
       return ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 170),
         itemCount: 6,
         itemBuilder: (_, __) => const PremiumCardShimmer(),
       );
@@ -320,7 +324,12 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         // ── [3] إعلان أسفل صفحة السبائك والليرات ──
         const SliverBannerPlacementWidget(
           location: 'bullions_bottom',
-          margin: EdgeInsets.fromLTRB(16, 8, 16, 170),
+          margin: EdgeInsets.fromLTRB(16, 8, 16, 16),
+        ),
+
+        // ── مساحة أمان سفلية دائمة تضمن ظهور آخر بطاقة بالكامل فوق شريط التنقل السفلي ──
+        const SliverToBoxAdapter(
+          child: SizedBox(height: 170),
         ),
       ],
     );

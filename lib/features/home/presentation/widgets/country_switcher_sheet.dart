@@ -25,11 +25,59 @@ class CountrySwitcherSheet extends ConsumerStatefulWidget {
 class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  bool _isDetecting = false;
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleAutoDetect(CountryProvider countryState) async {
+    setState(() => _isDetecting = true);
+    HapticFeedback.mediumImpact();
+    
+    final result = await countryState.reDetectCountryWithFeedback();
+    
+    if (!mounted) return;
+    setState(() => _isDetecting = false);
+
+    if (result['success'] == true) {
+      final name = result['name'] ?? '';
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'auto_detect_success'.tr(args: [name]),
+                  style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.darkGreen,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'auto_detect_failed'.tr(),
+            style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: Colors.red.shade800,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        ),
+      );
+    }
   }
 
   @override
@@ -118,9 +166,80 @@ class _CountrySwitcherSheetState extends ConsumerState<CountrySwitcherSheet> {
             ),
           ),
 
+          // ── 1-Tap Auto-Detect Banner ──
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            child: InkWell(
+              onTap: _isDetecting ? null : () => _handleAutoDetect(countryState),
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isDark
+                        ? [const Color(0xFF13362A), const Color(0xFF0C241C)]
+                        : [const Color(0xFFE8F5E9), const Color(0xFFC8E6C9)],
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: AppColors.gold.withValues(alpha: 0.35),
+                    width: 1.2,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.gold.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: _isDetecting
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.gold),
+                            )
+                          : const Icon(Icons.my_location_rounded, color: AppColors.gold, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _isDetecting ? 'detecting_country_in_progress'.tr() : 'auto_detect_my_country'.tr(),
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Cairo',
+                              color: isDark ? Colors.white : AppColors.darkGreen,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'auto_detect_my_country_desc'.tr(),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? Colors.white70 : AppColors.mutedText,
+                              fontFamily: 'Cairo',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AppColors.gold),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 6),
+
           // Search Field
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
             child: TextField(
               controller: _searchController,
               onChanged: (val) => setState(() => _searchQuery = val),

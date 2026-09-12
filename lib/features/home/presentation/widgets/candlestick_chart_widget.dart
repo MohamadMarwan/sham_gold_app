@@ -83,8 +83,32 @@ class _CandlestickChartWidgetState extends State<CandlestickChartWidget> {
 
     if (candles.isEmpty) {
       return SizedBox(
-        height: 250,
-        child: Center(child: Text('auto_str_156'.tr())),
+        height: 220,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.candlestick_chart_rounded, color: AppColors.mutedText, size: 28),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'auto_str_156'.tr(),
+                style: const TextStyle(
+                  color: AppColors.mutedText,
+                  fontFamily: 'Cairo',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 

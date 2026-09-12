@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/models/country_model.dart';
+import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
@@ -28,8 +29,8 @@ class SocialShareCard extends StatelessWidget {
     final numberFormat = NumberFormat('#,##0.##', context.locale.languageCode);
 
     final isStory = format == ShareCardFormat.story;
-    final width = isStory ? 380.0 : 400.0;
-    final height = isStory ? 675.0 : 400.0;
+    final width = isStory ? 390.0 : 400.0;
+    final height = isStory ? 690.0 : 400.0;
 
     // Filter main karat items
     final displayItems = items.take(isStory ? 8 : 5).toList();
@@ -37,7 +38,7 @@ class SocialShareCard extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      padding: EdgeInsets.all(isStory ? 24 : 18),
+      padding: EdgeInsets.all(isStory ? 20 : 16),
       decoration: BoxDecoration(
         gradient: const RadialGradient(
           center: Alignment(0.0, -0.4),
@@ -66,55 +67,71 @@ class SocialShareCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  const PremiumLogo(size: 38),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'auto_str_303'.tr(),
-                        style: const TextStyle(
-                          color: AppColors.gold,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18,
-                          fontFamily: 'Cairo',
-                          letterSpacing: -0.5,
-                        ),
+              Expanded(
+                child: Row(
+                  children: [
+                    const PremiumLogo(size: 38),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'auto_str_303'.tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.gold,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17,
+                              fontFamily: 'Cairo',
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          Text(
+                            'auto_str_068'.tr(),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 8.5,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Cairo',
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'auto_str_068'.tr(),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Cairo',
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               // Country Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                constraints: const BoxConstraints(maxWidth: 165),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: AppColors.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 16),
                     const SizedBox(width: 6),
-                    Text(
-                      'market_of'.tr(args: [country.name.tr()]),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 12,
-                        fontFamily: 'Cairo',
+                    Flexible(
+                      child: Text(
+                        'market_of'.tr(args: [country.localizedName]),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 11.5,
+                          fontFamily: 'Cairo',
+                        ),
                       ),
                     ),
                   ],
@@ -212,10 +229,22 @@ class SocialShareCard extends StatelessWidget {
               itemCount: displayItems.length,
               separatorBuilder: (_, __) => Divider(height: 8, color: Colors.white.withValues(alpha: 0.08)),
               itemBuilder: (context, index) {
-                final item = displayItems[index];
-                final double buy = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
-                final double sell = (item['sellPrice'] as num?)?.toDouble() ?? (buy * 1.008);
-                final String currency = CurrencyUtils.getSymbol(item['currency'] ?? country.currencyCode, context: context);
+                final rawItem = displayItems[index];
+                final PriceItem item = rawItem is PriceItem
+                    ? rawItem
+                    : (rawItem is Map
+                        ? PriceItem.fromJson(Map<String, dynamic>.from(rawItem))
+                        : PriceItem.empty());
+                final double buy = item.buyPrice > 0
+                    ? item.buyPrice
+                    : ((rawItem is Map ? (rawItem['buyPrice'] as num?)?.toDouble() : null) ?? 0.0);
+                final double sell = item.sellPrice > 0
+                    ? item.sellPrice
+                    : ((rawItem is Map ? (rawItem['sellPrice'] as num?)?.toDouble() : null) ?? (buy * 1.008));
+                final String itemCurrency = item.currency.isNotEmpty
+                    ? item.currency
+                    : ((rawItem is Map ? rawItem['currency'] : null) ?? country.currencyCode);
+                final String currency = CurrencyUtils.getSymbol(itemCurrency, context: context);
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -224,7 +253,7 @@ class SocialShareCard extends StatelessWidget {
                       Expanded(
                         flex: 5,
                         child: Text(
-                          item['title'] ?? '',
+                          item.translatedTitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

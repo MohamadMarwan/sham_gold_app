@@ -142,7 +142,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  flex: 3,
+                  flex: 4,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -155,12 +155,12 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             widget.priceItem.translatedTitle,
                             style: TextStyle(
                               fontWeight: FontWeight.w900,
-                              fontSize: 13.5,
+                              fontSize: 13.0,
                               color: isDark ? Colors.white : AppColors.primaryText,
                               fontFamily: 'Cairo',
                               height: 1.2,
                             ),
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),

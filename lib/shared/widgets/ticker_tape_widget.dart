@@ -36,12 +36,22 @@ class TickerTapeWidget extends ConsumerWidget {
 
         // 1. If we have market items for the selected country, use them
         if (localItems.isNotEmpty) {
-          for (var item in localItems.take(8)) {
-            final rawTitle = (item['title'] ?? item['name'] ?? '').toString();
-            final title = rawTitle.tr();
-            final buyPrice = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
-            final curr = item['currency'] ?? currentCountry.currencyCode;
-            if (rawTitle.isNotEmpty && buyPrice > 0) {
+          for (var rawItem in localItems.take(8)) {
+            final PriceItem pItem = rawItem is PriceItem
+                ? rawItem
+                : (rawItem is Map
+                    ? PriceItem.fromJson(Map<String, dynamic>.from(rawItem))
+                    : PriceItem.empty());
+            final title = pItem.translatedTitle.isNotEmpty
+                ? pItem.translatedTitle
+                : (rawItem is Map ? (rawItem['title'] ?? rawItem['name'] ?? '').toString().tr() : '');
+            final buyPrice = pItem.buyPrice > 0
+                ? pItem.buyPrice
+                : ((rawItem is Map ? (rawItem['buyPrice'] as num?)?.toDouble() : null) ?? 0.0);
+            final curr = pItem.currency.isNotEmpty
+                ? pItem.currency
+                : ((rawItem is Map ? rawItem['currency'] : null) ?? currentCountry.currencyCode);
+            if (title.isNotEmpty && buyPrice > 0) {
               final formattedPrice = CurrencyUtils.formatPrice(buyPrice, curr);
               segments.add('$title : $formattedPrice');
             }

@@ -20,7 +20,10 @@ class SmartCalculatorsPage extends ConsumerStatefulWidget {
   ConsumerState<SmartCalculatorsPage> createState() => _SmartCalculatorsPageState();
 }
 
-class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
+class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   int? _selectedCalculatorIndex;
 
   // Controllers - Zakat
@@ -154,6 +157,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final countryState = ref.watch(countryProvider);
     final country = countryState.selectedCountry;
@@ -197,7 +201,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> {
           ),
         ),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 120),
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 170),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // ── [1] إعلان أعلى صفحة الحاسبة ──

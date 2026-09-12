@@ -37,6 +37,34 @@ class PortfolioItemModel {
     return weightGrams * (k / 24.0);
   }
 
+  /// Calculates current market value for this specific item
+  double calculateCurrentValue(double liveGramPrice) => weightGrams * liveGramPrice;
+
+  /// Calculates profit or loss for this specific item
+  double calculatePnL(double liveGramPrice) => calculateCurrentValue(liveGramPrice) - totalInvestedCost;
+
+  /// Calculates ROI percentage (+X.X%) for this specific item
+  double calculateRoi(double liveGramPrice) {
+    if (totalInvestedCost <= 0) return 0.0;
+    return (calculatePnL(liveGramPrice) / totalInvestedCost) * 100;
+  }
+
+  /// Localized category display name
+  String get localizedCategory {
+    switch (category) {
+      case 'bullion':
+        return 'portfolio_category_bullion'.tr();
+      case 'coin':
+        return 'portfolio_category_coin'.tr();
+      case 'jewelry':
+        return 'portfolio_category_jewelry'.tr();
+      case 'silver':
+        return 'portfolio_category_silver'.tr();
+      default:
+        return 'gold_asset_karat'.tr(args: [karat]);
+    }
+  }
+
   factory PortfolioItemModel.fromJson(Map<String, dynamic> json) {
     return PortfolioItemModel(
       id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),

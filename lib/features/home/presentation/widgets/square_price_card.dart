@@ -266,6 +266,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                 const SizedBox(height: 0.5),
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
+                                  alignment: AlignmentDirectional.centerStart,
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [

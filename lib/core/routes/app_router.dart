@@ -74,13 +74,15 @@ class AppRouter {
           
           return CustomTransitionPage(
             key: state.pageKey,
+            transitionDuration: const Duration(milliseconds: 180),
+            reverseTransitionDuration: const Duration(milliseconds: 150),
             child: PriceDetailPage(
               priceItem: item,
             ),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              const begin = Offset(0.0, 0.1);
+              const begin = Offset(0.0, 0.08);
               const end = Offset.zero;
-              const curve = Curves.easeOutQuart;
+              const curve = Curves.easeOutCubic;
 
               var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
               
@@ -113,6 +115,8 @@ class AppRouter {
 
           return CustomTransitionPage(
             key: state.pageKey,
+            transitionDuration: const Duration(milliseconds: 180),
+            reverseTransitionDuration: const Duration(milliseconds: 150),
             child: MetalDetailPage(
               type: type,
               ounce: ounce,
@@ -120,7 +124,7 @@ class AppRouter {
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               const begin = Offset(0.0, 0.08);
               const end = Offset.zero;
-              const curve = Curves.easeOutQuart;
+              const curve = Curves.easeOutCubic;
 
               var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 

@@ -445,49 +445,76 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
       ),
       child: Column(
         children: [
-          // Header Controls Row
+          // ── Header Row: Title & Chart Mode Controls (Area / Candlestick / MA) ──
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'auto_str_250'.tr(), // الرسم البياني
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 16,
-                  color: isDark ? Colors.white : AppColors.darkGreen,
-                  fontFamily: 'Cairo',
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.gold.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.analytics_rounded, color: AppColors.gold, size: 18),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'auto_str_250'.tr(), // الرسم البياني
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 16,
+                      color: isDark ? Colors.white : AppColors.darkGreen,
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                ],
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildChartTypeToggle(),
                   if (_chartType == ChartType.area) ...[
-                    const SizedBox(width: 4),
-                    IconButton(
-                      icon: Icon(
-                        Icons.trending_up_rounded,
-                        size: 20,
-                        color: _showMA ? AppColors.gold : AppColors.mutedText,
+                    const SizedBox(width: 6),
+                    Container(
+                      height: 32,
+                      width: 32,
+                      decoration: BoxDecoration(
+                        color: _showMA
+                            ? AppColors.gold.withValues(alpha: 0.2)
+                            : (isDark ? AppColors.darkSurfaceRaised : AppColors.background),
+                        borderRadius: BorderRadius.circular(9),
+                        border: _showMA ? Border.all(color: AppColors.gold.withValues(alpha: 0.5)) : null,
                       ),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                      onPressed: () {
-                        HapticFeedback.selectionClick();
-                        setState(() {
-                          _showMA = !_showMA;
-                        });
-                      },
-                      tooltip: 'moving_average_ma'.tr(),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.trending_up_rounded,
+                          size: 18,
+                          color: _showMA ? AppColors.gold : AppColors.mutedText,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          setState(() {
+                            _showMA = !_showMA;
+                          });
+                        },
+                        tooltip: 'moving_average_ma'.tr(),
+                      ),
                     ),
                   ],
-                  const SizedBox(width: 6),
-                  _buildRangeSelector(),
                 ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
+
+          // ── Range Selector Row: Full width segmented bar (24h / 1W / 1M / 1Y) ──
+          _buildRangeSelector(),
+          const SizedBox(height: 18),
           if (isLoading)
             const ChartShimmer()
           else if (errorMessage.isNotEmpty)
@@ -679,37 +706,56 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
       'year': 'range_1y'.tr(),
     };
     return Container(
-      padding: const EdgeInsets.all(3),
+      width: double.infinity,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-          color: isDark ? AppColors.darkSurfaceRaised : AppColors.background, borderRadius: BorderRadius.circular(10)),
+        color: isDark ? AppColors.darkSurfaceRaised : AppColors.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.04),
+        ),
+      ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: ranges.entries.map((e) {
           final isSelected = selectedRange == e.key;
-          return GestureDetector(
-            onTap: () => _onRangeChanged(e.key),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-              decoration: BoxDecoration(
-                color: isSelected ? (isDark ? AppColors.gold.withValues(alpha: 0.25) : Colors.white) : Colors.transparent,
-                borderRadius: BorderRadius.circular(7),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.12),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1))
-                      ]
-                    : null,
-              ),
-              child: Text(e.value,
-                  style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.bold,
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => _onRangeChanged(e.key),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                padding: const EdgeInsets.symmetric(vertical: 7),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? (isDark ? AppColors.gold.withValues(alpha: 0.25) : Colors.white)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(9),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    e.value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
                       fontFamily: 'Cairo',
                       color: isSelected
                           ? (isDark ? AppColors.gold : AppColors.darkGreen)
-                          : AppColors.mutedText)),
+                          : AppColors.mutedText,
+                    ),
+                  ),
+                ),
+              ),
             ),
           );
         }).toList(),

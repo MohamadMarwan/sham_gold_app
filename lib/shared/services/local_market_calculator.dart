@@ -623,6 +623,31 @@ class LocalMarketCalculator {
         'countryCode': code,
       });
     }
+
+    // For European market (EUR base), explicitly provide the EUR vs USD (Euro against Dollar) card
+    if (currencyCode == 'EUR') {
+      final rawEur = _fxRates['EUR'] ?? 0.862;
+      final double eurUsdRate = rawEur > 0 ? (rawEur < 1.0 ? 1.0 / rawEur : rawEur) : 1.16;
+      final double buy = double.parse((eurUsdRate * 0.998).toStringAsFixed(3));
+      final double sell = double.parse((eurUsdRate * 1.002).toStringAsFixed(3));
+      final displayRate = (buy > 0) ? buy : eurUsdRate;
+      final formula = CurrencyUtils.getCompactFormula('EUR', displayRate, 'USD');
+
+      final usdIdx = items.indexWhere((i) => i['id'] == '${code.toLowerCase()}_fx_usd');
+      final insertIdx = usdIdx >= 0 ? usdIdx + 1 : items.length;
+      items.insert(insertIdx, {
+        'id': '${code.toLowerCase()}_fx_eur',
+        'title': CurrencyUtils.getCompactPairTitle('EUR', 'USD'),
+        'subtitle': formula,
+        'buyPrice': buy,
+        'sellPrice': sell,
+        'usdPrice': 1.0,
+        'currency': r'$',
+        'currencyCode': 'USD',
+        'metalType': 'currency',
+        'countryCode': code,
+      });
+    }
   }
 
   /// Explicitly returns a guaranteed 1 EUR price item for any market.
@@ -632,13 +657,16 @@ class LocalMarketCalculator {
     final shortSymbol = CurrencyUtils.getSymbol(currencyCode);
 
     if (currencyCode == 'EUR') {
-      final eurUsdRate = _fxRates['EUR'] != null && _fxRates['EUR']! > 0 ? (1.0 / _fxRates['EUR']!) : 1.16;
+      final rawEur = _fxRates['EUR'] ?? 0.862;
+      final double eurUsdRate = rawEur > 0 ? (rawEur < 1.0 ? 1.0 / rawEur : rawEur) : 1.16;
+      final double buy = double.parse((eurUsdRate * 0.998).toStringAsFixed(3));
+      final double sell = double.parse((eurUsdRate * 1.002).toStringAsFixed(3));
       return PriceItem(
-        id: '${code.toLowerCase()}_fx_usd',
-        title: CurrencyUtils.getCompactPairTitle('USD', 'EUR'),
-        buyPrice: double.parse((1.0 / eurUsdRate * 0.998).toStringAsFixed(3)),
-        sellPrice: double.parse((1.0 / eurUsdRate * 1.002).toStringAsFixed(3)),
-        currency: '€',
+        id: '${code.toLowerCase()}_fx_eur',
+        title: CurrencyUtils.getCompactPairTitle('EUR', 'USD'),
+        buyPrice: buy,
+        sellPrice: sell,
+        currency: r'$',
         metalType: 'currency',
         lastUpdate: DateTime.now(),
       );

@@ -90,6 +90,7 @@ class PriceItem {
 
     // 2. ID and Karat-based translation resolution
     final lowerId = id.toLowerCase();
+    final lowerTitle = title.toLowerCase();
     if (lowerId.contains('24k') || title.contains('24')) return 'gold_24k'.tr();
     if (lowerId.contains('22k') || title.contains('22')) return 'gold_22k'.tr();
     if (lowerId.contains('21k') || title.contains('21')) return 'gold_21k'.tr();
@@ -99,18 +100,26 @@ class PriceItem {
     if (lowerId.contains('10k') || title.contains('10')) return 'gold_10k'.tr();
     if (lowerId.contains('9k') || title.contains('9')) return 'gold_9k'.tr();
 
-    if (lowerId.contains('ounce') || lowerId.contains('oz') || title.contains('أونصة')) {
-      return metalType == 'silver' ? 'silver_ounce'.tr() : 'gold_ounce'.tr();
+    final isSilver = metalType == 'silver' ||
+        lowerId.contains('silver') ||
+        lowerId.contains('xag') ||
+        title.contains('فضة') ||
+        title.contains('فضه') ||
+        lowerTitle.contains('silver') ||
+        lowerTitle.contains('gümüş');
+
+    if (lowerId.contains('ounce') || lowerId.contains('oz') || title.contains('أونصة') || lowerTitle.contains('ounce') || lowerTitle.contains('ons')) {
+      return isSilver ? 'silver_ounce'.tr() : 'gold_ounce'.tr();
     }
-    if (lowerId.contains('kilo') || lowerId.contains('kg') || title.contains('كيلو')) {
-      return metalType == 'silver' ? 'silver_1kg_bar'.tr() : 'gold_kilo'.tr();
+    if (lowerId.contains('kilo') || lowerId.contains('kg') || title.contains('كيلو') || lowerTitle.contains('kilo')) {
+      return isSilver ? 'silver_1kg_bar'.tr() : 'gold_kilo'.tr();
     }
-    if (lowerId.contains('silver_pure') || title.contains('الفضة النقية')) {
+    if (lowerId.contains('silver_pure') || title.contains('الفضة النقية') || title.contains('فضة نقية') || lowerTitle.contains('pure silver') || lowerTitle.contains('saf gümüş')) {
       return 'silver_pure_gram'.tr();
     }
-    if (lowerId.contains('silver_999') || title.contains('999')) return 'silver_999'.tr();
-    if (lowerId.contains('silver_925') || title.contains('925')) return 'silver_925'.tr();
-    if (lowerId.contains('silver_800') || title.contains('800')) return 'silver_800'.tr();
+    if (lowerId.contains('silver_999') || (isSilver && title.contains('999'))) return 'silver_999'.tr();
+    if (lowerId.contains('silver_925') || (isSilver && title.contains('925'))) return 'silver_925'.tr();
+    if (lowerId.contains('silver_800') || (isSilver && title.contains('800'))) return 'silver_800'.tr();
 
     if (lowerId.contains('rashadi') || title.contains('رشادية')) return 'coin_rashadi'.tr();
     if (lowerId.contains('english') || title.contains('إنجليزية')) return 'coin_english'.tr();

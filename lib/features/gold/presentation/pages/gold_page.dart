@@ -44,7 +44,10 @@ class GoldPage extends ConsumerStatefulWidget {
   ConsumerState<GoldPage> createState() => _GoldPageState();
 }
 
-class _GoldPageState extends ConsumerState<GoldPage> {
+class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   bool _showSyriaSummary = true;
   bool _showTurkishSummary = true;
   bool _showSilverBanner = true;
@@ -74,6 +77,7 @@ class _GoldPageState extends ConsumerState<GoldPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final priceService = ref.watch(priceServiceProvider);
     final allPrices = priceService.currentPrices;
 

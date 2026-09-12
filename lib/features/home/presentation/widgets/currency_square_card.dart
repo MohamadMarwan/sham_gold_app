@@ -105,6 +105,11 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
         ? widget.priceItem.sellPrice
         : buyPrice * 1.004;
 
+    final isSameCurrency = widget.currencyCode.toUpperCase() == (widget.baseCurrencyCode ?? '').toUpperCase();
+    final effectiveBaseCode = isSameCurrency
+        ? (widget.currencyCode.toUpperCase() == 'EUR' ? 'USD' : 'EUR')
+        : (widget.baseCurrencyCode ?? widget.baseCurrencySymbol);
+
     final historyAsync = ref.watch(priceHistoryProvider(widget.priceItem.id));
 
     return AnimatedBuilder(
@@ -264,7 +269,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                           Text(
                             CurrencyUtils.getCompactPairTitle(
                               widget.currencyCode,
-                              widget.baseCurrencyCode ?? widget.baseCurrencySymbol,
+                              effectiveBaseCode,
                               context: context,
                             ),
                             style: TextStyle(
@@ -282,7 +287,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                             CurrencyUtils.getCompactFormula(
                               widget.currencyCode,
                               buyPrice,
-                              widget.baseCurrencyCode ?? widget.baseCurrencySymbol,
+                              effectiveBaseCode,
                               context: context,
                             ),
                             style: TextStyle(
@@ -520,6 +525,11 @@ class CompactCurrencyCard extends StatelessWidget {
     final buyPrice = priceItem.buyPrice;
     final sellPrice = priceItem.sellPrice > 0 ? priceItem.sellPrice : buyPrice * 1.004;
 
+    final isSameCurrency = currencyCode.toUpperCase() == (baseCurrencyCode ?? '').toUpperCase();
+    final effectiveBaseCode = isSameCurrency
+        ? (currencyCode.toUpperCase() == 'EUR' ? 'USD' : 'EUR')
+        : (baseCurrencyCode ?? baseCurrencySymbol);
+
     return Bounceable(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -580,7 +590,7 @@ class CompactCurrencyCard extends StatelessWidget {
                       Text(
                         CurrencyUtils.getCompactPairTitle(
                           currencyCode,
-                          baseCurrencyCode ?? baseCurrencySymbol,
+                          effectiveBaseCode,
                           context: context,
                         ),
                         style: TextStyle(
@@ -618,7 +628,7 @@ class CompactCurrencyCard extends StatelessWidget {
                     CurrencyUtils.getCompactFormula(
                       currencyCode,
                       buyPrice,
-                      baseCurrencyCode ?? baseCurrencySymbol,
+                      effectiveBaseCode,
                       context: context,
                     ),
                     style: TextStyle(

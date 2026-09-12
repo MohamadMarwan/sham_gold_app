@@ -215,9 +215,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
 
   Widget _buildActiveIcon(Widget child) {
     return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0.5, end: 1.0),
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.elasticOut,
+      tween: Tween<double>(begin: 0.8, end: 1.0),
+      duration: const Duration(milliseconds: 160),
+      curve: Curves.easeOutBack,
       builder: (context, scale, childWidget) {
         return Transform.scale(
           scale: scale,
@@ -441,12 +441,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       HapticFeedback.selectionClick();
       _pageController.animateToPage(
         index,
-        duration: const Duration(milliseconds: 320),
-        curve: Curves.easeInOutCubic,
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOutQuad,
       );
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) AdService().showInterstitialOnNavigation();
-      });
     }
   }
 }

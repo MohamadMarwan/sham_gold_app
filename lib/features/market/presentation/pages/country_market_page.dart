@@ -30,7 +30,10 @@ class CountryMarketPage extends ConsumerStatefulWidget {
   ConsumerState<CountryMarketPage> createState() => _CountryMarketPageState();
 }
 
-class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
+class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<String> _favoriteIds = [];
   final FavoritesService _favoritesService = FavoritesService();
 
@@ -51,6 +54,7 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final countryProviderInstance = ref.watch(countryProvider);
     final priceService = ref.watch(priceServiceProvider);
@@ -104,33 +108,63 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
               pinned: true,
               backgroundColor: isDark ? AppColors.darkScaffold : AppColors.darkGreen,
               elevation: 0,
-              flexibleSpace: FlexibleSpaceBar(
-                centerTitle: true,
-                titlePadding: const EdgeInsets.only(bottom: 60),
-                title: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 22),
-                    const SizedBox(width: 8),
-                    Text(
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 22),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
                       'market_of'.tr(args: [country.localizedName]),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
-                        fontSize: 19,
+                        fontSize: 16,
                         fontFamily: 'Cairo',
-                        shadows: [
-                          Shadow(color: AppColors.gold.withValues(alpha: 0.3), blurRadius: 20),
-                          Shadow(color: Colors.black.withValues(alpha: 0.6), blurRadius: 5),
-                        ],
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              centerTitle: false,
+              flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
-                  child: const Center(
-                    child: PremiumLogo(size: 110, isBackground: true),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 20),
+                        const PremiumLogo(size: 85, isBackground: true),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                'market_of'.tr(args: [country.localizedName]),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontFamily: 'Cairo',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -140,38 +174,48 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
                     HapticFeedback.selectionClick();
                     SocialShareSheet.show(context, forcedCountry: country);
                   },
-                  icon: const Icon(Icons.share_rounded, color: AppColors.gold, size: 20),
+                  icon: const Icon(Icons.share_rounded, color: AppColors.gold, size: 19),
                   tooltip: 'share_bulletin_image'.tr(),
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(6),
                 ),
+                const SizedBox(width: 4),
                 IconButton(
                   onPressed: () {
                     HapticFeedback.selectionClick();
                     final currentGrid = ref.read(settingsProvider).isGridLayout;
                     ref.read(settingsProvider.notifier).setIsGridLayout(!currentGrid);
                   },
-                  icon: Icon(ref.watch(settingsProvider).isGridLayout ? Icons.view_list_rounded : Icons.grid_view_rounded, color: AppColors.gold, size: 20),
+                  icon: Icon(ref.watch(settingsProvider).isGridLayout ? Icons.view_list_rounded : Icons.grid_view_rounded, color: AppColors.gold, size: 19),
                   tooltip: ref.watch(settingsProvider).isGridLayout ? 'view_as_list'.tr() : 'view_as_grid'.tr(),
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints(),
+                  padding: const EdgeInsets.all(6),
                 ),
+                const SizedBox(width: 6),
                 TextButton.icon(
                   onPressed: () {
                     HapticFeedback.selectionClick();
                     CountrySwitcherSheet.show(context);
                   },
-                  icon: const Icon(Icons.swap_horiz_rounded, color: AppColors.gold, size: 18),
+                  icon: const Icon(Icons.swap_horiz_rounded, color: AppColors.gold, size: 16),
                   label: Text(
                     'change_country'.tr(),
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 12),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 11),
                   ),
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     backgroundColor: Colors.white.withValues(alpha: 0.15),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       side: BorderSide(color: Colors.white.withValues(alpha: 0.3), width: 1),
                     ),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
               ],
               bottom: PreferredSize(
                 preferredSize: const Size.fromHeight(40),
@@ -197,7 +241,7 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> {
 
             // Content
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 140),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 170),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   const LivePriceTicker(),

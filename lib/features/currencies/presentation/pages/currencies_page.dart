@@ -26,7 +26,10 @@ class CurrenciesPage extends ConsumerStatefulWidget {
   ConsumerState<CurrenciesPage> createState() => _CurrenciesPageState();
 }
 
-class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
+class _CurrenciesPageState extends ConsumerState<CurrenciesPage> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<String> _pinnedCodes = [];
 
   @override
@@ -137,6 +140,7 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final priceService = ref.watch(priceServiceProvider);
     final allPrices = priceService.currentPrices;

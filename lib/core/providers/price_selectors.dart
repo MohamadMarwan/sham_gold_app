@@ -160,9 +160,17 @@ final countryCurrenciesProvider = Provider<List<PriceItem>>((ref) {
 
   for (final cItem in calcCurrencies) {
     final cCode = extractCurrencyCode(cItem);
-    if (cCode.toUpperCase() == selectedCountry.currencyCode.toUpperCase()) continue;
+    // Allow EUR vs USD card in European market even though selectedCountry currency is EUR
+    final isEurVsUsdInEurope = selectedCountry.currencyCode.toUpperCase() == 'EUR' &&
+        cCode.toUpperCase() == 'EUR' &&
+        cItem.id.toLowerCase().contains('_eur');
+
+    if (cCode.toUpperCase() == selectedCountry.currencyCode.toUpperCase() && !isEurVsUsdInEurope) {
+      continue;
+    }
 
     final alreadyExists = countryCurrencies.any((existing) =>
+        existing.id == cItem.id ||
         extractCurrencyCode(existing).toUpperCase() == cCode.toUpperCase());
     if (!alreadyExists) {
       countryCurrencies.add(cItem);
@@ -240,5 +248,14 @@ final countryCurrenciesProvider = Provider<List<PriceItem>>((ref) {
     return idxA.compareTo(idxB);
   });
 
-  return countryCurrencies;
+  // 6. Guarantee absolute deduplication by unique ID
+  final Set<String> seenIds = {};
+  final List<PriceItem> uniqueCurrencies = [];
+  for (final item in countryCurrencies) {
+    if (seenIds.add(item.id)) {
+      uniqueCurrencies.add(item);
+    }
+  }
+
+  return uniqueCurrencies;
 });

@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bounceable/flutter_bounceable.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/models/price_item.dart';
@@ -36,12 +36,11 @@ class MetalDetailPage extends StatelessWidget {
     final gramThirdSell = isSilver ? (gram999Sell * 0.800) : (gram999Sell * 0.900);
 
     final title = isSilver ? 'silver_details'.tr() : 'platinum_details'.tr();
-    final metalName = isSilver ? 'auto_str_350'.tr() : 'auto_str_314'.tr();
     final badgeColor = isSilver ? const Color(0xFF94A3B8) : const Color(0xFFCBD5E1);
 
     final List<Map<String, dynamic>> units = [
       {
-        'title': 'ounce'.tr(),
+        'title': 'unit_ounce'.tr(),
         'weight': '31.1035 ${'gram'.tr()}',
         'purity': '99.99%',
         'buy': ouncePrice,
@@ -126,6 +125,25 @@ class MetalDetailPage extends StatelessWidget {
                 color: AppColors.gold.withValues(alpha: 0.15),
               ),
               child: const Icon(
+                Icons.show_chart_rounded,
+                size: 20,
+                color: AppColors.gold,
+              ),
+            ),
+            tooltip: 'price_details_chart'.tr(),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              context.push('/price-detail', extra: {'item': ounce});
+            },
+          ),
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.gold.withValues(alpha: 0.15),
+              ),
+              child: const Icon(
                 Icons.calculate_rounded,
                 size: 20,
                 color: AppColors.gold,
@@ -199,7 +217,7 @@ class MetalDetailPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '$metalName - ${'ounce'.tr()}',
+                                isSilver ? 'silver_ounce'.tr() : 'platinum_ounce'.tr(),
                                 style: GoogleFonts.cairo(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 16,
@@ -246,7 +264,7 @@ class MetalDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'auto_str_361'.tr(), // الشراء
+                              'currency_buy'.tr(),
                               style: GoogleFonts.cairo(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -292,7 +310,7 @@ class MetalDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'auto_str_343'.tr(), // المبيع
+                              'currency_sell'.tr(),
                               style: GoogleFonts.cairo(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
@@ -407,7 +425,7 @@ class MetalDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'auto_str_361'.tr(),
+                              'currency_buy'.tr(),
                               style: GoogleFonts.cairo(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.bold,
@@ -453,7 +471,7 @@ class MetalDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'auto_str_343'.tr(),
+                              'currency_sell'.tr(),
                               style: GoogleFonts.cairo(
                                 fontSize: 9.5,
                                 fontWeight: FontWeight.bold,
@@ -497,62 +515,7 @@ class MetalDetailPage extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 20),
-
-            // Calculator quick action card
-            Bounceable(
-              onTap: () {
-                HapticFeedback.selectionClick();
-                SilverCalculatorBottomSheet.show(context);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: AppColors.gold.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: AppColors.gold.withValues(alpha: 0.3),
-                    width: 1.0,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppColors.gold,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 20),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'open_metal_calculator'.tr(),
-                            style: GoogleFonts.cairo(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13.5,
-                              color: isDark ? Colors.white : AppColors.darkGreen,
-                            ),
-                          ),
-                          Text(
-                            'calculate_grams_and_weights'.tr(),
-                            style: GoogleFonts.cairo(
-                              fontSize: 10.5,
-                              color: AppColors.mutedText,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.gold),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(height: 12),
 
             // ── [2] إعلان أسفل صفحة تفاصيل المعدن ──
             const BannerPlacementWidget(

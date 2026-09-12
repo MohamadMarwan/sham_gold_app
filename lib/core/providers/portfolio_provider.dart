@@ -88,35 +88,60 @@ class PortfolioProvider with ChangeNotifier {
   /// Total count of jewelry items
   int get jewelryCount => _items.where((e) => e.category == 'jewelry' || e.category == 'scrap').length;
 
-  /// Calculate current market valuation given a map of live price items or a fallback live price
-  double calculateCurrentValuation(List<PriceItem> currentPrices, {double fallbackG24USD = 85.2, double fxRate = 1.0}) {
-    if (_items.isEmpty) return 0.0;
+  /// Average purchase cost per gram
+  double get averageCostPerGram => totalGrossWeightGrams > 0 ? totalInvestedCost / totalGrossWeightGrams : 0.0;
 
-    double total = 0.0;
+  /// Returns weight distribution map by karat/metal
+  Map<String, double> get karatDistribution {
+    final map = <String, double>{};
+    for (final item in _items) {
+      final key = item.karat;
+      map[key] = (map[key] ?? 0.0) + item.weightGrams;
+    }
+    return map;
+  }
 
-    // Find gold 24k price
+  /// Calculates live price per gram for a specific karat or silver
+  double getLivePricePerGramForKarat(
+    String karat,
+    List<PriceItem> currentPrices, {
+    double fallbackG24USD = 85.2,
+    double fxRate = 1.0,
+  }) {
+    if (karat == 'silver') {
+      final pSilver = currentPrices.firstWhere(
+        (p) => p.id.contains('xag') || p.id.contains('silver'),
+        orElse: () => PriceItem.empty(),
+      );
+      return pSilver.buyPrice > 0 ? (pSilver.buyPrice / 31.1035) : (1.05 * fxRate);
+    }
+
     final p24 = currentPrices.firstWhere(
       (p) => p.id.contains('24') || p.id.contains('xau'),
       orElse: () => PriceItem.empty(),
     );
 
-    final liveG24 = p24.buyPrice > 0 
+    final liveG24 = p24.buyPrice > 0
         ? (p24.id.contains('xau') ? p24.buyPrice / 31.1035 : p24.buyPrice)
         : (fallbackG24USD * fxRate);
 
+    final k = double.tryParse(karat) ?? 24.0;
+    return liveG24 * (k / 24.0);
+  }
+
+  /// Calculate current market valuation given a map of live price items or a fallback live price
+  double calculateCurrentValuation(List<PriceItem> currentPrices, {double fallbackG24USD = 85.2, double fxRate = 1.0}) {
+    if (_items.isEmpty) return 0.0;
+
+    double total = 0.0;
     for (final item in _items) {
-      if (item.karat == 'silver') {
-        final pSilver = currentPrices.firstWhere(
-          (p) => p.id.contains('xag') || p.id.contains('silver'),
-          orElse: () => PriceItem.empty(),
-        );
-        final liveSilver = pSilver.buyPrice > 0 ? (pSilver.buyPrice / 31.1035) : (1.05 * fxRate);
-        total += item.weightGrams * liveSilver;
-      } else {
-        final k = double.tryParse(item.karat) ?? 24.0;
-        final liveKaratPrice = liveG24 * (k / 24.0);
-        total += item.weightGrams * liveKaratPrice;
-      }
+      final liveGramPrice = getLivePricePerGramForKarat(
+        item.karat,
+        currentPrices,
+        fallbackG24USD: fallbackG24USD,
+        fxRate: fxRate,
+      );
+      total += item.calculateCurrentValue(liveGramPrice);
     }
 
     return total;
