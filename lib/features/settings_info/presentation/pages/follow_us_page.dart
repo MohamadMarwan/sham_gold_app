@@ -719,99 +719,133 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> {
           ),
           child: Column(
             children: [
-              ListTile(
-                leading: Icon(
-                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                  color: AppColors.gold,
-                ),
-                title: Text(
-                  'dark_mode'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                trailing: Switch(
-                  value: isDark,
-                  activeThumbColor: AppColors.gold,
-                  onChanged: (val) {
-                    settings.setThemeMode(
-                        val ? ThemeMode.dark : ThemeMode.light);
-                  },
-                ),
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.text_fields_rounded, color: AppColors.gold),
-                title: Text(
-                  'font_size'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                trailing: DropdownButton<double>(
-                  value: settings.fontSizeScale,
-                  underline: const SizedBox(),
-                  icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
-                  items: [
-                    DropdownMenuItem(value: 1.0, child: Text('font_normal'.tr())),
-                    DropdownMenuItem(value: 1.15, child: Text('font_large'.tr())),
-                    DropdownMenuItem(value: 1.3, child: Text('font_xlarge'.tr())),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                      color: AppColors.gold,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        'dark_mode'.tr(),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Switch(
+                      value: isDark,
+                      activeThumbColor: AppColors.gold,
+                      onChanged: (val) {
+                        settings.setThemeMode(
+                            val ? ThemeMode.dark : ThemeMode.light);
+                      },
+                    ),
                   ],
-                  onChanged: (double? newValue) {
-                    if (newValue != null) {
-                      settings.setFontSizeScale(newValue);
-                    }
-                  },
                 ),
               ),
               const Divider(height: 1),
-              ListTile(
+              _buildDropdownSettingTile<double>(
+                leading: const Icon(Icons.text_fields_rounded, color: AppColors.gold),
+                title: 'font_size'.tr(),
+                value: settings.fontSizeScale,
+                items: [
+                  DropdownMenuItem(value: 1.0, child: Text('font_normal'.tr())),
+                  DropdownMenuItem(value: 1.15, child: Text('font_large'.tr())),
+                  DropdownMenuItem(value: 1.3, child: Text('font_xlarge'.tr())),
+                ],
+                onChanged: (double? newValue) {
+                  if (newValue != null) {
+                    settings.setFontSizeScale(newValue);
+                  }
+                },
+              ),
+              const Divider(height: 1),
+              _buildDropdownSettingTile<bool>(
                 leading: Icon(
                   settings.isGridLayout ? Icons.grid_view_rounded : Icons.view_agenda_rounded,
                   color: AppColors.gold,
                 ),
-                title: Text(
-                  'price_layout_mode'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                trailing: DropdownButton<bool>(
-                  value: settings.isGridLayout,
-                  underline: const SizedBox(),
-                  icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
-                  items: [
-                    DropdownMenuItem(value: true, child: Text('layout_grid'.tr())),
-                    DropdownMenuItem(value: false, child: Text('layout_list'.tr())),
-                  ],
-                  onChanged: (bool? newValue) {
-                    if (newValue != null) {
-                      settings.setIsGridLayout(newValue);
-                    }
-                  },
-                ),
+                title: 'price_layout_mode'.tr(),
+                value: settings.isGridLayout,
+                items: [
+                  DropdownMenuItem(value: true, child: Text('layout_grid'.tr())),
+                  DropdownMenuItem(value: false, child: Text('layout_list'.tr())),
+                ],
+                onChanged: (bool? newValue) {
+                  if (newValue != null) {
+                    settings.setIsGridLayout(newValue);
+                  }
+                },
               ),
               const Divider(height: 1),
-              ListTile(
+              _buildDropdownSettingTile<String>(
                 leading: const Icon(Icons.language_rounded, color: AppColors.gold),
-                title: Text(
-                  'language'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                trailing: DropdownButton<String>(
-                  value: context.locale.languageCode,
-                  underline: const SizedBox(),
-                  icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
-                  items: [
-                    DropdownMenuItem(value: 'ar', child: Text('auto_str_330'.tr())),
-                    const DropdownMenuItem(value: 'en', child: Text('English')),
-                    const DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
-                  ],
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      context.setLocale(Locale(newValue));
-                    }
-                  },
-                ),
+                title: 'language'.tr(),
+                value: context.locale.languageCode,
+                items: [
+                  DropdownMenuItem(value: 'ar', child: Text('auto_str_330'.tr())),
+                  const DropdownMenuItem(value: 'en', child: Text('English')),
+                  const DropdownMenuItem(value: 'tr', child: Text('Türkçe')),
+                ],
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    context.setLocale(Locale(newValue));
+                  }
+                },
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDropdownSettingTile<T>({
+    required Widget leading,
+    required String title,
+    required T value,
+    required List<DropdownMenuItem<T>> items,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          leading,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.gold.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<T>(
+                value: value,
+                isDense: true,
+                icon: const Icon(Icons.arrow_drop_down_rounded, color: AppColors.gold),
+                alignment: AlignmentDirectional.centerEnd,
+                items: items,
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

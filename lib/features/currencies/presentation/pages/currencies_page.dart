@@ -95,8 +95,7 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> {
   }
 
   String _extractCurrencyCode(PriceItem item) {
-    final parts = item.id.split('_');
-    return parts.last.toUpperCase();
+    return extractCurrencyCode(item);
   }
 
   String _getFlagForCurrency(String code) {

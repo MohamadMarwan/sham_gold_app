@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../models/country_model.dart';
+import '../models/price_item.dart';
 import '../../core/services/http_api_service.dart';
 import '../../core/utils/currency_utils.dart';
 
@@ -137,6 +138,18 @@ class LocalMarketCalculator {
       if (id == 'sy_usd' && buyPrice > 10) {
         _fxRates['SYP'] = buyPrice > 1000 ? buyPrice / 100 : buyPrice;
       }
+      if (id == 'sy_eur' && buyPrice > 10) {
+        _scrapedPrices['sy_eur'] = {
+          'buyPrice': buyPrice > 1000 ? buyPrice / 100 : buyPrice,
+          'sellPrice': sellPrice > 1000 ? sellPrice / 100 : sellPrice,
+        };
+      }
+      if (id == 'tr_curr_eur' && buyPrice > 0) {
+        _scrapedPrices['tr_curr_eur'] = {
+          'buyPrice': buyPrice,
+          'sellPrice': sellPrice,
+        };
+      }
     }
     _lastUpdate = DateTime.now();
   }
@@ -164,6 +177,26 @@ class LocalMarketCalculator {
           if (id == 'sy_usd' && p['buyPrice'] != null) {
             final val = (p['buyPrice'] as num).toDouble();
             if (val > 10) _fxRates['SYP'] = val > 1000 ? val / 100 : val;
+          }
+          if (id == 'sy_eur' && p['buyPrice'] != null) {
+            final val = (p['buyPrice'] as num).toDouble();
+            final sVal = (p['sellPrice'] as num?)?.toDouble() ?? val;
+            if (val > 10) {
+              _scrapedPrices['sy_eur'] = {
+                'buyPrice': val > 1000 ? val / 100 : val,
+                'sellPrice': sVal > 1000 ? sVal / 100 : sVal,
+              };
+            }
+          }
+          if (id == 'tr_curr_eur' && p['buyPrice'] != null) {
+            final val = (p['buyPrice'] as num).toDouble();
+            final sVal = (p['sellPrice'] as num?)?.toDouble() ?? val;
+            if (val > 0) {
+              _scrapedPrices['tr_curr_eur'] = {
+                'buyPrice': val,
+                'sellPrice': sVal,
+              };
+            }
           }
         }
       }
@@ -551,14 +584,38 @@ class LocalMarketCalculator {
       final crossRate = localRate / targetRateToUsd;
 
       final pairTitle = CurrencyUtils.getCompactPairTitle(targetCurr, currencyCode);
-      final formula = CurrencyUtils.getCompactFormula(targetCurr, crossRate, currencyCode);
+
+      double buyPrice = double.parse((crossRate * 0.998).toStringAsFixed(3));
+      double sellPrice = double.parse((crossRate * 1.002).toStringAsFixed(3));
+
+      // Regional live override if available
+      if (targetCurr == 'EUR') {
+        if (code == 'SY' && _scrapedPrices.containsKey('sy_eur')) {
+          final sp = _scrapedPrices['sy_eur']!;
+          final b = (sp['buyPrice'] as num?)?.toDouble() ?? 0.0;
+          if (b > 0) {
+            buyPrice = b;
+            sellPrice = (sp['sellPrice'] as num?)?.toDouble() ?? (b * 1.004);
+          }
+        } else if (code == 'TR' && _scrapedPrices.containsKey('tr_curr_eur')) {
+          final sp = _scrapedPrices['tr_curr_eur']!;
+          final b = (sp['buyPrice'] as num?)?.toDouble() ?? 0.0;
+          if (b > 0) {
+            buyPrice = b;
+            sellPrice = (sp['sellPrice'] as num?)?.toDouble() ?? (b * 1.004);
+          }
+        }
+      }
+
+      final double displayRate = (buyPrice > 0) ? buyPrice : crossRate;
+      final formula = CurrencyUtils.getCompactFormula(targetCurr, displayRate, currencyCode);
 
       items.add({
         'id': '${code.toLowerCase()}_fx_${targetCurr.toLowerCase()}',
         'title': pairTitle,
         'subtitle': formula,
-        'buyPrice': double.parse((crossRate * 0.998).toStringAsFixed(3)),
-        'sellPrice': double.parse((crossRate * 1.002).toStringAsFixed(3)),
+        'buyPrice': buyPrice,
+        'sellPrice': sellPrice,
         'usdPrice': double.parse((1 / targetRateToUsd).toStringAsFixed(4)),
         'currency': shortSymbol,
         'currencyCode': currencyCode,
@@ -566,5 +623,65 @@ class LocalMarketCalculator {
         'countryCode': code,
       });
     }
+  }
+
+  /// Explicitly returns a guaranteed 1 EUR price item for any market.
+  PriceItem? getEurPriceItemFor(CountryModel country) {
+    final code = country.code.toUpperCase();
+    final currencyCode = country.currencyCode.toUpperCase();
+    final shortSymbol = CurrencyUtils.getSymbol(currencyCode);
+
+    if (currencyCode == 'EUR') {
+      final eurUsdRate = _fxRates['EUR'] != null && _fxRates['EUR']! > 0 ? (1.0 / _fxRates['EUR']!) : 1.16;
+      return PriceItem(
+        id: '${code.toLowerCase()}_fx_usd',
+        title: CurrencyUtils.getCompactPairTitle('USD', 'EUR'),
+        buyPrice: double.parse((1.0 / eurUsdRate * 0.998).toStringAsFixed(3)),
+        sellPrice: double.parse((1.0 / eurUsdRate * 1.002).toStringAsFixed(3)),
+        currency: '€',
+        metalType: 'currency',
+        lastUpdate: DateTime.now(),
+      );
+    }
+
+    final rateLookup = _fxRates[currencyCode] ??
+        _fxRates[country.currencyCode.toLowerCase()] ??
+        _fxRates[code] ??
+        _fxRates[code.toLowerCase()];
+    final double localRate = (rateLookup != null && rateLookup > 0)
+        ? rateLookup
+        : _defaultFallbackFor(currencyCode, code);
+
+    final double eurRateToUsd = _fxRates['EUR'] ?? 0.86;
+    final double crossRate = localRate / eurRateToUsd;
+
+    double buy = double.parse((crossRate * 0.998).toStringAsFixed(3));
+    double sell = double.parse((crossRate * 1.002).toStringAsFixed(3));
+
+    if (code == 'SY' && _scrapedPrices.containsKey('sy_eur')) {
+      final sp = _scrapedPrices['sy_eur']!;
+      final b = (sp['buyPrice'] as num?)?.toDouble() ?? 0.0;
+      if (b > 0) {
+        buy = b;
+        sell = (sp['sellPrice'] as num?)?.toDouble() ?? (b * 1.004);
+      }
+    } else if (code == 'TR' && _scrapedPrices.containsKey('tr_curr_eur')) {
+      final sp = _scrapedPrices['tr_curr_eur']!;
+      final b = (sp['buyPrice'] as num?)?.toDouble() ?? 0.0;
+      if (b > 0) {
+        buy = b;
+        sell = (sp['sellPrice'] as num?)?.toDouble() ?? (b * 1.004);
+      }
+    }
+
+    return PriceItem(
+      id: '${code.toLowerCase()}_fx_eur',
+      title: CurrencyUtils.getCompactPairTitle('EUR', currencyCode),
+      buyPrice: buy,
+      sellPrice: sell,
+      currency: shortSymbol,
+      metalType: 'currency',
+      lastUpdate: DateTime.now(),
+    );
   }
 }

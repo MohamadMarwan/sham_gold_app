@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../shared/models/price_item.dart';
 import '../../shared/services/price_service.dart';
 import '../../shared/services/local_market_calculator.dart';
+import '../utils/currency_utils.dart';
 import 'country_provider.dart';
 
 /// Raw list of all prices from the price service
@@ -98,15 +99,25 @@ final currencyPricesProvider = Provider<List<PriceItem>>((ref) {
       .toList();
 });
 
-/// Helper to extract currency code from price id (e.g., 'price_usd' -> 'USD')
+/// Helper to extract currency code from price id (e.g., 'sa_fx_eur' -> 'EUR', 'tr_curr_eur' -> 'EUR', 'sy_eur' -> 'EUR')
 String extractCurrencyCode(PriceItem item) {
-  final parts = item.id.split('_');
+  final id = item.id.toLowerCase();
+  const known = [
+    'usd', 'eur', 'gbp', 'sar', 'aed', 'kwd', 'qar', 'bhd', 'omr', 'jod',
+    'egp', 'try', 'syp', 'mad', 'ils', 'cad', 'aud', 'chf', 'mru', 'sos',
+    'lyd', 'dzd', 'tnd', 'iqd', 'lbp', 'yer', 'sdg'
+  ];
+  final parts = id.split('_');
+  for (final part in parts.reversed) {
+    if (known.contains(part)) return part.toUpperCase();
+  }
   return parts.last.toUpperCase();
 }
 
 /// Memoized selector for country-specific synthesized currency exchange rates.
 /// Synthesizes official market items with local market calculation to guarantee
-/// full 16-currency coverage sorted in standard financial priority order.
+/// full currency coverage sorted in standard financial priority order,
+/// and strictly guarantees a 1 EUR card is present for every market.
 final countryCurrenciesProvider = Provider<List<PriceItem>>((ref) {
   final countryProv = ref.watch(countryProvider);
   final selectedCountry = countryProv.selectedCountry;
@@ -118,7 +129,7 @@ final countryCurrenciesProvider = Provider<List<PriceItem>>((ref) {
   final List<dynamic> rawItems = isMatchingCountry ? (marketData['items'] ?? []) : [];
 
   final List<PriceItem> countryCurrencies = rawItems
-      .where((item) => item['metalType'] == 'currency')
+      .where((item) => item['metalType'] == 'currency' || item['id']?.toString().contains('_fx_') == true)
       .map((item) => PriceItem(
             id: item['id'],
             title: item['title'],
@@ -158,7 +169,61 @@ final countryCurrenciesProvider = Provider<List<PriceItem>>((ref) {
     }
   }
 
-  // 3. Standard financial priority ordering
+  // 3. Absolute Guarantee: 1 EUR card MUST ALWAYS exist for EVERY market!
+  final bool hasEur = countryCurrencies.any((item) => extractCurrencyCode(item) == 'EUR');
+  if (!hasEur) {
+    final eurItem = calculator.getEurPriceItemFor(selectedCountry);
+    if (eurItem != null) {
+      countryCurrencies.add(eurItem);
+    }
+  }
+
+  // 4. Live Scraper Sync for Syria & Turkey if live market items are in allPrices
+  if (selectedCountry.code.toUpperCase() == 'SY') {
+    final allPrices = ref.watch(allPricesProvider);
+    final syEurLive = allPrices.where((p) => p.id == 'sy_eur').firstOrNull;
+    if (syEurLive != null && syEurLive.buyPrice > 0) {
+      final existingEurIdx = countryCurrencies.indexWhere((p) => extractCurrencyCode(p) == 'EUR');
+      final buy = syEurLive.buyPrice > 1000 ? syEurLive.buyPrice / 100 : syEurLive.buyPrice;
+      final sell = syEurLive.sellPrice > 1000 ? syEurLive.sellPrice / 100 : (syEurLive.sellPrice > 0 ? syEurLive.sellPrice : buy * 1.004);
+      final liveItem = PriceItem(
+        id: 'sy_fx_eur',
+        title: CurrencyUtils.getCompactPairTitle('EUR', 'SYP'),
+        buyPrice: buy,
+        sellPrice: sell,
+        currency: selectedCountry.localizedCurrencySymbol,
+        metalType: 'currency',
+        lastUpdate: syEurLive.lastUpdate ?? DateTime.now(),
+      );
+      if (existingEurIdx != -1) {
+        countryCurrencies[existingEurIdx] = liveItem;
+      } else {
+        countryCurrencies.add(liveItem);
+      }
+    }
+  } else if (selectedCountry.code.toUpperCase() == 'TR') {
+    final allPrices = ref.watch(allPricesProvider);
+    final trEurLive = allPrices.where((p) => p.id == 'tr_curr_eur').firstOrNull;
+    if (trEurLive != null && trEurLive.buyPrice > 0) {
+      final existingEurIdx = countryCurrencies.indexWhere((p) => extractCurrencyCode(p) == 'EUR');
+      final liveItem = PriceItem(
+        id: 'tr_fx_eur',
+        title: CurrencyUtils.getCompactPairTitle('EUR', 'TRY'),
+        buyPrice: trEurLive.buyPrice,
+        sellPrice: trEurLive.sellPrice > 0 ? trEurLive.sellPrice : trEurLive.buyPrice * 1.004,
+        currency: selectedCountry.localizedCurrencySymbol,
+        metalType: 'currency',
+        lastUpdate: trEurLive.lastUpdate ?? DateTime.now(),
+      );
+      if (existingEurIdx != -1) {
+        countryCurrencies[existingEurIdx] = liveItem;
+      } else {
+        countryCurrencies.add(liveItem);
+      }
+    }
+  }
+
+  // 5. Standard financial priority ordering: USD & EUR always first
   const currencyOrder = [
     'USD', 'EUR', 'GBP', 'SAR', 'AED', 'KWD',
     'QAR', 'BHD', 'OMR', 'JOD', 'EGP', 'TRY',

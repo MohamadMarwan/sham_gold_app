@@ -35,23 +35,27 @@ class TopCountryBanner extends ConsumerWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 26),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Row(
+            children: [
+              CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 28),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Row(
                   children: [
-                    Text(
-                      'market_of'.tr(args: [country.localizedName]),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 15,
-                        color: isDark ? Colors.white : AppColors.primaryText,
-                        fontFamily: 'Cairo',
+                    Flexible(
+                      child: Text(
+                        'market_of'.tr(args: [country.localizedName]),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 15,
+                          color: isDark ? Colors.white : AppColors.primaryText,
+                          fontFamily: 'Cairo',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 6),
@@ -73,21 +77,7 @@ class TopCountryBanner extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  'default_karat_label'.tr(args: [country.defaultKarat.toString()]),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.mutedText,
-                    fontFamily: 'Cairo',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+              ),
               IconButton(
                 onPressed: () {
                   HapticFeedback.selectionClick();
@@ -96,8 +86,28 @@ class TopCountryBanner extends ConsumerWidget {
                 icon: const Icon(Icons.share_rounded, size: 20, color: AppColors.gold),
                 tooltip: 'share_bulletin_image'.tr(),
                 visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(),
+                padding: const EdgeInsets.all(4),
               ),
-              const SizedBox(width: 4),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'default_karat_label'.tr(args: [country.defaultKarat.toString()]),
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    color: AppColors.mutedText,
+                    fontFamily: 'Cairo',
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               PopupMenuButton<String>(
                 onSelected: (value) {
                   HapticFeedback.selectionClick();
@@ -107,21 +117,22 @@ class TopCountryBanner extends ConsumerWidget {
                 offset: const Offset(0, 40),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.gold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.filter_alt_outlined, size: 16, color: AppColors.gold),
+                      const Icon(Icons.filter_alt_outlined, size: 15, color: AppColors.gold),
                       const SizedBox(width: 4),
                       Text(
                         _getKaratLabel(countryState.selectedKaratFilter),
                         style: const TextStyle(
                           color: AppColors.gold,
                           fontWeight: FontWeight.w800,
-                          fontSize: 10,
+                          fontSize: 10.5,
                           fontFamily: 'Cairo',
                         ),
                       ),
@@ -137,21 +148,23 @@ class TopCountryBanner extends ConsumerWidget {
                   PopupMenuItem(value: 'silver', child: Text('silver'.tr(), style: const TextStyle(fontFamily: 'Cairo', fontSize: 13))),
                 ],
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 6),
               ElevatedButton.icon(
                 onPressed: () {
                   HapticFeedback.selectionClick();
                   CountrySwitcherSheet.show(context);
                 },
-                icon: const Icon(Icons.tune_rounded, size: 15, color: Colors.white),
+                icon: const Icon(Icons.tune_rounded, size: 14, color: Colors.white),
                 label: Text(
                   'change_country'.tr(),
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 11.5),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontFamily: 'Cairo', fontSize: 11),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.darkGreen,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
               ),
