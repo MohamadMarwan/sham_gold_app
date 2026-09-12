@@ -123,7 +123,9 @@ class SocialShareCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
-                        'market_of'.tr(args: [country.localizedName]),
+                        country.code.toUpperCase() == 'GLOBAL'
+                            ? country.localizedName
+                            : 'market_of'.tr(args: [country.localizedName]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

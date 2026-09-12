@@ -177,7 +177,7 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
                             text: '$decSep${parts[1]}',
                             style: widget.style.copyWith(
                               color: flashColor,
-                              fontFamily: isAr ? 'Cairo' : 'Roboto',
+                              fontFamily: widget.style.fontFamily ?? (isAr ? 'Cairo' : 'Roboto'),
                             ),
                           ),
                         if (isDollar && isAr)

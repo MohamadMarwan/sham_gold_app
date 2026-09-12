@@ -83,7 +83,10 @@ class _CompactPriceCardState extends State<CompactPriceCard>
         id: widget.priceItem.id,
         context: context);
     final double displayUsdPrice = widget.usdPrice ?? 0.0;
-    final double sellPrice = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : displayLocalPrice * 1.008;
+    final double sellPrice = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : displayLocalPrice;
+    final bool isUsdCurrency = currencySymbol == r'$' || 
+        currencySymbol.toUpperCase() == 'USD' || 
+        widget.priceItem.currency.toUpperCase() == 'USD';
 
     return AnimatedBuilder(
       animation: _pulseAnimation,
@@ -205,7 +208,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'auto_str_361'.tr(),
+                        'auto_str_361'.tr().replaceAll(':', '').trim(),
                         style: const TextStyle(
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,
@@ -243,7 +246,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                           ],
                         ),
                       ),
-                      if (displayUsdPrice > 0)
+                      if (!isUsdCurrency && displayUsdPrice > 0)
                         Text(
                           '≈ \$${CurrencyUtils.formatLocalizedNumber(displayUsdPrice, context, decimals: 1)}',
                           style: const TextStyle(
@@ -273,7 +276,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'auto_str_343'.tr(),
+                        'auto_str_343'.tr().replaceAll(':', '').trim(),
                         style: const TextStyle(
                           fontSize: 9.5,
                           fontWeight: FontWeight.w700,
@@ -310,7 +313,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                           ],
                         ),
                       ),
-                      if (displayUsdPrice > 0)
+                      if (!isUsdCurrency && displayUsdPrice > 0)
                         Text(
                           '≈ \$${CurrencyUtils.formatLocalizedNumber(((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice), context, decimals: 1)}',
                           style: const TextStyle(
@@ -360,8 +363,8 @@ class _CompactPriceCardState extends State<CompactPriceCard>
     }
 
     return Container(
-      width: 28,
-      height: 28,
+      constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -383,10 +386,11 @@ class _CompactPriceCardState extends State<CompactPriceCard>
       child: Center(
         child: Text(
           label,
+          maxLines: 1,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
-            fontSize: 10,
+            fontSize: 9.5,
             fontFamily: 'Cairo',
           ),
         ),

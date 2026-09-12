@@ -87,7 +87,10 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
         id: widget.priceItem.id,
         context: context);
     final double displayUsdPrice = widget.usdPrice ?? 0.0;
-    final double sellPrice = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : displayLocalPrice * 1.008;
+    final double sellPrice = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : displayLocalPrice;
+    final bool isUsdCurrency = currencySymbol == r'$' || 
+        currencySymbol.toUpperCase() == 'USD' || 
+        widget.priceItem.currency.toUpperCase() == 'USD';
 
     final historyAsync = ref.watch(priceHistoryProvider(widget.priceItem.id));
 
@@ -255,7 +258,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  'auto_str_361'.tr(),
+                                  'auto_str_361'.tr().replaceAll(':', '').trim(),
                                   style: const TextStyle(
                                     fontSize: 8.5,
                                     fontWeight: FontWeight.w700,
@@ -294,7 +297,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                     ],
                                   ),
                                 ),
-                                if (displayUsdPrice > 0)
+                                if (!isUsdCurrency && displayUsdPrice > 0)
                                   Text(
                                     '≈ \$${CurrencyUtils.formatLocalizedNumber(displayUsdPrice, context, decimals: 1)}',
                                     style: const TextStyle(
@@ -323,7 +326,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  'auto_str_343'.tr(),
+                                  'auto_str_343'.tr().replaceAll(':', '').trim(),
                                   style: const TextStyle(
                                     fontSize: 8.5,
                                     fontWeight: FontWeight.w700,
@@ -361,7 +364,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                     ],
                                   ),
                                 ),
-                                if (displayUsdPrice > 0)
+                                if (!isUsdCurrency && displayUsdPrice > 0)
                                   Text(
                                     '≈ \$${CurrencyUtils.formatLocalizedNumber(((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice), context, decimals: 1)}',
                                     style: const TextStyle(

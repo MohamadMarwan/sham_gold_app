@@ -43,6 +43,7 @@ class LuxuryItemCard extends StatelessWidget {
     final double sellUsd = (item.buyPrice > 0 && buyUsd > 0)
         ? (item.sellPrice / item.buyPrice) * buyUsd
         : 0.0;
+    final bool isUsdItem = item.currency == r'$' || item.currency.toUpperCase() == 'USD';
 
     // Compute High / Low accurately:
     // - Highest Price represents the market peak selling price (أعلى سعر مبيع في السوق)
@@ -324,7 +325,7 @@ class LuxuryItemCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (buyUsd > 0) ...[
+                      if (!isUsdItem && buyUsd > 0) ...[
                         const SizedBox(height: 2),
                         Text(
                           '≈ \$${buyUsd.toStringAsFixed(1)} USD',
@@ -380,7 +381,7 @@ class LuxuryItemCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (sellUsd > 0) ...[
+                      if (!isUsdItem && sellUsd > 0) ...[
                         const SizedBox(height: 2),
                         Text(
                           '≈ \$${sellUsd.toStringAsFixed(1)} USD',

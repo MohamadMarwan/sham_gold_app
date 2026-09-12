@@ -47,7 +47,9 @@ class TopCountryBanner extends ConsumerWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        'market_of'.tr(args: [country.localizedName]),
+                        country.code.toUpperCase() == 'GLOBAL' 
+                            ? country.localizedName 
+                            : 'market_of'.tr(args: [country.localizedName]),
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 15,

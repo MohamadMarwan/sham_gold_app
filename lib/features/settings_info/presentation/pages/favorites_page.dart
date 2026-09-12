@@ -299,7 +299,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                           color: Theme.of(context).brightness == Brightness.dark ? AppColors.gold : AppColors.darkGreen,
                         ),
                       ),
-                      if (item.usdPrice > 0) ...[
+                      if (item.currency != r'$' && item.currency.toUpperCase() != 'USD' && item.usdPrice > 0) ...[
                         const SizedBox(height: 2),
                         Text(
                           '≈ \$${item.usdPrice.toStringAsFixed(1)} USD',

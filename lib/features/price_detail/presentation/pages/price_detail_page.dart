@@ -350,6 +350,8 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
     final double sellUsd = (widget.priceItem.buyPrice > 0 && buyUsd > 0)
         ? (widget.priceItem.sellPrice / widget.priceItem.buyPrice) * buyUsd
         : 0.0;
+    final bool isUsdItem = widget.priceItem.currency == r'$' || 
+        widget.priceItem.currency.toUpperCase() == 'USD';
 
     return PremiumCard(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
@@ -362,7 +364,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                   CurrencyUtils.formatPrice(widget.priceItem.buyPrice, widget.priceItem.currency, id: widget.priceItem.id),
                   '',
                   Colors.blue,
-                  usdSubtext: buyUsd > 0 ? '≈ \$${buyUsd.toStringAsFixed(1)} USD' : null)),
+                  usdSubtext: (!isUsdItem && buyUsd > 0) ? '≈ \$${buyUsd.toStringAsFixed(1)} USD' : null)),
           Container(
               width: 1.5,
               height: 60,
@@ -383,7 +385,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                   CurrencyUtils.formatPrice(widget.priceItem.sellPrice, widget.priceItem.currency, id: widget.priceItem.id),
                   '',
                   AppColors.gold,
-                  usdSubtext: sellUsd > 0 ? '≈ \$${sellUsd.toStringAsFixed(1)} USD' : null)),
+                  usdSubtext: (!isUsdItem && sellUsd > 0) ? '≈ \$${sellUsd.toStringAsFixed(1)} USD' : null)),
         ],
       ),
     );

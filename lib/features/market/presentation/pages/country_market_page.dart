@@ -115,7 +115,9 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      'market_of'.tr(args: [country.localizedName]),
+                      country.code.toUpperCase() == 'GLOBAL'
+                          ? country.localizedName
+                          : 'market_of'.tr(args: [country.localizedName]),
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
@@ -152,7 +154,9 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                               CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
                               const SizedBox(width: 8),
                               Text(
-                                'market_of'.tr(args: [country.localizedName]),
+                                country.code.toUpperCase() == 'GLOBAL'
+                                    ? country.localizedName
+                                    : 'market_of'.tr(args: [country.localizedName]),
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
