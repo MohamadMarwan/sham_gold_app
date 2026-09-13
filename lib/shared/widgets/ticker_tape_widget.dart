@@ -52,7 +52,7 @@ class TickerTapeWidget extends ConsumerWidget {
                 ? pItem.currency
                 : ((rawItem is Map ? rawItem['currency'] : null) ?? currentCountry.currencyCode);
             if (title.isNotEmpty && buyPrice > 0) {
-              final formattedPrice = CurrencyUtils.formatPrice(buyPrice, curr);
+              final formattedPrice = CurrencyUtils.formatPrice(buyPrice, curr, context: context);
               segments.add('$title : $formattedPrice');
             }
           }
@@ -62,7 +62,7 @@ class TickerTapeWidget extends ConsumerWidget {
           final countryPrices = prices.where((p) => p.id.toLowerCase().startsWith(prefix)).toList();
           final targetPrices = countryPrices.isNotEmpty ? countryPrices : prices;
           for (var item in targetPrices.take(8)) {
-            final formattedPrice = CurrencyUtils.formatPrice(item.buyPrice, item.currency);
+            final formattedPrice = CurrencyUtils.formatPrice(item.buyPrice, item.currency, context: context);
             segments.add('${item.translatedTitle} : $formattedPrice');
           }
         }

@@ -351,7 +351,7 @@ class _PortfolioBackupSheetState extends State<PortfolioBackupSheet> with Single
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'portfolio_backup_paste_hint'.tr(),
+                              'backup_code_label'.tr(),
                               style: TextStyle(
                                 fontFamily: 'Cairo',
                                 fontSize: 12,
@@ -362,7 +362,10 @@ class _PortfolioBackupSheetState extends State<PortfolioBackupSheet> with Single
                             TextButton.icon(
                               onPressed: _pasteFromClipboard,
                               icon: const Icon(Icons.paste_rounded, size: 15),
-                              label: const Text('لصق من الحافظة', style: TextStyle(fontFamily: 'Cairo', fontSize: 11)),
+                              label: Text(
+                                'paste_from_clipboard'.tr(),
+                                style: const TextStyle(fontFamily: 'Cairo', fontSize: 11),
+                              ),
                             ),
                           ],
                         ),
@@ -371,10 +374,18 @@ class _PortfolioBackupSheetState extends State<PortfolioBackupSheet> with Single
                         TextField(
                           controller: _restoreController,
                           maxLines: 4,
-                          style: const TextStyle(fontFamily: 'Courier', fontSize: 11),
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 12,
+                            color: isDark ? Colors.white : AppColors.primaryText,
+                          ),
                           decoration: InputDecoration(
-                            hintText: '{"app": "Gold Sham", "items": [...]}',
-                            hintStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.5), fontSize: 11),
+                            hintText: 'portfolio_backup_paste_hint'.tr(),
+                            hintStyle: TextStyle(
+                              fontFamily: 'Cairo',
+                              color: isDark ? Colors.white38 : Colors.grey.shade500,
+                              fontSize: 12,
+                            ),
                             filled: true,
                             fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF8FAFC),
                             border: OutlineInputBorder(

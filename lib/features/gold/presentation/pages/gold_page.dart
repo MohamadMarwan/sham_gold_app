@@ -13,7 +13,6 @@ import 'package:gold_sham/features/home/presentation/widgets/gold_page_component
 import 'package:gold_sham/shared/services/price_service.dart';
 import 'package:gold_sham/shared/services/local_market_calculator.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
-import 'package:gold_sham/core/utils/currency_utils.dart';
 
 import 'package:gold_sham/shared/widgets/shimmer_loading.dart';
 import 'package:gold_sham/shared/widgets/premium_logo.dart';
@@ -23,13 +22,13 @@ import 'package:gold_sham/features/home/presentation/pages/portfolio_page.dart';
 import 'package:gold_sham/features/home/presentation/widgets/live_indicator.dart';
 import 'package:gold_sham/shared/widgets/last_update_ticker.dart';
 import 'package:gold_sham/features/home/presentation/widgets/quick_news_ticker.dart';
-import 'package:gold_sham/shared/widgets/syrian_flag.dart';
-import 'package:gold_sham/shared/widgets/turkish_flag.dart';
 import 'package:gold_sham/features/home/presentation/widgets/quick_converter_widget.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
 import 'package:gold_sham/features/home/presentation/widgets/square_price_card.dart';
 import 'package:gold_sham/features/home/presentation/widgets/compact_price_card.dart';
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
+import 'package:gold_sham/features/home/presentation/widgets/regional_markets_section.dart';
+import 'package:gold_sham/core/providers/regional_markets_provider.dart';
 
 import 'package:gold_sham/features/home/presentation/widgets/silver_platinum_banner.dart';
 import 'package:gold_sham/features/home/presentation/widgets/live_price_ticker.dart';
@@ -48,8 +47,6 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
   @override
   bool get wantKeepAlive => true;
 
-  bool _showSyriaSummary = true;
-  bool _showTurkishSummary = true;
   bool _showSilverBanner = true;
   bool _showNewsTicker = true;
   bool _showConverter = false;
@@ -62,8 +59,6 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _showSyriaSummary = prefs.getBool('home_show_syria_summary') ?? true;
-      _showTurkishSummary = prefs.getBool('home_show_turkish_summary') ?? true;
       _showSilverBanner = prefs.getBool('home_show_silver_banner') ?? true;
       _showNewsTicker = prefs.getBool('home_show_news_ticker') ?? true;
       _showConverter = prefs.getBool('home_show_converter') ?? false;
@@ -354,12 +349,10 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                       const QuickNewsTicker(),
                       const SizedBox(height: 14),
                     ],
-                    if (priceService.shouldShow('homeShowRegionalMarkets', defaultValue: true)) ...[
-                      _buildCompactRegionalMarketsSection(allPrices, priceService),
-                      if ((_showSyriaSummary && priceService.shouldShow('homeShowSyriaSummary')) ||
-                          (_showTurkishSummary && priceService.shouldShow('homeShowTurkishSummary')))
-                        const SizedBox(height: 14),
-                    ],
+                    RegionalMarketsSection(onNavigate: widget.onNavigate),
+                    if (priceService.shouldShow('homeShowRegionalMarkets', defaultValue: true) &&
+                        ref.watch(regionalMarketsProvider).isSectionVisible)
+                      const SizedBox(height: 14),
                     if (_showSilverBanner && priceService.shouldShow('homeShowSilverBanner', defaultValue: true)) ...[
                       const SilverPlatinumBanner(),
                       const SizedBox(height: 14),
@@ -645,219 +638,7 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildCompactRegionalMarketsSection(List<PriceItem> allPrices, PriceService priceService) {
-    final showSyria = _showSyriaSummary && priceService.shouldShow('homeShowSyriaSummary');
-    final showTurkey = _showTurkishSummary && priceService.shouldShow('homeShowTurkishSummary');
 
-    if (!showSyria && !showTurkey) return const SizedBox.shrink();
-
-    final syriaWidget = showSyria ? _buildCompactMarketCard(
-      title: 'market_syria'.tr(),
-      flag: const SyrianFlag(width: 22, height: 14, borderRadius: 3),
-      countryCode: 'SY',
-      price1Label: 'dollar'.tr(),
-      price1Value: _getSyriaUsdPrice(allPrices),
-      price1Unit: CurrencyUtils.getSymbol('SYP', context: context),
-      price2Label: 'gold_21k_short'.tr(),
-      price2Value: _getSyriaGold21Price(allPrices),
-      price2Unit: CurrencyUtils.getSymbol('SYP', context: context),
-      onTap: () {
-        final country = ref.read(countryProvider).allCountries.firstWhere(
-          (c) => c.code.toUpperCase() == 'SY',
-          orElse: () => ref.read(countryProvider).selectedCountry,
-        );
-        ref.read(countryProvider).selectCountry(country);
-        widget.onNavigate?.call(1);
-      },
-    ) : null;
-
-    final turkeyWidget = showTurkey ? _buildCompactMarketCard(
-      title: 'market_turkey'.tr(),
-      flag: const TurkishFlag(width: 22, height: 14, borderRadius: 3),
-      countryCode: 'TR',
-      price1Label: 'dollar'.tr(),
-      price1Value: _getTurkeyUsdPrice(allPrices),
-      price1Unit: '₺',
-      price2Label: 'gold_gram'.tr(),
-      price2Value: _getTurkeyGoldPrice(allPrices),
-      price2Unit: '₺',
-      onTap: () {
-        final country = ref.read(countryProvider).allCountries.firstWhere(
-          (c) => c.code.toUpperCase() == 'TR',
-          orElse: () => ref.read(countryProvider).selectedCountry,
-        );
-        ref.read(countryProvider).selectCountry(country);
-        widget.onNavigate?.call(1);
-      },
-    ) : null;
-
-    if (showSyria && showTurkey) {
-      return Row(
-        children: [
-          Expanded(child: syriaWidget!),
-          const SizedBox(width: 10),
-          Expanded(child: turkeyWidget!),
-        ],
-      );
-    }
-
-    return showSyria ? syriaWidget! : turkeyWidget!;
-  }
-
-  Widget _buildCompactMarketCard({
-    required String title,
-    required Widget flag,
-    required String countryCode,
-    required String price1Label,
-    required double price1Value,
-    required String price1Unit,
-    required String price2Label,
-    required double price2Value,
-    required String price2Unit,
-    required VoidCallback onTap,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return InkWell(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                flag,
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? Colors.white : AppColors.darkGreen,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 11,
-                  color: isDark ? Colors.white38 : Colors.grey.shade400,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      price1Label,
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white60 : AppColors.mutedText,
-                      ),
-                    ),
-                    Text(
-                      '${NumberFormat('#,##0').format(price1Value)} $price1Unit',
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : AppColors.darkGreen,
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      price2Label,
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white60 : AppColors.mutedText,
-                      ),
-                    ),
-                    Text(
-                      '${NumberFormat('#,##0').format(price2Value)} $price2Unit',
-                      style: const TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.gold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  double _getSyriaUsdPrice(List<PriceItem> allPrices) {
-    final syriaItems = allPrices.where((p) => p.id.startsWith('sy_')).toList();
-    if (syriaItems.isEmpty) return 132.0;
-    final usdItem = syriaItems.firstWhere((p) => p.id == 'sy_usd', orElse: () => syriaItems.first);
-    final val = usdItem.buyPrice > 0 ? usdItem.buyPrice : 132.0;
-    return val > 1000 ? (val / 100) : val;
-  }
-
-  double _getSyriaGold21Price(List<PriceItem> allPrices) {
-    final syriaItems = allPrices.where((p) => p.id.startsWith('sy_')).toList();
-    if (syriaItems.isEmpty) return 11500.0;
-    final gold21 = syriaItems.firstWhere((p) => p.id == 'sy_gold_21' || p.id == 'sy_gold_21k', orElse: () => syriaItems.first);
-    final val = gold21.buyPrice > 0 ? gold21.buyPrice : 11500.0;
-    return val > 100000 ? (val / 100) : val;
-  }
-
-  double _getTurkeyUsdPrice(List<PriceItem> allPrices) {
-    final turkishItems = allPrices.where((p) => p.id.startsWith('tr_')).toList();
-    if (turkishItems.isEmpty) return 38.5;
-    final tryItem = turkishItems.firstWhere((p) => p.id == 'tr_curr_usd', orElse: () => turkishItems.first);
-    return tryItem.buyPrice > 0 ? tryItem.buyPrice : 38.5;
-  }
-
-  double _getTurkeyGoldPrice(List<PriceItem> allPrices) {
-    final turkishItems = allPrices.where((p) => p.id.startsWith('tr_')).toList();
-    if (turkishItems.isEmpty) return 3400.0;
-    final goldGramItem = turkishItems.firstWhere(
-        (p) => p.id == 'tr_gold_24' || p.id == 'tr_gold_gram_altin' || p.id == 'tr_gold_has_altin',
-        orElse: () => turkishItems.first);
-    return goldGramItem.buyPrice > 0 ? goldGramItem.buyPrice : 3400.0;
-  }
 
   void _showCustomizationSheet([BuildContext? ctx]) {
     final activeContext = ctx ?? context;
@@ -932,16 +713,11 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                   ),
                   const Divider(),
                   // Banner Toggles
-                  _buildCustomizationSwitch('banner_syria_summary'.tr(), _showSyriaSummary, (val) {
-                    setState(() => _showSyriaSummary = val);
-                    setModalState(() {});
-                    SharedPreferences.getInstance().then((p) => p.setBool('home_show_syria_summary', val));
-                  }),
-                  _buildCustomizationSwitch('banner_turkey_summary'.tr(), _showTurkishSummary, (val) {
-                    setState(() => _showTurkishSummary = val);
-                    setModalState(() {});
-                    SharedPreferences.getInstance().then((p) => p.setBool('home_show_turkish_summary', val));
-                  }),
+                  if (priceService.shouldShow('homeShowRegionalMarkets', defaultValue: true))
+                    _buildCustomizationSwitch('show_regional_markets_section'.tr(), ref.watch(regionalMarketsProvider).isSectionVisible, (val) {
+                      ref.read(regionalMarketsProvider.notifier).setSectionVisible(val);
+                      setModalState(() {});
+                    }),
                   _buildCustomizationSwitch('banner_silver_platinum'.tr(), _showSilverBanner, (val) {
                     setState(() => _showSilverBanner = val);
                     setModalState(() {});

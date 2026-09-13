@@ -13,6 +13,8 @@ import '../../../../core/providers/settings_provider.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
+import 'package:gold_sham/features/home/presentation/widgets/summary_markets_sheet.dart';
+import 'package:gold_sham/core/providers/regional_markets_provider.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
@@ -709,6 +711,7 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
   }
 
   Widget _buildSettingsSection(BuildContext context) {
+    final priceService = ref.watch(priceServiceProvider);
     final settings = ref.watch(settingsProvider);
     final isDark = settings.themeMode == ThemeMode.dark ||
         (settings.themeMode == ThemeMode.system &&
@@ -866,6 +869,87 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
                   );
                 },
               ),
+              if (priceService.shouldShow('moreShowRegionalMarketsBtn', defaultValue: true)) ...[
+                const Divider(height: 1),
+                Builder(
+                  builder: (context) {
+                    final regionalState = ref.watch(regionalMarketsProvider);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: InkWell(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          SummaryMarketsSheet.show(context);
+                        },
+                        borderRadius: BorderRadius.circular(10),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.gold.withValues(alpha: 0.15),
+                              ),
+                              child: const Icon(
+                                Icons.dashboard_customize_rounded,
+                                color: AppColors.gold,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'regional_markets_settings'.tr(),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    'customize_markets_desc'.tr(),
+                                    style: const TextStyle(fontSize: 11, color: AppColors.mutedText, fontFamily: 'Cairo'),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: AppColors.gold.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    regionalState.isSectionVisible
+                                        ? '${regionalState.cardCount}'
+                                        : 'hidden'.tr(),
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Cairo',
+                                      color: AppColors.gold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.gold),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ],
           ),
         ),

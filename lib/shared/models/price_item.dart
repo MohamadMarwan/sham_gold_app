@@ -36,7 +36,7 @@ class PriceItem {
   factory PriceItem.fromJson(Map<String, dynamic> json) {
     return PriceItem(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
-      title: json['title'] ?? '',
+      title: (json['title'] ?? json['name'] ?? '').toString(),
       buyPrice: (json['buyPrice'] as num?)?.toDouble() ?? 0.0,
       sellPrice: (json['sellPrice'] as num?)?.toDouble() ?? 0.0,
       currency: json['currency'] ?? 'SYP',
@@ -88,8 +88,34 @@ class PriceItem {
       return direct;
     }
 
-    // 2. ID and Karat-based translation resolution
+    // 2. Pattern: 'العملة (الدولة)' -> e.g. 'الريال السعودي (سوريا)'
+    final parenRegex = RegExp(r'^(.*?)\s*\((.*?)\)$');
+    final match = parenRegex.firstMatch(title);
+    if (match != null) {
+      final baseCurrency = match.group(1)!.trim();
+      final countryTag = match.group(2)!.trim();
+      final translatedCurrency = _translateCurrencyName(baseCurrency);
+      final translatedCountry = _translateCountryTag(countryTag);
+      if (translatedCurrency.isNotEmpty && translatedCountry.isNotEmpty && 
+          (translatedCurrency != baseCurrency || translatedCountry != countryTag)) {
+        return '$translatedCurrency ($translatedCountry)';
+      }
+    }
+
+    // 3. Known ID-based currency resolution (e.g. sy_sar, sy_try, tr_curr_sar)
     final lowerId = id.toLowerCase();
+    if (lowerId.startsWith('sy_') || lowerId.startsWith('tr_curr_')) {
+      final idResolved = _resolveCurrencyById(lowerId);
+      if (idResolved.isNotEmpty) return idResolved;
+    }
+
+    // 4. Single currency name translation (e.g. 'الريال السعودي', 'الليرة التركية')
+    final singleCurrency = _translateCurrencyName(title);
+    if (singleCurrency != title) {
+      return singleCurrency;
+    }
+
+    // 5. ID and Karat-based translation resolution
     final lowerTitle = title.toLowerCase();
     if (lowerId.contains('24k') || title.contains('24')) return 'gold_24k'.tr();
     if (lowerId.contains('22k') || title.contains('22')) return 'gold_22k'.tr();
@@ -127,12 +153,170 @@ class PriceItem {
     if (lowerId.contains('quarter') || title.contains('ربع ليرة')) return 'coin_quarter'.tr();
     if (lowerId.contains('five') || title.contains('خمس ليرات')) return 'coin_five'.tr();
 
-    // 3. Currency items & Exchange rate pairs
+    // 6. Currency items & Exchange rate pairs
     if (metalType == 'currency' || title.contains('مقابل') || title.contains('سعر صرف')) {
       return sanitizeTitle(title, currency: currency);
     }
 
     return sanitizeTitle(direct, currency: currency);
+  }
+
+  static String _translateCurrencyName(String name) {
+    final clean = name.trim();
+    final direct = clean.tr();
+    if (direct.isNotEmpty && direct != clean) return direct;
+
+    switch (clean) {
+      case 'الدولار':
+      case 'الدولار الأمريكي':
+      case 'دولار أمريكي':
+      case 'دولار':
+        return 'currency_name_usd'.tr();
+      case 'اليورو':
+      case 'اليورو الأوروبي':
+      case 'يورو أوروبي':
+      case 'يورو':
+        return 'currency_name_eur'.tr();
+      case 'الليرة التركية':
+      case 'ليرة تركية':
+      case 'تركي':
+        return 'currency_name_try'.tr();
+      case 'الريال السعودي':
+      case 'ريال سعودي':
+        return 'currency_name_sar'.tr();
+      case 'الدرهم الإماراتي':
+      case 'درهم إماراتي':
+        return 'currency_name_aed'.tr();
+      case 'الدينار الكويتي':
+      case 'دينار كويتي':
+        return 'currency_name_kwd'.tr();
+      case 'الدينار الأردني':
+      case 'دينار أردني':
+        return 'currency_name_jod'.tr();
+      case 'الريال القطري':
+      case 'ريال قطري':
+        return 'currency_name_qar'.tr();
+      case 'الجنيه المصري':
+      case 'جنيه مصري':
+        return 'currency_name_egp'.tr();
+      case 'الليرة اللبنانية':
+      case 'ليرة لبنانية':
+        return 'currency_name_lbp'.tr();
+      case 'الجنيه الإسترليني':
+      case 'جنيه إسترليني':
+      case 'إسترليني':
+        return 'currency_name_gbp'.tr();
+      case 'الدينار البحريني':
+      case 'دينار بحريني':
+        return 'currency_name_bhd'.tr();
+      case 'الريال العماني':
+      case 'ريال عماني':
+        return 'currency_name_omr'.tr();
+      case 'الليرة السورية':
+      case 'ليرة سورية':
+      case 'سوري':
+        return 'currency_name_syp'.tr();
+      case 'الدينار العراقي':
+      case 'دينار عراقي':
+        return 'currency_name_iqd'.tr();
+      case 'الدينار الجزائري':
+      case 'دينار جزائري':
+        return 'currency_name_dzd'.tr();
+      case 'الدرهم المغربي':
+      case 'درهم مغربي':
+        return 'currency_name_mad'.tr();
+      case 'الدينار التونسي':
+      case 'دينار تونسي':
+        return 'currency_name_tnd'.tr();
+      case 'الجنيه السوداني':
+      case 'جنيه سوداني':
+        return 'currency_name_sdg'.tr();
+      case 'الريال اليمني':
+      case 'ريال يمني':
+        return 'currency_name_yer'.tr();
+      case 'الدولار الكندي':
+      case 'دولار كندي':
+        return 'currency_name_cad'.tr();
+      case 'الدولار الأسترالي':
+      case 'دولار أسترالي':
+        return 'currency_name_aud'.tr();
+      case 'الفرنك السويسري':
+      case 'فرنك سويسري':
+        return 'currency_name_chf'.tr();
+      default:
+        return clean;
+    }
+  }
+
+  static String _translateCountryTag(String tag) {
+    final clean = tag.trim();
+    final direct = clean.tr();
+    if (direct.isNotEmpty && direct != clean) return direct;
+
+    switch (clean) {
+      case 'سوريا':
+      case 'سورية':
+        return 'country_sy'.tr();
+      case 'تركيا':
+        return 'country_tr'.tr();
+      case 'مصر':
+        return 'country_eg'.tr();
+      case 'السعودية':
+        return 'country_sa'.tr();
+      case 'الإمارات':
+        return 'country_ae'.tr();
+      case 'الكويت':
+        return 'country_kw'.tr();
+      case 'الأردن':
+        return 'country_jo'.tr();
+      case 'قطر':
+        return 'country_qa'.tr();
+      case 'عمان':
+      case 'عُمان':
+        return 'country_om'.tr();
+      case 'البحرين':
+        return 'country_bh'.tr();
+      case 'العراق':
+        return 'country_iq'.tr();
+      case 'لبنان':
+        return 'country_lb'.tr();
+      case 'المغرب':
+        return 'country_ma'.tr();
+      case 'الجزائر':
+        return 'country_dz'.tr();
+      case 'تونس':
+        return 'country_tn'.tr();
+      case 'السودان':
+        return 'country_sd'.tr();
+      case 'اليمن':
+        return 'country_ye'.tr();
+      default:
+        return clean;
+    }
+  }
+
+  static String _resolveCurrencyById(String lowerId) {
+    if (lowerId == 'sy_usd') return '${'currency_name_usd'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_eur') return '${'currency_name_eur'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_try') return '${'currency_name_try'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_sar') return '${'currency_name_sar'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_aed') return '${'currency_name_aed'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_kwd') return '${'currency_name_kwd'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_jod') return '${'currency_name_jod'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_qar') return '${'currency_name_qar'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_egp') return '${'currency_name_egp'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'sy_lbp') return '${'currency_name_lbp'.tr()} (${'country_sy'.tr()})';
+    if (lowerId == 'tr_curr_usd') return '${'currency_name_usd'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_eur') return '${'currency_name_eur'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_gbp') return '${'currency_name_gbp'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_sar') return '${'currency_name_sar'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_aed') return '${'currency_name_aed'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_kwd') return '${'currency_name_kwd'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_jod') return '${'currency_name_jod'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_qar') return '${'currency_name_qar'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_bhd') return '${'currency_name_bhd'.tr()} (${'country_tr'.tr()})';
+    if (lowerId == 'tr_curr_omr') return '${'currency_name_omr'.tr()} (${'country_tr'.tr()})';
+    return '';
   }
 
   /// Sanitizes long titles (e.g. 'سعر صرف الدولار الكندي مقابل دينار جزائري' -> 'الدولار الكندي مقابل د.ج' in AR, or 'CAD vs DZD' in EN/TR)
