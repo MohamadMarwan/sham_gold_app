@@ -1,4 +1,3 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/providers/regional_markets_provider.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../core/utils/regional_markets_localizer.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
 
 class SummaryMarketsSheet extends ConsumerStatefulWidget {
@@ -139,7 +139,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'customize_home_markets'.tr(),
+                        RegionalLocalizer.tr(context, 'customize_home_markets'),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
@@ -148,7 +148,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                         ),
                       ),
                       Text(
-                        'customize_home_markets_subtitle'.tr(),
+                        RegionalLocalizer.tr(context, 'customize_home_markets_subtitle'),
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.mutedText,
@@ -210,7 +210,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'show_regional_markets_section'.tr(),
+                              RegionalLocalizer.tr(context, 'show_regional_markets_section'),
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
@@ -221,7 +221,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                               ),
                             ),
                             Text(
-                              'show_regional_markets_section_desc'.tr(),
+                              RegionalLocalizer.tr(context, 'show_regional_markets_section_desc'),
                               style: const TextStyle(
                                 fontSize: 11,
                                 color: AppColors.mutedText,
@@ -248,7 +248,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
 
                   // Card Count Selector
                   Text(
-                    'regional_markets_count'.tr(),
+                    RegionalLocalizer.tr(context, 'regional_markets_count'),
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -288,12 +288,12 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                               child: Center(
                                 child: Text(
                                   count == 1
-                                      ? 'cards_count_1'.tr()
+                                      ? RegionalLocalizer.tr(context, 'cards_count_1')
                                       : count == 2
-                                          ? 'cards_count_2'.tr()
+                                          ? RegionalLocalizer.tr(context, 'cards_count_2')
                                           : count == 3
-                                              ? 'cards_count_3'.tr()
-                                              : 'cards_count_4'.tr(),
+                                              ? RegionalLocalizer.tr(context, 'cards_count_3')
+                                              : RegionalLocalizer.tr(context, 'cards_count_4'),
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
@@ -321,7 +321,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'select_markets_up_to'.tr(args: [_cardCount.toString()]),
+                        RegionalLocalizer.tr(context, 'select_markets_up_to', args: [_cardCount.toString()]),
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
@@ -337,7 +337,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
-                          'selected_markets_count'.tr(args: [
+                          RegionalLocalizer.tr(context, 'selected_markets_count', args: [
                             _selectedCodes.length.toString(),
                             _cardCount.toString()
                           ]),
@@ -359,7 +359,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                     controller: _searchController,
                     onChanged: (val) => setState(() => _searchQuery = val),
                     decoration: InputDecoration(
-                      hintText: 'auto_str_075'.tr(),
+                      hintText: RegionalLocalizer.tr(context, 'auto_str_075'),
                       hintStyle: const TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: 13,
@@ -519,7 +519,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          'market_cards_saved_success'.tr(),
+                          RegionalLocalizer.tr(context, 'market_cards_saved_success'),
                           style: const TextStyle(
                             fontFamily: 'Cairo',
                             fontWeight: FontWeight.bold,
@@ -543,7 +543,7 @@ class _SummaryMarketsSheetState extends ConsumerState<SummaryMarketsSheet> {
                   elevation: 0,
                 ),
                 child: Text(
-                  'save'.tr(),
+                  RegionalLocalizer.tr(context, 'save'),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,

@@ -15,6 +15,7 @@ import '../../../../shared/widgets/country_flag_widget.dart';
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
 import 'package:gold_sham/features/home/presentation/widgets/summary_markets_sheet.dart';
 import 'package:gold_sham/core/providers/regional_markets_provider.dart';
+import 'package:gold_sham/core/utils/regional_markets_localizer.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
@@ -902,13 +903,13 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'regional_markets_settings'.tr(),
+                                    RegionalLocalizer.tr(context, 'regional_markets_settings'),
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    'customize_markets_desc'.tr(),
+                                    RegionalLocalizer.tr(context, 'customize_markets_desc'),
                                     style: const TextStyle(fontSize: 11, color: AppColors.mutedText, fontFamily: 'Cairo'),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -930,7 +931,7 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
                                   Text(
                                     regionalState.isSectionVisible
                                         ? '${regionalState.cardCount}'
-                                        : 'hidden'.tr(),
+                                        : RegionalLocalizer.tr(context, 'hidden'),
                                     style: const TextStyle(
                                       fontSize: 12.5,
                                       fontWeight: FontWeight.bold,

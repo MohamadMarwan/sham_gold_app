@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/providers/regional_markets_provider.dart';
@@ -13,6 +13,7 @@ import '../../../../shared/services/price_service.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
 import '../pages/country_market_page.dart';
 import 'summary_markets_sheet.dart';
+import '../../../../core/utils/regional_markets_localizer.dart';
 
 class RegionalMarketsSection extends ConsumerWidget {
   final Function(int)? onNavigate;
@@ -91,7 +92,7 @@ class RegionalMarketsSection extends ConsumerWidget {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'regional_markets'.tr(),
+                    RegionalLocalizer.tr(context, 'regional_markets'),
                     style: TextStyle(
                       fontFamily: 'Cairo',
                       fontSize: 18,
@@ -112,7 +113,7 @@ class RegionalMarketsSection extends ConsumerWidget {
                   color: AppColors.gold,
                   size: 20,
                 ),
-                tooltip: 'customize_home_markets'.tr(),
+                tooltip: RegionalLocalizer.tr(context, 'customize_home_markets'),
               ),
             ],
           ),
@@ -168,28 +169,28 @@ class RegionalMarketsSection extends ConsumerWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final code = country.code.toUpperCase();
 
-    String price1Label = 'dollar'.tr();
+    String price1Label = RegionalLocalizer.tr(context, 'dollar');
     double price1Value = 0.0;
     String price1Unit = country.currencySymbol;
 
-    String price2Label = 'gold_21k_short'.tr();
+    String price2Label = RegionalLocalizer.tr(context, 'gold_21k_short');
     double price2Value = 0.0;
     String price2Unit = country.currencySymbol;
 
     if (code == 'SY') {
       price1Value = _getSyriaUsdPrice(allPrices);
       price1Unit = CurrencyUtils.getSymbol('SYP', context: context);
-      price2Label = 'gold_21k_short'.tr();
+      price2Label = RegionalLocalizer.tr(context, 'gold_21k_short');
       price2Value = _getSyriaGold21Price(allPrices);
       price2Unit = CurrencyUtils.getSymbol('SYP', context: context);
     } else if (code == 'TR') {
       price1Value = _getTurkeyUsdPrice(allPrices);
       price1Unit = '₺';
-      price2Label = 'gold_gram'.tr();
+      price2Label = RegionalLocalizer.tr(context, 'gold_gram');
       price2Value = _getTurkeyGoldPrice(allPrices);
       price2Unit = '₺';
     } else {
-      // Calculate for any other country
+      // Calculate for any other country with 100% type safety
       final localData = LocalMarketCalculator().calculateMarketData(country);
       if (localData != null) {
         final rate = (localData['fxRateToUSD'] as num?)?.toDouble() ??
@@ -198,34 +199,56 @@ class RegionalMarketsSection extends ConsumerWidget {
         price1Value = rate;
         price1Unit = country.localizedCurrencySymbol;
 
-        final items = localData['items'] as List<dynamic>? ?? [];
+        final rawItems = localData['items'];
+        final List<dynamic> items = (rawItems is List) ? rawItems : [];
         dynamic bestGoldItem;
-        if (items.isNotEmpty) {
-          bestGoldItem = items.firstWhere(
-            (it) => it['karat'] == country.defaultKarat,
-            orElse: () => items.firstWhere(
-              (it) => it['karat'] == '21' || it['karat'] == '24',
-              orElse: () => items.first,
-            ),
-          );
+
+        // 1. Search for default karat
+        for (final it in items) {
+          if (it is Map &&
+              (it['karat'] == country.defaultKarat ||
+                  it['karat']?.toString() == country.defaultKarat.toString())) {
+            bestGoldItem = it;
+            break;
+          }
         }
 
-        if (bestGoldItem != null) {
+        // 2. Fallback to 21K or 24K
+        if (bestGoldItem == null) {
+          for (final it in items) {
+            if (it is Map) {
+              final k = it['karat']?.toString();
+              if (k == '21' || k == '24') {
+                bestGoldItem = it;
+                break;
+              }
+            }
+          }
+        }
+
+        // 3. Fallback to first available item
+        if (bestGoldItem == null && items.isNotEmpty) {
+          bestGoldItem = items.first;
+        }
+
+        if (bestGoldItem != null && bestGoldItem is Map) {
           price2Value = (bestGoldItem['buyPrice'] as num?)?.toDouble() ?? 0.0;
           final karat = bestGoldItem['karat']?.toString() ?? '21';
           price2Label = karat == '24'
-              ? 'gold_24k_short'.tr()
-              : (karat == '21' ? 'gold_21k_short'.tr() : 'gold_gram'.tr());
+              ? RegionalLocalizer.tr(context, 'gold_24k_short')
+              : (karat == '21'
+                  ? RegionalLocalizer.tr(context, 'gold_21k_short')
+                  : RegionalLocalizer.tr(context, 'gold_gram'));
         }
         price2Unit = country.localizedCurrencySymbol;
       }
     }
 
     final marketTitle = code == 'SY'
-        ? 'market_syria'.tr()
+        ? RegionalLocalizer.tr(context, 'market_syria')
         : (code == 'TR'
-            ? 'market_turkey'.tr()
-            : 'market_country'.tr(args: [country.localizedName]));
+            ? RegionalLocalizer.tr(context, 'market_turkey')
+            : RegionalLocalizer.tr(context, 'market_country', args: [country.localizedName]));
 
     return InkWell(
       onTap: () {
