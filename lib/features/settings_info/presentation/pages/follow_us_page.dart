@@ -13,7 +13,6 @@ import '../../../../core/providers/settings_provider.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
 import 'package:gold_sham/features/home/presentation/widgets/country_switcher_sheet.dart';
-import '../../../../core/services/notification_service.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
@@ -134,11 +133,7 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
                     ),
 
                     const SizedBox(height: 10),
-                    _buildCountryAndMarketSection(context),
-                    const SizedBox(height: 24),
                     _buildSettingsSection(context),
-                    const SizedBox(height: 24),
-                    _buildPermissionsSection(context),
                     const SizedBox(height: 30),
                     _buildSupportInfo(),
                     const SizedBox(height: 30),
@@ -810,6 +805,67 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
                   }
                 },
               ),
+              const Divider(height: 1),
+              Builder(
+                builder: (context) {
+                  final countryState = ref.watch(countryProvider);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        CountrySwitcherSheet.show(context);
+                      },
+                      borderRadius: BorderRadius.circular(10),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.gold.withValues(alpha: 0.5)),
+                            ),
+                            child: CountryFlagWidget(
+                              countryCode: countryState.selectedCountry.code,
+                              flagEmoji: countryState.selectedCountry.flag,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Text(
+                              'country_and_market_settings'.tr(),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppColors.gold.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColors.gold.withValues(alpha: 0.2)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  countryState.selectedCountry.localizedName,
+                                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, fontFamily: 'Cairo'),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: AppColors.gold),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -861,397 +917,5 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
       ),
     );
   }
-
-  Widget _buildCountryAndMarketSection(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryState = ref.watch(countryProvider);
-    final country = countryState.selectedCountry;
-    final isAuto = countryState.isAutoDetected;
-    final isDetecting = countryState.isDetecting;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('country_and_market_settings'.tr()),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.trueBlackCard : Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isDark ? AppColors.gold.withValues(alpha: 0.25) : AppColors.gold.withValues(alpha: 0.3),
-              width: 1.2,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isDark ? Colors.black38 : AppColors.gold.withValues(alpha: 0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              // Country Header Row
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.gold, width: 2),
-                    ),
-                    child: CountryFlagWidget(
-                      countryCode: country.code,
-                      flagEmoji: country.flag,
-                      size: 38,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              country.localizedName,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'Cairo',
-                                color: isDark ? Colors.white : AppColors.darkGreen,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: isAuto
-                                    ? Colors.green.withValues(alpha: 0.15)
-                                    : Colors.orange.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: isAuto ? Colors.green : Colors.orange,
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Text(
-                                isAuto ? 'auto_detected_badge'.tr() : 'manual_selected_badge'.tr(),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Cairo',
-                                  color: isAuto ? Colors.green.shade600 : Colors.orange.shade700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${country.currencyCode} (${country.localizedCurrencySymbol}) • ${country.region.tr()}',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Cairo',
-                            color: isDark ? Colors.white70 : AppColors.mutedText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              const Divider(height: 1),
-              const SizedBox(height: 16),
-              // Action Buttons Row
-              Row(
-                children: [
-                  // Change Market Button
-                  Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        CountrySwitcherSheet.show(context);
-                      },
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.swap_horiz_rounded, size: 18, color: AppColors.gold),
-                            const SizedBox(width: 8),
-                            Text(
-                              'change_market_button'.tr(),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Cairo',
-                                color: isDark ? Colors.white : AppColors.darkGreen,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  // Auto-detect Button
-                  Expanded(
-                    child: InkWell(
-                      onTap: isDetecting
-                          ? null
-                          : () async {
-                              HapticFeedback.mediumImpact();
-                              final res = await countryState.reDetectCountryWithFeedback();
-                              if (!context.mounted) return;
-                              if (res['success'] == true) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      children: [
-                                        const Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            'auto_detect_success'.tr(args: [res['name'] ?? '']),
-                                            style: const TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    backgroundColor: AppColors.darkGreen,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                    duration: const Duration(seconds: 3),
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('auto_detect_failed'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
-                                    backgroundColor: Colors.red.shade800,
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
-                            },
-                      borderRadius: BorderRadius.circular(14),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.gold, Color(0xFFE5B05C)],
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.gold.withValues(alpha: 0.25),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (isDetecting)
-                              const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black87),
-                              )
-                            else
-                              const Icon(Icons.my_location_rounded, size: 18, color: Colors.black87),
-                            const SizedBox(width: 8),
-                            Text(
-                              isDetecting ? 'detecting_country_in_progress'.tr() : 're_detect_country_now'.tr(),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'Cairo',
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPermissionsSection(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('app_permissions'.tr()),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardTheme.color,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
-          ),
-          child: Column(
-            children: [
-              // Location Permission Tile
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.location_on_rounded, color: Colors.blue, size: 24),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'location_permission_title'.tr(),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, fontFamily: 'Cairo'),
-                              ),
-                              const Spacer(),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  'permission_status_granted'.tr(),
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Cairo',
-                                    color: Colors.green,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'location_permission_desc'.tr(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? Colors.white70 : AppColors.mutedText,
-                              fontFamily: 'Cairo',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              // Notifications Permission Tile
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.gold.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.notifications_active_rounded, color: AppColors.gold, size: 24),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'notification_permission_title'.tr(),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14.5, fontFamily: 'Cairo'),
-                              ),
-                              const Spacer(),
-                              InkWell(
-                                onTap: () async {
-                                  HapticFeedback.selectionClick();
-                                  await NotificationService.requestPermission();
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('permission_check_and_refresh'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
-                                        backgroundColor: AppColors.darkGreen,
-                                        behavior: SnackBarBehavior.floating,
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.gold.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: AppColors.gold.withValues(alpha: 0.4)),
-                                  ),
-                                  child: Text(
-                                    'permission_check_and_refresh'.tr(),
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w900,
-                                      fontFamily: 'Cairo',
-                                      color: AppColors.gold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'notification_permission_desc'.tr(),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDark ? Colors.white70 : AppColors.mutedText,
-                              fontFamily: 'Cairo',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 }
+

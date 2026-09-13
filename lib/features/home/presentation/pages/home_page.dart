@@ -21,6 +21,7 @@ import '../../../../core/providers/navigation_provider.dart';
 import 'bullions_coins_page.dart';
 import '../../../../shared/widgets/ticker_tape_widget.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
+import '../../../../core/services/permission_coordinator_service.dart';
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -48,6 +49,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkFirstRun();
       _setupAlertListener();
+      PermissionCoordinatorService().checkAndPromptPermissions(context, ref);
     });
   }
 

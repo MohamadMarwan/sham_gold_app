@@ -145,7 +145,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  flex: 4,
+                  flex: 5,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -168,11 +168,11 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                           ),
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Row(
                         children: [
                           FavoriteToggleButton(priceId: widget.priceItem.id, size: 16),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 5),
                           GestureDetector(
                             onTap: () {
                               HapticFeedback.selectionClick();
@@ -181,14 +181,39 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             child: const Icon(Icons.notifications_none_rounded, size: 16, color: AppColors.mutedText),
                           ),
                           if (widget.isFeatured) ...[
-                            const SizedBox(width: 4),
-                            Text(
-                              'auto_str_124'.tr(),
-                              style: const TextStyle(
-                                fontSize: 9.5,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.gold,
-                                fontFamily: 'Cairo',
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: AppColors.gold.withValues(alpha: 0.14),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: AppColors.gold.withValues(alpha: 0.35),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.star_rounded, size: 10.5, color: AppColors.gold),
+                                    const SizedBox(width: 2.5),
+                                    Flexible(
+                                      child: Text(
+                                        'popular_badge'.tr(),
+                                        style: const TextStyle(
+                                          fontSize: 8.5,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.gold,
+                                          fontFamily: 'Cairo',
+                                          height: 1.1,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],

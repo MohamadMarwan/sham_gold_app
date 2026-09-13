@@ -316,15 +316,21 @@ class CurrencyUtils {
     final normalizedBase = normalizeCurrencyCode(baseCode);
     final isSyp = normalizedBase == 'SYP' || baseCode.contains('ل.س');
 
+    final isThreeDec = rate < 1.0 ||
+        normalizedBase == 'OMR' ||
+        normalizedBase == 'KWD' ||
+        normalizedBase == 'BHD' ||
+        normalizedBase == 'JOD';
+
     final String formattedRate;
-    if (isSyp || (rate < 1000 && rate % 1 != 0)) {
+    if (isThreeDec) {
+      formattedRate = NumberFormat('#,##0.000', locale).format(rate);
+    } else if (isSyp || (rate < 1000 && rate % 1 != 0)) {
       formattedRate = NumberFormat('#,##0.00', locale).format(rate);
     } else if (rate >= 1000) {
       formattedRate = NumberFormat('#,##0', locale).format(rate);
-    } else if (rate >= 10) {
-      formattedRate = NumberFormat('#,##0.00', locale).format(rate);
     } else {
-      formattedRate = NumberFormat('#,##0.000', locale).format(rate);
+      formattedRate = NumberFormat('#,##0.00', locale).format(rate);
     }
 
     return '1 $targetSymbol = $formattedRate $baseSymbol';

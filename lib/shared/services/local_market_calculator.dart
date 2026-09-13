@@ -25,7 +25,7 @@ class LocalMarketCalculator {
   final Map<String, double> _fxRates = {
     'USD': 1.0,
     'DZD': 134.5,
-    'EGP': 50.89,
+    'EGP': 51.34,
     'SAR': 3.75,
     'AED': 3.6725,
     'IQD': 1310.0,
@@ -34,16 +34,16 @@ class LocalMarketCalculator {
     'JOD': 0.709,
     'LBP': 89500.0,
     'LYD': 4.85,
-    'TRY': 48.46,
+    'TRY': 48.60,
     'EUR': 0.86,
     'SYP': 132.0,
     'BHD': 0.376,
     'OMR': 0.385,
-    'MAD': 9.95,
+    'MAD': 9.39,
     'ILS': 3.65,
     'TND': 3.12,
     'SDG': 600.0,
-    'YER': 250.0,
+    'YER': 1950.0, // Commercial market exchange rate in Yemen (Aden/gold pricing)
     'MRU': 39.5,
     'SOS': 571.0,
     'GBP': 0.74,
@@ -59,7 +59,7 @@ class LocalMarketCalculator {
       case 'MRU': return 39.5;
       case 'SOS': return 571.0;
       case 'ILS': return 3.65;
-      case 'MAD': return 9.95;
+      case 'MAD': return 9.39;
       case 'BHD': return 0.376;
       case 'OMR': return 0.385;
       case 'KWD': return 0.308;
@@ -67,18 +67,18 @@ class LocalMarketCalculator {
       case 'JOD': return 0.709;
       case 'SAR': return 3.75;
       case 'AED': return 3.6725;
-      case 'EGP': return 50.89;
+      case 'EGP': return 51.34;
       case 'IQD': return 1310.0;
       case 'DZD': return 134.5;
       case 'LBP': return 89500.0;
       case 'LYD': return 4.85;
-      case 'TRY': return 48.46;
+      case 'TRY': return 48.60;
       case 'EUR': return 0.86;
       case 'GBP': return 0.74;
       case 'SYP': return 132.0;
       case 'TND': return 3.12;
       case 'SDG': return 600.0;
-      case 'YER': return 250.0;
+      case 'YER': return 1950.0;
       case 'CAD': return 1.41;
       case 'AUD': return 1.58;
       case 'CHF': return 0.89;
@@ -218,11 +218,15 @@ class LocalMarketCalculator {
       if (fxResponse is Map && fxResponse['rates'] != null) {
         final rates = fxResponse['rates'] as Map<String, dynamic>;
         for (final entry in rates.entries) {
+          final upperKey = entry.key.toUpperCase();
           double val = (entry.value as num).toDouble();
-          if (entry.key.toUpperCase() == 'SYP' && val > 1000) {
+          if (upperKey == 'SYP' && val > 1000) {
             val = val / 100;
           }
-          _fxRates[entry.key.toUpperCase()] = val;
+          if (upperKey == 'YER' && val < 500) {
+            continue; // Keep real commercial rate (1,950 YER)
+          }
+          _fxRates[upperKey] = val;
           _fxRates[entry.key.toLowerCase()] = val;
         }
         _fxSource = 'API /api/currencies/cross-rates (live)';
@@ -620,6 +624,59 @@ class LocalMarketCalculator {
 
     final shortSymbol = CurrencyUtils.getSymbol(currencyCode);
 
+    // ── Global Market (USD Base) Special Quoting ──
+    if (currencyCode == 'USD') {
+      const isIndirectQuote = ['EUR', 'GBP', 'AUD', 'NZD'];
+      for (final targetCurr in majorCurrencies) {
+        if (targetCurr.toUpperCase() == 'USD') continue;
+        final targetRateRaw = _fxRates[targetCurr.toUpperCase()] ??
+            _fxRates[targetCurr.toLowerCase()] ??
+            _defaultFallbackFor(targetCurr, targetCurr);
+        final double targetRateToUsd = (targetCurr.toUpperCase() == 'SYP' && targetRateRaw > 1000)
+            ? targetRateRaw / 100
+            : targetRateRaw;
+
+        if (isIndirectQuote.contains(targetCurr.toUpperCase())) {
+          final crossRate = 1.0 / targetRateToUsd;
+          final buy = double.parse((crossRate * 0.998).toStringAsFixed(3));
+          final sell = double.parse((crossRate * 1.002).toStringAsFixed(3));
+          final formula = CurrencyUtils.getCompactFormula(targetCurr, buy, 'USD');
+          items.add({
+            'id': '${code.toLowerCase()}_fx_${targetCurr.toLowerCase()}',
+            'title': CurrencyUtils.getCompactPairTitle(targetCurr, 'USD'),
+            'subtitle': formula,
+            'buyPrice': buy,
+            'sellPrice': sell,
+            'usdPrice': 1.0,
+            'currency': r'$',
+            'currencyCode': 'USD',
+            'metalType': 'currency',
+            'countryCode': code,
+          });
+        } else {
+          final targetSymbol = CurrencyUtils.getSymbol(targetCurr);
+          final isThreeDecimal = targetCurr == 'OMR' || targetCurr == 'KWD' || targetCurr == 'BHD' || targetCurr == 'JOD';
+          final dec = isThreeDecimal ? 3 : (targetRateToUsd < 1000 ? 2 : 0);
+          final buy = double.parse((targetRateToUsd * 0.998).toStringAsFixed(dec));
+          final sell = double.parse((targetRateToUsd * 1.002).toStringAsFixed(dec));
+          final formula = '1 \$ = ${targetRateToUsd.toStringAsFixed(dec)} $targetSymbol';
+          items.add({
+            'id': '${code.toLowerCase()}_fx_${targetCurr.toLowerCase()}',
+            'title': 'الدولار مقابل ${CurrencyUtils.getShortName(targetCurr)}',
+            'subtitle': formula,
+            'buyPrice': buy,
+            'sellPrice': sell,
+            'usdPrice': 1.0,
+            'currency': targetSymbol,
+            'currencyCode': targetCurr,
+            'metalType': 'currency',
+            'countryCode': code,
+          });
+        }
+      }
+      return;
+    }
+
     for (final targetCurr in majorCurrencies) {
       if (targetCurr.toUpperCase() == currencyCode.toUpperCase()) continue; // Skip self
 
@@ -635,8 +692,12 @@ class LocalMarketCalculator {
 
       final pairTitle = CurrencyUtils.getCompactPairTitle(targetCurr, currencyCode);
 
-      double buyPrice = double.parse((crossRate * 0.998).toStringAsFixed(3));
-      double sellPrice = double.parse((crossRate * 1.002).toStringAsFixed(3));
+      final isThreeDecimal = targetCurr == 'OMR' || targetCurr == 'KWD' || targetCurr == 'BHD' || targetCurr == 'JOD' ||
+                             currencyCode == 'OMR' || currencyCode == 'KWD' || currencyCode == 'BHD' || currencyCode == 'JOD';
+      final dec = isThreeDecimal ? 3 : (crossRate < 1000 ? 2 : 0);
+
+      double buyPrice = double.parse((crossRate * 0.998).toStringAsFixed(dec));
+      double sellPrice = double.parse((crossRate * 1.002).toStringAsFixed(dec));
 
       // Regional live override if available
       if (targetCurr == 'EUR') {

@@ -237,6 +237,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   const SizedBox(height: 14),
                   _buildDistributionBar(
                     portfolio: portfolioProviderInstance,
+                    isDark: isDark,
                   ),
                 ],
 
@@ -376,22 +377,44 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'portfolio_current_valuation'.tr(),
-                style: TextStyle(
-                  color: isDark ? Colors.white70 : AppColors.secondaryText,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Cairo',
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.gold.withValues(alpha: isDark ? 0.15 : 0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_wallet_rounded,
+                      size: 16,
+                      color: AppColors.gold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'portfolio_current_valuation'.tr(),
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : const Color(0xFF475569),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                ],
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isProfit ? const Color(0x3300FF88) : const Color(0x33FF3B30),
+                  color: isProfit
+                      ? (isDark ? const Color(0x2E00FF88) : const Color(0x1F00A859))
+                      : (isDark ? const Color(0x2EFF3B30) : const Color(0x1FE53E3E)),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isProfit ? AppColors.liveGreen.withValues(alpha: 0.5) : Colors.redAccent.withValues(alpha: 0.5),
+                    color: isProfit
+                        ? (isDark ? AppColors.liveGreen.withValues(alpha: 0.5) : const Color(0xFF00A859).withValues(alpha: 0.4))
+                        : Colors.redAccent.withValues(alpha: 0.4),
                     width: 0.8,
                   ),
                 ),
@@ -400,14 +423,18 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   children: [
                     Icon(
                       isProfit ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-                      color: isProfit ? AppColors.liveGreen : Colors.redAccent,
+                      color: isProfit
+                          ? (isDark ? AppColors.liveGreen : const Color(0xFF008744))
+                          : Colors.redAccent,
                       size: 14,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '${isProfit ? "+" : ""}${roiPercent.toStringAsFixed(1)}%',
                       style: TextStyle(
-                        color: isProfit ? AppColors.liveGreen : Colors.redAccent,
+                        color: isProfit
+                            ? (isDark ? AppColors.liveGreen : const Color(0xFF008744))
+                            : Colors.redAccent,
                         fontWeight: FontWeight.w900,
                         fontSize: 12,
                         fontFamily: 'Cairo',
@@ -419,7 +446,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             ],
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           // Main Price Row
           Row(
@@ -428,19 +455,19 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             children: [
               Text(
                 numberFormat.format(totalValuation),
-                style: const TextStyle(
-                  fontSize: 29,
+                style: TextStyle(
+                  fontSize: 30,
                   fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
                   fontFamily: 'Cairo',
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Text(
                 currencySymbol,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.bold,
                   color: AppColors.gold,
                   fontFamily: 'Cairo',
@@ -449,23 +476,34 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             ],
           ),
 
-          // Dual USD Valuation
+          // Dual USD Valuation Badge
           if (portfolio.totalPureWeightGrams > 0)
             Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                '≈ \$${numberFormat.format(totalUsd)} USD',
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white60,
-                  fontFamily: 'Cairo',
+              padding: const EdgeInsets.only(top: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '≈ \$${numberFormat.format(totalUsd)} USD',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    fontFamily: 'Cairo',
+                  ),
                 ),
               ),
             ),
 
           const SizedBox(height: 16),
-          const Divider(height: 1, color: Colors.white12),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE2E8F0),
+          ),
           const SizedBox(height: 14),
 
           // Financial Grid Metrics (Row 1)
@@ -475,7 +513,10 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                 child: _buildMetricTile(
                   title: 'portfolio_invested_capital'.tr(),
                   value: '${numberFormat.format(totalCost)} $currencySymbol',
-                  color: Colors.white,
+                  valueColor: isDark ? Colors.white : const Color(0xFF1E293B),
+                  icon: Icons.payments_outlined,
+                  iconColor: isDark ? const Color(0xFF60A5FA) : const Color(0xFF2563EB),
+                  isDark: isDark,
                 ),
               ),
               const SizedBox(width: 10),
@@ -483,13 +524,20 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                 child: _buildMetricTile(
                   title: 'portfolio_net_profit_loss'.tr(),
                   value: '${isProfit ? "+" : ""}${numberFormat.format(totalPnL)} $currencySymbol',
-                  color: isProfit ? AppColors.liveGreen : Colors.redAccent,
+                  valueColor: isProfit
+                      ? (isDark ? AppColors.liveGreen : const Color(0xFF008744))
+                      : Colors.redAccent,
+                  icon: isProfit ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                  iconColor: isProfit
+                      ? (isDark ? AppColors.liveGreen : const Color(0xFF008744))
+                      : Colors.redAccent,
+                  isDark: isDark,
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
           // Financial Grid Metrics (Row 2)
           Row(
@@ -498,7 +546,10 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                 child: _buildMetricTile(
                   title: 'portfolio_pure_gold_weight'.tr(),
                   value: '${portfolio.totalPureWeightGrams.toStringAsFixed(2)} ${'auto_str_363'.tr()}',
-                  color: AppColors.gold,
+                  valueColor: AppColors.gold,
+                  icon: Icons.workspace_premium_outlined,
+                  iconColor: AppColors.gold,
+                  isDark: isDark,
                 ),
               ),
               const SizedBox(width: 10),
@@ -508,7 +559,10 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   value: portfolio.averageCostPerGram > 0
                       ? '${numberFormat.format(portfolio.averageCostPerGram)} $currencySymbol'
                       : '0 $currencySymbol',
-                  color: Colors.white70,
+                  valueColor: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                  icon: Icons.scale_outlined,
+                  iconColor: isDark ? const Color(0xFFA78BFA) : const Color(0xFF7C3AED),
+                  isDark: isDark,
                 ),
               ),
             ],
@@ -518,29 +572,76 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     );
   }
 
-  Widget _buildMetricTile({required String title, required String value, required Color color}) {
+  Widget _buildMetricTile({
+    required String title,
+    required String value,
+    required Color valueColor,
+    required IconData icon,
+    required Color iconColor,
+    required bool isDark,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.04)
+            : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.06)
+              : const Color(0xFFE2E8F0),
+          width: 1,
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            title,
-            style: const TextStyle(color: Colors.white54, fontSize: 10.5, fontFamily: 'Cairo', fontWeight: FontWeight.w600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: isDark ? 0.15 : 0.10),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Center(
+              child: Icon(
+                icon,
+                size: 16,
+                color: iconColor,
+              ),
+            ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(color: color, fontWeight: FontWeight.w900, fontSize: 12.5, fontFamily: 'Cairo'),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    fontSize: 10.5,
+                    fontFamily: 'Cairo',
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: valueColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12.5,
+                    fontFamily: 'Cairo',
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -563,6 +664,35 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     final double zakatGrams = totalPureGoldGrams * 0.025;
     final double zakatValue = totalValuation * 0.025;
     final currencySymbol = CurrencyUtils.getSymbol(country.currencyCode, context: context);
+    final double progress = (totalPureGoldGrams / nisabGrams).clamp(0.0, 1.0);
+
+    final bgGradient = hasReachedNisab
+        ? (isDark
+            ? const LinearGradient(
+                colors: [Color(0xFF1E3A2B), Color(0xFF0D2218)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : const LinearGradient(
+                colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ))
+        : (isDark
+            ? const LinearGradient(
+                colors: [Color(0xFF1A2230), Color(0xFF111827)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              )
+            : const LinearGradient(
+                colors: [Color(0xFFF8FAFC), Color(0xFFEDF2F7)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ));
+
+    final borderColor = hasReachedNisab
+        ? AppColors.gold.withValues(alpha: 0.7)
+        : (isDark ? Colors.white12 : const Color(0xFFCBD5E1));
 
     return InkWell(
       onTap: () {
@@ -571,72 +701,97 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
       },
       borderRadius: BorderRadius.circular(18),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: hasReachedNisab
-                ? [const Color(0xFF1E3A2B), const Color(0xFF0D2218)]
-                : [
-                    isDark ? const Color(0xFF1A2230) : const Color(0xFFF1F5F9),
-                    isDark ? const Color(0xFF111827) : const Color(0xFFE2E8F0),
-                  ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: bgGradient,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: hasReachedNisab ? AppColors.gold.withValues(alpha: 0.6) : Colors.white12,
+            color: borderColor,
             width: 1.2,
           ),
         ),
-        child: Row(
+        child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: (hasReachedNisab ? AppColors.gold : Colors.grey).withValues(alpha: 0.2),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                hasReachedNisab ? Icons.verified_rounded : Icons.savings_outlined,
-                color: hasReachedNisab ? AppColors.gold : Colors.white70,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: (hasReachedNisab ? AppColors.gold : (isDark ? Colors.white : Colors.black)).withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    hasReachedNisab ? Icons.verified_rounded : Icons.savings_outlined,
+                    color: hasReachedNisab
+                        ? AppColors.gold
+                        : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        hasReachedNisab ? 'portfolio_zakat_due'.tr() : 'portfolio_zakat_remaining'.tr(),
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w900,
-                          color: hasReachedNisab ? AppColors.gold : (isDark ? Colors.white : AppColors.primaryText),
-                          fontFamily: 'Cairo',
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            hasReachedNisab ? 'portfolio_zakat_due'.tr() : 'portfolio_zakat_remaining'.tr(),
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w900,
+                              color: hasReachedNisab
+                                  ? (isDark ? AppColors.gold : const Color(0xFFB8860B))
+                                  : (isDark ? Colors.white : const Color(0xFF0F172A)),
+                              fontFamily: 'Cairo',
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '(${nisabGrams.toInt()} ${'auto_str_363'.tr()})',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: isDark ? Colors.white60 : const Color(0xFF64748B),
+                              fontFamily: 'Cairo',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(height: 2),
                       Text(
-                        '(${nisabGrams.toInt()} ${'auto_str_363'.tr()})',
-                        style: const TextStyle(fontSize: 10.5, color: Colors.white60, fontFamily: 'Cairo'),
+                        hasReachedNisab
+                            ? '${'portfolio_zakat_due_desc'.tr()}: ${zakatGrams.toStringAsFixed(2)} ${'auto_str_363'.tr()} (≈ ${numberFormat.format(zakatValue)} $currencySymbol)'
+                            : '${(nisabGrams - totalPureGoldGrams).toStringAsFixed(1)} ${'auto_str_363'.tr()} (${((totalPureGoldGrams / nisabGrams) * 100).toStringAsFixed(0)}%)',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: hasReachedNisab
+                              ? (isDark ? Colors.white70 : const Color(0xFF2E7D32))
+                              : (isDark ? Colors.white70 : const Color(0xFF334155)),
+                          fontFamily: 'Cairo',
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    hasReachedNisab
-                        ? '${'portfolio_zakat_due_desc'.tr()}: ${zakatGrams.toStringAsFixed(2)} ${'auto_str_363'.tr()} (≈ ${numberFormat.format(zakatValue)} $currencySymbol)'
-                        : '${(nisabGrams - totalPureGoldGrams).toStringAsFixed(1)} ${'auto_str_363'.tr()} (${((totalPureGoldGrams / nisabGrams) * 100).toStringAsFixed(0)}%)',
-                    style: const TextStyle(fontSize: 11, color: Colors.white70, fontFamily: 'Cairo', fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.gold, size: 14),
+              ],
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.gold, size: 14),
+            if (!hasReachedNisab) ...[
+              const SizedBox(height: 10),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 4,
+                  backgroundColor: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isDark ? const Color(0xFF38BDF8) : const Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -648,6 +803,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
   // ──────────────────────────────────────────────
   Widget _buildDistributionBar({
     required PortfolioProvider portfolio,
+    required bool isDark,
   }) {
     final dist = portfolio.karatDistribution;
     final totalWeight = portfolio.totalGrossWeightGrams;
@@ -682,22 +838,45 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             ),
           ),
         ),
-        const SizedBox(height: 6),
-        // Legend
+        const SizedBox(height: 8),
+        // Legend Pills
         Wrap(
-          spacing: 12,
-          runSpacing: 4,
+          spacing: 8,
+          runSpacing: 6,
           children: dist.entries.map((entry) {
             final color = colors[entry.key] ?? AppColors.gold;
             final label = entry.key == 'silver' ? 'auto_str_380'.tr() : '${entry.key}K';
             final pct = ((entry.value / totalWeight) * 100).toStringAsFixed(0);
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-                const SizedBox(width: 4),
-                Text('$label ($pct%)', style: const TextStyle(fontSize: 10.5, color: Colors.white70, fontFamily: 'Cairo')),
-              ],
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.07),
+                  width: 0.8,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    '$label ($pct%)',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                      fontFamily: 'Cairo',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             );
           }).toList(),
         ),
@@ -935,7 +1114,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
           ),
 
           const SizedBox(height: 12),
-          const Divider(height: 1, color: Colors.white10),
+          Divider(height: 1, color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
           const SizedBox(height: 10),
 
           // Row 2: Live Valuation vs Invested Cost & ROI
@@ -965,7 +1144,12 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   Text('portfolio_asset_purchase_val'.tr(), style: const TextStyle(color: AppColors.mutedText, fontSize: 10.5, fontFamily: 'Cairo')),
                   Text(
                     '${numberFormat.format(item.totalInvestedCost)} $currencySymbol',
-                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Colors.white70, fontFamily: 'Cairo'),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                      color: isDark ? Colors.white70 : const Color(0xFF475569),
+                      fontFamily: 'Cairo',
+                    ),
                   ),
                 ],
               ),
@@ -1154,6 +1338,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                           label: 'portfolio_filter_bullion'.tr(),
                           icon: Icons.view_in_ar_rounded,
                           isSelected: selectedCategory == 'bullion',
+                          isDark: isDark,
                           onTap: () => setModalState(() {
                             selectedCategory = 'bullion';
                             if (selectedKarat == 'silver') selectedKarat = '24';
@@ -1164,6 +1349,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                           label: 'portfolio_filter_coin'.tr(),
                           icon: Icons.monetization_on_rounded,
                           isSelected: selectedCategory == 'coin',
+                          isDark: isDark,
                           onTap: () => setModalState(() {
                             selectedCategory = 'coin';
                             if (selectedKarat == 'silver') selectedKarat = '21';
@@ -1174,6 +1360,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                           label: 'portfolio_filter_jewelry'.tr(),
                           icon: Icons.auto_awesome_rounded,
                           isSelected: selectedCategory == 'jewelry',
+                          isDark: isDark,
                           onTap: () => setModalState(() {
                             selectedCategory = 'jewelry';
                             if (selectedKarat == 'silver') selectedKarat = '18';
@@ -1184,6 +1371,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                           label: 'portfolio_filter_silver'.tr(),
                           icon: Icons.diamond_outlined,
                           isSelected: selectedCategory == 'silver' || selectedKarat == 'silver',
+                          isDark: isDark,
                           onTap: () => setModalState(() {
                             selectedCategory = 'silver';
                             selectedKarat = 'silver';
@@ -1404,6 +1592,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
+    required bool isDark,
   }) {
     return Expanded(
       child: InkWell(
@@ -1415,17 +1604,27 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.gold.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.05),
+            color: isSelected
+                ? AppColors.gold.withValues(alpha: isDark ? 0.2 : 0.15)
+                : (isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF1F5F9)),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected ? AppColors.gold : Colors.white12,
+              color: isSelected
+                  ? AppColors.gold
+                  : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
               width: isSelected ? 1.5 : 1.0,
             ),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 20, color: isSelected ? AppColors.gold : Colors.grey),
+              Icon(
+                icon,
+                size: 20,
+                color: isSelected
+                    ? AppColors.gold
+                    : (isDark ? Colors.grey : const Color(0xFF64748B)),
+              ),
               const SizedBox(height: 4),
               Text(
                 label,
@@ -1433,7 +1632,9 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   fontFamily: 'Cairo',
                   fontSize: 10.5,
                   fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                  color: isSelected ? AppColors.gold : Colors.white70,
+                  color: isSelected
+                      ? AppColors.gold
+                      : (isDark ? Colors.white70 : const Color(0xFF475569)),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

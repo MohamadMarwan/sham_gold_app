@@ -11,6 +11,7 @@ import '../services/http_api_service.dart';
 import '../services/cache_service.dart';
 import '../error/app_exception.dart';
 import '../../shared/services/local_market_calculator.dart';
+import '../services/location_detector_service.dart';
 final countryProvider = ChangeNotifierProvider<CountryProvider>((ref) {
   return CountryProvider();
 });
@@ -237,12 +238,26 @@ class CountryProvider with ChangeNotifier {
   }
 
   /// Multi-tier accurate smart detection:
+  /// Tier 0: Direct GPS Device Geolocation (Highest accuracy)
   /// Tier 1: Cloudflare edge IP country from backend API
   /// Tier 2: Device hardware / SIM locale (instant, 100% accurate without network)
   /// Tier 3: HTTPS Geo-IP fallbacks
   /// Tier 4: European regional mapping
   /// Tier 5: Syria (SY) safe default (Sham Gold flagship market)
-  Future<String> _performSmartCountryDetection() async {
+  Future<String> _performSmartCountryDetection({bool useGps = false}) async {
+    // Tier 0: Direct GPS Device Geolocation
+    if (useGps) {
+      try {
+        final gpsCode = await LocationDetectorService().detectCountryFromGps();
+        if (gpsCode != null && _allCountries.any((c) => c.code.toUpperCase() == gpsCode.toUpperCase())) {
+          debugPrint('🛰️ GPS successfully determined country: $gpsCode');
+          return gpsCode.toUpperCase();
+        }
+      } catch (e) {
+        debugPrint('GPS check warning: $e');
+      }
+    }
+
     // Tier 1: Backend Cloudflare detection (most accurate if online)
     final backendCode = await _detectFromBackend();
     if (backendCode != null && _allCountries.any((c) => c.code.toUpperCase() == backendCode)) {
@@ -281,7 +296,7 @@ class CountryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final detectedCode = await _performSmartCountryDetection();
+      final detectedCode = await _performSmartCountryDetection(useGps: true);
       final found = _allCountries.firstWhere(
         (c) => c.code.toUpperCase() == detectedCode.toUpperCase(),
         orElse: () => _defaultCountry,
@@ -307,7 +322,7 @@ class CountryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final detectedCode = await _performSmartCountryDetection();
+      final detectedCode = await _performSmartCountryDetection(useGps: true);
       final found = _allCountries.firstWhere(
         (c) => c.code.toUpperCase() == detectedCode.toUpperCase(),
         orElse: () => _defaultCountry,

@@ -83,16 +83,27 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
   String _formatPrice(double price, BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     final locale = isAr ? 'ar' : 'en_US';
-    final isSyp = widget.baseCurrencyCode == 'SYP' || widget.priceItem.currency == 'SYP' || widget.baseCurrencySymbol.contains('ل.س');
+    final normBase = CurrencyUtils.normalizeCurrencyCode(widget.baseCurrencyCode ?? widget.baseCurrencySymbol);
+    final isSyp = normBase == 'SYP' || widget.priceItem.currency == 'SYP' || widget.baseCurrencySymbol.contains('ل.س');
 
-    if (isSyp || (price < 1000 && price % 1 != 0)) {
+    final isThreeDec = (price < 1.0 && price > 0) ||
+        normBase == 'OMR' ||
+        normBase == 'KWD' ||
+        normBase == 'BHD' ||
+        normBase == 'JOD' ||
+        widget.currencyCode == 'OMR' ||
+        widget.currencyCode == 'KWD' ||
+        widget.currencyCode == 'BHD' ||
+        widget.currencyCode == 'JOD';
+
+    if (isThreeDec) {
+      return NumberFormat('#,##0.000', locale).format(price);
+    } else if (isSyp || (price < 1000 && price % 1 != 0)) {
       return NumberFormat('#,##0.00', locale).format(price);
     } else if (price >= 1000) {
       return NumberFormat('#,##0', locale).format(price);
-    } else if (price >= 10) {
-      return NumberFormat('#,##0.00', locale).format(price);
     } else {
-      return NumberFormat('#,##0.000', locale).format(price);
+      return NumberFormat('#,##0.00', locale).format(price);
     }
   }
 
