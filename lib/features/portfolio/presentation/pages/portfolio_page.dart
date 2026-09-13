@@ -15,6 +15,9 @@ import '../../../../shared/widgets/premium_button.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../home/presentation/widgets/zakat_bottom_sheet.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
+import '../widgets/portfolio_report_sheet.dart';
+import '../widgets/portfolio_growth_chart.dart';
+import '../widgets/portfolio_backup_sheet.dart';
 
 class PortfolioPage extends ConsumerStatefulWidget {
   const PortfolioPage({super.key});
@@ -129,6 +132,45 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
               tooltip: 'back'.tr(),
             ),
             actions: [
+              if (portfolioProviderInstance.items.isNotEmpty)
+                IconButton(
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    PortfolioReportSheet.show(
+                      context,
+                      portfolio: portfolioProviderInstance,
+                      country: country,
+                      currentPrices: currentPrices,
+                      numberFormat: numberFormat,
+                    );
+                  },
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.gold.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.gold.withValues(alpha: 0.6), width: 1.2),
+                    ),
+                    child: const Icon(Icons.description_outlined, color: AppColors.gold, size: 20),
+                  ),
+                  tooltip: 'portfolio_report_title'.tr(),
+                ),
+              IconButton(
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  PortfolioBackupSheet.show(context, portfolio: portfolioProviderInstance);
+                },
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.gold.withValues(alpha: 0.6), width: 1.2),
+                  ),
+                  child: const Icon(Icons.cloud_sync_outlined, color: AppColors.gold, size: 20),
+                ),
+                tooltip: 'portfolio_backup_title'.tr(),
+              ),
               IconButton(
                 onPressed: () {
                   HapticFeedback.selectionClick();
@@ -219,6 +261,94 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                   numberFormat: numberFormat,
                 ),
 
+                // Quick Actions: Official Report & Backup
+                if (portfolioProviderInstance.items.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            PortfolioReportSheet.show(
+                              context,
+                              portfolio: portfolioProviderInstance,
+                              country: country,
+                              currentPrices: currentPrices,
+                              numberFormat: numberFormat,
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.6) : const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.description_outlined, size: 16, color: AppColors.gold),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'portfolio_report_export_btn'.tr(),
+                                  style: TextStyle(
+                                    fontFamily: 'Cairo',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            PortfolioBackupSheet.show(context, portfolio: portfolioProviderInstance);
+                          },
+                          borderRadius: BorderRadius.circular(14),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.6) : const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.cloud_sync_outlined, size: 16, color: AppColors.gold),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'portfolio_backup_title'.tr(),
+                                  style: TextStyle(
+                                    fontFamily: 'Cairo',
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
                 const SizedBox(height: 14),
 
                 // 2. Zakat Nisab Indicator
@@ -232,7 +362,19 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                     numberFormat: numberFormat,
                   ),
 
-                // 3. Karat Weight Distribution Bar
+                // 3. Portfolio Growth Chart
+                if (portfolioProviderInstance.items.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  PortfolioGrowthChart(
+                    portfolio: portfolioProviderInstance,
+                    currentPrices: currentPrices,
+                    country: country,
+                    numberFormat: numberFormat,
+                    isDark: isDark,
+                  ),
+                ],
+
+                // 4. Karat Weight Distribution Bar
                 if (portfolioProviderInstance.items.isNotEmpty) ...[
                   const SizedBox(height: 14),
                   _buildDistributionBar(

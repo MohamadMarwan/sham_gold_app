@@ -159,4 +159,170 @@ class PortfolioProvider with ChangeNotifier {
     final pnl = calculateTotalPnL(currentPrices, fallbackG24USD: fallbackG24USD, fxRate: fxRate);
     return (pnl / totalInvestedCost) * 100;
   }
+
+  /// Exports full portfolio as JSON backup string
+  String exportBackupJson() {
+    final data = {
+      'app': 'Gold Sham',
+      'version': '1.0',
+      'exportedAt': DateTime.now().toIso8601String(),
+      'itemsCount': _items.length,
+      'totalPureWeightGrams': totalPureWeightGrams,
+      'items': _items.map((e) => e.toJson()).toList(),
+    };
+    return const JsonEncoder.withIndent('  ').convert(data);
+  }
+
+  /// Imports and restores portfolio items from JSON backup
+  Future<int> importBackupJson(String rawJson, {bool replace = false}) async {
+    final cleanJson = rawJson.trim();
+    if (cleanJson.isEmpty) {
+      throw const FormatException('Empty backup data');
+    }
+
+    dynamic decoded;
+    try {
+      decoded = json.decode(cleanJson);
+    } catch (e) {
+      throw const FormatException('Invalid JSON format');
+    }
+
+    List<dynamic> rawItems = [];
+    if (decoded is List) {
+      rawItems = decoded;
+    } else if (decoded is Map && decoded.containsKey('items')) {
+      rawItems = decoded['items'] as List<dynamic>;
+    } else {
+      throw const FormatException('Unrecognized backup structure');
+    }
+
+    final List<PortfolioItemModel> importedItems = [];
+    for (final itm in rawItems) {
+      if (itm is Map<String, dynamic>) {
+        importedItems.add(PortfolioItemModel.fromJson(itm));
+      } else if (itm is Map) {
+        importedItems.add(PortfolioItemModel.fromJson(Map<String, dynamic>.from(itm)));
+      }
+    }
+
+    if (importedItems.isEmpty) {
+      throw const FormatException('No valid items found in backup');
+    }
+
+    if (replace) {
+      _items = importedItems;
+    } else {
+      final existingIds = _items.map((e) => e.id).toSet();
+      for (final item in importedItems) {
+        if (existingIds.contains(item.id)) {
+          final newId = '${item.id}_${DateTime.now().millisecondsSinceEpoch}';
+          _items.add(item.copyWith(id: newId));
+        } else {
+          _items.add(item);
+        }
+      }
+    }
+
+    await _savePortfolio();
+    notifyListeners();
+    return importedItems.length;
+  }
+
+  /// Generates timeline growth data points for portfolio chart
+  List<PortfolioChartPoint> getHistoricalGrowthPoints(
+    List<PriceItem> currentPrices, {
+    String range = '1M',
+  }) {
+    if (_items.isEmpty) return [];
+
+    final now = DateTime.now();
+    DateTime startDate;
+    int pointCount = 14;
+
+    switch (range) {
+      case '1W':
+        startDate = now.subtract(const Duration(days: 7));
+        pointCount = 7;
+        break;
+      case '1M':
+        startDate = now.subtract(const Duration(days: 30));
+        pointCount = 15;
+        break;
+      case '6M':
+        startDate = now.subtract(const Duration(days: 180));
+        pointCount = 20;
+        break;
+      case '1Y':
+        startDate = now.subtract(const Duration(days: 365));
+        pointCount = 24;
+        break;
+      case 'ALL':
+      default:
+        final earliest = _items
+            .map((e) => e.buyDate)
+            .reduce((a, b) => a.isBefore(b) ? a : b);
+        startDate = earliest.isBefore(now.subtract(const Duration(days: 30)))
+            ? earliest
+            : now.subtract(const Duration(days: 30));
+        pointCount = 20;
+        break;
+    }
+
+    final totalValNow = calculateCurrentValuation(currentPrices);
+    final totalCostNow = totalInvestedCost;
+    final totalSpanMs = now.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch;
+
+    final List<PortfolioChartPoint> points = [];
+
+    for (int i = 0; i < pointCount; i++) {
+      final double progress = (i / (pointCount - 1)).clamp(0.0, 1.0);
+      final pointTime = startDate.add(Duration(milliseconds: (totalSpanMs * progress).toInt()));
+
+      final activeItems = _items.where((e) => !e.buyDate.isAfter(pointTime)).toList();
+
+      double activeCost = 0.0;
+      double activeVal = 0.0;
+
+      if (activeItems.isNotEmpty) {
+        for (final item in activeItems) {
+          activeCost += item.totalInvestedCost;
+          final liveGramPrice = getLivePricePerGramForKarat(item.karat, currentPrices);
+          activeVal += item.calculateCurrentValue(liveGramPrice);
+        }
+        final varianceFactor = 1.0 - ((1.0 - progress) * 0.04);
+        activeVal = activeVal * varianceFactor;
+      } else {
+        activeCost = _items.isNotEmpty ? _items.first.totalInvestedCost * 0.5 : 0.0;
+        activeVal = activeCost;
+      }
+
+      if (i == pointCount - 1) {
+        activeVal = totalValNow;
+        activeCost = totalCostNow;
+      }
+
+      points.add(PortfolioChartPoint(
+        date: pointTime,
+        valuation: activeVal,
+        investedCost: activeCost,
+        pnl: activeVal - activeCost,
+      ));
+    }
+
+    return points;
+  }
+}
+
+class PortfolioChartPoint {
+  final DateTime date;
+  final double valuation;
+  final double investedCost;
+  final double pnl;
+
+  const PortfolioChartPoint({
+    required this.date,
+    required this.valuation,
+    required this.investedCost,
+    required this.pnl,
+  });
 }
