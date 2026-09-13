@@ -242,8 +242,8 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                 lineTouchData: LineTouchData(
                   handleBuiltInTouches: true,
                   touchTooltipData: LineTouchTooltipData(
-                    getTooltipColor: (_) => isDark ? const Color(0xFF0F172A) : Colors.white,
                     tooltipRoundedRadius: 10,
+                    tooltipBgColor: isDark ? const Color(0xFF1E293B) : const Color(0xFF0F2E25),
                     tooltipPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     getTooltipItems: (touchedSpots) {
                       return touchedSpots.map((s) {
@@ -252,7 +252,7 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                         final dateStr = pt != null ? DateFormat('MM/dd').format(pt.date) : '';
                         return LineTooltipItem(
                           '${numberFormat.format(s.y)} $currencySymbol\n$dateStr',
-                          TextStyle(
+                          const TextStyle(
                             color: AppColors.gold,
                             fontFamily: 'Cairo',
                             fontWeight: FontWeight.bold,
@@ -333,7 +333,7 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
                   ),
                   Text(
                     '${numberFormat.format(maxVal)} $currencySymbol',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       fontFamily: 'Cairo',
                       fontWeight: FontWeight.bold,

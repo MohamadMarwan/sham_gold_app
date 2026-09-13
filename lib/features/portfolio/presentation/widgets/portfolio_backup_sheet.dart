@@ -403,26 +403,72 @@ class _PortfolioBackupSheetState extends State<PortfolioBackupSheet> with Single
                           ),
                           child: Column(
                             children: [
-                              RadioListTile<bool>(
-                                value: false,
-                                groupValue: _replaceEntire,
-                                onChanged: (val) => setState(() => _replaceEntire = val ?? false),
-                                title: Text(
-                                  'portfolio_backup_restore_merge'.tr(),
-                                  style: const TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold),
+                              InkWell(
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setState(() => _replaceEntire = false);
+                                },
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        !_replaceEntire ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
+                                        color: !_replaceEntire ? AppColors.gold : Colors.grey,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          'portfolio_backup_restore_merge'.tr(),
+                                          style: TextStyle(
+                                            fontFamily: 'Cairo',
+                                            fontSize: 12,
+                                            fontWeight: !_replaceEntire ? FontWeight.bold : FontWeight.w600,
+                                            color: !_replaceEntire
+                                                ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                                                : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                activeColor: AppColors.gold,
                               ),
-                              const Divider(height: 1),
-                              RadioListTile<bool>(
-                                value: true,
-                                groupValue: _replaceEntire,
-                                onChanged: (val) => setState(() => _replaceEntire = val ?? true),
-                                title: Text(
-                                  'portfolio_backup_restore_replace'.tr(),
-                                  style: const TextStyle(fontFamily: 'Cairo', fontSize: 12, fontWeight: FontWeight.bold),
+                              Divider(height: 1, color: isDark ? Colors.white10 : const Color(0xFFE2E8F0)),
+                              InkWell(
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setState(() => _replaceEntire = true);
+                                },
+                                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(14)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        _replaceEntire ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
+                                        color: _replaceEntire ? AppColors.gold : Colors.grey,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          'portfolio_backup_restore_replace'.tr(),
+                                          style: TextStyle(
+                                            fontFamily: 'Cairo',
+                                            fontSize: 12,
+                                            fontWeight: _replaceEntire ? FontWeight.bold : FontWeight.w600,
+                                            color: _replaceEntire
+                                                ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                                                : (isDark ? Colors.white70 : const Color(0xFF64748B)),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                activeColor: AppColors.gold,
                               ),
                             ],
                           ),
