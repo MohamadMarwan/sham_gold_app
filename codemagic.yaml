@@ -32,9 +32,6 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
 
-      - name: Patch Xcode Project
-        script: python3 patch_xcode.py
-
       - name: Set up code signing settings
         script: xcode-project use-profiles
 

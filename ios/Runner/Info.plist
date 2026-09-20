@@ -66,8 +66,15 @@
 	<string>نحتاج إلى إذن لحفظ الصور في معرض الصور الخاص بك عند مشاركة الأسعار.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>نحتاج إلى إذن للوصول إلى معرض الصور الخاص بك لتتمكن من مشاركة الصور.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>نحتاج إلى إذن تحديد الموقع لاكتشاف دولتك تلقائياً وعرض أسعار الذهب والعملات والعيارات المحلية الخاصة ببلدك بدقة فورية.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>يساعد هذا المعرف في تقديم إعلانات مخصصة تهمك، مما يدعم استمرارية تقديم خدماتنا بشكل مجاني.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-4487814270090643~8619289839</string>
 	<key>SKAdNetworkItems</key>
