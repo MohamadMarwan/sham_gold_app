@@ -305,8 +305,8 @@ class CurrencyUtils {
     }
   }
 
-  /// Returns a compact formula string with symbols (e.g. '1 $ = 36.50 ₺' or '1 $ = 132.50 ل.س')
-  static String getCompactFormula(String targetCode, double rate, String baseCode, {BuildContext? context}) {
+  /// Returns a compact formula string with symbols (e.g. '1 $ = 36.50 ₺' or '1 $ = 132.500 ل.س')
+  static String getCompactFormula(String targetCode, double rate, String baseCode, {BuildContext? context, int? decimals}) {
     final targetSymbol = getSymbol(targetCode, context: context);
     final baseSymbol = getSymbol(baseCode, context: context);
     final isAr = (context != null)
@@ -316,21 +316,30 @@ class CurrencyUtils {
     final normalizedBase = normalizeCurrencyCode(baseCode);
     final isSyp = normalizedBase == 'SYP' || baseCode.contains('ل.س');
 
-    final isThreeDec = rate < 1.0 ||
-        normalizedBase == 'OMR' ||
-        normalizedBase == 'KWD' ||
-        normalizedBase == 'BHD' ||
-        normalizedBase == 'JOD';
-
     final String formattedRate;
-    if (isThreeDec) {
-      formattedRate = NumberFormat('#,##0.000', locale).format(rate);
-    } else if (isSyp || (rate < 1000 && rate % 1 != 0)) {
-      formattedRate = NumberFormat('#,##0.00', locale).format(rate);
-    } else if (rate >= 1000) {
-      formattedRate = NumberFormat('#,##0', locale).format(rate);
+    if (decimals != null) {
+      if (rate >= 10000 && rate % 1 == 0) {
+        formattedRate = NumberFormat('#,##0', locale).format(rate);
+      } else {
+        final pattern = (decimals == 4) ? '#,##0.0000' : '#,##0.000';
+        formattedRate = NumberFormat(pattern, locale).format(rate);
+      }
     } else {
-      formattedRate = NumberFormat('#,##0.00', locale).format(rate);
+      final isThreeDec = rate < 1.0 ||
+          normalizedBase == 'OMR' ||
+          normalizedBase == 'KWD' ||
+          normalizedBase == 'BHD' ||
+          normalizedBase == 'JOD';
+
+      if (isThreeDec) {
+        formattedRate = NumberFormat('#,##0.000', locale).format(rate);
+      } else if (isSyp || (rate < 1000 && rate % 1 != 0)) {
+        formattedRate = NumberFormat('#,##0.00', locale).format(rate);
+      } else if (rate >= 1000) {
+        formattedRate = NumberFormat('#,##0', locale).format(rate);
+      } else {
+        formattedRate = NumberFormat('#,##0.00', locale).format(rate);
+      }
     }
 
     return '1 $targetSymbol = $formattedRate $baseSymbol';

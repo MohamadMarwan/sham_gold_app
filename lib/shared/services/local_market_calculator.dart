@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../models/country_model.dart';
@@ -263,7 +264,6 @@ class LocalMarketCalculator {
     }
 
     final bool isGlobal = code == 'GLOBAL';
-    final double spreadPercent = isGlobal ? 0.0 : (0.5 / 100);
     final double g24USD = _goldOunceUSD / 31.1035;
     final double g24SellUSD = _goldOunceSellUSD / 31.1035;
     final double silverGramUSD = (_silverOunceUSD > 0 ? _silverOunceUSD : 31.5) / 31.1035;
@@ -292,16 +292,14 @@ class LocalMarketCalculator {
         };
       }
 
-      if (isGlobal) {
-        final calcBuy = double.parse(baseUSD.toStringAsFixed(2));
-        double calcSell = double.parse((g24SellUSD * karatFraction).toStringAsFixed(2));
-        if (calcSell <= calcBuy) calcSell = double.parse((calcBuy + 0.02).toStringAsFixed(2));
-        return {'buyPrice': calcBuy, 'sellPrice': calcSell, 'usdPrice': usdPrice};
-      }
-
       final baseLocal = baseUSD * rate;
-      final calcBuy = double.parse((baseLocal * (1 - spreadPercent)).toStringAsFixed(2));
-      final calcSell = double.parse((baseLocal * (1 + spreadPercent)).toStringAsFixed(2));
+      final baseSellLocal = (g24SellUSD * karatFraction) * rate;
+      final calcBuy = double.parse(baseLocal.toStringAsFixed(2));
+      double calcSell = double.parse(baseSellLocal.toStringAsFixed(2));
+      if (calcSell <= calcBuy) {
+        final minSpread = isGlobal ? 0.02 : math.max(0.01, 0.02 * rate);
+        calcSell = double.parse((calcBuy + minSpread).toStringAsFixed(2));
+      }
       return {'buyPrice': calcBuy, 'sellPrice': calcSell, 'usdPrice': usdPrice};
     }
 
@@ -388,13 +386,14 @@ class LocalMarketCalculator {
     if (scrapedOunce != null && scrapedOunce['buyPrice'] != null && (scrapedOunce['buyPrice'] as num) > 0) {
       ounceLocalBuy = (scrapedOunce['buyPrice'] as num).toDouble();
       final rawSell = (scrapedOunce['sellPrice'] as num?)?.toDouble();
-      ounceLocalSell = (rawSell != null && rawSell > 0) ? rawSell : (isGlobal ? ounceLocalBuy + 0.80 : ounceLocalBuy);
-    } else if (isGlobal) {
-      ounceLocalBuy = double.parse(_goldOunceUSD.toStringAsFixed(2));
-      ounceLocalSell = double.parse(_goldOunceSellUSD.toStringAsFixed(2));
+      ounceLocalSell = (rawSell != null && rawSell > 0) ? rawSell : (isGlobal ? ounceLocalBuy + 0.80 : ounceLocalBuy + (0.80 * rate));
     } else {
-      ounceLocalBuy = double.parse((_goldOunceUSD * rate * (1 - spreadPercent)).toStringAsFixed(2));
-      ounceLocalSell = double.parse((_goldOunceUSD * rate * (1 + spreadPercent)).toStringAsFixed(2));
+      ounceLocalBuy = double.parse((_goldOunceUSD * rate).toStringAsFixed(2));
+      double calcOunceSell = double.parse((_goldOunceSellUSD * rate).toStringAsFixed(2));
+      if (calcOunceSell <= ounceLocalBuy) {
+        calcOunceSell = double.parse((ounceLocalBuy + (0.80 * rate)).toStringAsFixed(2));
+      }
+      ounceLocalSell = calcOunceSell;
     }
 
     items.add({
@@ -410,12 +409,12 @@ class LocalMarketCalculator {
       'countryCode': code,
     });
 
-    final double kiloLocalBuy = isGlobal
-        ? double.parse((_goldOunceUSD * 32.1507).toStringAsFixed(2))
-        : double.parse((_goldOunceUSD * 32.1507 * rate * (1 - spreadPercent * 0.5)).toStringAsFixed(2));
-    final double kiloLocalSell = isGlobal
-        ? double.parse((_goldOunceSellUSD * 32.1507).toStringAsFixed(2))
-        : double.parse((_goldOunceUSD * 32.1507 * rate * (1 + spreadPercent * 0.5)).toStringAsFixed(2));
+    final double kiloLocalBuy = double.parse((_goldOunceUSD * 32.1507 * rate).toStringAsFixed(2));
+    double calcKiloSell = double.parse((_goldOunceSellUSD * 32.1507 * rate).toStringAsFixed(2));
+    if (calcKiloSell <= kiloLocalBuy) {
+      calcKiloSell = double.parse((kiloLocalBuy + (0.80 * 32.1507 * rate)).toStringAsFixed(2));
+    }
+    final double kiloLocalSell = calcKiloSell;
 
     items.add({
       'id': '${code.toLowerCase()}_gold_kilo',
@@ -439,16 +438,18 @@ class LocalMarketCalculator {
     final double silverOunceUSD = _silverOunceUSD > 0 ? _silverOunceUSD : (silverGramUSD * 31.1035);
     final double silverOunceSellUSD = _silverOunceSellUSD > 0 ? _silverOunceSellUSD : (silverGramSellUSD * 31.1035);
 
+    final double silverGramLocalBuy = double.parse((silverGramUSD * rate).toStringAsFixed(2));
+    double calcSilverGramSell = double.parse((silverGramSellUSD * rate).toStringAsFixed(2));
+    if (calcSilverGramSell <= silverGramLocalBuy) {
+      calcSilverGramSell = double.parse((silverGramLocalBuy + (isGlobal ? 0.01 : math.max(0.01, 0.002 * rate))).toStringAsFixed(2));
+    }
+
     items.add({
       'id': '${code.toLowerCase()}_silver_gram',
       'title': 'silver_pure_gram'.tr(),
       'subtitle': 'فضة عيار 999',
-      'buyPrice': isGlobal
-          ? double.parse(silverGramUSD.toStringAsFixed(2))
-          : double.parse((silverGramUSD * rate * 0.97).toStringAsFixed(2)),
-      'sellPrice': isGlobal
-          ? (silverGramSellUSD > silverGramUSD ? double.parse(silverGramSellUSD.toStringAsFixed(2)) : double.parse((silverGramUSD + 0.01).toStringAsFixed(2)))
-          : double.parse((silverGramUSD * rate * 1.03).toStringAsFixed(2)),
+      'buyPrice': silverGramLocalBuy,
+      'sellPrice': calcSilverGramSell,
       'usdPrice': double.parse(silverGramUSD.toStringAsFixed(2)),
       'currency': currencySymbol,
       'currencyCode': currencyCode,
@@ -456,16 +457,18 @@ class LocalMarketCalculator {
       'countryCode': code,
     });
 
+    final double silverOunceLocalBuy = double.parse((silverOunceUSD * rate).toStringAsFixed(2));
+    double calcSilverOunceSell = double.parse((silverOunceSellUSD * rate).toStringAsFixed(2));
+    if (calcSilverOunceSell <= silverOunceLocalBuy) {
+      calcSilverOunceSell = double.parse((silverOunceLocalBuy + (isGlobal ? 0.05 : math.max(0.01, 0.05 * rate))).toStringAsFixed(2));
+    }
+
     items.add({
       'id': '${code.toLowerCase()}_silver_ounce',
       'title': 'silver_ounce'.tr(),
       'subtitle': '31.1035 غرام (فضة 999)',
-      'buyPrice': isGlobal
-          ? double.parse(silverOunceUSD.toStringAsFixed(2))
-          : double.parse((silverOunceUSD * rate * 0.97).toStringAsFixed(2)),
-      'sellPrice': isGlobal
-          ? (silverOunceSellUSD > silverOunceUSD ? double.parse(silverOunceSellUSD.toStringAsFixed(2)) : double.parse((silverOunceUSD + 0.10).toStringAsFixed(2)))
-          : double.parse((silverOunceUSD * rate * 1.03).toStringAsFixed(2)),
+      'buyPrice': silverOunceLocalBuy,
+      'sellPrice': calcSilverOunceSell,
       'usdPrice': double.parse(silverOunceUSD.toStringAsFixed(2)),
       'currency': currencySymbol,
       'currencyCode': currencyCode,

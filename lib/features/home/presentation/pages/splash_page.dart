@@ -76,27 +76,24 @@ class _SplashPageState extends ConsumerState<SplashPage>
       priceService.refreshPrices();
     }
 
-    // Wait for the App Open Ad to load, up to the dynamically configured timeout limit.
-    // We check the timeout on each iteration to adapt reactively to settings loaded from cache.
-    // Wait for a minimum of 1200ms to allow splash animations and cache loading to complete
+    // Wait for the App Open Ad to load only if enabled in settings
     final startTime = DateTime.now();
+    final bool shouldWaitForAppOpen = adService.isEnabled && adService.showAppOpenOnStartup && adService.appOpenTimeoutSeconds > 0;
     
-    int waitCount = 0;
+    if (shouldWaitForAppOpen) {
+      int waitCount = 0;
+      while (waitCount < (adService.appOpenTimeoutSeconds * 10)) {
+        if (!adService.isEnabled || !adService.showAppOpenOnStartup) break;
+        await Future.delayed(const Duration(milliseconds: 100));
+        waitCount++;
+        if (adService.isAppOpenAdLoaded) break;
+      }
 
-    while (waitCount < (adService.appOpenTimeoutSeconds * 10)) {
-      if (adService.appOpenTimeoutSeconds <= 0) break;
-
-      await Future.delayed(const Duration(milliseconds: 100));
-      waitCount++;
-
-      // Break as soon as the ad is loaded — it's ready to show
-      if (adService.isAppOpenAdLoaded) break;
-    }
-
-    // Show App Open Ad if it finished loading within the configured window and is enabled (timeout > 0)
-    if (adService.appOpenTimeoutSeconds > 0 && adService.isAppOpenAdLoaded && mounted) {
-      adService.showStartupAppOpenAd(onAdDismissed: _navigateToHome);
-      return; // Navigation happens after the ad is dismissed
+      // Show App Open Ad if it finished loading within the configured window
+      if (adService.isEnabled && adService.showAppOpenOnStartup && adService.isAppOpenAdLoaded && mounted) {
+        adService.showStartupAppOpenAd(onAdDismissed: _navigateToHome);
+        return; // Navigation happens after the ad is dismissed
+      }
     }
 
     final elapsedTime = DateTime.now().difference(startTime).inMilliseconds;

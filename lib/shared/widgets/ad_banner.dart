@@ -29,7 +29,7 @@ class _AdBannerState extends State<AdBanner> {
     _bannerAd = BannerAd(
       adUnitId: unitId,
       request: const AdRequest(),
-      size: AdSize.banner,
+      size: AdSize.mediumRectangle,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           setState(() {

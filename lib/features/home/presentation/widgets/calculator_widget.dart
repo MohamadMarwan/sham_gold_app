@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
+import '../../../../core/providers/settings_provider.dart';
 import '../../../../shared/services/local_market_calculator.dart';
 
 /// Dedicated Currency Item representation for the Cross-Currency Calculator.
@@ -157,12 +158,17 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
     return (amount / rFrom) * rTo;
   }
 
-  String _formatResult(double value) {
+  int get _currencyDecimals {
+    final raw = ref.read(settingsProvider).getDisplaySetting('currencyDecimals', defaultValue: 3);
+    return (raw == 4) ? 4 : 3;
+  }
+
+  String _formatResult(double value, {int? decimals}) {
     if (value <= 0) return '';
-    if (value == value.truncateToDouble()) return value.toStringAsFixed(0);
-    if (value >= 1000) return value.toStringAsFixed(2);
-    if (value < 0.01) return value.toStringAsFixed(4);
-    return value.toStringAsFixed(2);
+    if (value >= 10000 && value == value.truncateToDouble()) return value.toStringAsFixed(0);
+    final dec = decimals ?? _currencyDecimals;
+    if (value < 0.0001) return value.toStringAsFixed(5);
+    return value.toStringAsFixed(dec);
   }
 
   void _onAmountChanged() {

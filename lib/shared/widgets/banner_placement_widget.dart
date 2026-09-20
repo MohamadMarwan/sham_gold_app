@@ -80,74 +80,90 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
       return const SizedBox.shrink();
     }
 
-    final bannerHeight = widget.height ?? 95.0;
-    final padding = widget.margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 6);
+    final padding = widget.margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 10);
 
-    // إذا كان هناك إعلان واحد فقط
-    if (matchingBanners.length == 1) {
-      _rotationTimer?.cancel();
-      return Padding(
-        padding: padding,
-        child: PromotionBanner(
-          banner: matchingBanners.first,
-          height: bannerHeight,
-        ),
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // حساب المقاس المربع المتناسق مع أبعاد الشاشة
+        final maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : MediaQuery.of(context).size.width - 32;
+        final squareSize = widget.height ?? maxW.clamp(260.0, 340.0);
 
-    // إذا كان هناك أكثر من إعلان في نفس الموقع، نعرضهم في سلايدر دائري تلقائي
-    _startRotationTimer(matchingBanners.length);
-
-    return Padding(
-      padding: padding,
-      child: SizedBox(
-        height: bannerHeight,
-        child: Stack(
-          children: [
-            PageView.builder(
-              controller: _pageController,
-              itemCount: matchingBanners.length,
-              onPageChanged: (i) {
-                setState(() => _currentIndex = i);
-              },
-              itemBuilder: (context, index) {
-                return PromotionBanner(
-                  banner: matchingBanners[index],
-                  height: bannerHeight,
-                );
-              },
-            ),
-            if (matchingBanners.length > 1)
-              Positioned(
-                bottom: 12,
-                right: 14,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(matchingBanners.length, (idx) {
-                    final isSel = idx == _currentIndex;
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                      width: isSel ? 16 : 5,
-                      height: 5,
-                      decoration: BoxDecoration(
-                        color: isSel ? Colors.white : Colors.white.withValues(alpha: 0.45),
-                        borderRadius: BorderRadius.circular(3),
-                        boxShadow: [
-                          if (isSel)
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              blurRadius: 3,
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
+        // إذا كان هناك إعلان واحد فقط
+        if (matchingBanners.length == 1) {
+          _rotationTimer?.cancel();
+          return Center(
+            child: Padding(
+              padding: padding,
+              child: SizedBox(
+                width: squareSize,
+                height: squareSize,
+                child: PromotionBanner(
+                  banner: matchingBanners.first,
+                  height: squareSize,
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
+          );
+        }
+
+        // إذا كان هناك أكثر من إعلان في نفس الموقع، نعرضهم في سلايدر مربع دائري تلقائي
+        _startRotationTimer(matchingBanners.length);
+
+        return Center(
+          child: Padding(
+            padding: padding,
+            child: SizedBox(
+              width: squareSize,
+              height: squareSize,
+              child: Stack(
+                children: [
+                  PageView.builder(
+                    controller: _pageController,
+                    itemCount: matchingBanners.length,
+                    onPageChanged: (i) {
+                      setState(() => _currentIndex = i);
+                    },
+                    itemBuilder: (context, index) {
+                      return PromotionBanner(
+                        banner: matchingBanners[index],
+                        height: squareSize,
+                      );
+                    },
+                  ),
+                  if (matchingBanners.length > 1)
+                    Positioned(
+                      bottom: 12,
+                      right: 14,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(matchingBanners.length, (idx) {
+                          final isSel = idx == _currentIndex;
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                            width: isSel ? 18 : 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: isSel ? Colors.white : Colors.white.withValues(alpha: 0.45),
+                              borderRadius: BorderRadius.circular(3),
+                              boxShadow: [
+                                if (isSel)
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.35),
+                                    blurRadius: 4,
+                                  ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

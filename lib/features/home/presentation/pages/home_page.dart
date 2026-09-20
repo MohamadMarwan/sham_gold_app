@@ -446,6 +446,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         duration: const Duration(milliseconds: 140),
         curve: Curves.easeOutQuad,
       );
+      AdService().showInterstitialOnNavigation();
     }
   }
 }

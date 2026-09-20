@@ -69,23 +69,70 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    // ── 1. Google AdMob Banner (Square / Box Format) ──
     if (widget.banner.type == 'ad') {
       if (AdService().isRewardActive) return const SizedBox.shrink();
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       return Container(
-        margin: const EdgeInsets.symmetric(vertical: 6),
+        margin: EdgeInsets.zero,
+        width: double.infinity,
+        height: widget.height,
         alignment: Alignment.center,
-        child: AdBannerWidget(
-          adUnitId: widget.banner.adCode.isNotEmpty ? widget.banner.adCode : null,
-          size: widget.banner.adSize == 'mediumRectangle'
-              ? AdSize.mediumRectangle
-              : widget.banner.adSize == 'largeBanner'
-                  ? AdSize.largeBanner
-                  : AdSize.banner,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.08),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 16,
+              spreadRadius: 1,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AdBannerWidget(
+                adUnitId: widget.banner.adCode.isNotEmpty ? widget.banner.adCode : null,
+                size: widget.banner.adSize == 'largeBanner'
+                    ? AdSize.largeBanner
+                    : AdSize.mediumRectangle, // الحجم المربع القياسي لـ AdMob
+              ),
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white24, width: 0.6),
+                  ),
+                  child: const Text(
+                    'إعلان ممول',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    // ── Pure Image Banner ──
+    // ── 2. Pure Image Banner (Square 1:1) ──
     if (widget.banner.type == 'image' && widget.banner.imageUrl != null && widget.banner.imageUrl!.isNotEmpty) {
       return GestureDetector(
         onTapDown: (_) => _controller.forward(),
@@ -96,20 +143,20 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
           child: Container(
             margin: EdgeInsets.zero,
             width: double.infinity,
-            height: widget.height ?? 95,
+            height: widget.height,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.12),
-                  blurRadius: 12,
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 18,
                   spreadRadius: 1,
-                  offset: const Offset(0, 4),
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -119,31 +166,41 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: const Color(0xFF1E293B),
                       alignment: Alignment.center,
-                      child: const Icon(Icons.broken_image_rounded, color: Colors.white38, size: 28),
+                      child: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.broken_image_rounded, color: Colors.white38, size: 36),
+                          SizedBox(height: 8),
+                          Text(
+                            'تعذر تحميل صورة الإعلان',
+                            style: TextStyle(color: Colors.white54, fontSize: 11, fontFamily: 'Cairo'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  // Clickable indicator if link is provided
+                  // Clickable indicator badge if link is provided
                   if (widget.banner.linkUrl.isNotEmpty)
                     Positioned(
-                      bottom: 8,
-                      left: 8,
+                      bottom: 12,
+                      left: 12,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.55),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white24, width: 0.8),
+                          color: Colors.black.withValues(alpha: 0.65),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white30, width: 0.8),
                         ),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.open_in_new_rounded, color: Colors.white, size: 11),
-                            SizedBox(width: 4),
+                            Icon(Icons.open_in_new_rounded, color: Colors.white, size: 12),
+                            SizedBox(width: 5),
                             Text(
-                              'إعلان',
+                              'إعلان • انقر للتفاصيل',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 9,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Cairo',
                               ),
@@ -160,6 +217,7 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
       );
     }
 
+    // ── 3. Rich Promotional Text Card (Square 1:1) ──
     final bannerColor = Color(widget.banner.color != 0 ? widget.banner.color : 0xFF8B4513);
 
     return GestureDetector(
@@ -171,43 +229,42 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
         child: Container(
           margin: EdgeInsets.zero,
           width: double.infinity,
-          height: widget.height ?? 80,
+          height: widget.height,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             gradient: LinearGradient(
               colors: [
-                bannerColor.withValues(alpha: 0.8),
+                bannerColor.withValues(alpha: 0.88),
                 bannerColor,
+                const Color(0xFF0F172A),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: bannerColor.withValues(alpha: 0.4),
-                blurRadius: 20,
+                color: bannerColor.withValues(alpha: 0.35),
+                blurRadius: 22,
                 spreadRadius: 2,
                 offset: const Offset(0, 8),
               ),
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.1),
-                blurRadius: 4,
-                spreadRadius: -2,
-                offset: const Offset(0, -2),
-              ),
             ],
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.15),
+              width: 1.2,
+            ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
             child: Stack(
               children: [
-                // Abstract decorative circles (Glassmorphism effect underneath)
+                // Abstract decorative circles
                 Positioned(
-                  top: -50,
+                  top: -40,
                   right: -30,
                   child: Container(
-                    width: 150,
-                    height: 150,
+                    width: 140,
+                    height: 140,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white.withValues(alpha: 0.1),
@@ -215,19 +272,19 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                   ),
                 ),
                 Positioned(
-                  bottom: -40,
+                  bottom: -30,
                   left: -20,
                   child: Container(
-                    width: 100,
-                    height: 100,
+                    width: 110,
+                    height: 110,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: Colors.white.withValues(alpha: 0.12),
                     ),
                   ),
                 ),
 
-                // Background Image with blur
+                // Background image with dark overlay if provided
                 if (widget.banner.imageUrl != null && widget.banner.imageUrl!.isNotEmpty)
                   Positioned.fill(
                     child: Image.network(
@@ -236,18 +293,17 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                       errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
                     ),
                   ),
-                
-                // Advanced Gradient Overlay
+
                 Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.black.withValues(alpha: 0.8),
-                          Colors.black.withValues(alpha: 0.2),
+                          Colors.black.withValues(alpha: 0.75),
+                          Colors.black.withValues(alpha: 0.45),
                           Colors.transparent,
                         ],
-                        stops: const [0.0, 0.6, 1.0],
+                        stops: const [0.0, 0.65, 1.0],
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                       ),
@@ -255,71 +311,78 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                   ),
                 ),
 
-                // Glassmorphism blur overlay if no image
-                if (widget.banner.imageUrl == null || widget.banner.imageUrl!.isEmpty)
-                  Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                      child: Container(
-                        color: Colors.white.withValues(alpha: 0.05),
+                // Content (Centered Square Presentation)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Badge Icon
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.18),
+                          border: Border.all(color: Colors.white30, width: 1.2),
+                        ),
+                        child: const Icon(
+                          Icons.campaign_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
-                    ),
-                  ),
+                      const SizedBox(height: 14),
 
-                // Content
-                if (widget.banner.type != 'image')
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          widget.banner.getLocalizedTitle(context),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
-                            fontFamily: 'Cairo',
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      // Title
+                      Text(
+                        widget.banner.getLocalizedTitle(context),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.3,
+                          fontFamily: 'Cairo',
+                          height: 1.3,
                         ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: Text(
-                            widget.banner.getLocalizedSubtitle(context),
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.85),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              height: 1.5,
-                              fontFamily: 'Cairo',
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
 
-                // Action Icon / Button
-                if (widget.banner.linkUrl.isNotEmpty)
-                  Positioned(
-                    bottom: 8,
-                    left: 12,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      // Subtitle
+                      Text(
+                        widget.banner.getLocalizedSubtitle(context),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          height: 1.55,
+                          fontFamily: 'Cairo',
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      // Action Button Pill if link exists
+                      if (widget.banner.linkUrl.isNotEmpty) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
+                            color: Colors.white.withValues(alpha: 0.22),
                             borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -328,23 +391,24 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                                 'details'.tr(),
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.w900,
                                   fontFamily: 'Cairo',
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               const Icon(
                                 Icons.arrow_forward_ios_rounded,
                                 color: Colors.white,
-                                size: 10,
+                                size: 11,
                               ),
                             ],
                           ),
                         ),
-                      ),
-                    ),
+                      ],
+                    ],
                   ),
+                ),
               ],
             ),
           ),

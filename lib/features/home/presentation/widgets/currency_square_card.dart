@@ -22,6 +22,7 @@ class CurrencySquareCard extends ConsumerStatefulWidget {
   final bool isPinned;
   final VoidCallback onTogglePin;
   final VoidCallback? onTap;
+  final int decimals;
 
   const CurrencySquareCard({
     super.key,
@@ -34,6 +35,7 @@ class CurrencySquareCard extends ConsumerStatefulWidget {
     required this.isPinned,
     required this.onTogglePin,
     this.onTap,
+    this.decimals = 3,
   });
 
   @override
@@ -83,28 +85,15 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
   String _formatPrice(double price, BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     final locale = isAr ? 'ar' : 'en_US';
-    final normBase = CurrencyUtils.normalizeCurrencyCode(widget.baseCurrencyCode ?? widget.baseCurrencySymbol);
-    final isSyp = normBase == 'SYP' || widget.priceItem.currency == 'SYP' || widget.baseCurrencySymbol.contains('ل.س');
+    final dec = (widget.decimals == 4) ? 4 : 3;
 
-    final isThreeDec = (price < 1.0 && price > 0) ||
-        normBase == 'OMR' ||
-        normBase == 'KWD' ||
-        normBase == 'BHD' ||
-        normBase == 'JOD' ||
-        widget.currencyCode == 'OMR' ||
-        widget.currencyCode == 'KWD' ||
-        widget.currencyCode == 'BHD' ||
-        widget.currencyCode == 'JOD';
-
-    if (isThreeDec) {
-      return NumberFormat('#,##0.000', locale).format(price);
-    } else if (isSyp || (price < 1000 && price % 1 != 0)) {
-      return NumberFormat('#,##0.00', locale).format(price);
-    } else if (price >= 1000) {
+    // For large whole numbers with no fractions (e.g. 14500 SYP or 1300000 LBP)
+    if (price >= 10000 && price % 1 == 0) {
       return NumberFormat('#,##0', locale).format(price);
-    } else {
-      return NumberFormat('#,##0.00', locale).format(price);
     }
+
+    final pattern = (dec == 4) ? '#,##0.0000' : '#,##0.000';
+    return NumberFormat(pattern, locale).format(price);
   }
 
   @override
@@ -300,6 +289,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                               buyPrice,
                               effectiveBaseCode,
                               context: context,
+                              decimals: widget.decimals,
                             ),
                             style: TextStyle(
                               fontFamily: 'Cairo',
@@ -500,6 +490,7 @@ class CompactCurrencyCard extends StatelessWidget {
   final bool isPinned;
   final VoidCallback onTogglePin;
   final VoidCallback? onTap;
+  final int decimals;
 
   const CompactCurrencyCard({
     super.key,
@@ -512,22 +503,21 @@ class CompactCurrencyCard extends StatelessWidget {
     required this.isPinned,
     required this.onTogglePin,
     this.onTap,
+    this.decimals = 3,
   });
 
   String _formatPrice(double price, BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     final locale = isAr ? 'ar' : 'en_US';
-    final isSyp = baseCurrencyCode == 'SYP' || priceItem.currency == 'SYP' || baseCurrencySymbol.contains('ل.س');
+    final dec = (decimals == 4) ? 4 : 3;
 
-    if (isSyp || (price < 1000 && price % 1 != 0)) {
-      return NumberFormat('#,##0.00', locale).format(price);
-    } else if (price >= 1000) {
+    // For large whole numbers with no fractions (e.g. 14500 SYP or 1300000 LBP)
+    if (price >= 10000 && price % 1 == 0) {
       return NumberFormat('#,##0', locale).format(price);
-    } else if (price >= 10) {
-      return NumberFormat('#,##0.00', locale).format(price);
-    } else {
-      return NumberFormat('#,##0.000', locale).format(price);
     }
+
+    final pattern = (dec == 4) ? '#,##0.0000' : '#,##0.000';
+    return NumberFormat(pattern, locale).format(price);
   }
 
   @override
@@ -641,6 +631,7 @@ class CompactCurrencyCard extends StatelessWidget {
                       buyPrice,
                       effectiveBaseCode,
                       context: context,
+                      decimals: decimals,
                     ),
                     style: TextStyle(
                       fontFamily: 'Cairo',

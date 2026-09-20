@@ -12,7 +12,7 @@ class AdBannerWidget extends ConsumerStatefulWidget {
 
   const AdBannerWidget({
     super.key,
-    this.size = AdSize.banner,
+    this.size = AdSize.mediumRectangle,
     this.adUnitId,
   });
 

@@ -55,7 +55,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
     // Trigger Ad — بعد اكتمال بناء الصفحة وانتهاء الانيميشن
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 400), () {
-        if (mounted) AdService().showInterstitialOnNavigation(force: true);
+        if (mounted) AdService().showInterstitialOnNavigation();
       });
     });
   }

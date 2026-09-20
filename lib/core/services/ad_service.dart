@@ -35,6 +35,7 @@ class AdService {
   int get appOpenResumeTimeoutSeconds => _appOpenResumeTimeoutSeconds;
 
   bool _showOnPageChange = true;
+  bool _isInterstitialEnabled = true;
   int _interstitialInterval = 1;
   int _pageChangeCount = 0;
   int _interstitialRetryAttempts = 0;
@@ -53,6 +54,7 @@ class AdService {
   DateTime? _rewardExpiration;
 
   bool get isEnabled => _isEnabled && !isRewardActive;
+  bool get isInterstitialEnabled => _isInterstitialEnabled;
   String? get bannerId => _bannerId;
   String? get interstitialId => _interstitialId;
   String? get rewardedId => _rewardedId;
@@ -106,10 +108,13 @@ class AdService {
       // 3. Pre-load App Open Ad immediately. Check cache first.
       //    (backend settings may not be fetched yet at this point)
       final prefs = await SharedPreferences.getInstance();
-      final bool cachedEnabled = prefs.getBool('cached_ads_enabled') ?? true;
+      final bool cachedEnabled = prefs.getBool('cached_ads_enabled') ?? false;
       final bool cachedStartup = prefs.getBool('cached_app_open_on_startup') ?? true;
       final String? cachedAppOpenId = prefs.getString('cached_app_open_id');
       
+      _isEnabled = cachedEnabled;
+      _showAppOpenOnStartup = cachedStartup;
+
       if (cachedEnabled && cachedStartup) {
         _appOpenId = (cachedAppOpenId != null && cachedAppOpenId.isNotEmpty) ? cachedAppOpenId : _kAppOpenAdUnitId;
         _loadAppOpenAdBypass(); // ← bypass _isEnabled check for startup
@@ -182,6 +187,7 @@ class AdService {
 
       final interSettings = adSettings['interstitialSettings'];
       if (interSettings != null) {
+        _isInterstitialEnabled = interSettings['enabled'] ?? true;
         _showOnPageChange = interSettings['showOnPageChange'] ?? true;
         _interstitialInterval = interSettings['interval'] ?? 1;
       }
@@ -357,7 +363,7 @@ class AdService {
 
   void showInterstitialAd({bool force = false}) {
     if (kIsWeb) return;
-    if (!_isEnabled && !force) return;
+    if (!_isEnabled || !_isInterstitialEnabled) return;
     if (isRewardActive && !force) return;
     
     if (_isShowingAd) return;
@@ -386,13 +392,13 @@ class AdService {
   }
 
   void showInterstitialOnNavigation({bool force = false}) {
-    debugPrint('🧭 showInterstitialOnNavigation → enabled=$_isEnabled | showOnPageChange=$_showOnPageChange | loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | rewardActive=$isRewardActive | force=$force');
+    debugPrint('🧭 showInterstitialOnNavigation → enabled=$_isEnabled | interstitialEnabled=$_isInterstitialEnabled | showOnPageChange=$_showOnPageChange | loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | rewardActive=$isRewardActive | force=$force');
     if (kIsWeb) {
       debugPrint('⛔ Web platform — skip');
       return;
     }
-    if (!_isEnabled && !force) {
-      debugPrint('⛔ Ads disabled');
+    if (!_isEnabled || !_isInterstitialEnabled) {
+      debugPrint('⛔ Ads or Interstitials disabled from dashboard');
       return;
     }
     if (isRewardActive && !force) {
@@ -524,7 +530,8 @@ class AdService {
   /// Unlike [showAppOpenAd], this does NOT require the backend [isEnabled] flag,
   /// so it works reliably before backend settings are fetched.
   void showStartupAppOpenAd({Function? onAdDismissed}) {
-    if (isRewardActive || kIsWeb) {
+    if (!_isEnabled || !_showAppOpenOnStartup || isRewardActive || kIsWeb) {
+      debugPrint('⚠️ Startup App Open Ad disabled or reward active — skipping');
       onAdDismissed?.call();
       return;
     }

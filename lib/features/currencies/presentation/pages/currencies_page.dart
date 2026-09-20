@@ -334,6 +334,9 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> with AutomaticK
                   final fontScale = ref.watch(settingsProvider).fontSizeScale;
                   final gridAspectRatio = fontScale >= 1.3 ? 0.98 : (fontScale >= 1.15 ? 1.05 : 1.15);
 
+                  final decimalsSetting = ref.watch(settingsProvider).getDisplaySetting('currencyDecimals', defaultValue: 3);
+                  final currencyDecimals = (decimalsSetting == 4) ? 4 : 3;
+
                   Widget buildGrid(List<PriceItem> items) {
                     return GridView.builder(
                       padding: EdgeInsets.zero,
@@ -362,6 +365,7 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> with AutomaticK
                           flagEmoji: flag,
                           isPinned: isPinned,
                           onTogglePin: () => _togglePin(code),
+                          decimals: currencyDecimals,
                         );
                       },
                     );
@@ -390,6 +394,7 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> with AutomaticK
                           flagEmoji: flag,
                           isPinned: isPinned,
                           onTogglePin: () => _togglePin(code),
+                          decimals: currencyDecimals,
                         );
                       },
                     );
