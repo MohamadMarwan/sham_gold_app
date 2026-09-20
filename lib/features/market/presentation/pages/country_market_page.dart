@@ -134,41 +134,8 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 20),
-                        const PremiumLogo(size: 85, isBackground: true),
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: AppColors.gold.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                country.code.toUpperCase() == 'GLOBAL'
-                                    ? country.localizedName
-                                    : 'market_of'.tr(args: [country.localizedName]),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontFamily: 'Cairo',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: const Center(
+                    child: PremiumLogo(size: 95, isBackground: true),
                   ),
                 ),
               ),

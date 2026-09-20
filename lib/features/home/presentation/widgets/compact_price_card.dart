@@ -315,8 +315,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              CurrencyUtils.formatLocalizedNumber(sellPrice, context, decimals: 2, compactLarge: sellPrice >= 100000),
+                            LivePriceWidget(
+                              price: sellPrice,
+                              currency: '',
                               style: TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.w900,

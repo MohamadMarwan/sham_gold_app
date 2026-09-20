@@ -1,7 +1,4 @@
-import 'dart:async';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
 import '../../core/utils/currency_utils.dart';
 
@@ -24,87 +21,69 @@ class LivePriceWidget extends StatefulWidget {
 }
 
 class _LivePriceWidgetState extends State<LivePriceWidget>
-    with SingleTickerProviderStateMixin {
-  late double _displayPrice;
-  Timer? _timer;
-  final _random = math.Random();
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-  late Animation<Color?> _colorAnimation;
+    with TickerProviderStateMixin {
+  late AnimationController _ambientPulseController;
+  late Animation<double> _ambientPulseAnimation;
+
+  late AnimationController _flashController;
+  late Animation<Color?> _flashColorAnimation;
 
   @override
   void initState() {
     super.initState();
-    _displayPrice = widget.price;
-    _pulseController = AnimationController(
+
+    // Calm ambient pulse: 1.5 to 2 seconds breathing cycle (repeating reverse)
+    _ambientPulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 1600),
+    );
+    _ambientPulseAnimation = Tween<double>(begin: 1.0, end: 0.88).animate(
+      CurvedAnimation(
+        parent: _ambientPulseController,
+        curve: Curves.easeInOut,
+      ),
     );
 
-    _pulseAnimation = TweenSequence<double>([
-      TweenSequenceItem(
-          tween: Tween<double>(begin: 1.0, end: 1.05), weight: 30),
-      TweenSequenceItem(
-          tween: Tween<double>(begin: 1.05, end: 1.0), weight: 70),
-    ]).animate(
-        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
+    if (widget.animateJitter) {
+      _ambientPulseController.repeat(reverse: true);
+    }
 
-    _colorAnimation = ColorTween(
+    // Flash controller for real price changes from server
+    _flashController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _flashColorAnimation = ColorTween(
       begin: widget.style.color,
       end: widget.style.color,
-    ).animate(_pulseController);
-
-    if (widget.animateJitter) {
-      _startIntensiveLiveJitter();
-    }
+    ).animate(_flashController);
   }
 
   @override
   void didUpdateWidget(LivePriceWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.price != oldWidget.price) {
+    if (widget.price != oldWidget.price && oldWidget.price > 0) {
       _triggerFlash(widget.price > oldWidget.price);
-      _displayPrice = widget.price;
     }
   }
 
   void _triggerFlash(bool isUp) {
     if (!mounted) return;
     setState(() {
-      _colorAnimation = ColorTween(
-        begin: isUp ? Colors.greenAccent : Colors.redAccent,
+      _flashColorAnimation = ColorTween(
+        begin: isUp ? const Color(0xFF10B981) : const Color(0xFFEF4444),
         end: widget.style.color,
       ).animate(
-          CurvedAnimation(parent: _pulseController, curve: Curves.easeOut));
+        CurvedAnimation(parent: _flashController, curve: Curves.easeOut),
+      );
     });
-    _pulseController.forward(from: 0);
-  }
-
-  void _startIntensiveLiveJitter() {
-    // Professional update frequency (every 1 second) for a more realistic market feel
-    _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-      if (!mounted) return;
-      if (widget.price <= 0) return;
-
-      final isUp = _random.nextBool();
-      // Subtle micro-movement to create a sense of constant activity
-      final jitterPercent = (widget.price * 0.00004) * _random.nextDouble();
-
-      setState(() {
-        _displayPrice = widget.price + (isUp ? jitterPercent : -jitterPercent);
-      });
-
-      if (_random.nextDouble() > 0.95) {
-        // Slightly increased chance since it runs less often
-        _triggerFlash(isUp);
-      }
-    });
+    _flashController.forward(from: 0);
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _pulseController.dispose();
+    _ambientPulseController.dispose();
+    _flashController.dispose();
     super.dispose();
   }
 
@@ -114,86 +93,40 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
         ? ''
         : CurrencyUtils.getSymbol(widget.currency, context: context);
     final isDollar = displayCurrency == '\$';
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(end: _displayPrice),
-      duration: const Duration(milliseconds: 300),
-      builder: (context, animatedPrice, child) {
-        final isAr = Localizations.localeOf(context).languageCode == 'ar';
-        final locale = isAr ? 'ar' : 'en_US';
-        final format = animatedPrice >= 100000
-            ? NumberFormat("#,###", locale)
-            : NumberFormat("#,##0.##", locale);
-        final formatted = format.format(animatedPrice);
-        final decSep = format.symbols.DECIMAL_SEP;
-        final parts = formatted.split(decSep);
+    // Format strictly identical to CurrencyUtils
+    final formatted = CurrencyUtils.formatLocalizedNumber(
+      widget.price,
+      context,
+      decimals: 2,
+      compactLarge: widget.price >= 100000,
+    );
 
-        return AnimatedBuilder(
-          animation: _pulseController,
-          builder: (context, child) {
-            final flashColor =
-                _colorAnimation.value ?? widget.style.color ?? Colors.black;
-            final isFlashing = _pulseController.isAnimating;
-            final isUp = widget.price >= _displayPrice;
+    return AnimatedBuilder(
+      animation: Listenable.merge([_ambientPulseController, _flashController]),
+      builder: (context, child) {
+        final currentColor = _flashController.isAnimating
+            ? (_flashColorAnimation.value ?? widget.style.color)
+            : widget.style.color;
 
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,
-              children: [
-                if (isFlashing)
-                  Icon(
-                    isUp
-                        ? Icons.arrow_drop_up_rounded
-                        : Icons.arrow_drop_down_rounded,
-                    color: flashColor,
-                    size: (widget.style.fontSize ?? 18) * 0.9,
-                  ),
-                Transform.scale(
-                  scale: isFlashing ? _pulseAnimation.value : 1.0,
-                  child: RichText(
-                    textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,
-                    text: TextSpan(
-                      style: widget.style.copyWith(
-                        color: flashColor,
-                        shadows: isFlashing
-                            ? [
-                                Shadow(
-                                  color: flashColor.withValues(alpha: 0.5),
-                                  blurRadius: 10,
-                                ),
-                                Shadow(
-                                  color: flashColor.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                ),
-                              ]
-                            : null,
-                      ),
-                      children: [
-                        if (isDollar && !isAr)
-                          TextSpan(text: displayCurrency),
-                        TextSpan(text: parts[0]),
-                        if (parts.length > 1)
-                          TextSpan(
-                            text: '$decSep${parts[1]}',
-                            style: widget.style.copyWith(
-                              color: flashColor,
-                              fontFamily: widget.style.fontFamily ?? (isAr ? 'Cairo' : 'Roboto'),
-                            ),
-                          ),
-                        if (isDollar && isAr)
-                          TextSpan(text: ' $displayCurrency'),
-                        if (!isDollar && displayCurrency.isNotEmpty)
-                          TextSpan(text: ' $displayCurrency'),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
+        final currentOpacity = _flashController.isAnimating
+            ? 1.0
+            : (widget.animateJitter ? _ambientPulseAnimation.value : 1.0);
+
+        final textStyle = widget.style.copyWith(
+          color: currentColor?.withValues(alpha: currentOpacity),
+        );
+
+        return Text(
+          isDollar
+              ? (isAr ? '$formatted \$' : '\$ $formatted')
+              : (displayCurrency.isNotEmpty ? '$formatted $displayCurrency' : formatted),
+          style: textStyle,
+          textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+          maxLines: 1,
         );
       },
     );
   }
-
 }

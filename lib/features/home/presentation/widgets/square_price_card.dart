@@ -341,8 +341,9 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(
-                                        CurrencyUtils.formatLocalizedNumber(sellPrice, context, decimals: 2, compactLarge: sellPrice >= 100000),
+                                      LivePriceWidget(
+                                        price: sellPrice,
+                                        currency: '',
                                         style: TextStyle(
                                           fontSize: 13.5,
                                           fontWeight: FontWeight.w900,

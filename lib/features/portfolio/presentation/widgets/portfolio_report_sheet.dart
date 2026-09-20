@@ -108,10 +108,10 @@ class _PortfolioReportSheetState extends State<PortfolioReportSheet> {
     final portfolio = widget.portfolio;
     final numberFormat = widget.numberFormat;
 
-    final totalValuation = portfolio.calculateCurrentValuation(widget.currentPrices);
+    final totalValuation = portfolio.calculateCurrentValuation(widget.currentPrices, targetCurrency: country.currencyCode);
     final totalCost = portfolio.totalInvestedCost;
-    final totalPnL = portfolio.calculateTotalPnL(widget.currentPrices);
-    final roi = portfolio.calculateRoiPercentage(widget.currentPrices);
+    final totalPnL = portfolio.calculateTotalPnL(widget.currentPrices, targetCurrency: country.currencyCode);
+    final roi = portfolio.calculateRoiPercentage(widget.currentPrices, targetCurrency: country.currencyCode);
     final pureGoldGrams = portfolio.totalPureWeightGrams;
 
     const double nisabGrams = 85.0;
@@ -142,7 +142,7 @@ class _PortfolioReportSheetState extends State<PortfolioReportSheet> {
     buffer.writeln('📦 *${'portfolio_statement_total_items'.tr()}: ${portfolio.items.length}*');
     for (int i = 0; i < portfolio.items.length; i++) {
       final item = portfolio.items[i];
-      final itemVal = item.calculateCurrentValue(portfolio.getLivePricePerGramForKarat(item.karat, widget.currentPrices));
+      final itemVal = item.calculateCurrentValue(portfolio.getLivePricePerGramForKarat(item.karat, widget.currentPrices, targetCurrency: country.currencyCode));
       buffer.writeln('${i + 1}. ${item.title} (${item.karat}K) - ${item.weightGrams}g → ${numberFormat.format(itemVal)} $currencySymbol');
     }
     buffer.writeln('--------------------------------');
@@ -159,10 +159,10 @@ class _PortfolioReportSheetState extends State<PortfolioReportSheet> {
     final portfolio = widget.portfolio;
     final numberFormat = widget.numberFormat;
 
-    final totalValuation = portfolio.calculateCurrentValuation(widget.currentPrices);
+    final totalValuation = portfolio.calculateCurrentValuation(widget.currentPrices, targetCurrency: country.currencyCode);
     final totalCost = portfolio.totalInvestedCost;
-    final totalPnL = portfolio.calculateTotalPnL(widget.currentPrices);
-    final roi = portfolio.calculateRoiPercentage(widget.currentPrices);
+    final totalPnL = portfolio.calculateTotalPnL(widget.currentPrices, targetCurrency: country.currencyCode);
+    final roi = portfolio.calculateRoiPercentage(widget.currentPrices, targetCurrency: country.currencyCode);
     final isProfit = totalPnL >= 0;
     final pureGoldGrams = portfolio.totalPureWeightGrams;
 
@@ -509,7 +509,7 @@ class _PortfolioReportSheetState extends State<PortfolioReportSheet> {
                       const SizedBox(height: 8),
 
                       ...portfolio.items.map((item) {
-                        final livePrice = portfolio.getLivePricePerGramForKarat(item.karat, widget.currentPrices);
+                        final livePrice = portfolio.getLivePricePerGramForKarat(item.karat, widget.currentPrices, targetCurrency: country.currencyCode);
                         final curVal = item.calculateCurrentValue(livePrice);
                         final itemPnL = item.calculatePnL(livePrice);
                         final itemProfit = itemPnL >= 0;

@@ -61,11 +61,21 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
     final country = countryProviderInstance.selectedCountry;
     final currentPrices = priceService.currentPrices;
     final numberFormat = NumberFormat('#,##0.##', context.locale.languageCode);
+    final targetCurrency = country.currencyCode;
 
-    final double totalValuation = portfolioProviderInstance.calculateCurrentValuation(currentPrices);
+    final double totalValuation = portfolioProviderInstance.calculateCurrentValuation(
+      currentPrices,
+      targetCurrency: targetCurrency,
+    );
     final double totalCost = portfolioProviderInstance.totalInvestedCost;
-    final double totalPnL = portfolioProviderInstance.calculateTotalPnL(currentPrices);
-    final double roiPercent = portfolioProviderInstance.calculateRoiPercentage(currentPrices);
+    final double totalPnL = portfolioProviderInstance.calculateTotalPnL(
+      currentPrices,
+      targetCurrency: targetCurrency,
+    );
+    final double roiPercent = portfolioProviderInstance.calculateRoiPercentage(
+      currentPrices,
+      targetCurrency: targetCurrency,
+    );
     final bool isProfit = totalPnL >= 0;
 
     // Filter items
@@ -80,8 +90,16 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
 
     // Sort items
     filteredItems.sort((a, b) {
-      final priceA = portfolioProviderInstance.getLivePricePerGramForKarat(a.karat, currentPrices);
-      final priceB = portfolioProviderInstance.getLivePricePerGramForKarat(b.karat, currentPrices);
+      final priceA = portfolioProviderInstance.getLivePricePerGramForKarat(
+        a.karat,
+        currentPrices,
+        targetCurrency: a.currencyCode,
+      );
+      final priceB = portfolioProviderInstance.getLivePricePerGramForKarat(
+        b.karat,
+        currentPrices,
+        targetCurrency: b.currencyCode,
+      );
       final valA = a.calculateCurrentValue(priceA);
       final valB = b.calculateCurrentValue(priceB);
       final pnlA = a.calculatePnL(priceA);
@@ -104,37 +122,65 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             pinned: true,
             backgroundColor: isDark ? AppColors.darkScaffold : AppColors.darkGreen,
             elevation: 0,
-            leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AppColors.gold.withValues(alpha: 0.8),
-                    width: 1.5,
+            leadingWidth: 50,
+            leading: Padding(
+              padding: const EdgeInsetsDirectional.only(start: 8),
+              child: IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                icon: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.4),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppColors.gold.withValues(alpha: 0.8),
+                      width: 1.4,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.gold.withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.gold.withValues(alpha: 0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppColors.gold,
+                    size: 16,
+                  ),
+                ),
+                tooltip: 'back'.tr(),
+              ),
+            ),
+            title: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'auto_str_213'.tr(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  fontSize: 16.5,
+                  fontFamily: 'Cairo',
+                  shadows: [
+                    Shadow(
+                      color: Colors.black54,
+                      blurRadius: 10,
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: AppColors.gold,
-                  size: 18,
-                ),
+                maxLines: 1,
               ),
-              tooltip: 'back'.tr(),
             ),
+            centerTitle: true,
             actions: [
               if (portfolioProviderInstance.items.isNotEmpty)
-                IconButton(
-                  onPressed: () {
+                _buildAppBarAction(
+                  onTap: () {
                     HapticFeedback.selectionClick();
                     PortfolioReportSheet.show(
                       context,
@@ -144,70 +190,34 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                       numberFormat: numberFormat,
                     );
                   },
-                  icon: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.gold.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.gold.withValues(alpha: 0.6), width: 1.2),
-                    ),
-                    child: const Icon(Icons.description_outlined, color: AppColors.gold, size: 20),
-                  ),
+                  icon: Icons.description_outlined,
                   tooltip: 'portfolio_report_title'.tr(),
                 ),
-              IconButton(
-                onPressed: () {
+              _buildAppBarAction(
+                onTap: () {
                   HapticFeedback.selectionClick();
                   PortfolioBackupSheet.show(context, portfolio: portfolioProviderInstance);
                 },
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.gold.withValues(alpha: 0.6), width: 1.2),
-                  ),
-                  child: const Icon(Icons.cloud_sync_outlined, color: AppColors.gold, size: 20),
-                ),
+                icon: Icons.cloud_sync_outlined,
                 tooltip: 'portfolio_backup_title'.tr(),
               ),
-              IconButton(
-                onPressed: () {
+              _buildAppBarAction(
+                onTap: () {
                   HapticFeedback.selectionClick();
                   _showAssetSheet(context, country, ref, currentPrices: currentPrices);
                 },
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.gold.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.gold.withValues(alpha: 0.6), width: 1.2),
-                  ),
-                  child: const Icon(Icons.add_rounded, color: AppColors.gold, size: 20),
-                ),
+                icon: Icons.add_rounded,
                 tooltip: 'auto_str_081'.tr(),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
-              titlePadding: const EdgeInsets.only(bottom: 50),
-              title: Text(
-                'auto_str_213'.tr(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                  fontSize: 19,
-                  fontFamily: 'Cairo',
-                  shadows: [Shadow(color: Colors.black54, blurRadius: 12)],
-                ),
-              ),
               background: Transform.translate(
                 offset: Offset(0, _scrollOffset * 0.5),
                 child: Container(
                   decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
                   child: const Center(
-                    child: PremiumLogo(size: 110, isBackground: true),
+                    child: PremiumLogo(size: 95, isBackground: true),
                   ),
                 ),
               ),
@@ -457,6 +467,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                     final liveGramPrice = portfolioProviderInstance.getLivePricePerGramForKarat(
                       item.karat,
                       currentPrices,
+                      targetCurrency: item.currencyCode,
                     );
                     return _buildAssetCard(
                       context: context,
@@ -1415,6 +1426,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             final livePrice = ref.read(portfolioProvider).getLivePricePerGramForKarat(
               selectedKarat,
               currentPrices,
+              targetCurrency: country?.currencyCode ?? 'USD',
             );
             if (livePrice > 0) {
               setModalState(() {
@@ -1784,6 +1796,35 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarAction({
+    required VoidCallback onTap,
+    required IconData icon,
+    required String tooltip,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2.5),
+      child: IconButton(
+        onPressed: onTap,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+        icon: Container(
+          width: 35,
+          height: 35,
+          decoration: BoxDecoration(
+            color: AppColors.gold.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.gold.withValues(alpha: 0.6),
+              width: 1.2,
+            ),
+          ),
+          child: Icon(icon, color: AppColors.gold, size: 17),
+        ),
+        tooltip: tooltip,
       ),
     );
   }

@@ -36,10 +36,13 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
 
   // Controllers - Silver Calculator
   final _silverZakatWeightController = TextEditingController();
-  final _silverScrapWeightController = TextEditingController();
-  final _silverScrapPriceController = TextEditingController();
+  final _silverMakingWeightController = TextEditingController();
+  final _silverMakingPriceController = TextEditingController();
   final _silverMakingChargeController = TextEditingController();
   final _silverVatController = TextEditingController(text: '0');
+  final _silverScrapWeightController = TextEditingController();
+  final _silverScrapPriceController = TextEditingController();
+  bool _silverPricePrefilled = false;
   Map<String, dynamic>? _silverMakingResult;
   Map<String, dynamic>? _silverScrapResult;
   Map<String, dynamic>? _silverZakatResult;
@@ -134,6 +137,8 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
     _zakat18Controller.dispose();
     _zakatCashController.dispose();
     _silverZakatWeightController.dispose();
+    _silverMakingWeightController.dispose();
+    _silverMakingPriceController.dispose();
     _silverScrapWeightController.dispose();
     _silverScrapPriceController.dispose();
     _silverMakingChargeController.dispose();
@@ -162,11 +167,19 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
     final countryState = ref.watch(countryProvider);
     final country = countryState.selectedCountry;
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: _selectedCalculatorIndex == null
-          ? _buildHub(isDark)
-          : _buildSelectedCalculator(isDark, country),
+    return PopScope(
+      canPop: _selectedCalculatorIndex == null,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _selectedCalculatorIndex != null) {
+          setState(() => _selectedCalculatorIndex = null);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: _selectedCalculatorIndex == null
+            ? _buildHub(isDark)
+            : _buildSelectedCalculator(isDark, country),
+      ),
     );
   }
 
@@ -1457,8 +1470,17 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
             subtitle: 'making_charge_silver_info'.tr(),
           ),
           const SizedBox(height: 16),
-          _buildInputField('piece_weight_gram'.tr(), _silverScrapWeightController, isDark),
-          _buildInputField('${'raw_silver_price'.tr()} (${country.localizedCurrencySymbol})', _silverScrapPriceController..text = gramAg.toStringAsFixed(2), isDark),
+          Builder(builder: (_) {
+            // Prefill silver price only once to avoid resetting user input
+            if (!_silverPricePrefilled && gramAg > 0) {
+              _silverMakingPriceController.text = gramAg.toStringAsFixed(2);
+              _silverScrapPriceController.text = gramAg.toStringAsFixed(2);
+              _silverPricePrefilled = true;
+            }
+            return const SizedBox.shrink();
+          }),
+          _buildInputField('piece_weight_gram'.tr(), _silverMakingWeightController, isDark),
+          _buildInputField('${'raw_silver_price'.tr()} (${country.localizedCurrencySymbol})', _silverMakingPriceController, isDark),
           _buildInputField('${'making_charge_per_gram'.tr()} (${country.localizedCurrencySymbol})', _silverMakingChargeController, isDark),
           _buildInputField('vat_tax'.tr(), _silverVatController, isDark),
           SizedBox(
@@ -1466,15 +1488,15 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
             child: ElevatedButton(
               onPressed: () {
                 HapticFeedback.mediumImpact();
-                final w = double.tryParse(_silverScrapWeightController.text) ?? 0;
-                final gp = double.tryParse(_silverScrapPriceController.text) ?? 0;
+                final w = double.tryParse(_silverMakingWeightController.text) ?? 0;
+                final gp = double.tryParse(_silverMakingPriceController.text) ?? 0;
                 final mc = double.tryParse(_silverMakingChargeController.text) ?? 0;
                 final vat = double.tryParse(_silverVatController.text) ?? 0;
 
                 setState(() {
                   _silverMakingResult = CalculatorsService.calculateJewelryCost(
                     weightGrams: w,
-                    goldPricePerGram: gp, // treating as silver
+                    goldPricePerGram: gp,
                     makingChargePerGram: mc,
                     vatPercent: vat,
                   );

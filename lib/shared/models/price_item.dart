@@ -34,20 +34,35 @@ class PriceItem {
   });
 
   factory PriceItem.fromJson(Map<String, dynamic> json) {
+    int rawTrend = 2;
+    if (json['trend'] is num) {
+      final t = (json['trend'] as num).toInt();
+      if (t >= 0 && t < Trend.values.length) {
+        rawTrend = t;
+      }
+    }
+
+    DateTime? parsedUpdate;
+    if (json['lastUpdate'] != null) {
+      if (json['lastUpdate'] is int) {
+        parsedUpdate = DateTime.fromMillisecondsSinceEpoch(json['lastUpdate'] as int);
+      } else {
+        parsedUpdate = DateTime.tryParse(json['lastUpdate'].toString());
+      }
+    }
+
     return PriceItem(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       title: (json['title'] ?? json['name'] ?? '').toString(),
       buyPrice: (json['buyPrice'] as num?)?.toDouble() ?? 0.0,
       sellPrice: (json['sellPrice'] as num?)?.toDouble() ?? 0.0,
-      currency: json['currency'] ?? 'SYP',
-      trend: Trend.values[(json['trend'] as int?) ?? 2],
-      metalType: json['metalType'] ?? 'gold',
+      currency: json['currency']?.toString() ?? 'SYP',
+      trend: Trend.values[rawTrend],
+      metalType: json['metalType']?.toString() ?? 'gold',
       changePercentage: (json['changePercentage'] as num?)?.toDouble() ?? 0.0,
       usdPrice: (json['usdPrice'] as num?)?.toDouble() ?? 0.0,
-      externalId: json['externalId'],
-      lastUpdate: json['lastUpdate'] != null
-          ? DateTime.tryParse(json['lastUpdate'])
-          : null,
+      externalId: json['externalId']?.toString(),
+      lastUpdate: parsedUpdate,
       isManual: json['isManual'] ?? false,
     );
   }

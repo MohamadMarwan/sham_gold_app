@@ -179,4 +179,38 @@ void main() {
       expect(CurrencyUtils.getCompactFormula('USD', 0.709, 'JOD'), contains('0.709'));
     });
   });
+
+  group('Cross Currency Calculator Accurate Math Tests', () {
+    double convert(double amount, String fromCode, String toCode) {
+      final calculator = LocalMarketCalculator();
+      final rates = calculator.fxRates;
+      final rFrom = fromCode == 'USD' ? 1.0 : (rates[fromCode] ?? 1.0);
+      final rTo = toCode == 'USD' ? 1.0 : (rates[toCode] ?? 1.0);
+      return (amount / rFrom) * rTo;
+    }
+
+    test('2,730,000 AED converts accurately to ~743,362.83 USD (Not 20,000)', () {
+      final result = convert(2730000.0, 'AED', 'USD');
+      // 2,730,000 / 3.6725 = 743,362.83
+      expect(result, closeTo(743362.83, 1.0));
+      expect(result, isNot(20000.0));
+    });
+
+    test('100 USD converts accurately to 367.25 AED', () {
+      final result = convert(100.0, 'USD', 'AED');
+      expect(result, closeTo(367.25, 0.5));
+    });
+
+    test('1,000 SAR converts accurately to ~979.33 AED', () {
+      final result = convert(1000.0, 'SAR', 'AED');
+      expect(result, closeTo(979.33, 1.0));
+    });
+
+    test('Bidirectional conversion retains precision', () {
+      const initial = 50000.0;
+      final usd = convert(initial, 'AED', 'USD');
+      final backToAed = convert(usd, 'USD', 'AED');
+      expect(backToAed, closeTo(initial, 0.01));
+    });
+  });
 }

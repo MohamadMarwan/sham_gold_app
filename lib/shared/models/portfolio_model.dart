@@ -66,17 +66,26 @@ class PortfolioItemModel {
   }
 
   factory PortfolioItemModel.fromJson(Map<String, dynamic> json) {
+    DateTime parsedBuyDate = DateTime.now();
+    if (json['buyDate'] != null) {
+      if (json['buyDate'] is int) {
+        parsedBuyDate = DateTime.fromMillisecondsSinceEpoch(json['buyDate'] as int);
+      } else {
+        parsedBuyDate = DateTime.tryParse(json['buyDate'].toString()) ?? DateTime.now();
+      }
+    }
+
     return PortfolioItemModel(
-      id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      title: json['title'] ?? 'auto_str_309'.tr(),
-      category: json['category'] ?? 'bullion',
-      karat: json['karat'] ?? '24',
+      id: (json['id'] ?? DateTime.now().millisecondsSinceEpoch).toString(),
+      title: json['title']?.toString() ?? 'auto_str_309'.tr(),
+      category: json['category']?.toString() ?? 'bullion',
+      karat: json['karat']?.toString() ?? '24',
       weightGrams: (json['weightGrams'] as num?)?.toDouble() ?? 0.0,
       buyPricePerGram: (json['buyPricePerGram'] as num?)?.toDouble() ?? 0.0,
       makingChargePerGram: (json['makingChargePerGram'] as num?)?.toDouble() ?? 0.0,
-      buyDate: json['buyDate'] != null ? DateTime.parse(json['buyDate']) : DateTime.now(),
-      currencyCode: json['currencyCode'] ?? 'USD',
-      notes: json['notes'],
+      buyDate: parsedBuyDate,
+      currencyCode: json['currencyCode']?.toString() ?? 'USD',
+      notes: json['notes']?.toString(),
     );
   }
 

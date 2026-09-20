@@ -101,43 +101,112 @@ class PortfolioProvider with ChangeNotifier {
     return map;
   }
 
-  /// Calculates live price per gram for a specific karat or silver
+  /// Calculates live price per gram for a specific karat or silver, with currency awareness
   double getLivePricePerGramForKarat(
     String karat,
     List<PriceItem> currentPrices, {
+    String? targetCurrency,
     double fallbackG24USD = 85.2,
     double fxRate = 1.0,
   }) {
-    if (karat == 'silver') {
-      final pSilver = currentPrices.firstWhere(
-        (p) => p.id.contains('xag') || p.id.contains('silver'),
-        orElse: () => PriceItem.empty(),
-      );
-      return pSilver.buyPrice > 0 ? (pSilver.buyPrice / 31.1035) : (1.05 * fxRate);
+    final cleanTargetCurr = targetCurrency?.trim().toUpperCase();
+
+    // ─── SILVER ──────────────────────────────────────────────────────────────
+    if (karat.toLowerCase() == 'silver') {
+      // 1. If target currency specified, try matching silver in that currency first
+      if (cleanTargetCurr != null && cleanTargetCurr.isNotEmpty) {
+        final silverTarget = currentPrices.where((p) {
+          final c = p.currency.toUpperCase();
+          final id = p.id.toLowerCase();
+          if (c != cleanTargetCurr) return false;
+          if (id.contains('kg') || id.contains('kilo')) return false; // Exclude 1kg bar
+          return id.contains('silver') || id.contains('xag');
+        }).firstOrNull;
+
+        if (silverTarget != null && silverTarget.buyPrice > 0) {
+          final isOunce = silverTarget.id.contains('ounce') || silverTarget.id.contains('ons') || silverTarget.id.contains('xag');
+          return isOunce ? (silverTarget.buyPrice / 31.1035) : silverTarget.buyPrice;
+        }
+      }
+
+      // 2. Global silver fallback (xag_usd, silver_ounce, or silver_999)
+      final pSilver = currentPrices.where((p) {
+        final id = p.id.toLowerCase();
+        if (id.contains('kg') || id.contains('kilo')) return false;
+        return id == 'silver_999_usd' || id == 'xag_usd' || id.contains('silver_ounce');
+      }).firstOrNull;
+
+      if (pSilver != null && pSilver.buyPrice > 0) {
+        final isOunce = pSilver.id.contains('ounce') || pSilver.id.contains('xag');
+        final gramUsd = isOunce ? (pSilver.buyPrice / 31.1035) : pSilver.buyPrice;
+        return gramUsd * fxRate;
+      }
+      return 1.05 * fxRate;
     }
 
-    final p24 = currentPrices.firstWhere(
-      (p) => p.id.contains('24') || p.id.contains('xau'),
-      orElse: () => PriceItem.empty(),
-    );
-
-    final liveG24 = p24.buyPrice > 0
-        ? (p24.id.contains('xau') ? p24.buyPrice / 31.1035 : p24.buyPrice)
-        : (fallbackG24USD * fxRate);
-
+    // ─── GOLD ────────────────────────────────────────────────────────────────
     final k = double.tryParse(karat) ?? 24.0;
-    return liveG24 * (k / 24.0);
+    final karatRatio = k / 24.0;
+
+    // 1. If target currency specified, try to find an item in target currency
+    if (cleanTargetCurr != null && cleanTargetCurr.isNotEmpty) {
+      // 1a. Try to find exact karat item in target currency (e.g. gold_21k_syp, tr_gold_21)
+      final exactKaratItem = currentPrices.where((p) {
+        final c = p.currency.toUpperCase();
+        final id = p.id.toLowerCase();
+        if (c != cleanTargetCurr) return false;
+        if (id.contains('kg') || id.contains('kilo')) return false;
+        return id.contains(karat) && (id.contains('gold') || id.contains('altin'));
+      }).firstOrNull;
+
+      if (exactKaratItem != null && exactKaratItem.buyPrice > 0) {
+        return exactKaratItem.buyPrice;
+      }
+
+      // 1b. Try to find 24K in target currency
+      final p24Target = currentPrices.where((p) {
+        final c = p.currency.toUpperCase();
+        final id = p.id.toLowerCase();
+        if (c != cleanTargetCurr) return false;
+        if (id.contains('kg') || id.contains('kilo')) return false;
+        return id.contains('24') || id.contains('kulce') || id.contains('xau');
+      }).firstOrNull;
+
+      if (p24Target != null && p24Target.buyPrice > 0) {
+        final isOunce = p24Target.id.contains('xau') || p24Target.id.contains('ounce') || p24Target.id.contains('ons');
+        final g24Price = isOunce ? (p24Target.buyPrice / 31.1035) : p24Target.buyPrice;
+        return g24Price * karatRatio;
+      }
+    }
+
+    // 2. Global USD Benchmark Fallback
+    final p24Usd = currentPrices.where((p) {
+      return (p.id == 'xau_usd' || p.id == 'gold_24k_usd') && p.buyPrice > 0;
+    }).firstOrNull;
+
+    final liveG24USD = (p24Usd != null && p24Usd.buyPrice > 0)
+        ? (p24Usd.id.contains('xau') ? p24Usd.buyPrice / 31.1035 : p24Usd.buyPrice)
+        : fallbackG24USD;
+
+    return liveG24USD * fxRate * karatRatio;
   }
 
-  /// Calculate current market valuation given a map of live price items or a fallback live price
-  double calculateCurrentValuation(List<PriceItem> currentPrices, {double fallbackG24USD = 85.2, double fxRate = 1.0}) {
+  /// Calculate current market valuation given live price items, target currency, and fallbacks
+  double calculateCurrentValuation(
+    List<PriceItem> currentPrices, {
+    String? targetCurrency,
+    double fallbackG24USD = 85.2,
+    double fxRate = 1.0,
+  }) {
     if (_items.isEmpty) return 0.0;
 
     double total = 0.0;
     for (final item in _items) {
+      final itemTargetCurr = targetCurrency ?? item.currencyCode;
       final liveGramPrice = getLivePricePerGramForKarat(
         item.karat,
         currentPrices,
+        targetCurrency: itemTargetCurr,
         fallbackG24USD: fallbackG24USD,
         fxRate: fxRate,
       );
@@ -148,15 +217,35 @@ class PortfolioProvider with ChangeNotifier {
   }
 
   /// Calculate total profit or loss
-  double calculateTotalPnL(List<PriceItem> currentPrices, {double fallbackG24USD = 85.2, double fxRate = 1.0}) {
-    final currentVal = calculateCurrentValuation(currentPrices, fallbackG24USD: fallbackG24USD, fxRate: fxRate);
+  double calculateTotalPnL(
+    List<PriceItem> currentPrices, {
+    String? targetCurrency,
+    double fallbackG24USD = 85.2,
+    double fxRate = 1.0,
+  }) {
+    final currentVal = calculateCurrentValuation(
+      currentPrices,
+      targetCurrency: targetCurrency,
+      fallbackG24USD: fallbackG24USD,
+      fxRate: fxRate,
+    );
     return currentVal - totalInvestedCost;
   }
 
   /// Calculate ROI percentage (+X%)
-  double calculateRoiPercentage(List<PriceItem> currentPrices, {double fallbackG24USD = 85.2, double fxRate = 1.0}) {
+  double calculateRoiPercentage(
+    List<PriceItem> currentPrices, {
+    String? targetCurrency,
+    double fallbackG24USD = 85.2,
+    double fxRate = 1.0,
+  }) {
     if (totalInvestedCost <= 0) return 0.0;
-    final pnl = calculateTotalPnL(currentPrices, fallbackG24USD: fallbackG24USD, fxRate: fxRate);
+    final pnl = calculateTotalPnL(
+      currentPrices,
+      targetCurrency: targetCurrency,
+      fallbackG24USD: fallbackG24USD,
+      fxRate: fxRate,
+    );
     return (pnl / totalInvestedCost) * 100;
   }
 
@@ -232,6 +321,7 @@ class PortfolioProvider with ChangeNotifier {
   List<PortfolioChartPoint> getHistoricalGrowthPoints(
     List<PriceItem> currentPrices, {
     String range = '1M',
+    String? targetCurrency,
   }) {
     if (_items.isEmpty) return [];
 
@@ -268,7 +358,7 @@ class PortfolioProvider with ChangeNotifier {
         break;
     }
 
-    final totalValNow = calculateCurrentValuation(currentPrices);
+    final totalValNow = calculateCurrentValuation(currentPrices, targetCurrency: targetCurrency);
     final totalCostNow = totalInvestedCost;
     final totalSpanMs = now.millisecondsSinceEpoch - startDate.millisecondsSinceEpoch;
 
@@ -286,7 +376,12 @@ class PortfolioProvider with ChangeNotifier {
       if (activeItems.isNotEmpty) {
         for (final item in activeItems) {
           activeCost += item.totalInvestedCost;
-          final liveGramPrice = getLivePricePerGramForKarat(item.karat, currentPrices);
+          final itemTargetCurr = targetCurrency ?? item.currencyCode;
+          final liveGramPrice = getLivePricePerGramForKarat(
+            item.karat,
+            currentPrices,
+            targetCurrency: itemTargetCurr,
+          );
           activeVal += item.calculateCurrentValue(liveGramPrice);
         }
         final varianceFactor = 1.0 - ((1.0 - progress) * 0.04);

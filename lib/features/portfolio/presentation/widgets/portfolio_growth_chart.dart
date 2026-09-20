@@ -58,7 +58,11 @@ class _PortfolioGrowthChartState extends State<PortfolioGrowthChart> {
     final portfolio = widget.portfolio;
     final numberFormat = widget.numberFormat;
 
-    final points = portfolio.getHistoricalGrowthPoints(widget.currentPrices, range: _selectedRange);
+    final points = portfolio.getHistoricalGrowthPoints(
+      widget.currentPrices,
+      range: _selectedRange,
+      targetCurrency: country.currencyCode,
+    );
 
     if (points.isEmpty) {
       return const SizedBox.shrink();

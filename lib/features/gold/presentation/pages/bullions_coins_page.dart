@@ -203,11 +203,14 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       );
     }
 
-    final int midIndex = items.length > 3 ? (items.length / 2).ceil() : items.length;
+    final isCompactView = !ref.watch(settingsProvider).isGridLayout;
+    int midIndex = items.length > 3 ? (items.length / 2).ceil() : items.length;
+    if (!isCompactView && midIndex % 2 != 0 && midIndex < items.length) {
+      midIndex++;
+    }
     final firstItems = items.sublist(0, midIndex);
     final secondItems = midIndex < items.length ? items.sublist(midIndex) : <PriceItem>[];
 
-    final isCompactView = !ref.watch(settingsProvider).isGridLayout;
     final fontScale = ref.watch(settingsProvider).fontSizeScale;
     final gridAspectRatio = fontScale >= 1.3 ? 0.98 : (fontScale >= 1.15 ? 1.05 : 1.15);
 
@@ -229,6 +232,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                 (context, index) {
                   final item = firstItems[index];
                   return Padding(
+                    key: ValueKey(item.id),
                     padding: const EdgeInsets.only(bottom: 8),
                     child: CompactPriceCard(
                       priceItem: item,
@@ -256,6 +260,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                 (context, index) {
                   final item = firstItems[index];
                   return SquarePriceCard(
+                    key: ValueKey(item.id),
                     priceItem: item,
                     localPrice: item.buyPrice,
                     localCurrencySymbol: item.currency,
@@ -283,6 +288,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                   (context, index) {
                     final item = secondItems[index];
                     return Padding(
+                      key: ValueKey(item.id),
                       padding: const EdgeInsets.only(bottom: 8),
                       child: CompactPriceCard(
                         priceItem: item,
@@ -310,6 +316,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                   (context, index) {
                     final item = secondItems[index];
                     return SquarePriceCard(
+                      key: ValueKey(item.id),
                       priceItem: item,
                       localPrice: item.buyPrice,
                       localCurrencySymbol: item.currency,
@@ -337,10 +344,13 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
 
   List<PriceItem> _getBullionsForCountry(CountryProvider countryProvider, List<PriceItem> allPrices) {
     final country = countryProvider.selectedCountry;
-    // If Syria, use the specialized sy_ items from allPrices
+    // If Syria, use the specialized sy_ items from allPrices and sort them by price ascending
     if (country.code.toUpperCase() == 'SY') {
       final list = allPrices.where((p) => p.metalType == 'bullion' && p.id.startsWith('sy_')).toList();
-      if (list.isNotEmpty) return list;
+      if (list.isNotEmpty) {
+        list.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
+        return list;
+      }
     }
 
     // Otherwise, derive bullions from the country's 24K price
@@ -373,21 +383,22 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       k24Price = k24UsdPrice * rate;
     }
 
+    // Order strictly ascending by physical weight (from 1g up to 1000g / 1kg)
     final bullionWeights = [
       {'id': '1g', 'key': 'bullion_1g', 'title': 'bullion_1g'.tr(), 'grams': 1.0},
       {'id': '5g', 'key': 'bullion_5g', 'title': 'bullion_5g'.tr(), 'grams': 5.0},
+      {'id': 'half_tola', 'key': 'half_tola', 'title': 'half_tola'.tr(), 'grams': 5.83},
       {'id': '10g', 'key': 'bullion_10g', 'title': 'bullion_10g'.tr(), 'grams': 10.0},
+      {'id': '1_tola', 'key': 'one_tola', 'title': 'one_tola'.tr(), 'grams': 11.66},
       {'id': '20g', 'key': 'bullion_20g', 'title': 'bullion_20g'.tr(), 'grams': 20.0},
       {'id': '1oz', 'key': 'bullion_1oz', 'title': 'bullion_1oz'.tr(), 'grams': 31.1035},
       {'id': '50g', 'key': 'bullion_50g', 'title': 'bullion_50g'.tr(), 'grams': 50.0},
+      {'id': '5_tola', 'key': 'five_tola', 'title': 'five_tola'.tr(), 'grams': 58.3},
       {'id': '100g', 'key': 'bullion_100g', 'title': 'bullion_100g'.tr(), 'grams': 100.0},
       {'id': '1kg', 'key': 'bullion_1kg', 'title': 'bullion_1kg'.tr(), 'grams': 1000.0},
-      {'id': 'half_tola', 'key': 'half_tola', 'title': 'half_tola'.tr(), 'grams': 5.83},
-      {'id': '1_tola', 'key': 'one_tola', 'title': 'one_tola'.tr(), 'grams': 11.66},
-      {'id': '5_tola', 'key': 'five_tola', 'title': 'five_tola'.tr(), 'grams': 58.3},
     ];
 
-    return bullionWeights.map((b) {
+    final result = bullionWeights.map((b) {
       final grams = b['grams'] as double;
       final buy = double.parse((k24Price * grams).toStringAsFixed(2));
       final sell = double.parse((buy * 1.008).toStringAsFixed(2));
@@ -402,14 +413,20 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         usdPrice: usd,
       );
     }).toList();
+
+    result.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
+    return result;
   }
 
   List<PriceItem> _getCoinsForCountry(CountryProvider countryProvider, List<PriceItem> allPrices) {
     final country = countryProvider.selectedCountry;
-    // If Syria, use sy_ items
+    // If Syria, use sy_ items and sort by price ascending
     if (country.code.toUpperCase() == 'SY') {
       final list = allPrices.where((p) => p.metalType == 'coin' && p.id.startsWith('sy_')).toList();
-      if (list.isNotEmpty) return list;
+      if (list.isNotEmpty) {
+        list.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
+        return list;
+      }
     }
 
     final marketData = countryProvider.currentMarketData;
@@ -464,11 +481,12 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     }
 
     final currencySymbol = country.localizedCurrencySymbol;
+    // Standard coins ordered ascending by weight (quarter -> half -> rashadi -> english -> five)
     final standardCoins = [
+      {'id': 'coin_quarter', 'key': 'coin_quarter', 'title': 'coin_quarter'.tr(), 'grams': 1.8, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'coin_half', 'key': 'coin_half', 'title': 'coin_half'.tr(), 'grams': 3.6, 'price': k22Price, 'usd': k22UsdPrice},
       {'id': 'coin_rashadi', 'key': 'coin_rashadi', 'title': 'coin_rashadi'.tr(), 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
       {'id': 'coin_english', 'key': 'coin_english', 'title': 'coin_english'.tr(), 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'coin_half', 'key': 'coin_half', 'title': 'coin_half'.tr(), 'grams': 3.6, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'coin_quarter', 'key': 'coin_quarter', 'title': 'coin_quarter'.tr(), 'grams': 1.8, 'price': k22Price, 'usd': k22UsdPrice},
       {'id': 'coin_five', 'key': 'coin_five', 'title': 'coin_five'.tr(), 'grams': 36.0, 'price': k22Price, 'usd': k22UsdPrice},
     ].map((c) {
       final grams = c['grams'] as double;
@@ -488,7 +506,9 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       );
     }).toList();
 
-    return [...customCoins, ...standardCoins];
+    final allCoins = [...customCoins, ...standardCoins];
+    allCoins.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
+    return allCoins;
   }
 }
 

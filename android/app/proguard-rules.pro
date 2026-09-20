@@ -20,3 +20,16 @@
 # Flutter + Dart
 -keep class io.flutter.** { *; }
 -dontwarn io.flutter.**
+
+# Flutter Secure Storage
+-keep class com.it_nomads.fluttersecurestorage.** { *; }
+
+# Hive & Storage
+-keep class io.realm.transformer.** { *; }
+
+# Socket.io & OkHttp
+-keep class io.socket.** { *; }
+-keep class okhttp3.** { *; }
+-dontwarn okhttp3.**
+-dontwarn io.socket.**
+

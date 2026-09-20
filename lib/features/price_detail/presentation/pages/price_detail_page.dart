@@ -34,6 +34,7 @@ class PriceDetailPage extends ConsumerStatefulWidget {
 class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   List<PriceHistoryPoint> historyPoints = [];
   bool isLoading = true;
+  bool _isBackgroundRefresh = false; // distinguishes user-initiated vs realtime
   String errorMessage = '';
   String selectedRange = 'day';
   ChartType _chartType = ChartType.area;
@@ -42,6 +43,8 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   bool _showMA = false;
   final GlobalKey _repaintBoundaryKey = GlobalKey();
   StreamSubscription<List<PriceItem>>? _pricesSub;
+  Timer? _realtimeDebounce;
+  double? _lastFetchedBuyPrice; // avoid redundant fetches
 
   @override
   void initState() {
@@ -60,6 +63,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   @override
   void dispose() {
     _pricesSub?.cancel();
+    _realtimeDebounce?.cancel();
     super.dispose();
   }
 
@@ -69,26 +73,40 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
       if (!mounted) return;
       final currentItem =
           prices.where((p) => p.id == widget.priceItem.id).firstOrNull;
-      if (currentItem != null && currentItem.lastUpdate != null) {
-        if (widget.priceItem.lastUpdate == null ||
-            currentItem.lastUpdate!.isAfter(widget.priceItem.lastUpdate!)) {
-          if (mounted) {
-            setState(() {
-              _dynamicChange = currentItem.changePercentage;
-              _dynamicTrend = currentItem.trend;
-            });
-            _fetchHistory();
-          }
-        }
+      if (currentItem == null) return;
+
+      // Only update if price actually changed
+      final newBuy = currentItem.buyPrice;
+      if (_lastFetchedBuyPrice != null && newBuy == _lastFetchedBuyPrice) return;
+
+      // Update trend badge without triggering chart rebuild
+      if (mounted) {
+        setState(() {
+          _dynamicChange = currentItem.changePercentage;
+          _dynamicTrend = currentItem.trend;
+        });
       }
+
+      // Debounce history re-fetch (max once every 5s) to prevent chart flicker
+      _realtimeDebounce?.cancel();
+      _realtimeDebounce = Timer(const Duration(seconds: 5), () {
+        if (mounted) {
+          _lastFetchedBuyPrice = newBuy;
+          _fetchHistory(isBackground: true);
+        }
+      });
     });
   }
 
-  Future<void> _fetchHistory() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
+  Future<void> _fetchHistory({bool isBackground = false}) async {
+    // Only show loading shimmer on user-initiated fetches (range change, first load)
+    if (!isBackground) {
+      setState(() {
+        isLoading = true;
+        errorMessage = '';
+      });
+    }
+    _isBackgroundRefresh = isBackground;
 
     try {
       final service = ref.read(priceServiceProvider);
