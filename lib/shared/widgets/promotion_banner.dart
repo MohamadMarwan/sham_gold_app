@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/utils/web_stubs/ads_wrapper.dart';
@@ -7,6 +6,18 @@ import 'package:gold_sham/core/services/ad_service.dart';
 import 'package:gold_sham/core/config/app_config.dart';
 import '../models/banner_item.dart';
 import 'ad_banner_widget.dart';
+
+AdSize _resolveAdSize(String sizeStr) {
+  switch (sizeStr) {
+    case 'banner':
+      return AdSize.banner; // 320 x 50
+    case 'largeBanner':
+      return AdSize.largeBanner; // 320 x 100
+    case 'mediumRectangle':
+    default:
+      return AdSize.mediumRectangle; // 300 x 250
+  }
+}
 
 class PromotionBanner extends StatefulWidget {
   final BannerItem banner;
@@ -19,18 +30,6 @@ class PromotionBanner extends StatefulWidget {
     this.height,
     this.onLoadedChanged,
   });
-
-  static AdSize _resolveAdSize(String sizeStr) {
-    switch (sizeStr) {
-      case 'banner':
-        return AdSize.banner; // 320 x 50
-      case 'largeBanner':
-        return AdSize.largeBanner; // 320 x 100
-      case 'mediumRectangle':
-      default:
-        return AdSize.mediumRectangle; // 300 x 250
-    }
-  }
 
   @override
   State<PromotionBanner> createState() => _PromotionBannerState();
