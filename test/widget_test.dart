@@ -7,7 +7,12 @@ import 'package:gold_sham/shared/models/country_model.dart';
 import 'package:gold_sham/core/utils/currency_utils.dart';
 import 'package:gold_sham/core/services/location_detector_service.dart';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/src/easy_localization_controller.dart';
+
 void main() {
+  EasyLocalization.logger.enableLevels = [];
+
   group('PriceItem Model Unit Tests', () {
     test('Correctly deserializes from full JSON payload', () {
       final json = {
