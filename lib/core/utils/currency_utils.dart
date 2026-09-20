@@ -342,6 +342,12 @@ class CurrencyUtils {
       }
     }
 
+    final normTarget = normalizeCurrencyCode(targetCode);
+    const indirectQuotes = {'EUR', 'GBP', 'AUD', 'NZD'};
+    if ((normalizedBase == 'USD' || baseCode == r'$') && !indirectQuotes.contains(normTarget)) {
+      return '1 $baseSymbol = $formattedRate $targetSymbol';
+    }
+
     return '1 $targetSymbol = $formattedRate $baseSymbol';
   }
 }

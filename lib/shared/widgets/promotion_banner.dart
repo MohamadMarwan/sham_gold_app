@@ -11,12 +11,26 @@ import 'ad_banner_widget.dart';
 class PromotionBanner extends StatefulWidget {
   final BannerItem banner;
   final double? height;
+  final ValueChanged<bool>? onLoadedChanged;
 
   const PromotionBanner({
     super.key,
     required this.banner,
     this.height,
+    this.onLoadedChanged,
   });
+
+  static AdSize _resolveAdSize(String sizeStr) {
+    switch (sizeStr) {
+      case 'banner':
+        return AdSize.banner; // 320 x 50
+      case 'largeBanner':
+        return AdSize.largeBanner; // 320 x 100
+      case 'mediumRectangle':
+      default:
+        return AdSize.mediumRectangle; // 300 x 250
+    }
+  }
 
   @override
   State<PromotionBanner> createState() => _PromotionBannerState();
@@ -69,66 +83,14 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    // ── 1. Google AdMob Banner (Square / Box Format) ──
+    // ── 1. Google AdMob Banner ──
     if (widget.banner.type == 'ad') {
       if (AdService().isRewardActive) return const SizedBox.shrink();
-      final isDark = Theme.of(context).brightness == Brightness.dark;
-      return Container(
-        margin: EdgeInsets.zero,
-        width: double.infinity,
-        height: widget.height,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1E293B) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.08),
-            width: 1.2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              spreadRadius: 1,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              AdBannerWidget(
-                adUnitId: widget.banner.adCode.isNotEmpty ? widget.banner.adCode : null,
-                size: widget.banner.adSize == 'largeBanner'
-                    ? AdSize.largeBanner
-                    : AdSize.mediumRectangle, // الحجم المربع القياسي لـ AdMob
-              ),
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.white24, width: 0.6),
-                  ),
-                  child: const Text(
-                    'إعلان ممول',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Cairo',
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      final adSize = _resolveAdSize(widget.banner.adSize);
+      return AdBannerWidget(
+        adUnitId: widget.banner.adCode.isNotEmpty ? widget.banner.adCode : null,
+        size: adSize,
+        onLoadedChanged: widget.onLoadedChanged,
       );
     }
 
@@ -311,103 +273,174 @@ class _PromotionBannerState extends State<PromotionBanner> with SingleTickerProv
                   ),
                 ),
 
-                // Content (Centered Square Presentation)
+                // Content
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Badge Icon
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.18),
-                          border: Border.all(color: Colors.white30, width: 1.2),
-                        ),
-                        child: const Icon(
-                          Icons.campaign_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Title
-                      Text(
-                        widget.banner.getLocalizedTitle(context),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.3,
-                          fontFamily: 'Cairo',
-                          height: 1.3,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Subtitle
-                      Text(
-                        widget.banner.getLocalizedSubtitle(context),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          height: 1.55,
-                          fontFamily: 'Cairo',
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-
-                      // Action Button Pill if link exists
-                      if (widget.banner.linkUrl.isNotEmpty) ...[
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.22),
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 8,
-                                offset: const Offset(0, 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: widget.height != null && widget.height! < 180
+                      ? Row(
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withValues(alpha: 0.18),
+                                border: Border.all(color: Colors.white30, width: 1.0),
                               ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'details'.tr(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Cairo',
+                              child: const Icon(
+                                Icons.campaign_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    widget.banner.getLocalizedTitle(context),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.w900,
+                                      fontFamily: 'Cairo',
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    widget.banner.getLocalizedSubtitle(context),
+                                    style: TextStyle(
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: 'Cairo',
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (widget.banner.linkUrl.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.22),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
+                                ),
+                                child: Text(
+                                  'details'.tr(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w900,
+                                    fontFamily: 'Cairo',
+                                  ),
                                 ),
                               ),
-                              const SizedBox(width: 6),
-                              const Icon(
-                                Icons.arrow_forward_ios_rounded,
+                            ],
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Badge Icon
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withValues(alpha: 0.18),
+                                border: Border.all(color: Colors.white30, width: 1.2),
+                              ),
+                              child: const Icon(
+                                Icons.campaign_rounded,
                                 color: Colors.white,
-                                size: 11,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+
+                            // Title
+                            Text(
+                              widget.banner.getLocalizedTitle(context),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.3,
+                                fontFamily: 'Cairo',
+                                height: 1.3,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Subtitle
+                            Text(
+                              widget.banner.getLocalizedSubtitle(context),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                height: 1.55,
+                                fontFamily: 'Cairo',
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            // Action Button Pill if link exists
+                            if (widget.banner.linkUrl.isNotEmpty) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.22),
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.2),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'details'.tr(),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w900,
+                                        fontFamily: 'Cairo',
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    const Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      color: Colors.white,
+                                      size: 11,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
-                          ),
+                          ],
                         ),
-                      ],
-                    ],
-                  ),
                 ),
               ],
             ),

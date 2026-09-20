@@ -26,33 +26,33 @@ class LocalMarketCalculator {
   final Map<String, double> _fxRates = {
     'USD': 1.0,
     'DZD': 134.5,
-    'EGP': 51.34,
+    'EGP': 49.50,
     'SAR': 3.75,
     'AED': 3.6725,
     'IQD': 1310.0,
-    'KWD': 0.308,
+    'KWD': 0.307,
     'QAR': 3.64,
     'JOD': 0.709,
     'LBP': 89500.0,
     'LYD': 4.85,
-    'TRY': 48.60,
-    'EUR': 0.86,
+    'TRY': 38.50,
+    'EUR': 0.92,
     'SYP': 132.0,
     'BHD': 0.376,
     'OMR': 0.385,
-    'MAD': 9.39,
+    'MAD': 9.90,
     'ILS': 3.65,
     'TND': 3.12,
     'SDG': 600.0,
     'YER': 1950.0, // Commercial market exchange rate in Yemen (Aden/gold pricing)
     'MRU': 39.5,
     'SOS': 571.0,
-    'GBP': 0.74,
-    'CAD': 1.41,
-    'AUD': 1.58,
-    'CHF': 0.89,
-    'JPY': 150.0,
-    'CNY': 7.20,
+    'GBP': 0.77,
+    'CAD': 1.39,
+    'AUD': 1.55,
+    'CHF': 0.88,
+    'JPY': 154.0,
+    'CNY': 7.24,
   };
 
   static double _defaultFallbackFor(String currencyCode, String countryCode) {
@@ -60,31 +60,31 @@ class LocalMarketCalculator {
       case 'MRU': return 39.5;
       case 'SOS': return 571.0;
       case 'ILS': return 3.65;
-      case 'MAD': return 9.39;
+      case 'MAD': return 9.90;
       case 'BHD': return 0.376;
       case 'OMR': return 0.385;
-      case 'KWD': return 0.308;
+      case 'KWD': return 0.307;
       case 'QAR': return 3.64;
       case 'JOD': return 0.709;
       case 'SAR': return 3.75;
       case 'AED': return 3.6725;
-      case 'EGP': return 51.34;
+      case 'EGP': return 49.50;
       case 'IQD': return 1310.0;
       case 'DZD': return 134.5;
       case 'LBP': return 89500.0;
       case 'LYD': return 4.85;
-      case 'TRY': return 48.60;
-      case 'EUR': return 0.86;
-      case 'GBP': return 0.74;
+      case 'TRY': return 38.50;
+      case 'EUR': return 0.92;
+      case 'GBP': return 0.77;
       case 'SYP': return 132.0;
       case 'TND': return 3.12;
       case 'SDG': return 600.0;
       case 'YER': return 1950.0;
-      case 'CAD': return 1.41;
-      case 'AUD': return 1.58;
-      case 'CHF': return 0.89;
-      case 'JPY': return 150.0;
-      case 'CNY': return 7.20;
+      case 'CAD': return 1.39;
+      case 'AUD': return 1.55;
+      case 'CHF': return 0.88;
+      case 'JPY': return 154.0;
+      case 'CNY': return 7.24;
       default: return 1.0;
     }
   }
@@ -221,6 +221,10 @@ class LocalMarketCalculator {
         for (final entry in rates.entries) {
           final upperKey = entry.key.toUpperCase();
           double val = (entry.value as num).toDouble();
+          // Skip invalid rates
+          if (val <= 0) continue;
+          // USD is always 1.0 by definition — don't overwrite from API
+          if (upperKey == 'USD') continue;
           if (upperKey == 'SYP' && val > 1000) {
             val = val / 100;
           }
@@ -612,6 +616,33 @@ class LocalMarketCalculator {
     }
   }
 
+  /// Get a reliable FX rate for a currency, preferring live data over fallback.
+  /// Returns null if no reliable rate is available.
+  double? _getReliableFxRate(String currencyCode) {
+    final upper = currencyCode.toUpperCase();
+    if (upper == 'USD') return 1.0;
+
+    // Try live rate first (uppercase key set by API)
+    final liveRate = _fxRates[upper];
+
+    // Validate: a rate of exactly 1.0 is suspicious for non-USD currencies
+    // (could be uninitialised default). Only accept if it's a known peg.
+    const nearUsdPegs = <String>{}; // No major currency is exactly 1:1 with USD
+    if (liveRate != null && liveRate > 0) {
+      if (liveRate == 1.0 && !nearUsdPegs.contains(upper)) {
+        // Suspicious 1.0 rate — fall through to hardcoded fallback
+      } else {
+        return liveRate;
+      }
+    }
+
+    // Fallback: use hardcoded rates that are reasonable approximations
+    final fallback = _defaultFallbackFor(upper, upper);
+    // Don't return 1.0 fallback for currencies that aren't USD-pegged
+    if (fallback == 1.0 && upper != 'USD') return null;
+    return fallback;
+  }
+
   /// Add currency exchange rate items (matches backend multiMarketService logic).
   void _addCurrencyItems(
     List<Map<String, dynamic>> items,
@@ -632,12 +663,17 @@ class LocalMarketCalculator {
       const isIndirectQuote = ['EUR', 'GBP', 'AUD', 'NZD'];
       for (final targetCurr in majorCurrencies) {
         if (targetCurr.toUpperCase() == 'USD') continue;
-        final targetRateRaw = _fxRates[targetCurr.toUpperCase()] ??
-            _fxRates[targetCurr.toLowerCase()] ??
-            _defaultFallbackFor(targetCurr, targetCurr);
-        final double targetRateToUsd = (targetCurr.toUpperCase() == 'SYP' && targetRateRaw > 1000)
-            ? targetRateRaw / 100
-            : targetRateRaw;
+
+        // Use reliable rate lookup to avoid stale/invalid 1.0 values
+        final reliableRate = _getReliableFxRate(targetCurr);
+        if (reliableRate == null || reliableRate <= 0) {
+          // Skip this currency — no reliable rate available
+          continue;
+        }
+
+        final double targetRateToUsd = (targetCurr.toUpperCase() == 'SYP' && reliableRate > 1000)
+            ? reliableRate / 100
+            : reliableRate;
 
         if (isIndirectQuote.contains(targetCurr.toUpperCase())) {
           final crossRate = 1.0 / targetRateToUsd;
@@ -683,12 +719,15 @@ class LocalMarketCalculator {
     for (final targetCurr in majorCurrencies) {
       if (targetCurr.toUpperCase() == currencyCode.toUpperCase()) continue; // Skip self
 
-      final targetRateRaw = _fxRates[targetCurr.toUpperCase()] ??
-          _fxRates[targetCurr.toLowerCase()] ??
-          _defaultFallbackFor(targetCurr, targetCurr);
-      final double targetRateToUsd = (targetCurr.toUpperCase() == 'SYP' && targetRateRaw > 1000)
-          ? targetRateRaw / 100
-          : targetRateRaw;
+      // Use reliable rate lookup to avoid stale/invalid 1.0 values
+      final reliableTargetRate = _getReliableFxRate(targetCurr);
+      if (reliableTargetRate == null || reliableTargetRate <= 0) {
+        continue; // Skip this currency — no reliable rate available
+      }
+
+      final double targetRateToUsd = (targetCurr.toUpperCase() == 'SYP' && reliableTargetRate > 1000)
+          ? reliableTargetRate / 100
+          : reliableTargetRate;
 
       // Cross rate: 1 TargetCurrency = X LocalCurrency
       final crossRate = localRate / targetRateToUsd;

@@ -32,12 +32,12 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
   void initState() {
     super.initState();
 
-    // Calm ambient pulse: 1.5 to 2 seconds breathing cycle (repeating reverse)
+    // Live pulse: ~1.2 second breathing cycle for real-time feel
     _ambientPulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1600),
+      duration: const Duration(milliseconds: 1200),
     );
-    _ambientPulseAnimation = Tween<double>(begin: 1.0, end: 0.88).animate(
+    _ambientPulseAnimation = Tween<double>(begin: 1.0, end: 0.80).animate(
       CurvedAnimation(
         parent: _ambientPulseController,
         curve: Curves.easeInOut,

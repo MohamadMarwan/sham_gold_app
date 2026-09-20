@@ -32,6 +32,7 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
   late PageController _pageController;
   int _currentIndex = 0;
   Timer? _rotationTimer;
+  bool _adLoaded = false;
 
   @override
   void initState() {
@@ -80,41 +81,92 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
       return const SizedBox.shrink();
     }
 
-    final padding = widget.margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 10);
+    final padding = widget.margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // حساب المقاس المربع المتناسق مع أبعاد الشاشة
         final maxW = constraints.maxWidth.isFinite ? constraints.maxWidth : MediaQuery.of(context).size.width - 32;
-        final squareSize = widget.height ?? maxW.clamp(260.0, 340.0);
 
         // إذا كان هناك إعلان واحد فقط
         if (matchingBanners.length == 1) {
           _rotationTimer?.cancel();
+          final banner = matchingBanners.first;
+
+          // معالجة خاصة لإعلانات AdMob: عدم حجز مساحة أو إظهار هوامش قبل اكتمال التحميل
+          if (banner.type == 'ad') {
+            return Center(
+              child: AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                child: _adLoaded
+                    ? Padding(
+                        padding: padding,
+                        child: PromotionBanner(
+                          banner: banner,
+                          onLoadedChanged: (loaded) {
+                            if (mounted && _adLoaded != loaded) {
+                              setState(() => _adLoaded = loaded);
+                            }
+                          },
+                        ),
+                      )
+                    : PromotionBanner(
+                        banner: banner,
+                        onLoadedChanged: (loaded) {
+                          if (mounted && _adLoaded != loaded) {
+                            setState(() => _adLoaded = loaded);
+                          }
+                        },
+                      ),
+              ),
+            );
+          }
+
+          // للإعلانات الترويجية الأخرى (صور أو نصوص)
+          final double targetH;
+          if (widget.height != null) {
+            targetH = widget.height!;
+          } else if (banner.type == 'image') {
+            // بنر أفقي أنيق متناسق بدلاً من المربع الضخم
+            targetH = (maxW * 0.40).clamp(110.0, 150.0);
+          } else {
+            // كرت ترويجي نصي مدمج
+            targetH = 130.0;
+          }
+
           return Center(
             child: Padding(
               padding: padding,
               child: SizedBox(
-                width: squareSize,
-                height: squareSize,
+                width: maxW,
+                height: targetH,
                 child: PromotionBanner(
-                  banner: matchingBanners.first,
-                  height: squareSize,
+                  banner: banner,
+                  height: targetH,
                 ),
               ),
             ),
           );
         }
 
-        // إذا كان هناك أكثر من إعلان في نفس الموقع، نعرضهم في سلايدر مربع دائري تلقائي
+        // إذا كان هناك أكثر من إعلان في نفس الموقع
         _startRotationTimer(matchingBanners.length);
+        final hasAd = matchingBanners.any((b) => b.type == 'ad');
+        final double sliderH;
+        if (widget.height != null) {
+          sliderH = widget.height!;
+        } else if (hasAd) {
+          sliderH = 260.0;
+        } else {
+          sliderH = (maxW * 0.40).clamp(110.0, 150.0);
+        }
 
         return Center(
           child: Padding(
             padding: padding,
             child: SizedBox(
-              width: squareSize,
-              height: squareSize,
+              width: maxW,
+              height: sliderH,
               child: Stack(
                 children: [
                   PageView.builder(
@@ -126,13 +178,13 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
                     itemBuilder: (context, index) {
                       return PromotionBanner(
                         banner: matchingBanners[index],
-                        height: squareSize,
+                        height: sliderH,
                       );
                     },
                   ),
                   if (matchingBanners.length > 1)
                     Positioned(
-                      bottom: 12,
+                      bottom: 10,
                       right: 14,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

@@ -9,11 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AdBannerWidget extends ConsumerStatefulWidget {
   final AdSize size;
   final String? adUnitId;
+  final ValueChanged<bool>? onLoadedChanged;
 
   const AdBannerWidget({
     super.key,
     this.size = AdSize.mediumRectangle,
     this.adUnitId,
+    this.onLoadedChanged,
   });
 
   @override
@@ -61,6 +63,7 @@ class _AdBannerWidgetState extends ConsumerState<AdBannerWidget> {
       _bannerAd = null;
       _isLoaded = false;
       _currentAdUnitId = null;
+      widget.onLoadedChanged?.call(false);
       if (mounted) setState(() {});
     }
   }
@@ -80,6 +83,7 @@ class _AdBannerWidgetState extends ConsumerState<AdBannerWidget> {
             setState(() {
               _isLoaded = true;
             });
+            widget.onLoadedChanged?.call(true);
           }
         },
         onAdFailedToLoad: (ad, error) {
@@ -90,6 +94,7 @@ class _AdBannerWidgetState extends ConsumerState<AdBannerWidget> {
               _isLoaded = false;
               _bannerAd = null;
             });
+            widget.onLoadedChanged?.call(false);
           }
         },
       ),
@@ -111,12 +116,61 @@ class _AdBannerWidgetState extends ConsumerState<AdBannerWidget> {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      alignment: Alignment.center,
-      width: widget.size.width.toDouble(),
-      height: widget.size.height.toDouble(),
-      child: AdWidget(ad: _bannerAd!),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final w = widget.size.width.toDouble();
+    final h = widget.size.height.toDouble();
+
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        width: w,
+        height: h,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E293B) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.08),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AdWidget(ad: _bannerAd!),
+              Positioned(
+                top: 4,
+                left: 6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'إعلان',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cairo',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

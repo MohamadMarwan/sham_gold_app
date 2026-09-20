@@ -13,6 +13,9 @@ import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
+/// Provider for the currently active sub-calculator index (null means the hub/list is showing)
+final calculatorActiveSubPageProvider = StateProvider<int?>((ref) => null);
+
 class SmartCalculatorsPage extends ConsumerStatefulWidget {
   const SmartCalculatorsPage({super.key});
 
@@ -24,7 +27,11 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
   @override
   bool get wantKeepAlive => true;
 
-  int? _selectedCalculatorIndex;
+  int? get _selectedCalculatorIndex => ref.watch(calculatorActiveSubPageProvider);
+
+  void _selectCalculator(int? index) {
+    ref.read(calculatorActiveSubPageProvider.notifier).state = index;
+  }
 
   // Controllers - Zakat
   final _zakat24Controller = TextEditingController();
@@ -167,18 +174,37 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
     final countryState = ref.watch(countryProvider);
     final country = countryState.selectedCountry;
 
+    // Use PopScope to intercept back button when inside a specific calculator.
+    // When _selectedCalculatorIndex != null, we handle the pop ourselves by
+    // returning to the calculator hub. When null, we let the pop bubble up
+    // to the HomePage which handles tab switching.
     return PopScope(
       canPop: _selectedCalculatorIndex == null,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop && _selectedCalculatorIndex != null) {
-          setState(() => _selectedCalculatorIndex = null);
+          // Back button pressed while inside a calculator -> return to hub
+          _selectCalculator(null);
         }
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: _selectedCalculatorIndex == null
-            ? _buildHub(isDark)
-            : _buildSelectedCalculator(isDark, country),
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: _selectedCalculatorIndex == null
+              ? KeyedSubtree(
+                  key: const ValueKey('calculator_hub'),
+                  child: _buildHub(isDark),
+                )
+              : KeyedSubtree(
+                  key: ValueKey('calculator_$_selectedCalculatorIndex'),
+                  child: _buildSelectedCalculator(isDark, country),
+                ),
+        ),
       ),
     );
   }
@@ -228,7 +254,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'zakat_calculator_desc'.tr(),
                 icon: Icons.scale_rounded,
                 color: const Color(0xFF10B981),
-                onTap: () => setState(() => _selectedCalculatorIndex = 0),
+                onTap: () => _selectCalculator(0),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -237,7 +263,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'making_charge_desc'.tr(),
                 icon: Icons.diamond_rounded,
                 color: const Color(0xFFF59E0B),
-                onTap: () => setState(() => _selectedCalculatorIndex = 1),
+                onTap: () => _selectCalculator(1),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -246,7 +272,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'weight_converter_desc'.tr(),
                 icon: Icons.swap_horiz_rounded,
                 color: const Color(0xFF3B82F6),
-                onTap: () => setState(() => _selectedCalculatorIndex = 2),
+                onTap: () => _selectCalculator(2),
                 isDark: isDark,
               ),
 
@@ -262,7 +288,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'roi_calculator_desc'.tr(),
                 icon: Icons.trending_up_rounded,
                 color: const Color(0xFF8B5CF6),
-                onTap: () => setState(() => _selectedCalculatorIndex = 3),
+                onTap: () => _selectCalculator(3),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -271,7 +297,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'auto_str_040'.tr(),
                 icon: Icons.track_changes_rounded,
                 color: const Color(0xFFEC4899),
-                onTap: () => setState(() => _selectedCalculatorIndex = 4),
+                onTap: () => _selectCalculator(4),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -280,7 +306,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'silver_calc_subtitle'.tr(),
                 icon: Icons.diamond_outlined,
                 color: const Color(0xFF94A3B8), // Silver color
-                onTap: () => setState(() => _selectedCalculatorIndex = 5),
+                onTap: () => _selectCalculator(5),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -289,7 +315,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'dca_calc_subtitle'.tr(),
                 icon: Icons.auto_graph_rounded,
                 color: const Color(0xFF0EA5E9),
-                onTap: () => setState(() => _selectedCalculatorIndex = 6),
+                onTap: () => _selectCalculator(6),
                 isDark: isDark,
               ),
 
@@ -412,7 +438,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
                 onPressed: () {
                   HapticFeedback.lightImpact();
-                  setState(() => _selectedCalculatorIndex = null);
+                  _selectCalculator(null);
                 },
               ),
               Expanded(

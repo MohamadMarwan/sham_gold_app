@@ -43,9 +43,11 @@ class CurrencySquareCard extends ConsumerStatefulWidget {
 }
 
 class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _pulseAnimation;
+  late AnimationController _ambientController;
+  late Animation<double> _ambientAnimation;
   double _prevPrice = 0.0;
   bool _priceChanged = false;
 
@@ -60,6 +62,16 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.04).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
+
+    // Ambient pulse: subtle opacity breathing every ~1.2s for live feel
+    _ambientController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _ambientAnimation = Tween<double>(begin: 1.0, end: 0.82).animate(
+      CurvedAnimation(parent: _ambientController, curve: Curves.easeInOut),
+    );
+    _ambientController.repeat(reverse: true);
   }
 
   @override
@@ -79,6 +91,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
   @override
   void dispose() {
     _animController.dispose();
+    _ambientController.dispose();
     super.dispose();
   }
 
@@ -303,83 +316,89 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                         ],
                       ),
 
-                      // 3. Dual Pricing Box (Buy & Sell)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isDark ? Colors.black26 : const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
-                            width: 0.8,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            // Buy Box
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'currency_buy'.tr(),
-                                    style: TextStyle(
-                                      fontFamily: 'Cairo',
-                                      fontSize: 8.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white54 : AppColors.mutedText,
-                                    ),
-                                  ),
-                                  Text(
-                                    _formatPrice(buyPrice, context),
-                                    style: TextStyle(
-                                      fontFamily: 'Cairo',
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w900,
-                                      color: isDark ? Colors.white : AppColors.darkGreen,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                      // 3. Dual Pricing Box (Buy & Sell) with live pulse
+                      AnimatedBuilder(
+                        animation: _ambientController,
+                        builder: (context, child) {
+                          final opacity = _ambientAnimation.value;
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.black26 : const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: isDark ? Colors.white10 : const Color(0xFFE2E8F0),
+                                width: 0.8,
                               ),
                             ),
-                            Container(
-                              height: 20,
-                              width: 1,
-                              color: isDark ? Colors.white12 : Colors.grey.shade300,
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                            ),
-                            // Sell Box
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    'currency_sell'.tr(),
-                                    style: TextStyle(
-                                      fontFamily: 'Cairo',
-                                      fontSize: 8.5,
-                                      fontWeight: FontWeight.w700,
-                                      color: isDark ? Colors.white54 : AppColors.mutedText,
-                                    ),
+                            child: Row(
+                              children: [
+                                // Buy Box
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'currency_buy'.tr(),
+                                        style: TextStyle(
+                                          fontFamily: 'Cairo',
+                                          fontSize: 8.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? Colors.white54 : AppColors.mutedText,
+                                        ),
+                                      ),
+                                      Text(
+                                        _formatPrice(buyPrice, context),
+                                        style: TextStyle(
+                                          fontFamily: 'Cairo',
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w900,
+                                          color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    _formatPrice(sellPrice, context),
-                                    style: const TextStyle(
-                                      fontFamily: 'Cairo',
-                                      fontSize: 11.5,
-                                      fontWeight: FontWeight.w900,
-                                      color: AppColors.gold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                ),
+                                Container(
+                                  height: 20,
+                                  width: 1,
+                                  color: isDark ? Colors.white12 : Colors.grey.shade300,
+                                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                                ),
+                                // Sell Box
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        'currency_sell'.tr(),
+                                        style: TextStyle(
+                                          fontFamily: 'Cairo',
+                                          fontSize: 8.5,
+                                          fontWeight: FontWeight.w700,
+                                          color: isDark ? Colors.white54 : AppColors.mutedText,
+                                        ),
+                                      ),
+                                      Text(
+                                        _formatPrice(sellPrice, context),
+                                        style: TextStyle(
+                                          fontFamily: 'Cairo',
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.w900,
+                                          color: AppColors.gold.withValues(alpha: opacity),
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
 
                       // 4. Sparkline or Trend + Live indicator
@@ -480,7 +499,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
 }
 
 /// Compact List View Tile for Currencies
-class CompactCurrencyCard extends StatelessWidget {
+class CompactCurrencyCard extends StatefulWidget {
   final PriceItem priceItem;
   final String currencyCode;
   final String currencyName;
@@ -506,10 +525,38 @@ class CompactCurrencyCard extends StatelessWidget {
     this.decimals = 3,
   });
 
+  @override
+  State<CompactCurrencyCard> createState() => _CompactCurrencyCardState();
+}
+
+class _CompactCurrencyCardState extends State<CompactCurrencyCard>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ambientController;
+  late Animation<double> _ambientAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _ambientController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _ambientAnimation = Tween<double>(begin: 1.0, end: 0.82).animate(
+      CurvedAnimation(parent: _ambientController, curve: Curves.easeInOut),
+    );
+    _ambientController.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _ambientController.dispose();
+    super.dispose();
+  }
+
   String _formatPrice(double price, BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     final locale = isAr ? 'ar' : 'en_US';
-    final dec = (decimals == 4) ? 4 : 3;
+    final dec = (widget.decimals == 4) ? 4 : 3;
 
     // For large whole numbers with no fractions (e.g. 14500 SYP or 1300000 LBP)
     if (price >= 10000 && price % 1 == 0) {
@@ -523,21 +570,21 @@ class CompactCurrencyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final buyPrice = priceItem.buyPrice;
-    final sellPrice = priceItem.sellPrice > 0 ? priceItem.sellPrice : buyPrice * 1.004;
+    final buyPrice = widget.priceItem.buyPrice;
+    final sellPrice = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : buyPrice * 1.004;
 
-    final isSameCurrency = currencyCode.toUpperCase() == (baseCurrencyCode ?? '').toUpperCase();
+    final isSameCurrency = widget.currencyCode.toUpperCase() == (widget.baseCurrencyCode ?? '').toUpperCase();
     final effectiveBaseCode = isSameCurrency
-        ? (currencyCode.toUpperCase() == 'EUR' ? 'USD' : 'EUR')
-        : (baseCurrencyCode ?? baseCurrencySymbol);
+        ? (widget.currencyCode.toUpperCase() == 'EUR' ? 'USD' : 'EUR')
+        : (widget.baseCurrencyCode ?? widget.baseCurrencySymbol);
 
     return Bounceable(
       onTap: () {
         HapticFeedback.lightImpact();
-        if (onTap != null) {
-          onTap!();
+        if (widget.onTap != null) {
+          widget.onTap!();
         } else {
-          context.push('/price-detail', extra: {'item': priceItem});
+          context.push('/price-detail', extra: {'item': widget.priceItem});
         }
       },
       child: Container(
@@ -546,14 +593,14 @@ class CompactCurrencyCard extends StatelessWidget {
           color: isDark ? AppColors.darkSurface : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isPinned
+            color: widget.isPinned
                 ? AppColors.gold.withValues(alpha: 0.6)
                 : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
-            width: isPinned ? 1.5 : 1.0,
+            width: widget.isPinned ? 1.5 : 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: isPinned
+              color: widget.isPinned
                   ? AppColors.gold.withValues(alpha: 0.08)
                   : (isDark ? Colors.black26 : Colors.black.withValues(alpha: 0.03)),
               blurRadius: 10,
@@ -573,8 +620,8 @@ class CompactCurrencyCard extends StatelessWidget {
               ),
               child: Center(
                 child: CountryFlagWidget(
-                  flagEmoji: flagEmoji,
-                  countryCode: currencyCode,
+                  flagEmoji: widget.flagEmoji,
+                  countryCode: widget.currencyCode,
                   size: 14,
                 ),
               ),
@@ -590,7 +637,7 @@ class CompactCurrencyCard extends StatelessWidget {
                     children: [
                       Text(
                         CurrencyUtils.getCompactPairTitle(
-                          currencyCode,
+                          widget.currencyCode,
                           effectiveBaseCode,
                           context: context,
                         ),
@@ -605,18 +652,18 @@ class CompactCurrencyCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                         decoration: BoxDecoration(
-                          color: isPinned
+                          color: widget.isPinned
                               ? AppColors.gold.withValues(alpha: 0.2)
                               : (isDark ? Colors.white12 : const Color(0xFFE2E8F0)),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          currencyCode,
+                          widget.currencyCode,
                           style: TextStyle(
                             fontFamily: 'Cairo',
                             fontSize: 8.5,
                             fontWeight: FontWeight.w900,
-                            color: isPinned
+                            color: widget.isPinned
                                 ? AppColors.gold
                                 : (isDark ? Colors.white70 : AppColors.darkGreen),
                           ),
@@ -627,11 +674,11 @@ class CompactCurrencyCard extends StatelessWidget {
                   const SizedBox(height: 1),
                   Text(
                     CurrencyUtils.getCompactFormula(
-                      currencyCode,
+                      widget.currencyCode,
                       buyPrice,
                       effectiveBaseCode,
                       context: context,
-                      decimals: decimals,
+                      decimals: widget.decimals,
                     ),
                     style: TextStyle(
                       fontFamily: 'Cairo',
@@ -644,56 +691,62 @@ class CompactCurrencyCard extends StatelessWidget {
               ),
             ),
 
-            // Buy / Sell prices
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+            // Buy / Sell prices with ambient pulse
+            AnimatedBuilder(
+              animation: _ambientController,
+              builder: (context, child) {
+                final opacity = _ambientAnimation.value;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      '${'currency_buy'.tr()}: ',
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 8.5,
-                        color: isDark ? Colors.white54 : AppColors.mutedText,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${'currency_buy'.tr()}: ',
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 8.5,
+                            color: isDark ? Colors.white54 : AppColors.mutedText,
+                          ),
+                        ),
+                        Text(
+                          _formatPrice(buyPrice, context),
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                            color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      _formatPrice(buyPrice, context),
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : AppColors.darkGreen,
-                      ),
+                    const SizedBox(height: 2),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${'currency_sell'.tr()}: ',
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 8.5,
+                            color: isDark ? Colors.white54 : AppColors.mutedText,
+                          ),
+                        ),
+                        Text(
+                          _formatPrice(sellPrice, context),
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.gold.withValues(alpha: opacity),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${'currency_sell'.tr()}: ',
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 8.5,
-                        color: isDark ? Colors.white54 : AppColors.mutedText,
-                      ),
-                    ),
-                    Text(
-                      _formatPrice(sellPrice, context),
-                      style: const TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.gold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                );
+              },
             ),
 
             const SizedBox(width: 6),
@@ -702,20 +755,20 @@ class CompactCurrencyCard extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 HapticFeedback.selectionClick();
-                onTogglePin();
+                widget.onTogglePin();
               },
               child: Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: isPinned
+                  color: widget.isPinned
                       ? AppColors.gold.withValues(alpha: 0.15)
                       : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
+                  widget.isPinned ? Icons.push_pin_rounded : Icons.push_pin_outlined,
                   size: 20,
-                  color: isPinned
+                  color: widget.isPinned
                       ? AppColors.gold
                       : (isDark ? Colors.white38 : Colors.grey.shade400),
                 ),

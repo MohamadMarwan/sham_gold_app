@@ -368,6 +368,15 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       canPop: safeIndex == 0,
       onPopInvokedWithResult: (didPop, dynamic result) {
         if (didPop) return;
+        // If current tab is calculator and a sub-calculator is open, return to hub first
+        final currentTabId = (safeIndex < allTabs.length) ? allTabs[safeIndex].id : null;
+        if (currentTabId == 'calculator') {
+          final activeCalc = ref.read(calculatorActiveSubPageProvider);
+          if (activeCalc != null) {
+            ref.read(calculatorActiveSubPageProvider.notifier).state = null;
+            return;
+          }
+        }
         if (safeIndex != 0) {
           _onTabTapped(0);
         }
