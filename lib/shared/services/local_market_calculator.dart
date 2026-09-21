@@ -705,7 +705,7 @@ class LocalMarketCalculator {
             'subtitle': formula,
             'buyPrice': buy,
             'sellPrice': sell,
-            'usdPrice': 1.0,
+            'usdPrice': double.parse((1 / targetRateToUsd).toStringAsFixed(4)),
             'currency': targetSymbol,
             'currencyCode': targetCurr,
             'metalType': 'currency',
