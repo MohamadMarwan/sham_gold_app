@@ -118,9 +118,44 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
           color: currentColor?.withValues(alpha: currentOpacity),
         );
 
+        int sepIndex = formatted.lastIndexOf('.');
+        if (sepIndex == -1) sepIndex = formatted.lastIndexOf(',');
+
+        if (sepIndex != -1 && sepIndex < formatted.length - 1) {
+          final intPart = formatted.substring(0, sepIndex + 1);
+          final decPart = formatted.substring(sepIndex + 1);
+          
+          List<InlineSpan> spans = [];
+          
+          if (isDollar && !isAr) spans.add(const TextSpan(text: '\\$ '));
+          
+          spans.add(TextSpan(text: intPart));
+          spans.add(TextSpan(
+            text: decPart,
+            style: TextStyle(
+              fontSize: (textStyle.fontSize ?? 14) * 0.78, // Smaller decimals
+            ),
+          ));
+
+          if (isDollar && isAr) {
+            spans.add(const TextSpan(text: ' \\$'));
+          } else if (!isDollar && displayCurrency.isNotEmpty) {
+            spans.add(TextSpan(text: ' $displayCurrency'));
+          }
+
+          return RichText(
+            textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,
+            maxLines: 1,
+            text: TextSpan(
+              style: textStyle,
+              children: spans,
+            ),
+          );
+        }
+
         return Text(
           isDollar
-              ? (isAr ? '$formatted \$' : '\$ $formatted')
+              ? (isAr ? '$formatted \\$' : '\\$ $formatted')
               : (displayCurrency.isNotEmpty ? '$formatted $displayCurrency' : formatted),
           style: textStyle,
           textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,

@@ -332,7 +332,7 @@ class RegionalMarketsSection extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '${NumberFormat('#,##0').format(price1Value)} $price1Unit',
+                      '${CurrencyUtils.formatLocalizedNumber(price1Value, context, decimals: 2, compactLarge: false)} $price1Unit',
                       style: TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: 12,
@@ -355,7 +355,7 @@ class RegionalMarketsSection extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '${NumberFormat('#,##0').format(price2Value)} $price2Unit',
+                      '${CurrencyUtils.formatLocalizedNumber(price2Value, context, decimals: 2, compactLarge: false)} $price2Unit',
                       style: const TextStyle(
                         fontFamily: 'Cairo',
                         fontSize: 12,

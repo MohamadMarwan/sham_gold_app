@@ -226,8 +226,8 @@ class CurrencyUtils {
     int decimals = 2,
     bool compactLarge = false,
   }) {
-    final isAr = context.locale.languageCode == 'ar';
-    final locale = isAr ? 'ar' : 'en_US';
+    // Force en_US locale for numbers to ensure standard digits (0-9) are always used instead of Arabic-Indic digits (٠-٩)
+    const locale = 'en_US';
     
     if (compactLarge && number >= 10000) {
       return NumberFormat("#,###", locale).format(number);
