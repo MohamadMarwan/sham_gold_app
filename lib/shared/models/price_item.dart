@@ -17,6 +17,7 @@ class PriceItem {
   final String? externalId;
   final DateTime? lastUpdate;
   final bool isManual;
+  final String subtitle;
 
   PriceItem({
     required this.id,
@@ -31,6 +32,7 @@ class PriceItem {
     this.externalId,
     this.lastUpdate,
     this.isManual = false,
+    this.subtitle = '',
   });
 
   factory PriceItem.fromJson(Map<String, dynamic> json) {
@@ -64,6 +66,7 @@ class PriceItem {
       externalId: json['externalId']?.toString(),
       lastUpdate: parsedUpdate,
       isManual: json['isManual'] ?? false,
+      subtitle: json['subtitle']?.toString() ?? '',
     );
   }
 
@@ -81,6 +84,7 @@ class PriceItem {
       'externalId': externalId,
       'lastUpdate': lastUpdate?.toIso8601String(),
       'isManual': isManual,
+      'subtitle': subtitle,
     };
   }
 
@@ -93,9 +97,16 @@ class PriceItem {
       currency: 'SYP',
       trend: Trend.stable,
       metalType: 'gold',
+      subtitle: '',
     );
   }
   
+  String getLocalizedSubtitle(BuildContext context) {
+    if (subtitle.isEmpty) return '';
+    final direct = subtitle.tr();
+    return direct.isNotEmpty ? direct : subtitle;
+  }
+
   String get translatedTitle {
     // 1. Direct key/string translation
     final direct = title.tr();

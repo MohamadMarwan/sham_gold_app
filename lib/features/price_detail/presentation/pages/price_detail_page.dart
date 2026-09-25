@@ -321,6 +321,22 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                     ],
                   ),
                   const SizedBox(height: 12),
+                  if (widget.priceItem.subtitle.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        widget.priceItem.getLocalizedSubtitle(context),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   _buildTrendBadge(),
                 ],
               ),

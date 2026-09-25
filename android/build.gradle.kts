@@ -93,7 +93,7 @@ subprojects {
                 useVersion("1.8.0")
             }
             if (requested.group == "org.jetbrains.kotlin") {
-                useVersion("2.0.21")
+                useVersion("2.2.20")
             }
         }
     }

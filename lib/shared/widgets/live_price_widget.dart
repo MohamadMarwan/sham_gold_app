@@ -127,7 +127,7 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
           
           List<InlineSpan> spans = [];
           
-          if (isDollar && !isAr) spans.add(const TextSpan(text: '\\$ '));
+          if (isDollar && !isAr) spans.add(const TextSpan(text: '\$ '));
           
           spans.add(TextSpan(text: intPart));
           spans.add(TextSpan(
@@ -138,7 +138,7 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
           ));
 
           if (isDollar && isAr) {
-            spans.add(const TextSpan(text: ' \\$'));
+            spans.add(const TextSpan(text: ' \$'));
           } else if (!isDollar && displayCurrency.isNotEmpty) {
             spans.add(TextSpan(text: ' $displayCurrency'));
           }
@@ -155,7 +155,7 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
 
         return Text(
           isDollar
-              ? (isAr ? '$formatted \\$' : '\\$ $formatted')
+              ? (isAr ? '\$formatted \$' : '\$ \$formatted')
               : (displayCurrency.isNotEmpty ? '$formatted $displayCurrency' : formatted),
           style: textStyle,
           textDirection: isAr ? ui.TextDirection.rtl : ui.TextDirection.ltr,

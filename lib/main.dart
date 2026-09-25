@@ -96,7 +96,9 @@ class GoldShamApp extends ConsumerWidget {
       ),
       builder: (context, child) {
         final systemScaler = MediaQuery.of(context).textScaler;
-        final combinedScale = systemScaler.scale(settings.fontSizeScale);
+        // Clamp the system scale to prevent UI breaks on massive font sizes (e.g. accessibility settings)
+        final clampedSystemScale = systemScaler.scale(1).clamp(0.85, 1.15);
+        final combinedScale = clampedSystemScale * settings.fontSizeScale;
         
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
