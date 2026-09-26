@@ -117,8 +117,9 @@ class InteractiveFlChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 30,
-                interval: (spots.length <= 5) ? 1.0 : (spots.length / 4),
+                interval: (spots.length <= 5) ? 1.0 : (spots.length / 4).ceilToDouble(),
                 getTitlesWidget: (value, meta) {
+                  if (value % 1 != 0) return const SizedBox.shrink();
                   final index = value.toInt();
                   if (index < 0 || index >= history.length) return const SizedBox.shrink();
                   final date = history[index].timestamp;
