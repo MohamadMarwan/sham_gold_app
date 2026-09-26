@@ -476,9 +476,16 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
     }
 
     // Filter items based on selected karat and exclude currency items (currencies have their own dedicated page)
+    final priceService = ref.read(priceServiceProvider);
     final filteredItems = marketItems.where((item) {
       final metal = (item['metalType'] ?? '').toString();
       if (metal == 'currency') return false;
+
+      final id = (item['id'] ?? '').toString();
+      if (country.code.toUpperCase() == 'TR') {
+        if (!priceService.isTurkishItemVisible(id)) return false;
+      }
+
       if (selectedKarat == 'all') return true;
       final k = (item['karat'] ?? '').toString();
       if (selectedKarat == 'silver') return metal.contains('silver');

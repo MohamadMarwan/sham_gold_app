@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+اصلح مشاكل التنسيث وخروج النص وعدم ظهور الليرات في اماكنهاimport 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../shared/models/price_item.dart';
 import '../../shared/services/price_service.dart';
 import '../../shared/services/local_market_calculator.dart';
@@ -189,11 +189,40 @@ final countryCurrenciesProvider = Provider<List<PriceItem>>((ref) {
   // 4. Live Scraper Sync for Syria & Turkey if live market items are in allPrices
   if (selectedCountry.code.toUpperCase() == 'SY') {
     final allPrices = ref.watch(allPricesProvider);
+
+    // ── USD live sync (most important: avoids old-lira display bug) ──
+    final syUsdLive = allPrices.where((p) => p.id == 'sy_usd').firstOrNull;
+    if (syUsdLive != null && syUsdLive.buyPrice > 0) {
+      final existingUsdIdx = countryCurrencies.indexWhere((p) => extractCurrencyCode(p) == 'USD');
+      final rawBuy = syUsdLive.buyPrice;
+      final rawSell = syUsdLive.sellPrice;
+      final buy = rawBuy > 1000 ? rawBuy / 100 : rawBuy;
+      final sell = rawSell > 1000 ? rawSell / 100 : (rawSell > 0 ? rawSell : buy * 1.004);
+      const spread = 0.002;
+      final liveUsd = PriceItem(
+        id: 'sy_fx_usd',
+        title: CurrencyUtils.getCompactPairTitle('USD', 'SYP'),
+        buyPrice: double.parse((buy * (1 - spread)).toStringAsFixed(2)),
+        sellPrice: double.parse((sell > buy ? sell * (1 + spread) : buy * (1 + spread)).toStringAsFixed(2)),
+        currency: selectedCountry.localizedCurrencySymbol,
+        metalType: 'currency',
+        lastUpdate: syUsdLive.lastUpdate ?? DateTime.now(),
+      );
+      if (existingUsdIdx != -1) {
+        countryCurrencies[existingUsdIdx] = liveUsd;
+      } else {
+        countryCurrencies.insert(0, liveUsd);
+      }
+    }
+
+    // ── EUR live sync ──
     final syEurLive = allPrices.where((p) => p.id == 'sy_eur').firstOrNull;
     if (syEurLive != null && syEurLive.buyPrice > 0) {
       final existingEurIdx = countryCurrencies.indexWhere((p) => extractCurrencyCode(p) == 'EUR');
-      final buy = syEurLive.buyPrice > 1000 ? syEurLive.buyPrice / 100 : syEurLive.buyPrice;
-      final sell = syEurLive.sellPrice > 1000 ? syEurLive.sellPrice / 100 : (syEurLive.sellPrice > 0 ? syEurLive.sellPrice : buy * 1.004);
+      final rawBuy = syEurLive.buyPrice;
+      final rawSell = syEurLive.sellPrice;
+      final buy = rawBuy > 1000 ? rawBuy / 100 : rawBuy;
+      final sell = rawSell > 1000 ? rawSell / 100 : (rawSell > 0 ? rawSell : buy * 1.004);
       final liveItem = PriceItem(
         id: 'sy_fx_eur',
         title: CurrencyUtils.getCompactPairTitle('EUR', 'SYP'),

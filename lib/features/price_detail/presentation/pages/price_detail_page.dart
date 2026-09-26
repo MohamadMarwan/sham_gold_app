@@ -119,7 +119,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
             final buy = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
             final sell = (item['sellPrice'] as num?)?.toDouble() ?? buy;
             return PriceHistoryPoint(
-              timestamp: DateTime.parse(item['timestamp']),
+              timestamp: DateTime.parse(item['timestamp']).toLocal(),
               price: buy,
               buyPrice: buy,
               sellPrice: sell,

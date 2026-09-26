@@ -312,7 +312,9 @@ class CurrencyUtils {
     final isAr = (context != null)
         ? context.locale.languageCode == 'ar'
         : (Intl.defaultLocale?.startsWith('ar') ?? true);
-    final locale = isAr ? 'ar' : 'en_US';
+    // Always use en_US locale for NUMBERS so digits display as 0-9, not Arabic-Indic ٠-٩.
+    // Arabic text (currency names) remains Arabic via the return string itself.
+    const locale = 'en_US';
     final normalizedBase = normalizeCurrencyCode(baseCode);
     final isSyp = normalizedBase == 'SYP' || baseCode.contains('ل.س');
 

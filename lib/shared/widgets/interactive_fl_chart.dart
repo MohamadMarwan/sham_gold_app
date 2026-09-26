@@ -218,7 +218,7 @@ class InteractiveFlChart extends StatelessWidget {
                   final date = history[spot.x.toInt()].timestamp;
                   final timeStr = DateFormat('dd MMM yyyy - HH:mm', localeStr).format(date);
                   return LineTooltipItem(
-                    '${NumberFormat('#,##0.##', 'en_US').format(spot.y)}\n',
+                    '${_formatPrice(spot.y, diff)}\n',
                     const TextStyle(color: AppColors.gold, fontWeight: FontWeight.w900, fontSize: 14),
                     children: [
                       TextSpan(

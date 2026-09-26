@@ -319,51 +319,68 @@ class RegionalMarketsSection extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      price1Label,
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white60 : AppColors.mutedText,
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        price1Label,
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white60 : AppColors.mutedText,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      '${CurrencyUtils.formatLocalizedNumber(price1Value, context, decimals: 2, compactLarge: false)} $price1Unit',
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : AppColors.darkGreen,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          '${CurrencyUtils.formatLocalizedNumber(price1Value, context, decimals: 2, compactLarge: false)} $price1Unit',
+                          style: TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: isDark ? Colors.white : AppColors.darkGreen,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      price2Label,
-                      style: TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white60 : AppColors.mutedText,
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        price2Label,
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white60 : AppColors.mutedText,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    Text(
-                      '${CurrencyUtils.formatLocalizedNumber(price2Value, context, decimals: 2, compactLarge: false)} $price2Unit',
-                      style: const TextStyle(
-                        fontFamily: 'Cairo',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.gold,
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: Text(
+                          '${CurrencyUtils.formatLocalizedNumber(price2Value, context, decimals: 2, compactLarge: false)} $price2Unit',
+                          style: const TextStyle(
+                            fontFamily: 'Cairo',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.gold,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -374,43 +391,47 @@ class RegionalMarketsSection extends ConsumerWidget {
   }
 
   double _getSyriaUsdPrice(List<PriceItem> allPrices) {
-    final syriaItems = allPrices.where((p) => p.id.startsWith('sy_')).toList();
-    if (syriaItems.isEmpty) return 132.0;
-    final usdItem = syriaItems.firstWhere((p) => p.id == 'sy_usd',
-        orElse: () => syriaItems.first);
-    final val = usdItem.buyPrice > 0 ? usdItem.buyPrice : 132.0;
+    // Find sy_usd specifically — do NOT fall back to syriaItems.first (could be a gold item!)
+    final usdItem = allPrices.where((p) => p.id == 'sy_usd').firstOrNull;
+    if (usdItem == null || usdItem.buyPrice <= 0) {
+      final val = LocalMarketCalculator().getRateToUsd('SYP', 'SY');
+      return val > 1000 ? (val / 100) : val;
+    }
+    final val = usdItem.buyPrice;
     return val > 1000 ? (val / 100) : val;
   }
 
   double _getSyriaGold21Price(List<PriceItem> allPrices) {
-    final syriaItems = allPrices.where((p) => p.id.startsWith('sy_')).toList();
-    if (syriaItems.isEmpty) return 11500.0;
-    final gold21 = syriaItems.firstWhere(
-        (p) => p.id == 'sy_gold_21' || p.id == 'sy_gold_21k',
-        orElse: () => syriaItems.first);
-    final val = gold21.buyPrice > 0 ? gold21.buyPrice : 11500.0;
+    // Find the gold 21K item specifically — do NOT use a fallback to any sy_ item
+    final gold21 = allPrices.where(
+        (p) => p.id == 'sy_gold_21' || p.id == 'sy_gold_21k').firstOrNull;
+    if (gold21 == null || gold21.buyPrice <= 0) {
+      final val = LocalMarketCalculator().getGramPrice('21', 21 / 24)['buyPrice'] ?? 0.0;
+      return val > 100000 ? (val / 100) : val;
+    }
+    final val = gold21.buyPrice;
     return val > 100000 ? (val / 100) : val;
   }
 
   double _getTurkeyUsdPrice(List<PriceItem> allPrices) {
     final turkishItems =
         allPrices.where((p) => p.id.startsWith('tr_')).toList();
-    if (turkishItems.isEmpty) return 38.5;
+    if (turkishItems.isEmpty) return LocalMarketCalculator().getRateToUsd('TRY', 'TR');
     final tryItem = turkishItems.firstWhere((p) => p.id == 'tr_curr_usd',
         orElse: () => turkishItems.first);
-    return tryItem.buyPrice > 0 ? tryItem.buyPrice : 38.5;
+    return tryItem.buyPrice > 0 ? tryItem.buyPrice : LocalMarketCalculator().getRateToUsd('TRY', 'TR');
   }
 
   double _getTurkeyGoldPrice(List<PriceItem> allPrices) {
     final turkishItems =
         allPrices.where((p) => p.id.startsWith('tr_')).toList();
-    if (turkishItems.isEmpty) return 3400.0;
+    if (turkishItems.isEmpty) return LocalMarketCalculator().getGramPrice('24', 1.0)['buyPrice'] ?? 0.0;
     final goldGramItem = turkishItems.firstWhere(
         (p) =>
             p.id == 'tr_gold_24' ||
             p.id == 'tr_gold_gram_altin' ||
             p.id == 'tr_gold_has_altin',
         orElse: () => turkishItems.first);
-    return goldGramItem.buyPrice > 0 ? goldGramItem.buyPrice : 3400.0;
+    return goldGramItem.buyPrice > 0 ? goldGramItem.buyPrice : (LocalMarketCalculator().getGramPrice('24', 1.0)['buyPrice'] ?? 0.0);
   }
 }

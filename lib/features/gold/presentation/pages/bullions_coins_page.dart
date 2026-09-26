@@ -453,6 +453,8 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     double k21UsdPrice = 0.0;
     double k22Price = 0.0;
     double k22UsdPrice = 0.0;
+    double k24Price = 0.0;
+    double k24UsdPrice = 0.0;
 
     for (var item in marketItems) {
       final k = (item['karat'] ?? '').toString();
@@ -464,31 +466,55 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         k22Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
         k22UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
       }
+      if (k == '24') {
+        k24Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
+        k24UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
+      }
     }
 
+    final xau = allPrices.where((p) => p.id == 'xau_usd').firstOrNull;
+    final xauPrice = xau?.buyPrice ?? 2900.0;
+    final rate = (marketData != null && marketData['fxRateToUSD'] != null)
+        ? (marketData['fxRateToUSD'] as num).toDouble()
+        : (country.code == 'DZ' ? 134.5 : 1.0);
+
+    if (k24Price == 0.0) {
+      k24UsdPrice = (xauPrice / 31.1035);
+      k24Price = k24UsdPrice * rate;
+    }
     if (k21Price == 0.0) {
-      final xau = allPrices.where((p) => p.id == 'xau_usd').firstOrNull;
-      final xauPrice = xau?.buyPrice ?? 2900.0;
-      final rate = (marketData != null && marketData['fxRateToUSD'] != null)
-          ? (marketData['fxRateToUSD'] as num).toDouble()
-          : (country.code == 'DZ' ? 134.5 : 1.0);
       k21UsdPrice = (xauPrice / 31.1035) * (21 / 24);
       k21Price = k21UsdPrice * rate;
     }
     if (k22Price == 0.0) {
-      k22Price = k21Price * (22 / 21);
-      k22UsdPrice = k21UsdPrice * (22 / 21);
+      k22UsdPrice = (xauPrice / 31.1035) * (22 / 24);
+      k22Price = k22UsdPrice * rate;
     }
 
     final currencySymbol = country.localizedCurrencySymbol;
-    // Standard coins ordered ascending by weight (quarter -> half -> rashadi -> english -> five)
-    final standardCoins = [
-      {'id': 'coin_quarter', 'key': 'coin_quarter', 'title': 'coin_quarter'.tr(), 'grams': 1.8, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'coin_half', 'key': 'coin_half', 'title': 'coin_half'.tr(), 'grams': 3.6, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'coin_rashadi', 'key': 'coin_rashadi', 'title': 'coin_rashadi'.tr(), 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'coin_english', 'key': 'coin_english', 'title': 'coin_english'.tr(), 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'coin_five', 'key': 'coin_five', 'title': 'coin_five'.tr(), 'grams': 36.0, 'price': k22Price, 'usd': k22UsdPrice},
-    ].map((c) {
+    // User requested explicit list of coins
+    final rawStandardCoins = [
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية عيار 22', 'grams': 1.75, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية عيار 22', 'grams': 3.5, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية 7 غرام عيار 22', 'grams': 7.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة تركية 7.2 عيار 22', 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'en_21', 'title': 'ليرة إنجليزية عيار 21 وزن 8 غرام', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
+      {'id': 'en_22', 'title': 'ليرة إنجليزية عيار 22 وزن 8 غرام', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'pound_21', 'title': 'جنيه ذهب عيار 21 وزن 8', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
+      {'id': 'pound_22', 'title': 'جنيه ذهب عيار 22 وزن 8', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'lira_24', 'title': 'ليرة ذهبية عيار 24 وزن 8', 'grams': 8.0, 'price': k24Price, 'usd': k24UsdPrice},
+    ];
+
+    final priceService = ref.read(priceServiceProvider);
+
+    final standardCoins = rawStandardCoins.where((c) {
+      final id = c['id'] as String;
+      if (id.startsWith('tr_')) {
+        return priceService.isTurkishItemVisible(id);
+      }
+      return true;
+    }).map((c) {
+      final id = c['id'] as String;
       final grams = c['grams'] as double;
       final p = c['price'] as double;
       final u = c['usd'] as double;
@@ -496,8 +522,8 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       final sell = double.parse((buy * 1.01).toStringAsFixed(2));
       final usd = double.parse((u * grams).toStringAsFixed(2));
       return PriceItem(
-        id: '${country.code.toLowerCase()}_${c['id']}',
-        title: (c['key'] as String?)?.tr() ?? c['title'] as String,
+        id: id.startsWith('tr_') ? id : '${country.code.toLowerCase()}_$id',
+        title: c['title'] as String,
         buyPrice: buy,
         sellPrice: sell,
         currency: currencySymbol,

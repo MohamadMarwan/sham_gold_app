@@ -96,8 +96,8 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
   }
 
   String _formatPrice(double price, BuildContext context) {
-    final isAr = context.locale.languageCode == 'ar';
-    final locale = isAr ? 'ar' : 'en_US';
+    // Always use en_US locale so numbers display as 0-9 (not Arabic-Indic ٠-٩)
+    const locale = 'en_US';
     final dec = (widget.decimals == 4) ? 4 : 3;
 
     // For large whole numbers with no fractions (e.g. 14500 SYP or 1300000 LBP)
@@ -346,17 +346,21 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                           fontWeight: FontWeight.w700,
                                           color: isDark ? Colors.white54 : AppColors.mutedText,
                                         ),
-                                      ),
-                                      Text(
-                                        _formatPrice(buyPrice, context),
-                                        style: TextStyle(
-                                          fontFamily: 'Cairo',
-                                          fontSize: 11.5,
-                                          fontWeight: FontWeight.w900,
-                                          color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
-                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
+                                      ),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: AlignmentDirectional.centerStart,
+                                        child: Text(
+                                          _formatPrice(buyPrice, context),
+                                          style: TextStyle(
+                                            fontFamily: 'Cairo',
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w900,
+                                            color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -380,17 +384,21 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                           fontWeight: FontWeight.w700,
                                           color: isDark ? Colors.white54 : AppColors.mutedText,
                                         ),
-                                      ),
-                                      Text(
-                                        _formatPrice(sellPrice, context),
-                                        style: TextStyle(
-                                          fontFamily: 'Cairo',
-                                          fontSize: 11.5,
-                                          fontWeight: FontWeight.w900,
-                                          color: AppColors.gold.withValues(alpha: opacity),
-                                        ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
+                                      ),
+                                      FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: AlignmentDirectional.centerEnd,
+                                        child: Text(
+                                          _formatPrice(sellPrice, context),
+                                          style: TextStyle(
+                                            fontFamily: 'Cairo',
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w900,
+                                            color: AppColors.gold.withValues(alpha: opacity),
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -696,55 +704,66 @@ class _CompactCurrencyCardState extends State<CompactCurrencyCard>
               animation: _ambientController,
               builder: (context, child) {
                 final opacity = _ambientAnimation.value;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${'currency_buy'.tr()}: ',
-                          style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 8.5,
-                            color: isDark ? Colors.white54 : AppColors.mutedText,
-                          ),
+                return Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${'currency_buy'.tr()}: ',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 8.5,
+                                color: isDark ? Colors.white54 : AppColors.mutedText,
+                              ),
+                            ),
+                            Text(
+                              _formatPrice(buyPrice, context),
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w900,
+                                color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
+                              ),
+                            ),
+                          ],
                         ),
-                        Text(
-                          _formatPrice(buyPrice, context),
-                          style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w900,
-                            color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
-                          ),
+                      ),
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${'currency_sell'.tr()}: ',
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 8.5,
+                                color: isDark ? Colors.white54 : AppColors.mutedText,
+                              ),
+                            ),
+                            Text(
+                              _formatPrice(sellPrice, context),
+                              style: TextStyle(
+                                fontFamily: 'Cairo',
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.gold.withValues(alpha: opacity),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${'currency_sell'.tr()}: ',
-                          style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 8.5,
-                            color: isDark ? Colors.white54 : AppColors.mutedText,
-                          ),
-                        ),
-                        Text(
-                          _formatPrice(sellPrice, context),
-                          style: TextStyle(
-                            fontFamily: 'Cairo',
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.gold.withValues(alpha: opacity),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
