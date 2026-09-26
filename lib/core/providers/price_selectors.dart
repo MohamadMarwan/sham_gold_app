@@ -1,4 +1,4 @@
-اصلح مشاكل التنسيث وخروج النص وعدم ظهور الليرات في اماكنهاimport 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../shared/models/price_item.dart';
 import '../../shared/services/price_service.dart';
 import '../../shared/services/local_market_calculator.dart';
@@ -287,4 +287,121 @@ final countryCurrenciesProvider = Provider<List<PriceItem>>((ref) {
   }
 
   return uniqueCurrencies;
+});
+
+/// A master provider that returns EVERY single PriceItem across the entire app
+/// This is specifically used by Favorites and Alerts to resolve IDs into actual PriceItems.
+final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
+  final allPrices = ref.watch(allPricesProvider);
+  final calculator = LocalMarketCalculator();
+  final countryProv = ref.watch(countryProvider);
+  final priceService = ref.watch(priceServiceProvider);
+
+  final Map<String, PriceItem> masterMap = {};
+
+  // 1. Add all raw items
+  for (final p in allPrices) {
+    masterMap[p.id] = p;
+  }
+
+  // 2. Add synthesized currencies for current country
+  final currCurrencies = ref.watch(countryCurrenciesProvider);
+  for (final p in currCurrencies) {
+    masterMap[p.id] = p;
+  }
+
+  // 3. Synthesize bullions and coins for ALL countries
+  for (final country in countryProv.allCountries) {
+    final calcData = calculator.calculateMarketData(country);
+    final calcItems = (calcData?['items'] as List<dynamic>?) ?? [];
+    
+    for (final item in calcItems) {
+      final p = PriceItem(
+        id: item['id'] ?? '',
+        title: item['title'] ?? item['name'] ?? '',
+        buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
+        sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+        currency: item['currency'] ?? country.localizedCurrencySymbol,
+        metalType: item['metalType'] ?? 'gold',
+        usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+      );
+      if (p.id.isNotEmpty) masterMap[p.id] = p;
+    }
+    
+    double k24Price = 0, k24Usd = 0, k22Price = 0, k22Usd = 0, k21Price = 0, k21Usd = 0;
+    for (final item in calcItems) {
+      final k = (item['karat'] ?? '').toString();
+      if (k == '24') { k24Price = (item['buyPrice'] as num?)?.toDouble() ?? 0; k24Usd = (item['usdPrice'] as num?)?.toDouble() ?? 0; }
+      if (k == '22') { k22Price = (item['buyPrice'] as num?)?.toDouble() ?? 0; k22Usd = (item['usdPrice'] as num?)?.toDouble() ?? 0; }
+      if (k == '21') { k21Price = (item['buyPrice'] as num?)?.toDouble() ?? 0; k21Usd = (item['usdPrice'] as num?)?.toDouble() ?? 0; }
+    }
+
+    if (k24Price == 0) {
+      k24Usd = calculator.goldOunceUSD / 31.1035;
+      k24Price = k24Usd * (calculator.fxRates[country.currencyCode] ?? 1.0);
+    }
+    if (k22Price == 0) { k22Usd = k24Usd * (22/24); k22Price = k24Price * (22/24); }
+    if (k21Price == 0) { k21Usd = k24Usd * (21/24); k21Price = k24Price * (21/24); }
+
+    final currencySymbol = country.localizedCurrencySymbol;
+
+    final bullionWeights = [
+      {'id': '1g', 'key': 'bullion_1g', 'title': '1 غرام', 'grams': 1.0},
+      {'id': '5g', 'key': 'bullion_5g', 'title': '5 غرام', 'grams': 5.0},
+      {'id': 'half_tola', 'key': 'half_tola', 'title': 'نصف تولة', 'grams': 5.83},
+      {'id': '10g', 'key': 'bullion_10g', 'title': '10 غرام', 'grams': 10.0},
+      {'id': '1_tola', 'key': 'one_tola', 'title': '1 تولة', 'grams': 11.66},
+      {'id': '20g', 'key': 'bullion_20g', 'title': '20 غرام', 'grams': 20.0},
+      {'id': '1oz', 'key': 'bullion_1oz', 'title': 'أونصة', 'grams': 31.1035},
+      {'id': '50g', 'key': 'bullion_50g', 'title': '50 غرام', 'grams': 50.0},
+      {'id': '5_tola', 'key': 'five_tola', 'title': '5 تولة', 'grams': 58.3},
+      {'id': '100g', 'key': 'bullion_100g', 'title': '100 غرام', 'grams': 100.0},
+      {'id': '1kg', 'key': 'bullion_1kg', 'title': '1 كيلو', 'grams': 1000.0},
+    ];
+
+    for (final b in bullionWeights) {
+      final grams = b['grams'] as double;
+      final buy = double.parse((k24Price * grams).toStringAsFixed(2));
+      final sell = double.parse((buy * 1.008).toStringAsFixed(2));
+      final usd = double.parse((k24Usd * grams).toStringAsFixed(2));
+      final id = '${country.code.toLowerCase()}_bullion_${b['id']}';
+      masterMap[id] = PriceItem(
+        id: id,
+        title: b['title'] as String,
+        buyPrice: buy, sellPrice: sell, currency: currencySymbol, metalType: 'bullion', usdPrice: usd,
+      );
+    }
+
+    final rawStandardCoins = [
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية', 'grams': 3.5, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة', 'grams': 7.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة (عطا)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'en_21', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'en_22', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'pound_21', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'pound_22', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'lira_24', 'title': 'ليرة ذهبية', 'grams': 8.0, 'price': k24Price, 'usd': k24Usd},
+    ];
+
+    for (final c in rawStandardCoins) {
+      final baseId = c['id'] as String;
+      if (baseId.startsWith('tr_') && !priceService.isTurkishItemVisible(baseId)) continue;
+      
+      final id = baseId.startsWith('tr_') ? baseId : '${country.code.toLowerCase()}_$baseId';
+      final grams = c['grams'] as double;
+      final p = c['price'] as double;
+      final u = c['usd'] as double;
+      final buy = double.parse((p * grams).toStringAsFixed(2));
+      final sell = double.parse((buy * 1.01).toStringAsFixed(2));
+      final usd = double.parse((u * grams).toStringAsFixed(2));
+      masterMap[id] = PriceItem(
+        id: id,
+        title: c['title'] as String,
+        buyPrice: buy, sellPrice: sell, currency: currencySymbol, metalType: 'coin', usdPrice: usd,
+      );
+    }
+  }
+
+  return masterMap.values.toList();
 });

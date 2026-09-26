@@ -494,15 +494,15 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     final currencySymbol = country.localizedCurrencySymbol;
     // User requested explicit list of coins
     final rawStandardCoins = [
-      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية عيار 22', 'grams': 1.75, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية عيار 22', 'grams': 3.5, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية 7 غرام عيار 22', 'grams': 7.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_ata_new', 'title': 'ليرة تركية 7.2 عيار 22', 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'en_21', 'title': 'ليرة إنجليزية عيار 21 وزن 8 غرام', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
-      {'id': 'en_22', 'title': 'ليرة إنجليزية عيار 22 وزن 8 غرام', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'pound_21', 'title': 'جنيه ذهب عيار 21 وزن 8', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
-      {'id': 'pound_22', 'title': 'جنيه ذهب عيار 22 وزن 8', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'lira_24', 'title': 'ليرة ذهبية عيار 24 وزن 8', 'grams': 8.0, 'price': k24Price, 'usd': k24UsdPrice},
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية', 'grams': 1.75, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية', 'grams': 3.5, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة', 'grams': 7.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة (عطا)', 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'en_21', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
+      {'id': 'en_22', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'pound_21', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
+      {'id': 'pound_22', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'lira_24', 'title': 'ليرة ذهبية', 'grams': 8.0, 'price': k24Price, 'usd': k24UsdPrice},
     ];
 
     final priceService = ref.read(priceServiceProvider);

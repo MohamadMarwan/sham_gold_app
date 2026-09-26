@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/providers/regional_markets_provider.dart';
@@ -394,7 +393,7 @@ class RegionalMarketsSection extends ConsumerWidget {
     // Find sy_usd specifically — do NOT fall back to syriaItems.first (could be a gold item!)
     final usdItem = allPrices.where((p) => p.id == 'sy_usd').firstOrNull;
     if (usdItem == null || usdItem.buyPrice <= 0) {
-      final val = LocalMarketCalculator().getRateToUsd('SYP', 'SY');
+      final val = LocalMarketCalculator().fxRates['SYP'] ?? 1.0;
       return val > 1000 ? (val / 100) : val;
     }
     final val = usdItem.buyPrice;
@@ -406,8 +405,7 @@ class RegionalMarketsSection extends ConsumerWidget {
     final gold21 = allPrices.where(
         (p) => p.id == 'sy_gold_21' || p.id == 'sy_gold_21k').firstOrNull;
     if (gold21 == null || gold21.buyPrice <= 0) {
-      final val = LocalMarketCalculator().getGramPrice('21', 21 / 24)['buyPrice'] ?? 0.0;
-      return val > 100000 ? (val / 100) : val;
+      return 0.0;
     }
     final val = gold21.buyPrice;
     return val > 100000 ? (val / 100) : val;
@@ -416,22 +414,22 @@ class RegionalMarketsSection extends ConsumerWidget {
   double _getTurkeyUsdPrice(List<PriceItem> allPrices) {
     final turkishItems =
         allPrices.where((p) => p.id.startsWith('tr_')).toList();
-    if (turkishItems.isEmpty) return LocalMarketCalculator().getRateToUsd('TRY', 'TR');
+    if (turkishItems.isEmpty) return LocalMarketCalculator().fxRates['TRY'] ?? 38.5;
     final tryItem = turkishItems.firstWhere((p) => p.id == 'tr_curr_usd',
         orElse: () => turkishItems.first);
-    return tryItem.buyPrice > 0 ? tryItem.buyPrice : LocalMarketCalculator().getRateToUsd('TRY', 'TR');
+    return tryItem.buyPrice > 0 ? tryItem.buyPrice : (LocalMarketCalculator().fxRates['TRY'] ?? 38.5);
   }
 
   double _getTurkeyGoldPrice(List<PriceItem> allPrices) {
     final turkishItems =
         allPrices.where((p) => p.id.startsWith('tr_')).toList();
-    if (turkishItems.isEmpty) return LocalMarketCalculator().getGramPrice('24', 1.0)['buyPrice'] ?? 0.0;
+    if (turkishItems.isEmpty) return 0.0;
     final goldGramItem = turkishItems.firstWhere(
         (p) =>
             p.id == 'tr_gold_24' ||
             p.id == 'tr_gold_gram_altin' ||
             p.id == 'tr_gold_has_altin',
         orElse: () => turkishItems.first);
-    return goldGramItem.buyPrice > 0 ? goldGramItem.buyPrice : (LocalMarketCalculator().getGramPrice('24', 1.0)['buyPrice'] ?? 0.0);
+    return goldGramItem.buyPrice > 0 ? goldGramItem.buyPrice : 0.0;
   }
 }

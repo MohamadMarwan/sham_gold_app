@@ -13,6 +13,7 @@ import '../../../../shared/widgets/custom_icon.dart';
 import '../../../../shared/widgets/syrian_flag.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
+import '../../../../core/providers/price_selectors.dart';
 
 class FavoritesPage extends ConsumerStatefulWidget {
   const FavoritesPage({Key? key}) : super(key: key);
@@ -95,11 +96,9 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
                       )
                     : _favoriteIds.isEmpty
                         ? _buildEmptyState()
-                        : StreamBuilder<List<PriceItem>>(
-                            stream: priceService.pricesStream,
-                            initialData: priceService.currentPrices,
-                            builder: (context, snapshot) {
-                              final allPrices = snapshot.data ?? [];
+                        : Builder(
+                            builder: (context) {
+                              final allPrices = ref.watch(masterAppPricesProvider);
                               // Keep the items ordered based on _favoriteIds order
                               final favoritePrices = _favoriteIds
                                   .map((id) => allPrices.where((p) => p.id == id).firstOrNull)

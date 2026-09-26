@@ -143,14 +143,16 @@ class PriceItem {
 
     // 5. ID and Karat-based translation resolution
     final lowerTitle = title.toLowerCase();
-    if (lowerId.contains('24k') || title.contains('24')) return 'gold_24k'.tr();
-    if (lowerId.contains('22k') || title.contains('22')) return 'gold_22k'.tr();
-    if (lowerId.contains('21k') || title.contains('21')) return 'gold_21k'.tr();
-    if (lowerId.contains('18k') || title.contains('18')) return 'gold_18k'.tr();
-    if (lowerId.contains('14k') || title.contains('14')) return 'gold_14k'.tr();
-    if (lowerId.contains('12k') || title.contains('12')) return 'gold_12k'.tr();
-    if (lowerId.contains('10k') || title.contains('10')) return 'gold_10k'.tr();
-    if (lowerId.contains('9k') || title.contains('9')) return 'gold_9k'.tr();
+    if (metalType == 'gold') {
+      if (lowerId.contains('24k') || title.contains('24')) return 'gold_24k'.tr();
+      if (lowerId.contains('22k') || title.contains('22')) return 'gold_22k'.tr();
+      if (lowerId.contains('21k') || title.contains('21')) return 'gold_21k'.tr();
+      if (lowerId.contains('18k') || title.contains('18')) return 'gold_18k'.tr();
+      if (lowerId.contains('14k') || title.contains('14')) return 'gold_14k'.tr();
+      if (lowerId.contains('12k') || title.contains('12')) return 'gold_12k'.tr();
+      if (lowerId.contains('10k') || title.contains('10')) return 'gold_10k'.tr();
+      if (lowerId.contains('9k') || title.contains('9')) return 'gold_9k'.tr();
+    }
 
     final isSilver = metalType == 'silver' ||
         lowerId.contains('silver') ||

@@ -6,6 +6,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/providers/settings_provider.dart';
 import '../../../../shared/services/local_market_calculator.dart';
+import '../../../../shared/widgets/country_flag_widget.dart';
 
 /// Dedicated Currency Item representation for the Cross-Currency Calculator.
 class CurrencyItem {
@@ -563,7 +564,11 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
             ),
             child: Row(
               children: [
-                Text(currency.flagEmoji, style: const TextStyle(fontSize: 24)),
+                CountryFlagWidget(
+                  countryCode: currency.code == 'SYP' ? 'SY' : currency.code,
+                  flagEmoji: currency.flagEmoji,
+                  size: 24,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -900,7 +905,11 @@ class _CurrencyPickerModalState extends State<_CurrencyPickerModal> {
                     ),
                     child: Row(
                       children: [
-                        Text(curr.flagEmoji, style: const TextStyle(fontSize: 26)),
+                        CountryFlagWidget(
+                          countryCode: curr.code == 'SYP' ? 'SY' : curr.code,
+                          flagEmoji: curr.flagEmoji,
+                          size: 26,
+                        ),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(

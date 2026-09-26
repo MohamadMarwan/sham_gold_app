@@ -175,7 +175,7 @@ class CountryProvider with ChangeNotifier {
       final url = Uri.parse('${AppConfig.baseUrl}/api/geo/detect');
       final response = await http.get(url, headers: {
         'x-api-key': AppConfig.apiAccessKey,
-      }).timeout(const Duration(seconds: 4));
+      }).timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -196,7 +196,7 @@ class CountryProvider with ChangeNotifier {
     try {
       final response = await http
           .get(Uri.parse('https://api.country.is/'))
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final code = data['country']?.toString().toUpperCase();
@@ -210,7 +210,7 @@ class CountryProvider with ChangeNotifier {
     try {
       final response = await http
           .get(Uri.parse('https://ipapi.co/json/'))
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final code = data['country_code']?.toString().toUpperCase();
@@ -224,7 +224,7 @@ class CountryProvider with ChangeNotifier {
     try {
       final response = await http
           .get(Uri.parse('http://ip-api.com/json/'))
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(seconds: 5));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final code = data['countryCode']?.toString().toUpperCase();
@@ -264,16 +264,16 @@ class CountryProvider with ChangeNotifier {
       return backendCode;
     }
 
-    // Tier 2: Device hardware / SIM locale
-    final deviceCode = _getDeviceCountryCode();
-    if (deviceCode != null && _allCountries.any((c) => c.code.toUpperCase() == deviceCode)) {
-      return deviceCode;
-    }
-
-    // Tier 3: Secure HTTPS Geo-IP fallbacks
+    // Tier 2: Secure HTTPS Geo-IP fallbacks
     final ipCode = await _detectFromHttpsGeoIp();
     if (ipCode != null && _allCountries.any((c) => c.code.toUpperCase() == ipCode)) {
       return ipCode;
+    }
+
+    // Tier 3: Device hardware / SIM locale
+    final deviceCode = _getDeviceCountryCode();
+    if (deviceCode != null && _allCountries.any((c) => c.code.toUpperCase() == deviceCode)) {
+      return deviceCode;
     }
 
     // Tier 4: Map EU member locales

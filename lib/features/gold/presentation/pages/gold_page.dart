@@ -251,39 +251,46 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                 ),
               ),
               actions: [
-                if (priceService.shouldShow('headerShowCountrySelector', defaultValue: true)) ...[
-                  _buildHeaderIcon(Icons.public, () {
-                    HapticFeedback.selectionClick();
-                    CountrySwitcherSheet.show(context);
-                  }),
-                  const SizedBox(width: 8),
-                ],
-                if (priceService.shouldShow('headerShowPortfolio', defaultValue: true)) ...[
-                  _buildHeaderIcon(Icons.account_balance_wallet_outlined, () {
-                    HapticFeedback.selectionClick();
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const PortfolioPage()));
-                  }),
-                  const SizedBox(width: 8),
-                ],
-                if (priceService.shouldShow('headerShowAlerts', defaultValue: true)) ...[
-                  _buildHeaderIcon(Icons.notifications_active_outlined, () {
-                    HapticFeedback.selectionClick();
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const AlertsManagementPage()));
-                  }),
-                  const SizedBox(width: 8),
-                ],
-                if (priceService.shouldShow('headerShowFavorites', defaultValue: true)) ...[
-                  _buildHeaderIcon(Icons.star_rounded, () {
-                    HapticFeedback.selectionClick();
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const FavoritesPage()));
-                  }, isGold: true),
-                  const SizedBox(width: 8),
-                ],
-                const SizedBox(width: 8),
+                Container(
+                  margin: const EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (priceService.shouldShow('headerShowCountrySelector', defaultValue: true))
+                        _buildPillAction(Icons.public, () {
+                          HapticFeedback.selectionClick();
+                          CountrySwitcherSheet.show(context);
+                        }),
+                      if (priceService.shouldShow('headerShowPortfolio', defaultValue: true)) ...[
+                        _buildPillDivider(),
+                        _buildPillAction(Icons.account_balance_wallet_outlined, () {
+                          HapticFeedback.selectionClick();
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const PortfolioPage()));
+                        }),
+                      ],
+                      if (priceService.shouldShow('headerShowAlerts', defaultValue: true)) ...[
+                        _buildPillDivider(),
+                        _buildPillAction(Icons.notifications_active_outlined, () {
+                          HapticFeedback.selectionClick();
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const AlertsManagementPage()));
+                        }),
+                      ],
+                      if (priceService.shouldShow('headerShowFavorites', defaultValue: true)) ...[
+                        _buildPillDivider(),
+                        _buildPillAction(Icons.star_rounded, () {
+                          HapticFeedback.selectionClick();
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesPage()));
+                        }, isGold: true),
+                      ],
+                    ],
+                  ),
+                ),
               ],
             ),
             if (allPrices.isEmpty && isConnected)
@@ -426,20 +433,22 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
     );
   }
 
-  Widget _buildHeaderIcon(IconData icon, VoidCallback? onTap,
-      {bool isGold = false}) {
-    return GestureDetector(
+  Widget _buildPillAction(IconData icon, VoidCallback onTap, {bool isGold = false}) {
+    return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-        ),
-        child:
-            Icon(icon, color: isGold ? AppColors.gold : Colors.white, size: 24),
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Icon(icon, color: isGold ? AppColors.gold : Colors.white, size: 20),
       ),
+    );
+  }
+
+  Widget _buildPillDivider() {
+    return Container(
+      height: 14,
+      width: 1,
+      color: Colors.white.withValues(alpha: 0.3),
     );
   }
 
