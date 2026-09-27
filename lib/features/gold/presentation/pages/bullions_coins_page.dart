@@ -342,13 +342,38 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     );
   }
 
+  int _getBullionSortWeight(String id) {
+    id = id.toLowerCase();
+    
+    // Grams (1)
+    if (id.contains('1g') && !id.contains('10g') && !id.contains('100g')) return 10;
+    if (id.contains('5g') && !id.contains('50g')) return 20;
+    if (id.contains('10g')) return 30;
+    if (id.contains('20g')) return 40;
+    if (id.contains('50g')) return 50;
+    if (id.contains('100g')) return 60;
+    
+    // Tolas (2)
+    if (id.contains('half_tola')) return 70;
+    if (id.contains('1_tola') || id.contains('one_tola')) return 80;
+    if (id.contains('5_tola') || id.contains('five_tola')) return 90;
+    
+    // Ounce (3)
+    if (id.contains('1oz') || id.contains('ounce')) return 100;
+    
+    // Kilo (4)
+    if (id.contains('1kg') || id.contains('kilo')) return 110;
+    
+    return 500;
+  }
+
   List<PriceItem> _getBullionsForCountry(CountryProvider countryProvider, List<PriceItem> allPrices) {
     final country = countryProvider.selectedCountry;
-    // If Syria, use the specialized sy_ items from allPrices and sort them by price ascending
+    // If Syria, use the specialized sy_ items from allPrices
     if (country.code.toUpperCase() == 'SY') {
-      final list = allPrices.where((p) => p.metalType == 'bullion' && p.id.startsWith('sy_')).toList();
+      final list = allPrices.where((p) => p.metalType == 'bullion' && p.id.startsWith('sy_') && !p.id.toLowerCase().contains('lira')).toList();
       if (list.isNotEmpty) {
-        list.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
+        list.sort((a, b) => _getBullionSortWeight(a.id).compareTo(_getBullionSortWeight(b.id)));
         return list;
       }
     }
@@ -387,22 +412,45 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     final bullionWeights = [
       {'id': '1g', 'key': 'bullion_1g', 'title': 'bullion_1g'.tr(), 'grams': 1.0},
       {'id': '5g', 'key': 'bullion_5g', 'title': 'bullion_5g'.tr(), 'grams': 5.0},
-      {'id': 'half_tola', 'key': 'half_tola', 'title': 'half_tola'.tr(), 'grams': 5.83},
       {'id': '10g', 'key': 'bullion_10g', 'title': 'bullion_10g'.tr(), 'grams': 10.0},
-      {'id': '1_tola', 'key': 'one_tola', 'title': 'one_tola'.tr(), 'grams': 11.66},
       {'id': '20g', 'key': 'bullion_20g', 'title': 'bullion_20g'.tr(), 'grams': 20.0},
-      {'id': '1oz', 'key': 'bullion_1oz', 'title': 'bullion_1oz'.tr(), 'grams': 31.1035},
       {'id': '50g', 'key': 'bullion_50g', 'title': 'bullion_50g'.tr(), 'grams': 50.0},
-      {'id': '5_tola', 'key': 'five_tola', 'title': 'five_tola'.tr(), 'grams': 58.3},
       {'id': '100g', 'key': 'bullion_100g', 'title': 'bullion_100g'.tr(), 'grams': 100.0},
+      {'id': '1_tola', 'key': 'one_tola', 'title': 'one_tola'.tr(), 'grams': 11.66},
+      {'id': '5_tola', 'key': 'five_tola', 'title': 'five_tola'.tr(), 'grams': 58.3},
+      {'id': '1oz', 'key': 'bullion_1oz', 'title': 'bullion_1oz'.tr(), 'grams': 31.1035},
       {'id': '1kg', 'key': 'bullion_1kg', 'title': 'bullion_1kg'.tr(), 'grams': 1000.0},
     ];
 
     final result = bullionWeights.map((b) {
       final grams = b['grams'] as double;
-      final buy = double.parse((k24Price * grams).toStringAsFixed(2));
-      final sell = double.parse((buy * 1.008).toStringAsFixed(2));
-      final usd = double.parse((k24UsdPrice * grams).toStringAsFixed(2));
+      double buy = double.parse((k24Price * grams).toStringAsFixed(2));
+      double sell = double.parse((buy * 1.008).toStringAsFixed(2));
+      double usd = double.parse((k24UsdPrice * grams).toStringAsFixed(2));
+      
+      // Override for Kilo using backend specific values (e.g. AltinAPI for TR)
+      if (b['id'] == '1kg') {
+        if (country.code.toUpperCase() == 'TR' && marketData != null && marketData['items'] != null) {
+          final items = marketData['items'] as List<dynamic>;
+          final trKilo = items.firstWhere(
+            (i) => i['id'] == 'tr_gold_kilo',
+            orElse: () => null,
+          );
+          if (trKilo != null) {
+            buy = (trKilo['buyPrice'] as num).toDouble();
+            sell = (trKilo['sellPrice'] as num).toDouble();
+            usd = (trKilo['usdPrice'] as num).toDouble();
+          }
+        } else if (country.code.toUpperCase() == 'GLOBAL') {
+           final xauKg = allPrices.where((p) => p.id == 'xau_kg_usd').firstOrNull;
+           if (xauKg != null && xauKg.buyPrice > 0) {
+             buy = xauKg.buyPrice;
+             sell = xauKg.sellPrice;
+             usd = xauKg.usdPrice > 0 ? xauKg.usdPrice : xauKg.buyPrice;
+           }
+        }
+      }
+
       return PriceItem(
         id: '${country.code.toLowerCase()}_bullion_${b['id']}',
         title: (b['key'] as String?)?.tr() ?? b['title'] as String,
@@ -414,7 +462,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       );
     }).toList();
 
-    result.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
+    result.sort((a, b) => _getBullionSortWeight(a.id).compareTo(_getBullionSortWeight(b.id)));
     return result;
   }
 
@@ -422,7 +470,13 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     final country = countryProvider.selectedCountry;
     // If Syria, use sy_ items and sort by price ascending
     if (country.code.toUpperCase() == 'SY') {
-      final list = allPrices.where((p) => p.metalType == 'coin' && p.id.startsWith('sy_')).toList();
+      final list = allPrices.where((p) {
+        if (!p.id.startsWith('sy_')) return false;
+        final isCoin = p.metalType == 'coin';
+        final isLiraInBullion = p.metalType == 'bullion' && p.id.toLowerCase().contains('lira');
+        return isCoin || isLiraInBullion;
+      }).toList();
+      
       if (list.isNotEmpty) {
         list.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
         return list;
@@ -494,15 +548,15 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     final currencySymbol = country.localizedCurrencySymbol;
     // User requested explicit list of coins
     final rawStandardCoins = [
-      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية', 'grams': 1.75, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية', 'grams': 3.5, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة', 'grams': 7.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة (عطا)', 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'en_21', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
-      {'id': 'en_22', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'pound_21', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
-      {'id': 'pound_22', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'lira_24', 'title': 'ليرة ذهبية', 'grams': 8.0, 'price': k24Price, 'usd': k24UsdPrice},
+      {'id': 'en_21', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
+      {'id': 'en_22', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'pound_21', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
+      {'id': 'pound_22', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (7 غ)', 'grams': 7.0, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (3.5 غ)', 'grams': 3.5, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (1.75 غ)', 'grams': 1.75, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (7.2 غ)', 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
+      {'id': 'lira_24', 'title': 'ليرة ذهبية (8 غ)', 'grams': 8.0, 'price': k24Price, 'usd': k24UsdPrice},
     ];
 
     final priceService = ref.read(priceServiceProvider);

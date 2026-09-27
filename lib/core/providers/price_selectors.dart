@@ -348,7 +348,6 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
     final bullionWeights = [
       {'id': '1g', 'key': 'bullion_1g', 'title': '1 غرام', 'grams': 1.0},
       {'id': '5g', 'key': 'bullion_5g', 'title': '5 غرام', 'grams': 5.0},
-      {'id': 'half_tola', 'key': 'half_tola', 'title': 'نصف تولة', 'grams': 5.83},
       {'id': '10g', 'key': 'bullion_10g', 'title': '10 غرام', 'grams': 10.0},
       {'id': '1_tola', 'key': 'one_tola', 'title': '1 تولة', 'grams': 11.66},
       {'id': '20g', 'key': 'bullion_20g', 'title': '20 غرام', 'grams': 20.0},
@@ -361,9 +360,32 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
 
     for (final b in bullionWeights) {
       final grams = b['grams'] as double;
-      final buy = double.parse((k24Price * grams).toStringAsFixed(2));
-      final sell = double.parse((buy * 1.008).toStringAsFixed(2));
-      final usd = double.parse((k24Usd * grams).toStringAsFixed(2));
+      double buy = double.parse((k24Price * grams).toStringAsFixed(2));
+      double sell = double.parse((buy * 1.008).toStringAsFixed(2));
+      double usd = double.parse((k24Usd * grams).toStringAsFixed(2));
+      
+      // Override for Kilo using backend specific values (e.g. AltinAPI for TR)
+      if (b['id'] == '1kg') {
+        if (country.code.toUpperCase() == 'TR' && marketItems != null) {
+          final trKilo = marketItems.firstWhere(
+            (i) => i['id'] == 'tr_gold_kilo',
+            orElse: () => null,
+          );
+          if (trKilo != null) {
+            buy = (trKilo['buyPrice'] as num).toDouble();
+            sell = (trKilo['sellPrice'] as num).toDouble();
+            usd = (trKilo['usdPrice'] as num).toDouble();
+          }
+        } else if (country.code.toUpperCase() == 'GLOBAL') {
+           final xauKg = allPrices.where((p) => p.id == 'xau_kg_usd').firstOrNull;
+           if (xauKg != null && xauKg.buyPrice > 0) {
+             buy = xauKg.buyPrice;
+             sell = xauKg.sellPrice;
+             usd = xauKg.usdPrice > 0 ? xauKg.usdPrice : xauKg.buyPrice;
+           }
+        }
+      }
+
       final id = '${country.code.toLowerCase()}_bullion_${b['id']}';
       masterMap[id] = PriceItem(
         id: id,
@@ -373,15 +395,15 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
     }
 
     final rawStandardCoins = [
-      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية', 'grams': 3.5, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة', 'grams': 7.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة (عطا)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'en_21', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
-      {'id': 'en_22', 'title': 'ليرة إنجليزية', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'pound_21', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
-      {'id': 'pound_22', 'title': 'جنيه ذهب', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'lira_24', 'title': 'ليرة ذهبية', 'grams': 8.0, 'price': k24Price, 'usd': k24Usd},
+      {'id': 'en_21', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'en_22', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'pound_21', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'pound_22', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (7 غ)', 'grams': 7.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (3.5 غ)', 'grams': 3.5, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (1.75 غ)', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (7.2 غ)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'lira_24', 'title': 'ليرة ذهبية (8 غ)', 'grams': 8.0, 'price': k24Price, 'usd': k24Usd},
     ];
 
     for (final c in rawStandardCoins) {

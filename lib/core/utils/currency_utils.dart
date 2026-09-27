@@ -8,7 +8,6 @@ class CurrencyUtils {
     var clean = currency.trim();
     if (id.startsWith('tr_')) return 'TRY';
     if (id.startsWith('sy_')) {
-      if (id.contains('usd')) return 'USD';
       return 'SYP';
     }
 

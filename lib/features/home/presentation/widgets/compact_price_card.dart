@@ -136,14 +136,16 @@ class _CompactPriceCardState extends State<CompactPriceCard>
             child: Row(
               children: [
                 // 1. Karat Badge & Title
-                Hero(
-                  tag: 'icon_${widget.priceItem.id}',
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: _buildKaratBadge(widget.priceItem),
+                if (widget.priceItem.metalType != 'currency' && !widget.priceItem.id.contains('usd') && !widget.priceItem.id.contains('eur') && !widget.priceItem.id.contains('fx_'))
+                  Hero(
+                    tag: 'icon_${widget.priceItem.id}',
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: _buildKaratBadge(widget.priceItem),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
+                if (widget.priceItem.metalType != 'currency' && !widget.priceItem.id.contains('usd') && !widget.priceItem.id.contains('eur') && !widget.priceItem.id.contains('fx_'))
+                  const SizedBox(width: 10),
                 Expanded(
                   flex: 5,
                   child: Column(
@@ -365,7 +367,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
     Color badgeColor = const Color(0xFFD4AF37);
 
     final id = item.id.toLowerCase();
-    if (id.contains('22')) {
+    if (id.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata')) {
       label = '22K';
       badgeColor = const Color(0xFFE5B80B);
     } else if (id.contains('21')) {

@@ -578,8 +578,11 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
             ),
           const SizedBox(height: 16),
           if (historyPoints.isNotEmpty) 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 _buildBullBearIndicator(),
                 _buildPerformanceComparison(),

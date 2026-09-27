@@ -437,7 +437,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
     Color badgeColor = const Color(0xFFD4AF37);
 
     final id = item.id.toLowerCase();
-    if (id.contains('22')) {
+    if (id.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata')) {
       label = '22K';
       badgeColor = const Color(0xFFE5B80B);
     } else if (id.contains('21')) {

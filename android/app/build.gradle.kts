@@ -84,5 +84,5 @@ dependencies {
     
     // Ads Mediation Adapters
     implementation("com.google.ads.mediation:facebook:6.17.0.0")
-    implementation("com.google.ads.mediation:unity:4.20.0.1") // Updated to newer version to fix initialize() error
+    implementation("com.google.ads.mediation:unity:4.12.3.0") // Updated to latest stable version compatible with AdMob 23+
 }

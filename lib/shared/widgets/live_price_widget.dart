@@ -119,7 +119,6 @@ class _LivePriceWidgetState extends State<LivePriceWidget>
         );
 
         int sepIndex = formatted.lastIndexOf('.');
-        if (sepIndex == -1) sepIndex = formatted.lastIndexOf(',');
 
         if (sepIndex != -1 && sepIndex < formatted.length - 1) {
           final intPart = formatted.substring(0, sepIndex + 1);
