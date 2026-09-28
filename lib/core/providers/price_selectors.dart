@@ -366,15 +366,12 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
       
       // Override for Kilo using backend specific values (e.g. AltinAPI for TR)
       if (b['id'] == '1kg') {
-        if (country.code.toUpperCase() == 'TR' && marketItems != null) {
-          final trKilo = marketItems.firstWhere(
-            (i) => i['id'] == 'tr_gold_kilo',
-            orElse: () => null,
-          );
-          if (trKilo != null) {
-            buy = (trKilo['buyPrice'] as num).toDouble();
-            sell = (trKilo['sellPrice'] as num).toDouble();
-            usd = (trKilo['usdPrice'] as num).toDouble();
+        if (country.code.toUpperCase() == 'TR') {
+          final trKilo = allPrices.where((p) => p.id == 'tr_gold_kilo').firstOrNull;
+          if (trKilo != null && trKilo.buyPrice > 0) {
+            buy = trKilo.buyPrice;
+            sell = trKilo.sellPrice;
+            usd = trKilo.usdPrice > 0 ? trKilo.usdPrice : trKilo.buyPrice;
           }
         } else if (country.code.toUpperCase() == 'GLOBAL') {
            final xauKg = allPrices.where((p) => p.id == 'xau_kg_usd').firstOrNull;

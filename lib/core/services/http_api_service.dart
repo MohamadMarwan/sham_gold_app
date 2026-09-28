@@ -45,7 +45,7 @@ class HttpApiService {
           .timeout(_getTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
     } on TimeoutException catch (_) {
-      throw const TimeoutException();
+      throw const AppTimeoutException();
     } catch (e) {
       throw wrapException(e);
     }
@@ -63,7 +63,7 @@ class HttpApiService {
           .timeout(_mutateTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
     } on TimeoutException catch (_) {
-      throw const TimeoutException();
+      throw const AppTimeoutException();
     } catch (e) {
       throw wrapException(e);
     }
@@ -81,7 +81,7 @@ class HttpApiService {
           .timeout(_mutateTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
     } on TimeoutException catch (_) {
-      throw const TimeoutException();
+      throw const AppTimeoutException();
     } catch (e) {
       throw wrapException(e);
     }
@@ -95,7 +95,7 @@ class HttpApiService {
           .timeout(_getTimeout);
       return _handleResponse(response, '$_baseUrl$endpoint');
     } on TimeoutException catch (_) {
-      throw const TimeoutException();
+      throw const AppTimeoutException();
     } catch (e) {
       throw wrapException(e);
     }

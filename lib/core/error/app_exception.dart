@@ -1,4 +1,4 @@
-﻿/// Typed application exceptions — replaces raw `Exception` strings across the app.
+/// Typed application exceptions — replaces raw `Exception` strings across the app.
 ///
 /// Discriminating on exception type in the UI allows showing contextual
 /// messages (e.g., "No internet" vs. "Server error") instead of generic toasts.
@@ -16,8 +16,8 @@ abstract class AppException implements Exception {
 
 // ─── Network / Connectivity ────────────────────────────────────────────────
 /// Thrown when a network call times out.
-class TimeoutException extends AppException {
-  const TimeoutException([String? msg])
+class AppTimeoutException extends AppException {
+  const AppTimeoutException([String? msg])
       : super(msg ?? 'انتهت مهلة الاتصال. تحقق من اتصالك بالإنترنت.', code: 'TIMEOUT');
 }
 
@@ -66,7 +66,7 @@ AppException wrapException(Object e) {
   if (e is AppException) return e;
   final msg = e.toString();
   if (msg.contains('انتهت مهلة') || msg.contains('TimeoutException')) {
-    return const TimeoutException();
+    return const AppTimeoutException();
   }
   if (msg.contains('SocketException') || msg.contains('No address')) {
     return const NoInternetException();
