@@ -8,6 +8,7 @@ import '../../../../shared/widgets/favorite_toggle_button.dart';
 import '../pages/price_detail_page.dart';
 import 'smart_alerts_sheet.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
+import '../../../../shared/widgets/ambient_blink_widget.dart';
 import '../../../../core/utils/currency_utils.dart';
 
 class CompactPriceCard extends StatefulWidget {
@@ -230,8 +231,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                 // 2. Buy Column (الشراء)
                 Expanded(
                   flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: AmbientBlinkWidget(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -252,6 +254,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             LivePriceWidget(
                               price: displayLocalPrice,
                               currency: '',
+                              animateJitter: false,
                               style: TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.w900,
@@ -285,6 +288,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                         ),
                     ],
                   ),
+                  ),
                 ),
 
                 // Vertical Separator
@@ -298,8 +302,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                 // 3. Sell Column (المبيع)
                 Expanded(
                   flex: 3,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+                  child: AmbientBlinkWidget(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -320,6 +325,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                             LivePriceWidget(
                               price: sellPrice,
                               currency: '',
+                              animateJitter: false,
                               style: TextStyle(
                                 fontSize: 14.5,
                                 fontWeight: FontWeight.w900,
@@ -353,6 +359,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                         ),
                     ],
                   ),
+                  ),
                 ),
               ],
             ),
@@ -363,10 +370,29 @@ class _CompactPriceCardState extends State<CompactPriceCard>
   }
 
   Widget _buildKaratBadge(PriceItem item) {
+    final metalType = item.metalType.toLowerCase();
+    final id = item.id.toLowerCase();
+    final title = item.title.toLowerCase();
+    final isCurrency = metalType == 'currency' || id.contains('_fx_') || id.contains('currency') || id.contains('usd') || id.contains('eur') || id.contains('try') || title.contains('مقابل');
+
+    if (isCurrency) {
+      return Container(
+        constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF10B981), Color(0xFF059669)],
+          ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Center(
+          child: Icon(Icons.currency_exchange_rounded, size: 14, color: Colors.white),
+        ),
+      );
+    }
+
     String label = '24K';
     Color badgeColor = const Color(0xFFD4AF37);
-
-    final id = item.id.toLowerCase();
     if (id.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata')) {
       label = '22K';
       badgeColor = const Color(0xFFE5B80B);

@@ -10,6 +10,7 @@ import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/favorite_toggle_button.dart';
 import 'smart_alerts_sheet.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
+import '../../../../shared/widgets/ambient_blink_widget.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../core/utils/currency_utils.dart';
 
@@ -249,8 +250,9 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                           width: 0.8,
                         ),
                       ),
-                      child: Row(
-                        children: [
+                      child: AmbientBlinkWidget(
+                        child: Row(
+                          children: [
                           // 1. Buy Column (الشراء)
                           Expanded(
                             child: Column(
@@ -276,6 +278,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                       LivePriceWidget(
                                         price: displayLocalPrice,
                                         currency: '',
+                                        animateJitter: false,
                                         style: TextStyle(
                                           fontSize: 13.5,
                                           fontWeight: FontWeight.w900,
@@ -344,6 +347,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                       LivePriceWidget(
                                         price: sellPrice,
                                         currency: '',
+                                        animateJitter: false,
                                         style: TextStyle(
                                           fontSize: 13.5,
                                           fontWeight: FontWeight.w900,
@@ -378,7 +382,8 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                               ],
                             ),
                           ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
 
@@ -433,10 +438,29 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
   }
 
   Widget _buildKaratBadge(PriceItem item) {
+    final metalType = item.metalType.toLowerCase();
+    final id = item.id.toLowerCase();
+    final title = item.title.toLowerCase();
+    final isCurrency = metalType == 'currency' || id.contains('_fx_') || id.contains('currency') || id.contains('usd') || id.contains('eur') || id.contains('try') || title.contains('مقابل');
+
+    if (isCurrency) {
+      return Container(
+        width: 26,
+        height: 26,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF10B981), Color(0xFF059669)],
+          ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Center(
+          child: Icon(Icons.currency_exchange_rounded, size: 14, color: Colors.white),
+        ),
+      );
+    }
+
     String label = '24K';
     Color badgeColor = const Color(0xFFD4AF37);
-
-    final id = item.id.toLowerCase();
     if (id.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata')) {
       label = '22K';
       badgeColor = const Color(0xFFE5B80B);

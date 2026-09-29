@@ -258,13 +258,17 @@ class LocalMarketCalculator {
         _fxRates[code.toUpperCase()] ??
         _fxRates[code.toLowerCase()];
 
-    final double rate;
+    double rate;
     if (rateLookup != null && rateLookup > 0) {
       rate = rateLookup;
     } else if (currencyCode.toUpperCase() == 'USD' || code == 'US' || code == 'GLOBAL') {
       rate = 1.0;
     } else {
       rate = _defaultFallbackFor(currencyCode, code);
+    }
+
+    if ((code == 'SY' || currencyCode.toUpperCase() == 'SYP') && rate > 1000) {
+      rate = rate / 100;
     }
 
     final bool isGlobal = code == 'GLOBAL';
@@ -729,8 +733,12 @@ class LocalMarketCalculator {
           ? reliableTargetRate / 100
           : reliableTargetRate;
 
+      final double effectiveLocalRate = (code == 'SY' || currencyCode.toUpperCase() == 'SYP') && localRate > 1000
+          ? localRate / 100
+          : localRate;
+
       // Cross rate: 1 TargetCurrency = X LocalCurrency
-      final crossRate = localRate / targetRateToUsd;
+      final crossRate = effectiveLocalRate / targetRateToUsd;
 
       final pairTitle = CurrencyUtils.getCompactPairTitle(targetCurr, currencyCode);
 
@@ -742,7 +750,15 @@ class LocalMarketCalculator {
       double sellPrice = double.parse((crossRate * 1.002).toStringAsFixed(dec));
 
       // Regional live override if available
-      if (targetCurr == 'EUR') {
+      if (code == 'SY' && targetCurr == 'USD' && _scrapedPrices.containsKey('sy_usd')) {
+        final sp = _scrapedPrices['sy_usd']!;
+        final b = (sp['buyPrice'] as num?)?.toDouble() ?? 0.0;
+        if (b > 0) {
+          final usdVal = b > 1000 ? b / 100 : b;
+          buyPrice = double.parse((usdVal * 0.998).toStringAsFixed(2));
+          sellPrice = double.parse((usdVal * 1.002).toStringAsFixed(2));
+        }
+      } else if (targetCurr == 'EUR') {
         if (code == 'SY' && _scrapedPrices.containsKey('sy_eur')) {
           final sp = _scrapedPrices['sy_eur']!;
           final b = (sp['buyPrice'] as num?)?.toDouble() ?? 0.0;

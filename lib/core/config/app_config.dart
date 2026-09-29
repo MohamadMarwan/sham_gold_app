@@ -21,10 +21,16 @@ class AppConfig {
 
   // ─── API Base URL ───────────────────────────────────────────────────────────
   // Injected at build time. Defaults to the production server.
-  static const String baseUrl = String.fromEnvironment(
+  static const String _rawBaseUrl = String.fromEnvironment(
     'BASE_URL',
     defaultValue: 'https://api.sham-gold.com',
   );
+
+  static String get baseUrl {
+    return _rawBaseUrl.endsWith('/')
+        ? _rawBaseUrl.substring(0, _rawBaseUrl.length - 1)
+        : _rawBaseUrl;
+  }
 
   // ─── API Access Key ─────────────────────────────────────────────────────────
   // Injected at build time via --dart-define, with production fallback.

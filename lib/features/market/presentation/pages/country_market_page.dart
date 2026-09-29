@@ -334,19 +334,27 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                               itemCount: items.length,
                               itemBuilder: (context, index) {
                                 final item = items[index];
+                                final isSyria = country.code.toUpperCase() == 'SY';
+                                double bPrice = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
+                                double sPrice = (item['sellPrice'] as num?)?.toDouble() ?? 0.0;
+                                if (isSyria && isCurrencyItem(item) && bPrice > 1000) {
+                                  bPrice = bPrice / 100;
+                                  sPrice = sPrice / 100;
+                                }
+
                                 final priceItem = PriceItem(
                                   id: item['id'] ?? '',
                                   title: item['title'] ?? item['name'] ?? '',
-                                  buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-                                  sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+                                  buyPrice: bPrice,
+                                  sellPrice: sPrice,
                                   currency: item['currency'] ?? country.localizedCurrencySymbol,
-                                  metalType: item['metalType'] ?? 'gold',
+                                  metalType: item['metalType'] ?? (isCurrencyItem(item) ? 'currency' : 'gold'),
                                   usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
                                 );
 
                                 return SquarePriceCard(
                                   priceItem: priceItem,
-                                  localPrice: (item['buyPrice'] as num?)?.toDouble(),
+                                  localPrice: bPrice,
                                   localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
                                   usdPrice: (item['usdPrice'] as num?)?.toDouble(),
                                   isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
@@ -361,19 +369,27 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                               separatorBuilder: (context, index) => const SizedBox(height: 12),
                               itemBuilder: (context, index) {
                                 final item = items[index];
+                                final isSyria = country.code.toUpperCase() == 'SY';
+                                double bPrice = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
+                                double sPrice = (item['sellPrice'] as num?)?.toDouble() ?? 0.0;
+                                if (isSyria && isCurrencyItem(item) && bPrice > 1000) {
+                                  bPrice = bPrice / 100;
+                                  sPrice = sPrice / 100;
+                                }
+
                                 final priceItem = PriceItem(
                                   id: item['id'] ?? '',
                                   title: item['title'] ?? item['name'] ?? '',
-                                  buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-                                  sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+                                  buyPrice: bPrice,
+                                  sellPrice: sPrice,
                                   currency: item['currency'] ?? country.localizedCurrencySymbol,
-                                  metalType: item['metalType'] ?? 'gold',
+                                  metalType: item['metalType'] ?? (isCurrencyItem(item) ? 'currency' : 'gold'),
                                   usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
                                 );
 
                                 return CompactPriceCard(
                                   priceItem: priceItem,
-                                  localPrice: (item['buyPrice'] as num?)?.toDouble(),
+                                  localPrice: bPrice,
                                   localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
                                   usdPrice: (item['usdPrice'] as num?)?.toDouble(),
                                   isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
