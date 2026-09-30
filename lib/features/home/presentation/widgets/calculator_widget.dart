@@ -115,40 +115,7 @@ class _CalculatorWidgetState extends ConsumerState<CalculatorWidget> {
   }
 
   double _getRateToUsd(String code) {
-    final upper = code.toUpperCase();
-    if (upper == 'USD') return 1.0;
-    final fx = LocalMarketCalculator().fxRates;
-    final liveRate = fx[upper] ?? fx[code.toLowerCase()];
-    if (liveRate != null && liveRate > 0) return liveRate;
-
-    switch (upper) {
-      case 'AED': return 3.6725;
-      case 'SAR': return 3.75;
-      case 'EUR': return 0.86;
-      case 'TRY': return 48.60;
-      case 'SYP': return 132.0;
-      case 'EGP': return 51.34;
-      case 'KWD': return 0.308;
-      case 'QAR': return 3.64;
-      case 'JOD': return 0.709;
-      case 'BHD': return 0.376;
-      case 'OMR': return 0.385;
-      case 'IQD': return 1310.0;
-      case 'GBP': return 0.74;
-      case 'CAD': return 1.41;
-      case 'AUD': return 1.58;
-      case 'CHF': return 0.89;
-      case 'JPY': return 150.0;
-      case 'CNY': return 7.20;
-      case 'LYD': return 4.85;
-      case 'LBP': return 89500.0;
-      case 'DZD': return 134.5;
-      case 'MAD': return 9.39;
-      case 'TND': return 3.12;
-      case 'SDG': return 600.0;
-      case 'YER': return 1950.0;
-      default: return 1.0;
-    }
+    return LocalMarketCalculator().getRateToUsd(code);
   }
 
   double _convert(double amount, String from, String to) {

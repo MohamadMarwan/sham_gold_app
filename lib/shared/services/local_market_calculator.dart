@@ -108,6 +108,15 @@ class LocalMarketCalculator {
   double get goldOunceUSD => _goldOunceUSD;
   double get silverOunceUSD => _silverOunceUSD;
 
+  /// Returns the live or fallback exchange rate of a currency vs USD
+  double getRateToUsd(String code) {
+    final upper = code.toUpperCase();
+    if (upper == 'USD') return 1.0;
+    final live = _fxRates[upper] ?? _fxRates[code.toLowerCase()];
+    if (live != null && live > 0) return live;
+    return _defaultFallbackFor(upper, '');
+  }
+
   /// Look up a scraped price by id. Returns null if not found.
   Map<String, dynamic>? getScrapedPrice(String id) => _scrapedPrices[id];
 
