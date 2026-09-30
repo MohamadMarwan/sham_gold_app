@@ -12,6 +12,7 @@ import '../services/cache_service.dart';
 import '../error/app_exception.dart';
 import '../../shared/services/local_market_calculator.dart';
 import '../services/location_detector_service.dart';
+import '../services/socket_service.dart';
 final countryProvider = ChangeNotifierProvider<CountryProvider>((ref) {
   return CountryProvider();
 });
@@ -87,6 +88,20 @@ class CountryProvider with ChangeNotifier {
     // First load from local cache for instant zero-delay rendering
     await _loadCachedMarketData(_selectedCountry.code);
     await fetchMarketData();
+
+    // Listen to real-time market summary broadcasts from WebSocket
+    SocketService().marketsSummaryUpdateStream.listen((data) {
+      if (data is Map) {
+        final currentCode = _selectedCountry.code.toUpperCase();
+        if (data.containsKey(currentCode) && data[currentCode] is Map) {
+          final marketData = Map<String, dynamic>.from(data[currentCode] as Map);
+          _currentMarketData = marketData;
+          _inMemoryMarketCache[currentCode.toLowerCase()] = marketData;
+          _isOffline = false;
+          notifyListeners();
+        }
+      }
+    });
   }
 
   Future<void> fetchCountriesList() async {

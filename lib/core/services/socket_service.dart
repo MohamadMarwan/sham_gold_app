@@ -36,6 +36,9 @@ class SocketService {
   final StreamController<dynamic> _alertTriggeredController = StreamController<dynamic>.broadcast();
   Stream<dynamic> get alertTriggeredStream => _alertTriggeredController.stream;
 
+  final StreamController<dynamic> _marketsSummaryUpdateController = StreamController<dynamic>.broadcast();
+  Stream<dynamic> get marketsSummaryUpdateStream => _marketsSummaryUpdateController.stream;
+
   bool isConnected = false;
   bool _initialized = false;
 
@@ -85,6 +88,9 @@ class SocketService {
     });
     socket.on('alert_triggered', (data) {
       if (!_alertTriggeredController.isClosed) _alertTriggeredController.add(data);
+    });
+    socket.on('markets_summary_update', (data) {
+      if (!_marketsSummaryUpdateController.isClosed) _marketsSummaryUpdateController.add(data);
     });
 
     socket.onDisconnect((_) {
@@ -166,6 +172,7 @@ class SocketService {
     _settingsUpdateController.close();
     _notificationController.close();
     _alertTriggeredController.close();
+    _marketsSummaryUpdateController.close();
     _initialized = false;
   }
 }
