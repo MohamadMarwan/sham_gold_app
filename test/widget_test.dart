@@ -146,13 +146,13 @@ void main() {
     test('Morocco (MA), Oman (OM), and Yemen (YE) prices are commercially accurate', () {
       final calculator = LocalMarketCalculator();
 
-      // Morocco (MAD ~ 9.39)
+      // Morocco (MAD ~ 9.90)
       const maCountry = CountryModel(code: 'MA', name: 'المغرب', flag: '🇲🇦', currencyCode: 'MAD', currencySymbol: 'د.م.');
       final maData = calculator.calculateMarketData(maCountry);
       expect(maData, isNotNull);
       final maItems = maData!['items'] as List;
       final maUsd = maItems.firstWhere((i) => i['id'] == 'ma_fx_usd');
-      expect(maUsd['buyPrice'], closeTo(9.37, 0.20));
+      expect(maUsd['buyPrice'], closeTo(9.88, 0.20));
 
       // Oman (OMR ~ 0.385)
       const omCountry = CountryModel(code: 'OM', name: 'سلطنة عُمان', flag: '🇴🇲', currencyCode: 'OMR', currencySymbol: 'ر.ع');
