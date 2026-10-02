@@ -20,6 +20,7 @@ dependencies:
   fl_chart: ^0.66.0
   shimmer: ^3.0.0
   shared_preferences: ^2.2.2
+  package_info_plus: ^8.1.4
   easy_localization: ^3.0.5
   firebase_core: ^3.8.0
   firebase_messaging: ^15.1.3

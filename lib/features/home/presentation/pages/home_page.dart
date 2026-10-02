@@ -22,6 +22,9 @@ import 'bullions_coins_page.dart';
 import '../../../../shared/widgets/ticker_tape_widget.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
 import '../../../../core/services/permission_coordinator_service.dart';
+import '../../../../core/services/app_update_service.dart';
+import '../../../../core/providers/settings_provider.dart';
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -50,7 +53,14 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
       _checkFirstRun();
       _setupAlertListener();
       PermissionCoordinatorService().checkAndPromptPermissions(context, ref);
+      _checkForceUpdate();
     });
+  }
+
+  void _checkForceUpdate() {
+    if (!mounted) return;
+    final settings = ref.read(settingsProvider).currentSettings;
+    AppUpdateService.checkAndShowUpdate(context, settings);
   }
 
   @override
@@ -72,10 +82,12 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         AdService().showOnResumeAppOpenAd(duration, onAdDismissed: () {
           if (mounted) {
             ref.read(priceServiceProvider).refreshPrices(manual: true);
+            _checkForceUpdate();
           }
         });
       } else {
         ref.read(priceServiceProvider).refreshPrices(manual: true);
+        _checkForceUpdate();
       }
       _pausedTime = null;
     }
@@ -252,6 +264,14 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<SettingsProvider>(settingsProvider, (previous, next) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          AppUpdateService.checkAndShowUpdate(context, next.currentSettings);
+        }
+      });
+    });
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final priceService = ref.watch(priceServiceProvider);
     final countryProviderInstance = ref.watch(countryProvider);

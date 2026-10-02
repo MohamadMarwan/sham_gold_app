@@ -8,6 +8,9 @@ import '../../../../shared/widgets/premium_logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/services/app_update_service.dart';
+import '../../../../core/providers/settings_provider.dart';
+
 class SplashPage extends ConsumerStatefulWidget {
   final bool fromResume;
   const SplashPage({super.key, this.fromResume = false});
@@ -70,7 +73,21 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
   Future<void> _initializeApp() async {
     final priceService = ref.read(priceServiceProvider);
+    final settingsProv = ref.read(settingsProvider);
     final adService = AdService();
+
+    // Fetch settings upfront to check for force update
+    await settingsProv.fetchSettings();
+
+    // Check if update is required (with 1-hour cooldown)
+    final isUpdateRequired = await AppUpdateService.isUpdateRequired(settingsProv.currentSettings);
+    if (isUpdateRequired && mounted) {
+      final shown = await AppUpdateService.checkAndShowUpdate(context, settingsProv.currentSettings);
+      if (shown && mounted) {
+        _navigateToHome();
+        return;
+      }
+    }
 
     if (widget.fromResume) {
       priceService.refreshPrices();
