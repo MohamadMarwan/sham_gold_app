@@ -175,11 +175,12 @@ class PriceItem {
     if (lowerId.contains('silver_925') || (isSilver && title.contains('925'))) return 'silver_925'.tr();
     if (lowerId.contains('silver_800') || (isSilver && title.contains('800'))) return 'silver_800'.tr();
 
-    if (lowerId.contains('rashadi') || title.contains('رشادية')) return 'coin_rashadi'.tr();
-    if (lowerId.contains('english') || title.contains('إنجليزية')) return 'coin_english'.tr();
-    if (lowerId.contains('half') || title.contains('نصف ليرة')) return 'coin_half'.tr();
-    if (lowerId.contains('quarter') || title.contains('ربع ليرة')) return 'coin_quarter'.tr();
-    if (lowerId.contains('five') || title.contains('خمس ليرات')) return 'coin_five'.tr();
+    // Only map generic coin keys when the title or ID is strictly the generic fallback token
+    if (lowerId == 'coin_rashadi' || title == 'coin_rashadi') return 'coin_rashadi'.tr();
+    if (lowerId == 'coin_english' || title == 'coin_english') return 'coin_english'.tr();
+    if (lowerId == 'coin_half' || title == 'coin_half') return 'coin_half'.tr();
+    if (lowerId == 'coin_quarter' || title == 'coin_quarter') return 'coin_quarter'.tr();
+    if (lowerId == 'coin_five' || title == 'coin_five') return 'coin_five'.tr();
 
     // 6. Currency items & Exchange rate pairs
     if (metalType == 'currency' || title.contains('مقابل') || title.contains('سعر صرف')) {

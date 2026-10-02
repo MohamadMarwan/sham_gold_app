@@ -278,7 +278,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                       LivePriceWidget(
                                         price: displayLocalPrice,
                                         currency: '',
-                                        animateJitter: false,
+                                        animateJitter: true,
                                         style: TextStyle(
                                           fontSize: 13.5,
                                           fontWeight: FontWeight.w900,
@@ -347,7 +347,7 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
                                       LivePriceWidget(
                                         price: sellPrice,
                                         currency: '',
-                                        animateJitter: false,
+                                        animateJitter: true,
                                         style: TextStyle(
                                           fontSize: 13.5,
                                           fontWeight: FontWeight.w900,
@@ -461,10 +461,10 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
 
     String label = '24K';
     Color badgeColor = const Color(0xFFD4AF37);
-    if (id.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata')) {
+    if (id.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata') || id.contains('gremse') || id.contains('resat')) {
       label = '22K';
       badgeColor = const Color(0xFFE5B80B);
-    } else if (id.contains('21')) {
+    } else if (id.contains('21') || (id.startsWith('sy_') && id.contains('lira')) || id.contains('rashadi') || id.contains('english')) {
       label = '21K';
       badgeColor = const Color(0xFFC5A059);
     } else if (id.contains('18')) {

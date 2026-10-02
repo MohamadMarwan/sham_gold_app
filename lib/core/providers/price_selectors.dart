@@ -392,25 +392,39 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
     }
 
     final rawStandardCoins = [
-      {'id': 'en_21', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
-      {'id': 'en_22', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'pound_21', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
-      {'id': 'pound_22', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (7 غ)', 'grams': 7.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (3.5 غ)', 'grams': 3.5, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (1.75 غ)', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (7.2 غ)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'lira_24', 'title': 'ليرة ذهبية (8 غ)', 'grams': 8.0, 'price': k24Price, 'usd': k24Usd},
+      {'id': 'en_21', 'title': 'ليرة إنجليزية (8 غ) عيار 21', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'en_22', 'title': 'ليرة إنجليزية (8 غ) عيار 22', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'pound_21', 'title': 'جنيه ذهب (8 غ) عيار 21', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'pound_22', 'title': 'جنيه ذهب (8 غ) عيار 22', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'lira_24', 'title': 'ليرة ذهبية (8 غ) عيار 24', 'grams': 8.0, 'price': k24Price, 'usd': k24Usd},
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (جديد)', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
+      {'id': 'tr_gold_ceyrek_old', 'title': 'ربع ليرة تركية (قديم)', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (جديد)', 'grams': 3.5, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
+      {'id': 'tr_gold_yarim_old', 'title': 'نصف ليرة تركية (قديم)', 'grams': 3.5, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (جديد)', 'grams': 7.0, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
+      {'id': 'tr_gold_tam_old', 'title': 'ليرة تركية كاملة (قديم)', 'grams': 7.0, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (جديد)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
+      {'id': 'tr_gold_ata_old', 'title': 'ليرة زينة عطا (قديم)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
+      {'id': 'tr_gold_gremse_new', 'title': 'غريمسة تركية (جديد)', 'grams': 17.5, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
+      {'id': 'tr_gold_gremse_old', 'title': 'غريمسة تركية (قديم)', 'grams': 17.5, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
+      {'id': 'tr_gold_ata5_new', 'title': 'خمس ليرات تركية - أتا 5 (جديد)', 'grams': 36.0, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
+      {'id': 'tr_gold_ata5_old', 'title': 'خمس ليرات تركية - أتا 5 (قديم)', 'grams': 36.0, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
+      {'id': 'tr_gold_resat_new', 'title': 'ليرة رشادية تركية (جديد)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
+      {'id': 'tr_gold_resat_old', 'title': 'ليرة رشادية تركية (قديم)', 'grams': 7.2, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
     ];
 
     for (final c in rawStandardCoins) {
       final baseId = c['id'] as String;
       if (baseId.startsWith('tr_') && !priceService.isTurkishItemVisible(baseId)) continue;
       
-      final id = baseId.startsWith('tr_') ? baseId : '${country.code.toLowerCase()}_$baseId';
+      final isTrMarket = country.code.toUpperCase() == 'TR';
+      final id = (isTrMarket && baseId.startsWith('tr_')) ? baseId : '${country.code.toLowerCase()}_$baseId';
+      if (isTrMarket && masterMap.containsKey(id)) continue;
+
       final grams = c['grams'] as double;
-      final p = c['price'] as double;
-      final u = c['usd'] as double;
+      final isOld = (c['isOld'] as bool?) ?? false;
+      final p = (c['price'] as double) * (isOld ? 0.995 : 1.0);
+      final u = (c['usd'] as double) * (isOld ? 0.995 : 1.0);
       final buy = double.parse((p * grams).toStringAsFixed(2));
       final sell = double.parse((buy * 1.01).toStringAsFixed(2));
       final usd = double.parse((u * grams).toStringAsFixed(2));

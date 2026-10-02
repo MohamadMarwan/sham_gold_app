@@ -466,43 +466,127 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     return result;
   }
 
-  List<PriceItem> _getCoinsForCountry(CountryProvider countryProvider, List<PriceItem> allPrices) {
-    final country = countryProvider.selectedCountry;
-    // If Syria, use sy_ items and sort by price ascending
-    if (country.code.toUpperCase() == 'SY') {
-      final list = allPrices.where((p) {
-        if (!p.id.startsWith('sy_')) return false;
-        final isCoin = p.metalType == 'coin';
-        final isLiraInBullion = p.metalType == 'bullion' && p.id.toLowerCase().contains('lira');
-        return isCoin || isLiraInBullion;
-      }).toList();
-      
-      if (list.isNotEmpty) {
-        list.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
-        return list;
-      }
+  int _getCoinSortOrder(PriceItem item) {
+    final id = item.id.toLowerCase();
+
+    // 1. Quarter Liras (100 - 199)
+    if (id.contains('quarter') || id.contains('ceyrek')) {
+      if (id.contains('syrian') || (id.contains('sy_') && !id.contains('english') && !id.contains('rashadi') && !id.contains('tr_'))) return 110;
+      if (id.contains('ceyrek_new')) return 120;
+      if (id.contains('ceyrek_old')) return 125;
+      if (id.contains('ceyrek')) return 120;
+      if (id.contains('rashadi')) return 130;
+      if (id.contains('english') && id.contains('21')) return 140;
+      if (id.contains('english') && id.contains('22')) return 145;
+      if (id.contains('english')) return 140;
+      return 190;
     }
 
+    // 2. Half Liras (200 - 299)
+    if (id.contains('half') || id.contains('yarim')) {
+      if (id.contains('syrian') || (id.contains('sy_') && !id.contains('english') && !id.contains('rashadi') && !id.contains('tr_'))) return 210;
+      if (id.contains('yarim_new')) return 220;
+      if (id.contains('yarim_old')) return 225;
+      if (id.contains('yarim')) return 220;
+      if (id.contains('pound')) return 230; // eg_half_pound
+      if (id.contains('rashadi')) return 240;
+      if (id.contains('english') && id.contains('21')) return 250;
+      if (id.contains('english') && id.contains('22')) return 255;
+      if (id.contains('english')) return 250;
+      return 290;
+    }
+
+    // 4. Multi-Liras (Gremse, 5 Liras / Ata5) (400 - 499)
+    if (id.contains('gremse') || id.contains('gremese')) {
+      if (id.contains('new')) return 410;
+      if (id.contains('old')) return 415;
+      return 410;
+    }
+    if (id.contains('ata5') || id.contains('_5_') || id.contains('five') || id.contains('tam5')) {
+      if (id.contains('ata5_new')) return 420;
+      if (id.contains('ata5_old')) return 425;
+      if (id.contains('rashadi') && id.contains('21')) return 430;
+      if (id.contains('rashadi') && id.contains('22')) return 435;
+      if (id.contains('syrian') || id.contains('sy_lira_5_syrian')) return 440;
+      if (id.contains('english') && id.contains('21')) return 450;
+      if (id.contains('english') && id.contains('22')) return 455;
+      return 460;
+    }
+
+    // 3. Full Liras (300 - 399)
+    if (id.contains('tam_new')) return 310;
+    if (id.contains('tam_old')) return 315;
+    if (id.contains('tam')) return 310;
+    if (id.contains('ata_new')) return 320;
+    if (id.contains('ata_old')) return 325;
+    if (id.contains('ata')) return 320;
+    if (id.contains('resat_new') || (id.contains('resat') && id.contains('new'))) return 326;
+    if (id.contains('resat_old') || (id.contains('resat') && id.contains('old'))) return 327;
+    if (id.contains('sy_lira_syrian')) return 330;
+    if (id.contains('rashadi') && id.contains('21')) return 335;
+    if (id.contains('rashadi') && id.contains('22')) return 337;
+    if (id.contains('rashadi')) return 335;
+    if (id.contains('othmani') && id.contains('21')) return 340;
+    if (id.contains('othmani') && id.contains('22')) return 342;
+    if (id.contains('othmani')) return 340;
+    if (id.contains('zina')) return 345;
+    if ((id.contains('en_21') || id.contains('english')) && id.contains('21')) return 350;
+    if ((id.contains('en_22') || id.contains('english')) && id.contains('22')) return 355;
+    if (id.contains('english') || id.contains('en_')) return 350;
+    if (id.contains('pound') && id.contains('21')) return 360;
+    if (id.contains('pound') && id.contains('22')) return 365;
+    if (id.contains('pound')) return 360;
+    if (id.contains('lira_24')) return 370;
+
+    return 500;
+  }
+
+  List<PriceItem> _getCoinsForCountry(CountryProvider countryProvider, List<PriceItem> allPrices) {
+    final country = countryProvider.selectedCountry;
+    final isSyria = country.code.toUpperCase() == 'SY';
+    final isTurkey = country.code.toUpperCase() == 'TR';
+    final priceService = ref.read(priceServiceProvider);
     final marketData = countryProvider.currentMarketData;
     final List<dynamic> marketItems = (marketData != null && marketData['items'] is List)
         ? marketData['items']
         : [];
 
-    // Check if there are country-specific custom coin items in marketData (e.g. eg_gold_pound)
-    final customCoins = marketItems
-        .where((item) => (item['metalType'] == 'gold_coin' || item['metalType'] == 'coin'))
-        .map((item) {
-      return PriceItem(
-        id: item['id'] ?? '',
-        title: item['title'] ?? item['name'] ?? '',
-        buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
-        sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
-        currency: item['currency'] ?? country.localizedCurrencySymbol,
-        metalType: 'coin',
-        usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
-      );
-    }).toList();
+    final List<PriceItem> localCoins = [];
 
+    // 1. Collect country-specific coins
+    if (isSyria) {
+      final syList = allPrices.where((p) {
+        if (!p.id.startsWith('sy_')) return false;
+        final isCoin = p.metalType == 'coin';
+        final isLiraInBullion = p.metalType == 'bullion' && p.id.toLowerCase().contains('lira');
+        return isCoin || isLiraInBullion;
+      }).toList();
+      localCoins.addAll(syList);
+    } else if (isTurkey) {
+      final trList = allPrices.where((p) {
+        final id = p.id.toLowerCase();
+        final isCoin = id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata') || id.contains('gremse') || id.contains('resat');
+        return isCoin && priceService.isTurkishItemVisible(p.id);
+      }).toList();
+      localCoins.addAll(trList);
+    } else {
+      final customCoins = marketItems
+          .where((item) => (item['metalType'] == 'gold_coin' || item['metalType'] == 'coin'))
+          .map((item) {
+        return PriceItem(
+          id: item['id'] ?? '',
+          title: item['title'] ?? item['name'] ?? '',
+          buyPrice: (item['buyPrice'] as num?)?.toDouble() ?? 0.0,
+          sellPrice: (item['sellPrice'] as num?)?.toDouble() ?? 0.0,
+          currency: item['currency'] ?? country.localizedCurrencySymbol,
+          metalType: 'coin',
+          usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+        );
+      }).toList();
+      localCoins.addAll(customCoins);
+    }
+
+    // 2. Identify Karat prices for the current country
     double k21Price = 0.0;
     double k21UsdPrice = 0.0;
     double k22Price = 0.0;
@@ -510,19 +594,37 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     double k24Price = 0.0;
     double k24UsdPrice = 0.0;
 
-    for (var item in marketItems) {
-      final k = (item['karat'] ?? '').toString();
-      if (k == '21') {
-        k21Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
-        k21UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
+    if (isSyria) {
+      final sy21 = allPrices.where((p) => p.id == 'sy_gold_21k').firstOrNull;
+      final sy22 = allPrices.where((p) => p.id == 'sy_gold_22k').firstOrNull;
+      final sy24 = allPrices.where((p) => p.id == 'sy_gold_24k').firstOrNull;
+      if (sy21 != null && sy21.buyPrice > 0) {
+        k21Price = sy21.buyPrice;
+        k21UsdPrice = sy21.usdPrice;
       }
-      if (k == '22') {
-        k22Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
-        k22UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
+      if (sy22 != null && sy22.buyPrice > 0) {
+        k22Price = sy22.buyPrice;
+        k22UsdPrice = sy22.usdPrice;
       }
-      if (k == '24') {
-        k24Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
-        k24UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
+      if (sy24 != null && sy24.buyPrice > 0) {
+        k24Price = sy24.buyPrice;
+        k24UsdPrice = sy24.usdPrice;
+      }
+    } else {
+      for (var item in marketItems) {
+        final k = (item['karat'] ?? '').toString();
+        if (k == '21') {
+          k21Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
+          k21UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
+        }
+        if (k == '22') {
+          k22Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
+          k22UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
+        }
+        if (k == '24') {
+          k24Price = (item['buyPrice'] as num?)?.toDouble() ?? 0.0;
+          k24UsdPrice = (item['usdPrice'] as num?)?.toDouble() ?? 0.0;
+        }
       }
     }
 
@@ -546,48 +648,127 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     }
 
     final currencySymbol = country.localizedCurrencySymbol;
-    // User requested explicit list of coins
-    final rawStandardCoins = [
-      {'id': 'en_21', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
-      {'id': 'en_22', 'title': 'ليرة إنجليزية (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'pound_21', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k21Price, 'usd': k21UsdPrice},
-      {'id': 'pound_22', 'title': 'جنيه ذهب (8 غ)', 'grams': 8.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (7 غ)', 'grams': 7.0, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (3.5 غ)', 'grams': 3.5, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (1.75 غ)', 'grams': 1.75, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (7.2 غ)', 'grams': 7.2, 'price': k22Price, 'usd': k22UsdPrice},
-      {'id': 'lira_24', 'title': 'ليرة ذهبية (8 غ)', 'grams': 8.0, 'price': k24Price, 'usd': k24UsdPrice},
-    ];
 
-    final priceService = ref.read(priceServiceProvider);
-
-    final standardCoins = rawStandardCoins.where((c) {
-      final id = c['id'] as String;
-      if (id.startsWith('tr_')) {
-        return priceService.isTurkishItemVisible(id);
-      }
-      return true;
-    }).map((c) {
-      final id = c['id'] as String;
-      final grams = c['grams'] as double;
-      final p = c['price'] as double;
-      final u = c['usd'] as double;
-      final buy = double.parse((p * grams).toStringAsFixed(2));
-      final sell = double.parse((buy * 1.01).toStringAsFixed(2));
-      final usd = double.parse((u * grams).toStringAsFixed(2));
-      return PriceItem(
-        id: id.startsWith('tr_') ? id : '${country.code.toLowerCase()}_$id',
-        title: c['title'] as String,
-        buyPrice: buy,
-        sellPrice: sell,
+    // 3. Standard English Coins (only if not already provided by localCoins)
+    final List<PriceItem> standardCoins = [];
+    if (!isSyria && !localCoins.any((c) => c.id.contains('english') || c.id.contains('en_21'))) {
+      standardCoins.add(PriceItem(
+        id: '${country.code.toLowerCase()}_en_21',
+        title: 'ليرة إنجليزية (8 غ) عيار 21',
+        buyPrice: double.parse((k21Price * 8.0).toStringAsFixed(2)),
+        sellPrice: double.parse((k21Price * 8.0 * 1.01).toStringAsFixed(2)),
         currency: currencySymbol,
         metalType: 'coin',
-        usdPrice: usd,
-      );
-    }).toList();
+        usdPrice: double.parse((k21UsdPrice * 8.0).toStringAsFixed(2)),
+      ));
+      standardCoins.add(PriceItem(
+        id: '${country.code.toLowerCase()}_en_22',
+        title: 'ليرة إنجليزية (8 غ) عيار 22',
+        buyPrice: double.parse((k22Price * 8.0).toStringAsFixed(2)),
+        sellPrice: double.parse((k22Price * 8.0 * 1.01).toStringAsFixed(2)),
+        currency: currencySymbol,
+        metalType: 'coin',
+        usdPrice: double.parse((k22UsdPrice * 8.0).toStringAsFixed(2)),
+      ));
+      standardCoins.add(PriceItem(
+        id: '${country.code.toLowerCase()}_pound_21',
+        title: 'جنيه ذهب (8 غ) عيار 21',
+        buyPrice: double.parse((k21Price * 8.0).toStringAsFixed(2)),
+        sellPrice: double.parse((k21Price * 8.0 * 1.01).toStringAsFixed(2)),
+        currency: currencySymbol,
+        metalType: 'coin',
+        usdPrice: double.parse((k21UsdPrice * 8.0).toStringAsFixed(2)),
+      ));
+      standardCoins.add(PriceItem(
+        id: '${country.code.toLowerCase()}_lira_24',
+        title: 'ليرة ذهبية (8 غ) عيار 24',
+        buyPrice: double.parse((k24Price * 8.0).toStringAsFixed(2)),
+        sellPrice: double.parse((k24Price * 8.0 * 1.01).toStringAsFixed(2)),
+        currency: currencySymbol,
+        metalType: 'coin',
+        usdPrice: double.parse((k24UsdPrice * 8.0).toStringAsFixed(2)),
+      ));
+    }
 
-    final allCoins = [...customCoins, ...standardCoins];
-    allCoins.sort((a, b) => a.buyPrice.compareTo(b.buyPrice));
+    // 4. Turkish Liras (Available in ALL markets according to Admin Dashboard visibility)
+    final turkishCoinsDefinitions = [
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (جديد)', 'grams': 1.75, 'isOld': false},
+      {'id': 'tr_gold_ceyrek_old', 'title': 'ربع ليرة تركية (قديم)', 'grams': 1.75, 'isOld': true},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (جديد)', 'grams': 3.5, 'isOld': false},
+      {'id': 'tr_gold_yarim_old', 'title': 'نصف ليرة تركية (قديم)', 'grams': 3.5, 'isOld': true},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (جديد)', 'grams': 7.0, 'isOld': false},
+      {'id': 'tr_gold_tam_old', 'title': 'ليرة تركية كاملة (قديم)', 'grams': 7.0, 'isOld': true},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (جديد)', 'grams': 7.2, 'isOld': false},
+      {'id': 'tr_gold_ata_old', 'title': 'ليرة زينة عطا (قديم)', 'grams': 7.2, 'isOld': true},
+      {'id': 'tr_gold_gremse_new', 'title': 'غريمسة تركية (جديد)', 'grams': 17.5, 'isOld': false},
+      {'id': 'tr_gold_gremse_old', 'title': 'غريمسة تركية (قديم)', 'grams': 17.5, 'isOld': true},
+      {'id': 'tr_gold_ata5_new', 'title': 'خمس ليرات تركية - أتا 5 (جديد)', 'grams': 36.0, 'isOld': false},
+      {'id': 'tr_gold_ata5_old', 'title': 'خمس ليرات تركية - أتا 5 (قديم)', 'grams': 36.0, 'isOld': true},
+      {'id': 'tr_gold_resat_new', 'title': 'ليرة رشادية تركية (جديد)', 'grams': 7.2, 'isOld': false},
+      {'id': 'tr_gold_resat_old', 'title': 'ليرة رشادية تركية (قديم)', 'grams': 7.2, 'isOld': true},
+    ];
+
+    final List<PriceItem> turkishCoins = [];
+    for (final def in turkishCoinsDefinitions) {
+      final baseId = def['id'] as String;
+
+      // Visibility filter controlled by Admin Dashboard
+      if (!priceService.isTurkishItemVisible(baseId)) continue;
+
+      if (isTurkey) {
+        // In Turkey: if item already loaded directly from live API, skip calculation
+        if (localCoins.any((c) => c.id == baseId)) continue;
+
+        final grams = def['grams'] as double;
+        final isOld = def['isOld'] as bool;
+        final buy = double.parse((k22Price * grams * (isOld ? 0.995 : 1.0)).toStringAsFixed(2));
+        final sell = double.parse((buy * 1.01).toStringAsFixed(2));
+        final usd = double.parse((k22UsdPrice * grams * (isOld ? 0.995 : 1.0)).toStringAsFixed(2));
+        turkishCoins.add(PriceItem(
+          id: baseId,
+          title: def['title'] as String,
+          buyPrice: buy,
+          sellPrice: sell,
+          currency: currencySymbol,
+          metalType: 'coin',
+          usdPrice: usd,
+        ));
+      } else {
+        // In ALL other markets (Syria, Egypt, Jordan, UAE, etc.):
+        // Calculate the Turkish coin price in local currency using current market 22K rate!
+        final grams = def['grams'] as double;
+        final isOld = def['isOld'] as bool;
+        final buy = double.parse((k22Price * grams * (isOld ? 0.995 : 1.0)).toStringAsFixed(2));
+        final sell = double.parse((buy * 1.01).toStringAsFixed(2));
+        final usd = double.parse((k22UsdPrice * grams * (isOld ? 0.995 : 1.0)).toStringAsFixed(2));
+        turkishCoins.add(PriceItem(
+          id: '${country.code.toLowerCase()}_$baseId',
+          title: def['title'] as String,
+          buyPrice: buy,
+          sellPrice: sell,
+          currency: currencySymbol,
+          metalType: 'coin',
+          usdPrice: usd,
+        ));
+      }
+    }
+
+    // 5. Combine and deduplicate
+    final Map<String, PriceItem> uniqueCoinsMap = {};
+    for (final c in [...localCoins, ...standardCoins, ...turkishCoins]) {
+      uniqueCoinsMap[c.id] = c;
+    }
+    final allCoins = uniqueCoinsMap.values.toList();
+
+    // 6. 100% Deterministic and Stable Ordering
+    // Ensures coin cards NEVER randomly jump or swap positions during live price updates!
+    allCoins.sort((a, b) {
+      final orderA = _getCoinSortOrder(a);
+      final orderB = _getCoinSortOrder(b);
+      if (orderA != orderB) return orderA.compareTo(orderB);
+      return a.id.compareTo(b.id);
+    });
+
     return allCoins;
   }
 }

@@ -43,11 +43,9 @@ class CurrencySquareCard extends ConsumerStatefulWidget {
 }
 
 class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _pulseAnimation;
-  late AnimationController _ambientController;
-  late Animation<double> _ambientAnimation;
   double _prevPrice = 0.0;
   bool _priceChanged = false;
 
@@ -62,16 +60,6 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.04).animate(
       CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
-
-    // Ambient pulse: subtle opacity breathing every ~1.2s for live feel
-    _ambientController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _ambientAnimation = Tween<double>(begin: 1.0, end: 0.82).animate(
-      CurvedAnimation(parent: _ambientController, curve: Curves.easeInOut),
-    );
-    _ambientController.repeat(reverse: true);
   }
 
   @override
@@ -91,7 +79,6 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
   @override
   void dispose() {
     _animController.dispose();
-    _ambientController.dispose();
     super.dispose();
   }
 
@@ -316,13 +303,9 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                         ],
                       ),
 
-                      // 3. Dual Pricing Box (Buy & Sell) with live pulse
-                      AnimatedBuilder(
-                        animation: _ambientController,
-                        builder: (context, child) {
-                          final opacity = _ambientAnimation.value;
-                          return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      // 3. Dual Pricing Box (Buy & Sell)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                             decoration: BoxDecoration(
                               color: isDark ? Colors.black26 : const Color(0xFFF8FAFC),
                               borderRadius: BorderRadius.circular(8),
@@ -358,7 +341,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                             fontFamily: 'Cairo',
                                             fontSize: 11.5,
                                             fontWeight: FontWeight.w900,
-                                            color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
+                                            color: isDark ? Colors.white : AppColors.darkGreen,
                                           ),
                                         ),
                                       ),
@@ -392,11 +375,11 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                         alignment: AlignmentDirectional.centerEnd,
                                         child: Text(
                                           _formatPrice(sellPrice, context),
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             fontFamily: 'Cairo',
                                             fontSize: 11.5,
                                             fontWeight: FontWeight.w900,
-                                            color: AppColors.gold.withValues(alpha: opacity),
+                                            color: AppColors.gold,
                                           ),
                                         ),
                                       ),
@@ -405,9 +388,7 @@ class _CurrencySquareCardState extends ConsumerState<CurrencySquareCard>
                                 ),
                               ],
                             ),
-                          );
-                        },
-                      ),
+                          ),
 
                       // 4. Sparkline or Trend + Live indicator
                       Row(
@@ -537,30 +518,7 @@ class CompactCurrencyCard extends StatefulWidget {
   State<CompactCurrencyCard> createState() => _CompactCurrencyCardState();
 }
 
-class _CompactCurrencyCardState extends State<CompactCurrencyCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ambientController;
-  late Animation<double> _ambientAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _ambientController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-    _ambientAnimation = Tween<double>(begin: 1.0, end: 0.82).animate(
-      CurvedAnimation(parent: _ambientController, curve: Curves.easeInOut),
-    );
-    _ambientController.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _ambientController.dispose();
-    super.dispose();
-  }
-
+class _CompactCurrencyCardState extends State<CompactCurrencyCard> {
   String _formatPrice(double price, BuildContext context) {
     final isAr = context.locale.languageCode == 'ar';
     final locale = isAr ? 'ar' : 'en_US';
@@ -699,76 +657,70 @@ class _CompactCurrencyCardState extends State<CompactCurrencyCard>
               ),
             ),
 
-            // Buy / Sell prices with ambient pulse
-            AnimatedBuilder(
-              animation: _ambientController,
-              builder: (context, child) {
-                final opacity = _ambientAnimation.value;
-                return Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+            // Buy / Sell prices aligned cleanly to the edge
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${'currency_buy'.tr()}: ',
-                              style: TextStyle(
-                                fontFamily: 'Cairo',
-                                fontSize: 8.5,
-                                color: isDark ? Colors.white54 : AppColors.mutedText,
-                              ),
-                            ),
-                            Text(
-                              _formatPrice(buyPrice, context),
-                              style: TextStyle(
-                                fontFamily: 'Cairo',
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w900,
-                                color: (isDark ? Colors.white : AppColors.darkGreen).withValues(alpha: opacity),
-                              ),
-                            ),
-                          ],
+                      Text(
+                        '${'currency_buy'.tr()}: ',
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 9.0,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white54 : AppColors.mutedText,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: AlignmentDirectional.centerEnd,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${'currency_sell'.tr()}: ',
-                              style: TextStyle(
-                                fontFamily: 'Cairo',
-                                fontSize: 8.5,
-                                color: isDark ? Colors.white54 : AppColors.mutedText,
-                              ),
-                            ),
-                            Text(
-                              _formatPrice(sellPrice, context),
-                              style: TextStyle(
-                                fontFamily: 'Cairo',
-                                fontSize: 11.5,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.gold.withValues(alpha: opacity),
-                              ),
-                            ),
-                          ],
+                      Text(
+                        _formatPrice(buyPrice, context),
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? Colors.white : AppColors.darkGreen,
                         ),
                       ),
                     ],
                   ),
-                );
-              },
+                ),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${'currency_sell'.tr()}: ',
+                        style: TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 9.0,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white54 : AppColors.mutedText,
+                        ),
+                      ),
+                      Text(
+                        _formatPrice(sellPrice, context),
+                        style: const TextStyle(
+                          fontFamily: 'Cairo',
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.gold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
 
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
 
             // Pin button
             GestureDetector(

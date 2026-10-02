@@ -450,11 +450,9 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     if (ref.read(navigationIndexProvider) != index) {
       ref.read(navigationIndexProvider.notifier).state = index;
       HapticFeedback.selectionClick();
-      _pageController.animateToPage(
-        index,
-        duration: const Duration(milliseconds: 140),
-        curve: Curves.easeOutQuad,
-      );
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(index);
+      }
       AdService().showInterstitialOnNavigation();
     }
   }
