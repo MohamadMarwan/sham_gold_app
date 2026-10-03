@@ -397,14 +397,16 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       }
     }
 
-    // Fallback if market items not loaded yet
-    if (k24Price == 0.0) {
+    final rate = (marketData != null && marketData['fxRateToUSD'] != null)
+        ? (marketData['fxRateToUSD'] as num).toDouble()
+        : (country.code == 'DZ' ? 134.5 : 1.0);
+
+    // Fallback if market items not loaded yet or if k24Price is corrupted (e.g. 24 EGP when USD is $130+)
+    final expectedMinPrice = (k24UsdPrice > 0 ? k24UsdPrice : 80.0) * (rate > 0 ? rate : 1.0) * 0.35;
+    if (k24Price <= 0.0 || (country.code != 'US' && country.code != 'GLOBAL' && rate > 5.0 && k24Price < expectedMinPrice)) {
       final xau = allPrices.where((p) => p.id == 'xau_usd').firstOrNull;
       final xauPrice = xau?.buyPrice ?? 2900.0;
       k24UsdPrice = xauPrice / 31.1035;
-      final rate = (marketData != null && marketData['fxRateToUSD'] != null)
-          ? (marketData['fxRateToUSD'] as num).toDouble()
-          : (country.code == 'DZ' ? 134.5 : 1.0);
       k24Price = k24UsdPrice * rate;
     }
 

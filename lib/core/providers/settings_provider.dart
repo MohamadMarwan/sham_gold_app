@@ -133,6 +133,13 @@ class SettingsProvider with ChangeNotifier {
     return currentSettings!['displaySettings'][key] ?? defaultValue;
   }
 
+  String get priceBlinkMode {
+    if (currentSettings == null || currentSettings!['displaySettings'] == null) {
+      return 'on_update';
+    }
+    return currentSettings!['displaySettings']['priceBlinkMode']?.toString() ?? 'on_update';
+  }
+
   bool isWeekend() {
     final now = DateTime.now();
     return now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;

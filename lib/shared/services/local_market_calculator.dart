@@ -287,10 +287,19 @@ class LocalMarketCalculator {
     final double silverGramSellUSD = (_silverOunceSellUSD > 0 ? _silverOunceSellUSD : 31.6) / 31.1035;
 
     /// Try to use scraped price if available (e.g. sy_gold_21, tr_gold_24)
-    /// Falls back to calculated price if not found.
+    /// Falls back to calculated price if not found or if scraped value is unreasonable.
     Map<String, dynamic> getGramPrice(String karatStr, double karatFraction) {
       final baseUSD = g24USD * karatFraction;
       final usdPrice = double.parse(baseUSD.toStringAsFixed(2));
+
+      final baseLocal = baseUSD * rate;
+      final baseSellLocal = (g24SellUSD * karatFraction) * rate;
+      final calcBuy = double.parse(baseLocal.toStringAsFixed(2));
+      double calcSell = double.parse(baseSellLocal.toStringAsFixed(2));
+      if (calcSell <= calcBuy) {
+        final minSpread = isGlobal ? 0.02 : math.max(0.01, 0.02 * rate);
+        calcSell = double.parse((calcBuy + minSpread).toStringAsFixed(2));
+      }
 
       // Check for scraped price (e.g. 'sy_gold_21' or 'tr_gold_24' or 'gold_24k_usd')
       final scrapedId = isGlobal ? 'gold_${karatStr}k_usd' : '${lowerCode}_gold_$karatStr';
@@ -302,21 +311,26 @@ class LocalMarketCalculator {
           sBuy = sBuy / 100;
           sSell = sSell / 100;
         }
-        return {
-          'buyPrice': sBuy,
-          'sellPrice': sSell,
-          'usdPrice': usdPrice,
-        };
+
+        // Strict Sanity Check:
+        // 1. Reject if price is an accidental karat literal (e.g. 24, 22, 21, 18, 14)
+        final bool isKaratLiteral = (sBuy >= 14 && sBuy <= 24.5 && (sBuy - sBuy.round()).abs() < 0.3);
+        // 2. Must be within reasonable range of calculated base price [40%, 250%]
+        final bool isReasonableRange = calcBuy > 0 && sBuy >= (calcBuy * 0.40) && sBuy <= (calcBuy * 2.50);
+        // 3. Absolute minimum threshold per gram in any currency (even in KWD 1g > 30 KWD)
+        final bool meetsMinThreshold = sBuy >= 30.0;
+
+        final bool isSanePrice = !isKaratLiteral && meetsMinThreshold && isReasonableRange;
+
+        if (isSanePrice) {
+          return {
+            'buyPrice': sBuy,
+            'sellPrice': sSell,
+            'usdPrice': usdPrice,
+          };
+        }
       }
 
-      final baseLocal = baseUSD * rate;
-      final baseSellLocal = (g24SellUSD * karatFraction) * rate;
-      final calcBuy = double.parse(baseLocal.toStringAsFixed(2));
-      double calcSell = double.parse(baseSellLocal.toStringAsFixed(2));
-      if (calcSell <= calcBuy) {
-        final minSpread = isGlobal ? 0.02 : math.max(0.01, 0.02 * rate);
-        calcSell = double.parse((calcBuy + minSpread).toStringAsFixed(2));
-      }
       return {'buyPrice': calcBuy, 'sellPrice': calcSell, 'usdPrice': usdPrice};
     }
 

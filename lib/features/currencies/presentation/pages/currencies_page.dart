@@ -127,6 +127,9 @@ class _CurrenciesPageState extends ConsumerState<CurrenciesPage> with AutomaticK
       case 'TND': return '🇹🇳';
       case 'SDG': return '🇸🇩';
       case 'YER': return '🇾🇪';
+      case 'MRU': return '🇲🇷';
+      case 'SOS': return '🇸🇴';
+      case 'ILS': return '🇵🇸';
       default: return '🌐';
     }
   }

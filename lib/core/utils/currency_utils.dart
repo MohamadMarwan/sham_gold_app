@@ -280,6 +280,8 @@ class CurrencyUtils {
         case 'AUD': return 'أسترالي';
         case 'CHF': return 'فرنك';
         case 'ILS': return 'شيكل';
+        case 'MRU': return 'أوقية';
+        case 'SOS': return 'شلن';
         default: return code;
       }
     }
@@ -308,9 +310,6 @@ class CurrencyUtils {
   static String getCompactFormula(String targetCode, double rate, String baseCode, {BuildContext? context, int? decimals}) {
     final targetSymbol = getSymbol(targetCode, context: context);
     final baseSymbol = getSymbol(baseCode, context: context);
-    final isAr = (context != null)
-        ? context.locale.languageCode == 'ar'
-        : (Intl.defaultLocale?.startsWith('ar') ?? true);
     // Always use en_US locale for NUMBERS so digits display as 0-9, not Arabic-Indic ٠-٩.
     // Arabic text (currency names) remains Arabic via the return string itself.
     const locale = 'en_US';
