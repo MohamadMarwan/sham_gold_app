@@ -169,11 +169,12 @@ class LocalMarketCalculator {
   }
 
   /// Fetch live gold ounce price, FX rates, and country-specific prices.
-  Future<void> refreshData(HttpApiService httpService) async {
+  Future<void> refreshData(HttpApiService httpService, {bool fetchPrices = true}) async {
     try {
-      // 1. Get ALL prices from /api/prices (gold, silver, currencies, scraped country prices)
-      final pricesResponse = await httpService.get('/api/prices');
-      if (pricesResponse is List) {
+      if (fetchPrices) {
+        // 1. Get ALL prices from /api/prices (gold, silver, currencies, scraped country prices)
+        final pricesResponse = await httpService.get('/api/prices');
+        if (pricesResponse is List) {
         for (final p in pricesResponse) {
           final id = p['id']?.toString() ?? '';
           if (id.isEmpty) continue;
@@ -217,6 +218,7 @@ class LocalMarketCalculator {
             }
           }
         }
+      }
       }
     } catch (e) {
       debugPrint('⚠️ Failed to fetch prices: $e');

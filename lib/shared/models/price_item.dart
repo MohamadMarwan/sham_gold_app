@@ -114,6 +114,15 @@ class PriceItem {
       return direct;
     }
 
+    // 1b. Normalized spacing translation: e.g. '(8 غ)' -> '(8غ)'
+    final normalized = title.replaceAllMapped(RegExp(r'\((\d+(?:\.\d+)?)\s*غ\)'), (m) => '(${m[1]}غ)');
+    if (normalized != title) {
+      final directNorm = normalized.tr();
+      if (directNorm.isNotEmpty && directNorm != normalized) {
+        return directNorm;
+      }
+    }
+
     // 2. Pattern: 'العملة (الدولة)' -> e.g. 'الريال السعودي (سوريا)'
     final parenRegex = RegExp(r'^(.*?)\s*\((.*?)\)$');
     final match = parenRegex.firstMatch(title);
@@ -135,13 +144,56 @@ class PriceItem {
       if (idResolved.isNotEmpty) return idResolved;
     }
 
-    // 4. Single currency name translation (e.g. 'الريال السعودي', 'الليرة التركية')
+    // 4. Currency pairs with 'مقابل' (e.g. 'دولار مقابل د.إ' -> 'USD vs AED' in EN/TR)
+    if (title.contains('مقابل')) {
+      final parts = title.split('مقابل');
+      if (parts.length == 2) {
+        final pair = CurrencyUtils.getCompactPairTitle(parts[0].trim(), parts[1].trim());
+        if (pair.isNotEmpty && pair != title) return pair;
+      }
+    }
+
+    // 5. Single currency name translation (e.g. 'الريال السعودي', 'الليرة التركية')
     final singleCurrency = _translateCurrencyName(title);
     if (singleCurrency != title) {
       return singleCurrency;
     }
 
-    // 5. ID and Karat-based translation resolution
+    // 6. ID-based coin resolution
+    if (lowerId.contains('en_21') || lowerId.contains('english_21')) return 'ليرة إنجليزية (8غ) عيار 21'.tr();
+    if (lowerId.contains('en_22') || lowerId.contains('english_22')) return 'ليرة إنجليزية (8غ) عيار 22'.tr();
+    if (lowerId.contains('pound_21')) return 'جنيه ذهب (8غ) عيار 21'.tr();
+    if (lowerId.contains('pound_22')) return 'جنيه ذهب (8غ) عيار 22'.tr();
+    if (lowerId.contains('lira_24')) return 'ليرة ذهبية (8غ) عيار 24'.tr();
+    if (lowerId.contains('ceyrek_new')) return 'ربع ليرة تركية (جديد)'.tr();
+    if (lowerId.contains('ceyrek_old')) return 'ربع ليرة تركية (قديم)'.tr();
+    if (lowerId.contains('yarim_new')) return 'نصف ليرة تركية (جديد)'.tr();
+    if (lowerId.contains('yarim_old')) return 'نصف ليرة تركية (قديم)'.tr();
+    if (lowerId.contains('tam_new')) return 'ليرة تركية كاملة (جديد)'.tr();
+    if (lowerId.contains('tam_old')) return 'ليرة تركية كاملة (قديم)'.tr();
+    if (lowerId.contains('ata_new') && !lowerId.contains('ata5')) return 'ليرة زينة عطا (جديد)'.tr();
+    if (lowerId.contains('ata_old') && !lowerId.contains('ata5')) return 'ليرة زينة عطا (قديم)'.tr();
+    if (lowerId.contains('gremse_new')) return 'غريمسة تركية (جديد)'.tr();
+    if (lowerId.contains('gremse_old')) return 'غريمسة تركية (قديم)'.tr();
+    if (lowerId.contains('ata5_new')) return 'خمس ليرات تركية - أتا 5 (جديد)'.tr();
+    if (lowerId.contains('ata5_old')) return 'خمس ليرات تركية - أتا 5 (قديم)'.tr();
+    if (lowerId.contains('resat_new')) return 'ليرة رشادية تركية (جديد)'.tr();
+    if (lowerId.contains('resat_old')) return 'ليرة رشادية تركية (قديم)'.tr();
+
+    // 7. ID-based bullion resolution
+    if (lowerId.contains('bullion_1g')) return 'bullion_1g'.tr();
+    if (lowerId.contains('bullion_5g')) return 'bullion_5g'.tr();
+    if (lowerId.contains('bullion_10g')) return 'bullion_10g'.tr();
+    if (lowerId.contains('bullion_20g')) return 'bullion_20g'.tr();
+    if (lowerId.contains('bullion_50g')) return 'bullion_50g'.tr();
+    if (lowerId.contains('bullion_100g')) return 'bullion_100g'.tr();
+    if (lowerId.contains('bullion_1oz')) return 'bullion_1oz'.tr();
+    if (lowerId.contains('bullion_1kg')) return 'bullion_1kg'.tr();
+    if (lowerId.contains('one_tola')) return 'one_tola'.tr();
+    if (lowerId.contains('five_tola')) return 'five_tola'.tr();
+    if (lowerId.contains('half_tola')) return 'half_tola'.tr();
+
+    // 8. ID and Karat-based translation resolution
     final lowerTitle = title.toLowerCase();
     if (metalType == 'gold') {
       if (lowerId.contains('24k') || title.contains('24')) return 'gold_24k'.tr();
@@ -182,7 +234,7 @@ class PriceItem {
     if (lowerId == 'coin_quarter' || title == 'coin_quarter') return 'coin_quarter'.tr();
     if (lowerId == 'coin_five' || title == 'coin_five') return 'coin_five'.tr();
 
-    // 6. Currency items & Exchange rate pairs
+    // 9. Currency items & Exchange rate pairs
     if (metalType == 'currency' || title.contains('مقابل') || title.contains('سعر صرف')) {
       return sanitizeTitle(title, currency: currency);
     }

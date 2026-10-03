@@ -34,7 +34,6 @@ class PriceDetailPage extends ConsumerStatefulWidget {
 class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   List<PriceHistoryPoint> historyPoints = [];
   bool isLoading = true;
-  bool _isBackgroundRefresh = false; // distinguishes user-initiated vs realtime
   String errorMessage = '';
   String selectedRange = 'day';
   ChartType _chartType = ChartType.area;
@@ -106,7 +105,6 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
         errorMessage = '';
       });
     }
-    _isBackgroundRefresh = isBackground;
 
     try {
       final service = ref.read(priceServiceProvider);

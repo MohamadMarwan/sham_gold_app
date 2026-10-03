@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../shared/models/price_item.dart';
 import '../../shared/services/price_service.dart';
 import '../../shared/services/local_market_calculator.dart';
@@ -386,17 +387,17 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
       final id = '${country.code.toLowerCase()}_bullion_${b['id']}';
       masterMap[id] = PriceItem(
         id: id,
-        title: b['title'] as String,
+        title: (b['key'] as String?)?.tr() ?? (b['title'] as String),
         buyPrice: buy, sellPrice: sell, currency: currencySymbol, metalType: 'bullion', usdPrice: usd,
       );
     }
 
     final rawStandardCoins = [
-      {'id': 'en_21', 'title': 'ليرة إنجليزية (8 غ) عيار 21', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
-      {'id': 'en_22', 'title': 'ليرة إنجليزية (8 غ) عيار 22', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'pound_21', 'title': 'جنيه ذهب (8 غ) عيار 21', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
-      {'id': 'pound_22', 'title': 'جنيه ذهب (8 غ) عيار 22', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
-      {'id': 'lira_24', 'title': 'ليرة ذهبية (8 غ) عيار 24', 'grams': 8.0, 'price': k24Price, 'usd': k24Usd},
+      {'id': 'en_21', 'title': 'ليرة إنجليزية (8غ) عيار 21', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'en_22', 'title': 'ليرة إنجليزية (8غ) عيار 22', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'pound_21', 'title': 'جنيه ذهب (8غ) عيار 21', 'grams': 8.0, 'price': k21Price, 'usd': k21Usd},
+      {'id': 'pound_22', 'title': 'جنيه ذهب (8غ) عيار 22', 'grams': 8.0, 'price': k22Price, 'usd': k22Usd},
+      {'id': 'lira_24', 'title': 'ليرة ذهبية (8غ) عيار 24', 'grams': 8.0, 'price': k24Price, 'usd': k24Usd},
       {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (جديد)', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd, 'isOld': false},
       {'id': 'tr_gold_ceyrek_old', 'title': 'ربع ليرة تركية (قديم)', 'grams': 1.75, 'price': k22Price, 'usd': k22Usd, 'isOld': true},
       {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (جديد)', 'grams': 3.5, 'price': k22Price, 'usd': k22Usd, 'isOld': false},

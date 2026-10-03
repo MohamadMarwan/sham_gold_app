@@ -656,7 +656,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
     if (!isSyria && !localCoins.any((c) => c.id.contains('english') || c.id.contains('en_21'))) {
       standardCoins.add(PriceItem(
         id: '${country.code.toLowerCase()}_en_21',
-        title: 'ليرة إنجليزية (8 غ) عيار 21',
+        title: 'ليرة إنجليزية (8غ) عيار 21',
         buyPrice: double.parse((k21Price * 8.0).toStringAsFixed(2)),
         sellPrice: double.parse((k21Price * 8.0 * 1.01).toStringAsFixed(2)),
         currency: currencySymbol,
@@ -665,7 +665,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       ));
       standardCoins.add(PriceItem(
         id: '${country.code.toLowerCase()}_en_22',
-        title: 'ليرة إنجليزية (8 غ) عيار 22',
+        title: 'ليرة إنجليزية (8غ) عيار 22',
         buyPrice: double.parse((k22Price * 8.0).toStringAsFixed(2)),
         sellPrice: double.parse((k22Price * 8.0 * 1.01).toStringAsFixed(2)),
         currency: currencySymbol,
@@ -674,7 +674,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       ));
       standardCoins.add(PriceItem(
         id: '${country.code.toLowerCase()}_pound_21',
-        title: 'جنيه ذهب (8 غ) عيار 21',
+        title: 'جنيه ذهب (8غ) عيار 21',
         buyPrice: double.parse((k21Price * 8.0).toStringAsFixed(2)),
         sellPrice: double.parse((k21Price * 8.0 * 1.01).toStringAsFixed(2)),
         currency: currencySymbol,
@@ -683,7 +683,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       ));
       standardCoins.add(PriceItem(
         id: '${country.code.toLowerCase()}_lira_24',
-        title: 'ليرة ذهبية (8 غ) عيار 24',
+        title: 'ليرة ذهبية (8غ) عيار 24',
         buyPrice: double.parse((k24Price * 8.0).toStringAsFixed(2)),
         sellPrice: double.parse((k24Price * 8.0 * 1.01).toStringAsFixed(2)),
         currency: currencySymbol,

@@ -59,7 +59,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   Future<void> _init() async {
     await _loadFromCache();
     LocalMarketCalculator().updateFromLivePrices(currentPrices);
-    LocalMarketCalculator().refreshData(_httpApiService).catchError((e) {
+    LocalMarketCalculator().refreshData(_httpApiService, fetchPrices: currentPrices.isEmpty).catchError((e) {
       debugPrint('Error refreshing LocalMarketCalculator on init: $e');
     });
     _socketService.initSocket();
@@ -67,8 +67,12 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     _socketService.connectionStream.listen((isConnected) {
       _settingsProvider.updateConnectionStatus(isConnected);
       if (isConnected) {
-        _settingsProvider.fetchSettings();
-        refreshPrices(manual: false);
+        // Socket automatically pushes price_update, banner_update, and settings_update.
+        // Only fetch via HTTP as a fallback if local state is completely empty.
+        if (currentPrices.isEmpty) {
+          _settingsProvider.fetchSettings();
+          refreshPrices(manual: false);
+        }
       }
     });
 
@@ -112,7 +116,9 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     });
 
     _settingsProvider.fetchEnabledCurrencies();
-    await refreshPrices(manual: false);
+    if (currentPrices.isEmpty) {
+      await refreshPrices(manual: false);
+    }
   }
 
   @override

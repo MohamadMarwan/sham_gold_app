@@ -373,7 +373,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
     final metalType = item.metalType.toLowerCase();
     final id = item.id.toLowerCase();
     final title = item.title.toLowerCase();
-    final isCurrency = metalType == 'currency' || id.contains('_fx_') || id.contains('currency') || id.contains('usd') || id.contains('eur') || id.contains('try') || title.contains('مقابل');
+    final isCurrency = (metalType == 'currency' || id.contains('_fx_') || id.contains('currency') || title.contains('مقابل')) && metalType != 'coin' && metalType != 'gold' && metalType != 'bullion';
 
     if (isCurrency) {
       return Container(
@@ -393,16 +393,19 @@ class _CompactPriceCardState extends State<CompactPriceCard>
 
     String label = '24K';
     Color badgeColor = const Color(0xFFD4AF37);
-    if (id.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata') || id.contains('gremse') || id.contains('resat')) {
+    if (id.contains('24') || title.contains('24')) {
+      label = '24K';
+      badgeColor = const Color(0xFFD4AF37);
+    } else if (id.contains('22') || title.contains('22') || id.contains('ceyrek') || id.contains('yarim') || id.contains('tam') || id.contains('ata') || id.contains('gremse') || id.contains('resat')) {
       label = '22K';
       badgeColor = const Color(0xFFE5B80B);
-    } else if (id.contains('21') || (id.startsWith('sy_') && id.contains('lira')) || id.contains('rashadi') || id.contains('english')) {
+    } else if (id.contains('21') || title.contains('21') || (id.startsWith('sy_') && id.contains('lira')) || id.contains('rashadi') || id.contains('english')) {
       label = '21K';
       badgeColor = const Color(0xFFC5A059);
-    } else if (id.contains('18')) {
+    } else if (id.contains('18') || title.contains('18')) {
       label = '18K';
       badgeColor = const Color(0xFFB87333);
-    } else if (id.contains('14')) {
+    } else if (id.contains('14') || title.contains('14')) {
       label = '14K';
       badgeColor = const Color(0xFF9E9E9E);
     } else if (id.contains('silver') || id.contains('xag')) {
@@ -411,9 +414,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
     } else if (id.contains('ounce') || id.contains('xau')) {
       label = 'auto_str_348'.tr();
       badgeColor = const Color(0xFF0F172A);
-    } else if (id.contains('pound') || id.contains('lira')) {
-      label = 'auto_str_362'.tr();
-      badgeColor = const Color(0xFF059669);
+    } else if (id.contains('pound') || id.contains('lira') || metalType == 'coin') {
+      label = '21K';
+      badgeColor = const Color(0xFFC5A059);
     }
 
     return Container(
