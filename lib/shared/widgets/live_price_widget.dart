@@ -17,6 +17,9 @@ class LivePriceWidget extends ConsumerStatefulWidget {
   final TextStyle style;
   final bool animateJitter;
   final String? overrideBlinkMode;
+  final int decimals;
+  final bool compactLarge;
+  final bool reduceDecimals;
 
   const LivePriceWidget({
     super.key,
@@ -25,6 +28,9 @@ class LivePriceWidget extends ConsumerStatefulWidget {
     required this.style,
     this.animateJitter = true,
     this.overrideBlinkMode,
+    this.decimals = 2,
+    this.compactLarge = false,
+    this.reduceDecimals = false,
   });
 
   @override
@@ -183,8 +189,8 @@ class _LivePriceWidgetState extends ConsumerState<LivePriceWidget>
     final formatted = CurrencyUtils.formatLocalizedNumber(
       displayPrice,
       context,
-      decimals: 2,
-      compactLarge: widget.price >= 100000,
+      decimals: widget.decimals,
+      compactLarge: widget.compactLarge,
     );
 
     return AnimatedBuilder(
@@ -215,8 +221,8 @@ class _LivePriceWidgetState extends ConsumerState<LivePriceWidget>
 
         final int sepIndex = formatted.lastIndexOf('.');
 
-        // Uniform styling: integer and decimal parts are both bold and dark
-        if (sepIndex != -1 && sepIndex < formatted.length - 1) {
+        // Only shrink decimal part if reduceDecimals is explicitly enabled
+        if (widget.reduceDecimals && sepIndex != -1 && sepIndex < formatted.length - 1) {
           final intPart = formatted.substring(0, sepIndex + 1);
           final decPart = formatted.substring(sepIndex + 1);
 
@@ -230,7 +236,7 @@ class _LivePriceWidgetState extends ConsumerState<LivePriceWidget>
           spans.add(TextSpan(
             text: decPart,
             style: textStyle.copyWith(
-              fontSize: (textStyle.fontSize ?? 14.5) * 0.82,
+              fontSize: (textStyle.fontSize ?? 14.5) * 0.85,
               fontWeight: textStyle.fontWeight ?? FontWeight.w900,
               color: displayColor,
               fontFamily: textStyle.fontFamily ?? 'Cairo',

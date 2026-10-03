@@ -133,7 +133,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
             child: Row(
               children: [
                 // 1. Karat Badge & Title
@@ -146,9 +146,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                     ),
                   ),
                 if (widget.priceItem.metalType != 'currency' && !widget.priceItem.id.contains('usd') && !widget.priceItem.id.contains('eur') && !widget.priceItem.id.contains('fx_'))
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
                 Expanded(
-                  flex: 5,
+                  flex: 4,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -226,7 +226,7 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                   ),
                 ),
 
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
 
                 // 2. Buy Column (الشراء)
                 Expanded(
@@ -256,18 +256,18 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                               currency: '',
                               animateJitter: true,
                               style: TextStyle(
-                                fontSize: 14.5,
+                                fontSize: 13.2,
                                 fontWeight: FontWeight.w900,
                                 color: isDark ? Colors.white : const Color(0xFF0F172A),
                                 fontFamily: 'Cairo',
-                                letterSpacing: -0.3,
+                                letterSpacing: -0.2,
                               ),
                             ),
                             const SizedBox(width: 2),
                             Text(
                               currencySymbol,
                               style: const TextStyle(
-                                fontSize: 9.5,
+                                fontSize: 9.0,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.gold,
                                 fontFamily: 'Cairo',
@@ -293,9 +293,9 @@ class _CompactPriceCardState extends State<CompactPriceCard>
 
                 // Vertical Separator
                 Container(
-                  height: 32,
+                  height: 30,
                   width: 1,
-                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
                   color: isDark ? Colors.white12 : const Color(0xFFE2E8F0),
                 ),
 
@@ -327,18 +327,18 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                               currency: '',
                               animateJitter: true,
                               style: TextStyle(
-                                fontSize: 14.5,
+                                fontSize: 13.2,
                                 fontWeight: FontWeight.w900,
                                 color: isDark ? Colors.white : const Color(0xFF0F172A),
                                 fontFamily: 'Cairo',
-                                letterSpacing: -0.3,
+                                letterSpacing: -0.2,
                               ),
                             ),
                             const SizedBox(width: 2),
                             Text(
                               currencySymbol,
                               style: const TextStyle(
-                                fontSize: 9.5,
+                                fontSize: 9.0,
                                 fontWeight: FontWeight.bold,
                                 color: AppColors.gold,
                                 fontFamily: 'Cairo',
