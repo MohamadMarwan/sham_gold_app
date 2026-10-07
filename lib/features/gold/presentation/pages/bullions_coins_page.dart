@@ -461,6 +461,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         currency: currencySymbol,
         metalType: 'bullion',
         usdPrice: usd,
+        subtitle: '${b['grams']} غرام',
       );
     }).toList();
 
@@ -583,6 +584,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
           currency: item['currency'] ?? country.localizedCurrencySymbol,
           metalType: 'coin',
           usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+          subtitle: item['subtitle']?.toString() ?? '',
         );
       }).toList();
       localCoins.addAll(customCoins);
@@ -662,6 +664,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         currency: currencySymbol,
         metalType: 'coin',
         usdPrice: double.parse((k21UsdPrice * 8.0).toStringAsFixed(2)),
+        subtitle: '8 غرام عيار 21',
       ));
       standardCoins.add(PriceItem(
         id: '${country.code.toLowerCase()}_en_22',
@@ -671,6 +674,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         currency: currencySymbol,
         metalType: 'coin',
         usdPrice: double.parse((k22UsdPrice * 8.0).toStringAsFixed(2)),
+        subtitle: '8 غرام عيار 22',
       ));
       standardCoins.add(PriceItem(
         id: '${country.code.toLowerCase()}_pound_21',
@@ -680,6 +684,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         currency: currencySymbol,
         metalType: 'coin',
         usdPrice: double.parse((k21UsdPrice * 8.0).toStringAsFixed(2)),
+        subtitle: '8 غرام عيار 21',
       ));
       standardCoins.add(PriceItem(
         id: '${country.code.toLowerCase()}_lira_24',
@@ -689,6 +694,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         currency: currencySymbol,
         metalType: 'coin',
         usdPrice: double.parse((k24UsdPrice * 8.0).toStringAsFixed(2)),
+        subtitle: '8 غرام عيار 24',
       ));
     }
 
@@ -734,6 +740,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
           currency: currencySymbol,
           metalType: 'coin',
           usdPrice: usd,
+          subtitle: '${def['grams']} غرام',
         ));
       } else {
         // In ALL other markets (Syria, Egypt, Jordan, UAE, etc.):
@@ -751,6 +758,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
           currency: currencySymbol,
           metalType: 'coin',
           usdPrice: usd,
+          subtitle: '${def['grams']} غرام',
         ));
       }
     }

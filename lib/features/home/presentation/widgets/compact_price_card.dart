@@ -157,17 +157,38 @@ class _CompactPriceCardState extends State<CompactPriceCard>
                         tag: 'title_${widget.priceItem.id}',
                         child: Material(
                           type: MaterialType.transparency,
-                          child: Text(
-                            widget.priceItem.translatedTitle,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13.0,
-                              color: isDark ? Colors.white : AppColors.primaryText,
-                              fontFamily: 'Cairo',
-                              height: 1.2,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                widget.priceItem.translatedTitle,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 13.0,
+                                  color: isDark ? Colors.white : AppColors.primaryText,
+                                  fontFamily: 'Cairo',
+                                  height: 1.2,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (widget.priceItem.getLocalizedSubtitle(context).isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2.0),
+                                  child: Text(
+                                    widget.priceItem.getLocalizedSubtitle(context),
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.white54 : AppColors.mutedText,
+                                      fontFamily: 'Cairo',
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                       ),
