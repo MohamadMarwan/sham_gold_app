@@ -201,22 +201,31 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
   Future<void> _loadFromCache() async {
     try {
+      // ONLY load settings here to avoid the "jumping old prices" glitch on startup.
+      // Prices and banners will be loaded in fallback if the live connection fails.
+      await _settingsProvider.loadFromCache();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading cached settings: $e');
+    }
+  }
+
+  Future<void> _fallbackToOfflineCache() async {
+    try {
       final cachedPrices = await _cacheService.loadFromCache('cached_prices');
-      if (cachedPrices != null) {
+      if (cachedPrices != null && currentPrices.isEmpty) {
         final List<dynamic> jsonList = cachedPrices;
         currentPrices = jsonList.map((json) => PriceItem.fromJson(json)).toList();
       }
 
       final cachedBanners = await _cacheService.loadFromCache('cached_banners');
-      if (cachedBanners != null) {
+      if (cachedBanners != null && currentBanners.isEmpty) {
         final List<dynamic> jsonList = cachedBanners;
         currentBanners = jsonList.map((json) => BannerItem.fromJson(json)).toList();
       }
-      
-      await _settingsProvider.loadFromCache();
       notifyListeners();
     } catch (e) {
-      debugPrint('Error loading cached data: $e');
+      debugPrint('Error loading offline fallback: $e');
     }
   }
 
@@ -244,6 +253,8 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
 
       return RefreshStatus.success;
     } catch (e) {
+      // Fallback to offline cache if live fetch fails to ensure user sees something
+      await _fallbackToOfflineCache();
       return RefreshStatus.connectionError;
     }
   }

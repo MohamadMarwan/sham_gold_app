@@ -85,8 +85,8 @@ class CountryProvider with ChangeNotifier {
       await autoDetectCountry();
     }
 
-    // First load from local cache for instant zero-delay rendering
-    await _loadCachedMarketData(_selectedCountry.code);
+    // Do not load offline cache immediately to avoid "price jump" glitch
+    // await _loadCachedMarketData(_selectedCountry.code);
     await fetchMarketData();
 
     // Listen to real-time market summary broadcasts from WebSocket
@@ -371,24 +371,15 @@ class CountryProvider with ChangeNotifier {
 
     final code = country.code.toLowerCase();
 
-    // 1. INSTANT ZERO-LATENCY SWITCH (0 ms):
-    // Prioritize in-memory cached market data if available for this country
-    if (_inMemoryMarketCache.containsKey(code) &&
-        (_inMemoryMarketCache[code]!['items'] as List?)?.isNotEmpty == true) {
-      _currentMarketData = _inMemoryMarketCache[code];
-      _isOffline = false;
-    } else {
-      if (_isOffline) {
-        // Fallback for offline mode: calculate with live ounce & FX engine
-        final calculator = LocalMarketCalculator();
-        final localData = calculator.calculateMarketData(country);
-        if (localData != null) {
-          _currentMarketData = localData;
-          _inMemoryMarketCache[code] = localData;
-        }
-      } else {
-        // Clear current data to trigger the professional Shimmer Loading screen in UI
-        _currentMarketData = null;
+    // 1. Force a clean Shimmer Loading screen to prevent old prices glitch
+    _currentMarketData = null;
+    if (_isOffline) {
+      // Fallback for offline mode: calculate with live ounce & FX engine
+      final calculator = LocalMarketCalculator();
+      final localData = calculator.calculateMarketData(country);
+      if (localData != null) {
+        _currentMarketData = localData;
+        _inMemoryMarketCache[code] = localData;
       }
     }
 
