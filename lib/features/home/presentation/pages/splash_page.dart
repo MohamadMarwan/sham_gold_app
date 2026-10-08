@@ -10,6 +10,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/services/app_update_service.dart';
 import '../../../../core/providers/settings_provider.dart';
+import '../../../../core/services/location_detector_service.dart';
+import '../../../../core/providers/country_provider.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   final bool fromResume;
@@ -92,6 +94,40 @@ class _SplashPageState extends ConsumerState<SplashPage>
     if (widget.fromResume) {
       priceService.refreshPrices();
     }
+
+    // --- Flawless Native Country Detection Before App Opens ---
+    try {
+      final countryState = ref.read(countryProvider);
+      final prefs = await SharedPreferences.getInstance();
+      final hasSelectedCountry = prefs.getBool('has_selected_country') ?? false;
+
+      if (!hasSelectedCountry) {
+        // 1. Native GPS Prompt (No Explanation Screen)
+        String? detectedCode = await LocationDetectorService().detectCountryFromGps();
+        
+        // 2. Fallback to IP / Cloudflare if GPS denied
+        if (detectedCode == null) {
+          detectedCode = await LocationDetectorService().detectFromIp();
+        }
+        
+        // 3. Ultimate Fallback to Device Locale
+        if (detectedCode == null) {
+          detectedCode = LocationDetectorService().getDeviceLocaleCountry();
+        }
+
+        if (detectedCode != null) {
+          final found = countryState.allCountries.firstWhere(
+            (c) => c.code.toUpperCase() == detectedCode!.toUpperCase(),
+            orElse: () => countryState.selectedCountry,
+          );
+          await countryState.selectCountry(found, isAuto: true);
+          await prefs.setBool('has_selected_country', true);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error detecting country natively: $e');
+    }
+    // ------------------------------------------------------------
 
     // Wait for the App Open Ad to load only if enabled in settings
     final startTime = DateTime.now();

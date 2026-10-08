@@ -52,7 +52,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkFirstRun();
       _setupAlertListener();
-      PermissionCoordinatorService().checkAndPromptPermissions(context, ref);
+      // _showInitialPermissionsSheet and checkAndPromptPermissions logic removed to enforce native prompt on splash screen
       _checkForceUpdate();
     });
   }
