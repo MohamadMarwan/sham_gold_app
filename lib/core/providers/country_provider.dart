@@ -378,13 +378,17 @@ class CountryProvider with ChangeNotifier {
       _currentMarketData = _inMemoryMarketCache[code];
       _isOffline = false;
     } else {
-      // Otherwise immediately calculate with live ounce & FX engine
-      final calculator = LocalMarketCalculator();
-      final localData = calculator.calculateMarketData(country);
-      if (localData != null) {
-        _currentMarketData = localData;
-        _inMemoryMarketCache[code] = localData;
-        _isOffline = false;
+      if (_isOffline) {
+        // Fallback for offline mode: calculate with live ounce & FX engine
+        final calculator = LocalMarketCalculator();
+        final localData = calculator.calculateMarketData(country);
+        if (localData != null) {
+          _currentMarketData = localData;
+          _inMemoryMarketCache[code] = localData;
+        }
+      } else {
+        // Clear current data to trigger the professional Shimmer Loading screen in UI
+        _currentMarketData = null;
       }
     }
 

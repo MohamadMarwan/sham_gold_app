@@ -63,9 +63,14 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
 
     final bool isMatching = marketData != null &&
         (marketData['countryCode']?.toString().toUpperCase() == country.code.toUpperCase());
+        
+    // Show Shimmer loading when switching countries instead of instant fallback,
+    // unless the user is completely offline.
     final effectiveMarketData = isMatching
         ? marketData
-        : LocalMarketCalculator().calculateMarketData(country);
+        : (countryProviderInstance.isOffline
+            ? LocalMarketCalculator().calculateMarketData(country)
+            : null);
 
     final List<dynamic> rawItems = (effectiveMarketData != null && effectiveMarketData['items'] != null)
         ? List<dynamic>.from(effectiveMarketData['items'])
