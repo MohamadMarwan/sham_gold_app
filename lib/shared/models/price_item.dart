@@ -165,20 +165,20 @@ class PriceItem {
     if (lowerId.contains('pound_21')) return 'جنيه ذهب (8غ) عيار 21'.tr();
     if (lowerId.contains('pound_22')) return 'جنيه ذهب (8غ) عيار 22'.tr();
     if (lowerId.contains('lira_24')) return 'ليرة ذهبية (8غ) عيار 24'.tr();
-    if (lowerId.contains('ceyrek_new')) return 'ربع ليرة تركية (جديد)'.tr();
-    if (lowerId.contains('ceyrek_old')) return 'ربع ليرة تركية (قديم)'.tr();
-    if (lowerId.contains('yarim_new')) return 'نصف ليرة تركية (جديد)'.tr();
-    if (lowerId.contains('yarim_old')) return 'نصف ليرة تركية (قديم)'.tr();
-    if (lowerId.contains('tam_new')) return 'ليرة تركية كاملة (جديد)'.tr();
-    if (lowerId.contains('tam_old')) return 'ليرة تركية كاملة (قديم)'.tr();
-    if (lowerId.contains('ata_new') && !lowerId.contains('ata5')) return 'ليرة زينة عطا (جديد)'.tr();
-    if (lowerId.contains('ata_old') && !lowerId.contains('ata5')) return 'ليرة زينة عطا (قديم)'.tr();
-    if (lowerId.contains('gremse_new')) return 'غريمسة تركية (جديد)'.tr();
-    if (lowerId.contains('gremse_old')) return 'غريمسة تركية (قديم)'.tr();
-    if (lowerId.contains('ata5_new')) return 'خمس ليرات تركية - أتا 5 (جديد)'.tr();
-    if (lowerId.contains('ata5_old')) return 'خمس ليرات تركية - أتا 5 (قديم)'.tr();
-    if (lowerId.contains('resat_new')) return 'ليرة رشادية تركية (جديد)'.tr();
-    if (lowerId.contains('resat_old')) return 'ليرة رشادية تركية (قديم)'.tr();
+    if (lowerId.contains('ceyrek_new')) return 'ربع ليرة تركية (1.75غ) جديد'.tr();
+    if (lowerId.contains('ceyrek_old')) return 'ربع ليرة تركية (1.75غ) قديم'.tr();
+    if (lowerId.contains('yarim_new')) return 'نصف ليرة تركية (3.5غ) جديد'.tr();
+    if (lowerId.contains('yarim_old')) return 'نصف ليرة تركية (3.5غ) قديم'.tr();
+    if (lowerId.contains('tam_new')) return 'ليرة تركية كاملة (7غ) جديد'.tr();
+    if (lowerId.contains('tam_old')) return 'ليرة تركية كاملة (7غ) قديم'.tr();
+    if (lowerId.contains('ata_new') && !lowerId.contains('ata5')) return 'ليرة زينة عطا (7.2غ) جديد'.tr();
+    if (lowerId.contains('ata_old') && !lowerId.contains('ata5')) return 'ليرة زينة عطا (7.2غ) قديم'.tr();
+    if (lowerId.contains('gremse_new')) return 'غريمسة تركية (17.5غ) جديد'.tr();
+    if (lowerId.contains('gremse_old')) return 'غريمسة تركية (17.5غ) قديم'.tr();
+    if (lowerId.contains('ata5_new')) return 'خمس ليرات تركية - أتا 5 (36غ) جديد'.tr();
+    if (lowerId.contains('ata5_old')) return 'خمس ليرات تركية - أتا 5 (36غ) قديم'.tr();
+    if (lowerId.contains('resat_new')) return 'ليرة رشادية تركية (7.2غ) جديد'.tr();
+    if (lowerId.contains('resat_old')) return 'ليرة رشادية تركية (7.2غ) قديم'.tr();
 
     // 7. ID-based bullion resolution
     if (lowerId.contains('bullion_1g')) return 'bullion_1g'.tr();
