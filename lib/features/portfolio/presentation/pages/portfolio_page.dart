@@ -1688,7 +1688,24 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
 
                           if (weight <= 0 || buyPrice <= 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('auto_str_067'.tr(), style: const TextStyle(fontFamily: 'Cairo'))),
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        'يرجى إدخال الوزن وسعر الشراء بشكل صحيح قبل الحفظ',
+                                        style: const TextStyle(fontFamily: 'Cairo', color: Colors.white, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: Colors.redAccent.shade700,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                margin: const EdgeInsets.all(16),
+                              ),
                             );
                             return;
                           }

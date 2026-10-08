@@ -40,6 +40,7 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
   
   AppLifecycleState _appState = AppLifecycleState.resumed;
   DateTime _lastVibrationTime = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime? _pausedTime;
 
   final StreamController<List<PriceItem>> _pricesController = StreamController<List<PriceItem>>.broadcast();
   Stream<List<PriceItem>> get pricesStream => _pricesController.stream;
@@ -128,10 +129,19 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     
     // Ignore 'hidden' state as it triggers aggressively on Web when switching tabs
     if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      _pausedTime = DateTime.now();
       debugPrint('App in background: Pausing Socket to save resources');
       _socketService.pause();
     } else if (state == AppLifecycleState.resumed) {
       debugPrint('App resumed: Forcing Socket Reconnection and refresh');
+      
+      // If app was in background for > 5 minutes, clear old prices to show loading shimmer
+      if (_pausedTime != null && DateTime.now().difference(_pausedTime!).inMinutes >= 5) {
+        currentPrices = [];
+        notifyListeners();
+      }
+      _pausedTime = null;
+
       _socketService.resume();
       refreshPrices(manual: true);
     }

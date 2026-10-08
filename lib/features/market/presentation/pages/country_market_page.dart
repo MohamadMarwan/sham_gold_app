@@ -366,7 +366,21 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: items.length,
-                              separatorBuilder: (context, index) => const SizedBox(height: 12),
+                              separatorBuilder: (context, index) {
+                                if (index > 0 && (index + 1) % 4 == 0) {
+                                  return const Column(
+                                    children: [
+                                      SizedBox(height: 12),
+                                      BannerPlacementWidget(
+                                        location: 'market_list_inline',
+                                        fallbackLocations: ['inline_ad', 'market_mid'],
+                                      ),
+                                      SizedBox(height: 12),
+                                    ],
+                                  );
+                                }
+                                return const SizedBox(height: 12);
+                              },
                               itemBuilder: (context, index) {
                                 final item = items[index];
                                 final isSyria = country.code.toUpperCase() == 'SY';
@@ -439,36 +453,36 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                       if (sectionKey == 'gold' && showGold && goldItems.isNotEmpty) {
                         sectionsWidgets.add(buildSectionWidget('gold_section'.tr(), Icons.auto_graph_rounded, AppColors.gold, goldItems));
                         renderedCount++;
-                        if (renderedCount == 1) {
+                        if (renderedCount == 1 || renderedCount == 2) {
                           sectionsWidgets.add(
-                            const BannerPlacementWidget(
-                              location: 'country_market_mid',
-                              fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
-                              margin: EdgeInsets.symmetric(vertical: 10),
+                            BannerPlacementWidget(
+                              location: 'country_market_mid_$renderedCount',
+                              fallbackLocations: const ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
+                              margin: const EdgeInsets.symmetric(vertical: 10),
                             ),
                           );
                         }
                       } else if (sectionKey == 'silver' && showSilver && silverItems.isNotEmpty) {
                         sectionsWidgets.add(buildSectionWidget('silver_section'.tr(), Icons.diamond_outlined, const Color(0xFF94A3B8), silverItems));
                         renderedCount++;
-                        if (renderedCount == 1) {
+                        if (renderedCount == 1 || renderedCount == 2) {
                           sectionsWidgets.add(
-                            const BannerPlacementWidget(
-                              location: 'country_market_mid',
-                              fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
-                              margin: EdgeInsets.symmetric(vertical: 10),
+                            BannerPlacementWidget(
+                              location: 'country_market_mid_$renderedCount',
+                              fallbackLocations: const ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
+                              margin: const EdgeInsets.symmetric(vertical: 10),
                             ),
                           );
                         }
                       } else if (sectionKey == 'currencies' && showCurrencies && currencyItems.isNotEmpty) {
                         sectionsWidgets.add(buildSectionWidget('currencies_section'.tr(), Icons.currency_exchange_rounded, const Color(0xFF10B981), currencyItems));
                         renderedCount++;
-                        if (renderedCount == 1) {
+                        if (renderedCount == 1 || renderedCount == 2) {
                           sectionsWidgets.add(
-                            const BannerPlacementWidget(
-                              location: 'country_market_mid',
-                              fallbackLocations: ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
-                              margin: EdgeInsets.symmetric(vertical: 10),
+                            BannerPlacementWidget(
+                              location: 'country_market_mid_$renderedCount',
+                              fallbackLocations: const ['market_mid', 'syria_market_mid', 'turkish_market_mid'],
+                              margin: const EdgeInsets.symmetric(vertical: 10),
                             ),
                           );
                         }
