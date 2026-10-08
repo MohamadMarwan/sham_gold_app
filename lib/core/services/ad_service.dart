@@ -14,10 +14,8 @@ class AdService {
   factory AdService() => _instance;
   AdService._internal();
 
-  // ─── App Open Ad unit ID (hardcoded for startup — loaded before backend settings arrive) ───
-  static const String _kAppOpenAdUnitId = 'ca-app-pub-4487814270090643/1749829422';
-
-
+  // Note: All ad unit IDs are dynamically loaded from the backend or cache.
+  // There are no hardcoded ad IDs to ensure complete dashboard control.
   String? _bannerId;
   String? _interstitialId;
   String? _rewardedId;
@@ -115,8 +113,8 @@ class AdService {
       _isEnabled = cachedEnabled;
       _showAppOpenOnStartup = cachedStartup;
 
-      if (cachedEnabled && cachedStartup) {
-        _appOpenId = (cachedAppOpenId != null && cachedAppOpenId.isNotEmpty) ? cachedAppOpenId : _kAppOpenAdUnitId;
+      if (cachedEnabled && cachedStartup && cachedAppOpenId != null && cachedAppOpenId.isNotEmpty) {
+        _appOpenId = cachedAppOpenId;
         _loadAppOpenAdBypass(); // ← bypass _isEnabled check for startup
       } else {
         debugPrint('🚫 App Open Ad is disabled in cache or startup is disabled.');
@@ -158,9 +156,7 @@ class AdService {
           _bannerId = adSettings['android']?['bannerUnitId'];
           
           final dbInterstitial = adSettings['android']?['interstitialUnitId'];
-          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) 
-              ? dbInterstitial 
-              : 'ca-app-pub-4487814270090643/9895234137';
+          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) ? dbInterstitial : null;
               
           newRewardedId = adSettings['android']?['rewardedInterstitialUnitId'];
           _appOpenId = adSettings['android']?['appOpenUnitId'];
@@ -169,9 +165,7 @@ class AdService {
           _bannerId = adSettings['ios']?['bannerUnitId'];
           
           final dbInterstitial = adSettings['ios']?['interstitialUnitId'];
-          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) 
-              ? dbInterstitial 
-              : 'ca-app-pub-4487814270090643/9895234137';
+          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) ? dbInterstitial : null;
               
           newRewardedId = adSettings['ios']?['rewardedInterstitialUnitId'];
           _appOpenId = adSettings['ios']?['appOpenUnitId'];
