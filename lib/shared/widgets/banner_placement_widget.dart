@@ -149,16 +149,47 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
           );
         }
 
-        // إذا كان هناك أكثر من إعلان في نفس الموقع
-        _startRotationTimer(matchingBanners.length);
-        final hasAd = matchingBanners.any((b) => b.type == 'ad');
-        final double sliderH;
+        // إذا كان هناك أكثر من إعلان في نفس الموقع، تم تعديل الكود بناءً على طلب العميل
+        // لعدم إظهار الإعلانات على شكل "سلايدر" أبداً.
+        // لذا سنكتفي بعرض الإعلان الأول فقط لتجنب السلايدر.
+        final banner = matchingBanners.first;
+
+        if (banner.type == 'ad') {
+          return Center(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOutCubic,
+              child: _adLoaded
+                  ? Padding(
+                      padding: padding,
+                      child: PromotionBanner(
+                        banner: banner,
+                        onLoadedChanged: (loaded) {
+                          if (mounted && _adLoaded != loaded) {
+                            setState(() => _adLoaded = loaded);
+                          }
+                        },
+                      ),
+                    )
+                  : PromotionBanner(
+                      banner: banner,
+                      onLoadedChanged: (loaded) {
+                        if (mounted && _adLoaded != loaded) {
+                          setState(() => _adLoaded = loaded);
+                        }
+                      },
+                    ),
+            ),
+          );
+        }
+
+        final double targetH;
         if (widget.height != null) {
-          sliderH = widget.height!;
-        } else if (hasAd) {
-          sliderH = 260.0;
+          targetH = widget.height!;
+        } else if (banner.type == 'image') {
+          targetH = (maxW * 0.40).clamp(110.0, 150.0);
         } else {
-          sliderH = (maxW * 0.40).clamp(110.0, 150.0);
+          targetH = 130.0;
         }
 
         return Center(
@@ -166,51 +197,10 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
             padding: padding,
             child: SizedBox(
               width: maxW,
-              height: sliderH,
-              child: Stack(
-                children: [
-                  PageView.builder(
-                    controller: _pageController,
-                    itemCount: matchingBanners.length,
-                    onPageChanged: (i) {
-                      setState(() => _currentIndex = i);
-                    },
-                    itemBuilder: (context, index) {
-                      return PromotionBanner(
-                        banner: matchingBanners[index],
-                        height: sliderH,
-                      );
-                    },
-                  ),
-                  if (matchingBanners.length > 1)
-                    Positioned(
-                      bottom: 10,
-                      right: 14,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(matchingBanners.length, (idx) {
-                          final isSel = idx == _currentIndex;
-                          return AnimatedContainer(
-                            duration: const Duration(milliseconds: 250),
-                            margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                            width: isSel ? 18 : 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: isSel ? Colors.white : Colors.white.withValues(alpha: 0.45),
-                              borderRadius: BorderRadius.circular(3),
-                              boxShadow: [
-                                if (isSel)
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.35),
-                                    blurRadius: 4,
-                                  ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                ],
+              height: targetH,
+              child: PromotionBanner(
+                banner: banner,
+                height: targetH,
               ),
             ),
           ),

@@ -1412,6 +1412,7 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
 
     String selectedKarat = editingItem?.karat ?? '24';
     String selectedCategory = editingItem?.category ?? 'bullion';
+    String? errorMsg;
 
     showModalBottomSheet(
       context: context,
@@ -1674,11 +1675,35 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
 
                     const SizedBox(height: 22),
 
+                    if (errorMsg != null)
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent.shade700.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.redAccent.shade700.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.redAccent.shade700, size: 20),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                errorMsg!,
+                                style: TextStyle(fontFamily: 'Cairo', color: Colors.redAccent.shade700, fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                     // 6. Submit Button
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
+                          setModalState(() { errorMsg = null; });
                           final weight = double.tryParse(weightController.text) ?? 0;
                           final buyPrice = double.tryParse(buyPriceController.text) ?? 0;
                           final making = double.tryParse(makingChargeController.text) ?? 0;
@@ -1687,26 +1712,9 @@ class _PortfolioPageState extends ConsumerState<PortfolioPage> {
                               : titleController.text.trim();
 
                           if (weight <= 0 || buyPrice <= 0) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    const Icon(Icons.warning_amber_rounded, color: Colors.white),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        'يرجى إدخال الوزن وسعر الشراء بشكل صحيح قبل الحفظ',
-                                        style: const TextStyle(fontFamily: 'Cairo', color: Colors.white, fontWeight: FontWeight.bold),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                backgroundColor: Colors.redAccent.shade700,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                margin: const EdgeInsets.all(16),
-                              ),
-                            );
+                            setModalState(() {
+                              errorMsg = 'portfolio_invalid_input'.tr();
+                            });
                             return;
                           }
 

@@ -223,13 +223,6 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                   const LivePriceTicker(),
                   const SizedBox(height: 12),
 
-                  // ── [1] إعلان أعلى صفحة سوق الدولة ──
-                  const BannerPlacementWidget(
-                    location: 'country_market_top',
-                    fallbackLocations: ['market_top', 'syria_market_top', 'turkish_market_top'],
-                    margin: EdgeInsets.only(bottom: 14),
-                  ),
-
                   // Market Info Banner
                   PremiumCard(
                     padding: const EdgeInsets.all(16),
@@ -279,7 +272,16 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
+
+                  // ── [1] إعلان أعلى صفحة سوق الدولة ──
+                  const BannerPlacementWidget(
+                    location: 'country_market_top',
+                    fallbackLocations: ['market_top', 'syria_market_top', 'turkish_market_top'],
+                    margin: EdgeInsets.only(bottom: 14),
+                  ),
+
+                  const SizedBox(height: 6),
 
                   // Dynamic Market Items
                   if (rawItems.isEmpty)
@@ -498,15 +500,15 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                   }(),
                     
                   const SizedBox(height: 16),
-                  if (priceService.shouldShow('homeShowZakatBanner', defaultValue: true))
-                    const ZakatBannerWidget(),
-
                   // ── [3] إعلان أسفل صفحة سوق الدولة ──
                   const BannerPlacementWidget(
                     location: 'country_market_bottom',
                     fallbackLocations: ['market_bottom', 'syria_market_bottom', 'turkish_market_bottom'],
-                    margin: EdgeInsets.only(top: 14),
+                    margin: EdgeInsets.only(bottom: 14),
                   ),
+
+                  if (priceService.shouldShow('homeShowZakatBanner', defaultValue: true))
+                    const ZakatBannerWidget(),
                 ]),
               ),
             ),

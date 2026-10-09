@@ -1158,5 +1158,6 @@
   "100 غرام": "100g Külçe Altın",
   "1 كيلو": "1kg Külçe Altın",
   "1 تولة": "Bir Tola (11.66g)",
-  "5 تولة": "5 Tola (58.3g)"
+  "5 تولة": "5 Tola (58.3g)",
+  "portfolio_invalid_input": "Lütfen kaydetmeden önce ağırlık ve alış fiyatını doğru giriniz"
 }

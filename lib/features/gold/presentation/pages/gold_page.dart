@@ -326,12 +326,6 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                     if (priceService.shouldShow('homeShowOfflineBanner', defaultValue: true))
                       const OfflineNoticeBanner(),
 
-                    // ── [1] إعلان أعلى الصفحة الرئيسية ──
-                    const BannerPlacementWidget(
-                      location: 'home_top',
-                      margin: EdgeInsets.only(bottom: 12),
-                    ),
-
                     if (_showNewsTicker && priceService.shouldShow('homeShowPriceTicker', defaultValue: true)) ...[
                       const LivePriceTicker(),
                       const SizedBox(height: 12),
@@ -340,6 +334,12 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                     // Top Country Banner with Auto-detect & Quick Switcher
                     const TopCountryBanner(),
                     const SizedBox(height: 14),
+
+                    // ── [1] إعلان أعلى الصفحة الرئيسية ──
+                    const BannerPlacementWidget(
+                      location: 'home_top',
+                      margin: EdgeInsets.only(bottom: 12),
+                    ),
 
                     // Smart Dual-Pricing Cards Section for Selected Country (Grid or List)
                     _buildCountrySmartCards(context, allPrices),
@@ -364,16 +364,17 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                       const SilverPlatinumBanner(),
                       const SizedBox(height: 14),
                     ],
-                    if (_showConverter && priceService.shouldShow('homeShowQuickConverter')) ...[
-                      const QuickConverterWidget(),
-                      const SizedBox(height: 14),
-                    ],
 
                     // ── [3] إعلان أسفل الصفحة الرئيسية ──
                     const BannerPlacementWidget(
                       location: 'home_bottom',
                       margin: EdgeInsets.only(bottom: 14),
                     ),
+
+                    if (_showConverter && priceService.shouldShow('homeShowQuickConverter')) ...[
+                      const QuickConverterWidget(),
+                      const SizedBox(height: 14),
+                    ],
 
                     const SizedBox(height: 24),
                   ]),

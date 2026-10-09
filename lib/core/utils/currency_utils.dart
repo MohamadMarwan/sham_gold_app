@@ -236,13 +236,15 @@ class CurrencyUtils {
     return NumberFormat(pattern, locale).format(number);
   }
 
-  static String formatPrice(double price, String currency, {String id = '', BuildContext? context}) {
+  static String formatPrice(double price, String currency, {String id = '', BuildContext? context, int? decimals}) {
     final symbol = getSymbol(currency, id: id, context: context);
+    final effectiveDecimals = decimals ?? 2;
     if (context != null) {
-      final formatted = formatLocalizedNumber(price, context, decimals: 2, compactLarge: price >= 10000);
+      final formatted = formatLocalizedNumber(price, context, decimals: effectiveDecimals, compactLarge: price >= 10000);
       return '$formatted $symbol';
     }
-    final format = NumberFormat("#,##0.##", 'en_US');
+    final pattern = effectiveDecimals == 0 ? "#,##0" : "#,##0.${'0' * effectiveDecimals}";
+    final format = NumberFormat(pattern, 'en_US');
     return '${format.format(price)} $symbol';
   }
 

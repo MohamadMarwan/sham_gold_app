@@ -393,7 +393,13 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           Expanded(
               child: _buildStatColumn(
                   'auto_str_286'.tr(),
-                  CurrencyUtils.formatPrice(widget.priceItem.buyPrice, widget.priceItem.currency, id: widget.priceItem.id),
+                  CurrencyUtils.formatPrice(
+                    widget.priceItem.buyPrice,
+                    widget.priceItem.currency,
+                    id: widget.priceItem.id,
+                    context: context,
+                    decimals: widget.priceItem.metalType == 'currency' ? 4 : 2,
+                  ),
                   '',
                   Colors.blue,
                   usdSubtext: (!isUsdItem && buyUsd > 0) ? '≈ \$${buyUsd.toStringAsFixed(1)} USD' : null)),
@@ -414,7 +420,13 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           Expanded(
               child: _buildStatColumn(
                   'auto_str_287'.tr(),
-                  CurrencyUtils.formatPrice(widget.priceItem.sellPrice, widget.priceItem.currency, id: widget.priceItem.id),
+                  CurrencyUtils.formatPrice(
+                    widget.priceItem.sellPrice,
+                    widget.priceItem.currency,
+                    id: widget.priceItem.id,
+                    context: context,
+                    decimals: widget.priceItem.metalType == 'currency' ? 4 : 2,
+                  ),
                   '',
                   AppColors.gold,
                   usdSubtext: (!isUsdItem && sellUsd > 0) ? '≈ \$${sellUsd.toStringAsFixed(1)} USD' : null)),
