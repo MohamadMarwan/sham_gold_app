@@ -92,11 +92,16 @@ class CountryProvider with ChangeNotifier {
     // Listen to real-time market summary broadcasts from WebSocket
     SocketService().marketsSummaryUpdateStream.listen((data) {
       if (data is Map) {
+        // Cache ALL incoming live markets instantly in memory
+        for (var key in data.keys) {
+          if (data[key] is Map) {
+            _inMemoryMarketCache[key.toString().toLowerCase()] = Map<String, dynamic>.from(data[key] as Map);
+          }
+        }
+
         final currentCode = _selectedCountry.code.toUpperCase();
         if (data.containsKey(currentCode) && data[currentCode] is Map) {
-          final marketData = Map<String, dynamic>.from(data[currentCode] as Map);
-          _currentMarketData = marketData;
-          _inMemoryMarketCache[currentCode.toLowerCase()] = marketData;
+          _currentMarketData = Map<String, dynamic>.from(data[currentCode] as Map);
           _isOffline = false;
           notifyListeners();
         }
@@ -311,7 +316,7 @@ class CountryProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final detectedCode = await _performSmartCountryDetection(useGps: true);
+      final detectedCode = await _performSmartCountryDetection(useGps: force);
       final found = _allCountries.firstWhere(
         (c) => c.code.toUpperCase() == detectedCode.toUpperCase(),
         orElse: () => _defaultCountry,
@@ -365,26 +370,30 @@ class CountryProvider with ChangeNotifier {
 
   /// Manually or automatically switch country with instant zero-latency UI update (0 ms)
   Future<void> selectCountry(CountryModel country, {bool isAuto = false}) async {
+    final code = country.code.toLowerCase();
+
+    // 1. If we have live fresh data in memory (from WebSockets), use it instantly!
+    if (_inMemoryMarketCache.containsKey(code)) {
+      _currentMarketData = _inMemoryMarketCache[code];
+    } else {
+      // Force a clean Shimmer Loading screen ONLY if we don't have memory cache
+      _currentMarketData = null;
+      if (_isOffline) {
+        // Fallback for offline mode
+        final calculator = LocalMarketCalculator();
+        final localData = calculator.calculateMarketData(country);
+        if (localData != null) {
+          _currentMarketData = localData;
+          _inMemoryMarketCache[code] = localData;
+        }
+      }
+    }
+
     _selectedCountry = country;
     _selectedKaratFilter = 'all';
     _isAutoDetected = isAuto;
 
-    final code = country.code.toLowerCase();
-
-    // 1. Force a clean Shimmer Loading screen to prevent old prices glitch
-    _currentMarketData = null;
-    if (_isOffline) {
-      // Fallback for offline mode: calculate with live ounce & FX engine
-      final calculator = LocalMarketCalculator();
-      final localData = calculator.calculateMarketData(country);
-      if (localData != null) {
-        _currentMarketData = localData;
-        _inMemoryMarketCache[code] = localData;
-      }
-    }
-
-    // 2. Synchronous UI notification: Flag, currency symbol, gold prices, and currencies
-    // all update AT THE EXACT SAME INSTANT with zero lag and zero price mismatch!
+    // 2. Synchronous UI notification: Updates flag and live prices at the EXACT SAME INSTANT
     notifyListeners();
 
     // 3. Persist user selection & fetch live server update in background
