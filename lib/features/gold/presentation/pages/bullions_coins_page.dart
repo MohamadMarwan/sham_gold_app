@@ -700,19 +700,19 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
 
     // 4. Turkish Liras (Available in ALL markets according to Admin Dashboard visibility)
     final turkishCoinsDefinitions = [
-      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (1.75غ) جديد', 'grams': 1.75, 'isOld': false},
+      {'id': 'tr_gold_ceyrek_new', 'title': 'ربع ليرة تركية (1.75غ)', 'grams': 1.75, 'isOld': false},
       {'id': 'tr_gold_ceyrek_old', 'title': 'ربع ليرة تركية (1.75غ) قديم', 'grams': 1.75, 'isOld': true},
-      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (3.5غ) جديد', 'grams': 3.5, 'isOld': false},
+      {'id': 'tr_gold_yarim_new', 'title': 'نصف ليرة تركية (3.5غ)', 'grams': 3.5, 'isOld': false},
       {'id': 'tr_gold_yarim_old', 'title': 'نصف ليرة تركية (3.5غ) قديم', 'grams': 3.5, 'isOld': true},
-      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (7غ) جديد', 'grams': 7.0, 'isOld': false},
+      {'id': 'tr_gold_tam_new', 'title': 'ليرة تركية كاملة (7غ)', 'grams': 7.0, 'isOld': false},
       {'id': 'tr_gold_tam_old', 'title': 'ليرة تركية كاملة (7غ) قديم', 'grams': 7.0, 'isOld': true},
-      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (7.2غ) جديد', 'grams': 7.2, 'isOld': false},
+      {'id': 'tr_gold_ata_new', 'title': 'ليرة زينة عطا (7.2غ)', 'grams': 7.2, 'isOld': false},
       {'id': 'tr_gold_ata_old', 'title': 'ليرة زينة عطا (7.2غ) قديم', 'grams': 7.2, 'isOld': true},
-      {'id': 'tr_gold_gremse_new', 'title': 'غريمسة تركية (17.5غ) جديد', 'grams': 17.5, 'isOld': false},
+      {'id': 'tr_gold_gremse_new', 'title': 'غريمسة تركية (17.5غ)', 'grams': 17.5, 'isOld': false},
       {'id': 'tr_gold_gremse_old', 'title': 'غريمسة تركية (17.5غ) قديم', 'grams': 17.5, 'isOld': true},
-      {'id': 'tr_gold_ata5_new', 'title': 'خمس ليرات تركية - أتا 5 (36غ) جديد', 'grams': 36.0, 'isOld': false},
+      {'id': 'tr_gold_ata5_new', 'title': 'خمس ليرات تركية - أتا 5 (36غ)', 'grams': 36.0, 'isOld': false},
       {'id': 'tr_gold_ata5_old', 'title': 'خمس ليرات تركية - أتا 5 (36غ) قديم', 'grams': 36.0, 'isOld': true},
-      {'id': 'tr_gold_resat_new', 'title': 'ليرة رشادية تركية (7.2غ) جديد', 'grams': 7.2, 'isOld': false},
+      {'id': 'tr_gold_resat_new', 'title': 'ليرة رشادية تركية (7.2غ)', 'grams': 7.2, 'isOld': false},
       {'id': 'tr_gold_resat_old', 'title': 'ليرة رشادية تركية (7.2غ) قديم', 'grams': 7.2, 'isOld': true},
     ];
 
