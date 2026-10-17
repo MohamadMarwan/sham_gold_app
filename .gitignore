@@ -46,12 +46,22 @@ app.*.map.json
 .env
 .env.local
 .env.production
+*.p8
+*.p12
+*.mobileprovision
+*.jks
+*.keystore
+*.csr
+*.key
+*.cer
+*.pem
 
 # Temporary scratch/dump files
 dump*.txt
 dump*.py
 dump*.json
 *.dump
+GoogleService-Info (*).plist
 
 # dart-define build artifacts
 dart_defines/
