@@ -164,6 +164,18 @@ jobs:
           print(f'   Push Notifications (aps-environment): {ent.get(\"aps-environment\", \"NOT CONFIGURED IN PROFILE\")}')
           if 'aps-environment' not in ent:
               print('::warning::Provisioning profile does NOT include Push Notifications entitlement. Remote notifications require this capability in Apple Developer Portal!')
+              ent_path = 'ios/Runner/Runner.entitlements'
+              if os.path.exists(ent_path):
+                  try:
+                      with open(ent_path, 'rb') as ef:
+                          ent_plist = plistlib.load(ef)
+                      if 'aps-environment' in ent_plist:
+                          del ent_plist['aps-environment']
+                          with open(ent_path, 'wb') as ef:
+                              plistlib.dump(ent_plist, ef)
+                          print('ℹ️ Removed aps-environment from Runner.entitlements to match current provisioning profile')
+                  except Exception as ex:
+                      print(f'Warning: Could not sync {ent_path}: {ex}')
           "
 
       - name: 🔨 Build iOS IPA
