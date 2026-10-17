@@ -206,24 +206,48 @@ jobs:
       - name: 🚀 Validate & Upload to App Store Connect / TestFlight
         if: env.APP_STORE_CONNECT_API_KEY_BASE64 != '' && env.APP_STORE_CONNECT_KEY_ID != '' && env.APP_STORE_CONNECT_ISSUER_ID != ''
         run: |
+          CLEAN_KEY_ID=$(echo "$APP_STORE_CONNECT_KEY_ID" | tr -d '[:space:]')
+          CLEAN_ISSUER_ID=$(echo "$APP_STORE_CONNECT_ISSUER_ID" | tr -d '[:space:]')
+
           python3 -c "
-          import base64, os
+          import base64, os, sys, re
+
           raw = os.environ.get('APP_STORE_CONNECT_API_KEY_BASE64', '').strip()
+          key_id = os.environ.get('APP_STORE_CONNECT_KEY_ID', '').strip()
+
+          if not raw:
+              print('::error::Secret APP_STORE_CONNECT_API_KEY_BASE64 is empty!')
+              sys.exit(1)
+
           if raw.startswith('-----BEGIN'):
               data = raw.encode('utf-8')
           else:
-              data = base64.b64decode(raw)
+              clean = re.sub(r'\s+', '', raw)
+              pad = len(clean) % 4
+              if pad:
+                  clean += '=' * (4 - pad)
+              try:
+                  data = base64.b64decode(clean)
+              except Exception as e:
+                  print(f'::error::Failed to decode API Key Base64: {e}')
+                  sys.exit(1)
 
-          key_id = os.environ['APP_STORE_CONNECT_KEY_ID']
+          text = data.decode('utf-8', errors='ignore').strip()
+          if 'BEGIN PRIVATE KEY' not in text and 'BEGIN EC PRIVATE KEY' not in text:
+              print('::error::The decoded file does not contain a valid PEM Private Key (-----BEGIN PRIVATE KEY-----)!')
+              sys.exit(1)
+
           paths = [
               os.path.expanduser(f'~/.appstoreconnect/private_keys/AuthKey_{key_id}.p8'),
               os.path.expanduser(f'~/.private_keys/AuthKey_{key_id}.p8'),
+              os.path.expanduser(f'~/private_keys/AuthKey_{key_id}.p8'),
+              os.path.abspath(f'./private_keys/AuthKey_{key_id}.p8'),
           ]
           for p in paths:
               os.makedirs(os.path.dirname(p), exist_ok=True)
               with open(p, 'wb') as f:
                   f.write(data)
-          print('✅ App Store Connect API Key installed successfully')
+          print(f'✅ App Store Connect API Key installed successfully for Key ID: {key_id} ({len(data)} bytes)')
           "
 
           IPA_FILE=$(find build/ios/ipa -name "*.ipa" | head -n 1)
@@ -237,16 +261,16 @@ jobs:
           xcrun altool --validate-app \
             --type ios \
             --file "$IPA_FILE" \
-            --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+            --apiKey "$CLEAN_KEY_ID" \
+            --apiIssuer "$CLEAN_ISSUER_ID" \
             --show-progress
 
           echo "🚀 Step 2: Uploading app to App Store Connect..."
           xcrun altool --upload-app \
             --type ios \
             --file "$IPA_FILE" \
-            --apiKey "$APP_STORE_CONNECT_KEY_ID" \
-            --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" \
+            --apiKey "$CLEAN_KEY_ID" \
+            --apiIssuer "$CLEAN_ISSUER_ID" \
             --show-progress
 
       - name: 🧹 Clean up Keychain
