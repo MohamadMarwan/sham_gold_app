@@ -55,6 +55,7 @@ app.*.map.json
 *.key
 *.cer
 *.pem
+*base64.txt
 
 # Temporary scratch/dump files
 dump*.txt

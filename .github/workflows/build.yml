@@ -102,9 +102,22 @@ jobs:
               sys.exit(1)
           "
 
-          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          # Import certificate into temporary keychain (with automatic conversion if modern OpenSSL 3 PKCS#12 is used)
+          if ! security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security; then
+            echo "::warning::Direct security import failed (likely modern OpenSSL 3 PKCS#12 encryption). Converting to Apple-compatible legacy PKCS#12 format..."
+            TEMP_PEM=$RUNNER_TEMP/temp_cert_key.pem
+            LEGACY_P12=$RUNNER_TEMP/certificate_legacy.p12
+            openssl pkcs12 -in "$CERT_PATH" -passin "pass:$APPLE_CERTIFICATE_PASSWORD" -nodes -out "$TEMP_PEM"
+            openssl pkcs12 -export -certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg SHA1 -in "$TEMP_PEM" -out "$LEGACY_P12" -passout "pass:$APPLE_CERTIFICATE_PASSWORD"
+            rm -f "$TEMP_PEM"
+            security import "$LEGACY_P12" -k "$KEYCHAIN_PATH" -P "$APPLE_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+            echo "✅ Successfully converted and imported Apple-compatible certificate"
+          else
+            echo "✅ Certificate imported directly to temporary keychain"
+          fi
+
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          echo "✅ Certificate imported to temporary keychain and search list configured"
+          echo "✅ Keychain search list and partition list configured"
 
       - name: 📜 Install Provisioning Profile & Verify Capabilities
         env:
