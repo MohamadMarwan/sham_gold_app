@@ -1,0 +1,6 @@
+/* Localized Info.plist Keys (Arabic) */
+"CFBundleDisplayName" = "ذهب الشام";
+"NSUserTrackingUsageDescription" = "يساعد هذا الإذن في تقديم إعلانات مخصصة تناسب اهتماماتك وتدعم استمرار تقديم خدمات التطبيق مجاناً.";
+"NSLocationWhenInUseUsageDescription" = "نحتاج إلى إذن تحديد الموقع لاكتشاف دولتك تلقائياً وعرض أسعار الذهب والعملات والعيارات المحلية الخاصة ببلدك بدقة فورية.";
+"NSPhotoLibraryUsageDescription" = "نحتاج إلى إذن للوصول إلى معرض الصور الخاص بك لتتمكن من مشاركة الصور.";
+"NSPhotoLibraryAddUsageDescription" = "نحتاج إلى إذن لحفظ الصور في معرض الصور الخاص بك عند مشاركة الأسعار.";

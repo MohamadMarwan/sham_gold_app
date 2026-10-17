@@ -19,6 +19,11 @@ jobs:
     runs-on: macos-14
     timeout-minutes: 60
 
+    env:
+      APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
@@ -125,11 +130,7 @@ jobs:
           retention-days: 30
 
       - name: 🚀 Validate & Upload to App Store Connect / TestFlight
-        if: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 != '' && secrets.APP_STORE_CONNECT_KEY_ID != '' && secrets.APP_STORE_CONNECT_ISSUER_ID != '' }}
-        env:
-          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        if: env.APP_STORE_CONNECT_API_KEY_BASE64 != '' && env.APP_STORE_CONNECT_KEY_ID != '' && env.APP_STORE_CONNECT_ISSUER_ID != ''
         run: |
           python3 -c "
           import base64, os
@@ -186,7 +187,6 @@ jobs:
   build-android:
     name: 🤖 Build Android APK + AAB
     runs-on: ubuntu-latest
-    if: ${{ secrets.KEYSTORE_FILE != '' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -206,11 +206,20 @@ jobs:
         run: flutter pub get
 
       - name: Decode Keystore
+        id: check_keystore
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
-        run: echo "$KEYSTORE_FILE" | base64 --decode > android/app/release.jks
+        run: |
+          if [ -z "$KEYSTORE_FILE" ]; then
+            echo "has_keystore=false" >> $GITHUB_OUTPUT
+            echo "::warning::KEYSTORE_FILE secret is not set. Skipping signed Android build."
+          else
+            echo "has_keystore=true" >> $GITHUB_OUTPUT
+            echo "$KEYSTORE_FILE" | base64 --decode > android/app/release.jks
+          fi
 
       - name: Build APK
+        if: steps.check_keystore.outputs.has_keystore == 'true'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -220,6 +229,7 @@ jobs:
             --dart-define=KEYSTORE_PATH=release.jks
 
       - name: Build App Bundle (AAB)
+        if: steps.check_keystore.outputs.has_keystore == 'true'
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -227,6 +237,7 @@ jobs:
         run: flutter build appbundle --release
 
       - name: Upload APK
+        if: steps.check_keystore.outputs.has_keystore == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: android-apk-${{ github.run_number }}
@@ -234,6 +245,7 @@ jobs:
           retention-days: 30
 
       - name: Upload AAB
+        if: steps.check_keystore.outputs.has_keystore == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: android-aab-${{ github.run_number }}

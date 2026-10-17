@@ -1,0 +1,6 @@
+/* Localized Info.plist Keys (English) */
+"CFBundleDisplayName" = "Sham Gold";
+"NSUserTrackingUsageDescription" = "This identifier is used to deliver personalized ads that support free access to our live gold and currency services.";
+"NSLocationWhenInUseUsageDescription" = "We need location access to automatically detect your country and display accurate real-time gold and currency prices for your region.";
+"NSPhotoLibraryUsageDescription" = "We need access to your photo library to allow you to share price images.";
+"NSPhotoLibraryAddUsageDescription" = "We need permission to save price screenshots to your photo library.";

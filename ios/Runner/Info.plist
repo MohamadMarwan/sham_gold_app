@@ -69,7 +69,13 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>نحتاج إلى إذن تحديد الموقع لاكتشاف دولتك تلقائياً وعرض أسعار الذهب والعملات والعيارات المحلية الخاصة ببلدك بدقة فورية.</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>يساعد هذا المعرف في تقديم إعلانات مخصصة تهمك، مما يدعم استمرارية تقديم خدماتنا بشكل مجاني.</string>
+	<string>يساعد هذا الإذن في تقديم إعلانات مخصصة تناسب اهتماماتك وتدعم استمرار تقديم خدمات التطبيق مجاناً.</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ar</string>
+		<string>en</string>
+		<string>tr</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

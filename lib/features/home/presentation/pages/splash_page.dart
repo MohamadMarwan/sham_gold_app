@@ -12,6 +12,7 @@ import '../../../../core/services/app_update_service.dart';
 import '../../../../core/providers/settings_provider.dart';
 import '../../../../core/services/location_detector_service.dart';
 import '../../../../core/providers/country_provider.dart';
+import '../../../../core/config/app_config.dart';
 
 class SplashPage extends ConsumerStatefulWidget {
   final bool fromResume;
@@ -126,6 +127,14 @@ class _SplashPageState extends ConsumerState<SplashPage>
       }
     } catch (e) {
       debugPrint('Error detecting country natively: $e');
+    }
+    // ------------------------------------------------------------
+
+    // --- App Tracking Transparency (ATT) & Ad Initialization ---
+    // On iOS, ATT prompt MUST appear before any ads are loaded or ad SDKs initialized.
+    if (mounted) {
+      await adService.requestTrackingAndInitialize(context: context);
+      await adService.fetchAdSettings(AppConfig.baseUrl);
     }
     // ------------------------------------------------------------
 

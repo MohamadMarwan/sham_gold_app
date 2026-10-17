@@ -67,8 +67,12 @@ Future<void> _initializeBackgroundServices() async {
 
   try {
     if (!kIsWeb) {
-      await AdService().initialize();
-      AdService().fetchAdSettings(AppConfig.baseUrl);
+      // On iOS, AdService initialization is deferred to SplashPage where the active UI
+      // presents the App Tracking Transparency (ATT) dialog before loading ads.
+      if (defaultTargetPlatform != TargetPlatform.iOS) {
+        await AdService().initialize();
+        AdService().fetchAdSettings(AppConfig.baseUrl);
+      }
     }
   } catch (e) {
     debugPrint('AdService init error: $e');
