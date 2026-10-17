@@ -60,8 +60,10 @@ jobs:
       - name: 📦 Flutter pub get
         run: flutter pub get
 
-      - name: ☕ Install CocoaPods dependencies
-        run: cd ios && pod install --repo-update
+      - name: ☕ Prepare iOS Plugins & CocoaPods
+        run: |
+          pod repo update
+          flutter build ios --config-only --release --no-codesign
 
       - name: 🔑 Import Apple Distribution Certificate to Keychain
         env:
