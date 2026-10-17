@@ -34,6 +34,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: ⚙️ Disable Swift Package Manager (Enforce CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
+
       - name: ⚙️ Configure Firebase (GoogleService-Info.plist)
         env:
           GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}

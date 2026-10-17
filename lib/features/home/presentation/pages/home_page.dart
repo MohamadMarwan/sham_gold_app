@@ -21,7 +21,6 @@ import '../../../../core/providers/navigation_provider.dart';
 import 'bullions_coins_page.dart';
 import '../../../../shared/widgets/ticker_tape_widget.dart';
 import '../../../../shared/widgets/country_flag_widget.dart';
-import '../../../../core/services/permission_coordinator_service.dart';
 import '../../../../core/services/app_update_service.dart';
 import '../../../../core/providers/settings_provider.dart';
 
