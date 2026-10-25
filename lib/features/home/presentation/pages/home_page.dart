@@ -192,20 +192,13 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
     final isFirstRun = prefs.getBool('first_run_tutorial') ?? true;
 
     if (isFirstRun && mounted) {
-      final priceService = ref.read(priceServiceProvider);
-      final List<GlobalKey> activeKeys = [_globalKey];
-      if (priceService.shouldShow('navShowCountryMarket', defaultValue: true)) {
-        activeKeys.add(_marketKey);
-      }
-      if (priceService.shouldShow('navShowBullions', defaultValue: true)) {
-        activeKeys.add(_portfolioKey);
-      }
-      if (priceService.shouldShow('navShowCalculator', defaultValue: true)) {
-        activeKeys.add(_calcKey);
-      }
-      if (activeKeys.isNotEmpty) {
-        ShowCaseWidget.of(context).startShowCase(activeKeys);
-      }
+      final List<GlobalKey> activeKeys = [
+        _globalKey,
+        _marketKey,
+        _portfolioKey,
+        _calcKey,
+      ];
+      ShowCaseWidget.of(context).startShowCase(activeKeys);
       await prefs.setBool('first_run_tutorial', false);
     }
   }
@@ -296,74 +289,69 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           label: 'home'.tr(),
         ),
       ),
-      if (priceService.shouldShow('navShowCountryMarket', defaultValue: true))
-        _NavTabItem(
-          id: 'country_market',
-          showcaseKey: _marketKey,
-          page: _buildCountrySpecificMarketPage(country),
-          barItem: BottomNavigationBarItem(
-            icon: Showcase(
-              key: _marketKey,
-              title: country.localizedName,
-              description: 'showcase_market_desc'.tr(),
-              child: CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
-            ),
-            activeIcon: _buildActiveIcon(CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 22)),
-            label: country.localizedName,
+      _NavTabItem(
+        id: 'country_market',
+        showcaseKey: _marketKey,
+        page: _buildCountrySpecificMarketPage(country),
+        barItem: BottomNavigationBarItem(
+          icon: Showcase(
+            key: _marketKey,
+            title: country.localizedName,
+            description: 'showcase_market_desc'.tr(),
+            child: CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
           ),
+          activeIcon: _buildActiveIcon(CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 22)),
+          label: country.localizedName,
         ),
-      if (priceService.shouldShow('navShowCurrencies', defaultValue: true))
-        _NavTabItem(
-          id: 'currencies',
-          page: const CurrenciesPage(),
-          barItem: BottomNavigationBarItem(
-            icon: const Icon(Icons.currency_exchange_rounded, size: 21),
-            activeIcon: _buildActiveIcon(const Icon(Icons.currency_exchange_rounded, size: 24, color: AppColors.gold)),
-            label: 'currencies'.tr(),
+      ),
+      _NavTabItem(
+        id: 'currencies',
+        page: const CurrenciesPage(),
+        barItem: BottomNavigationBarItem(
+          icon: const Icon(Icons.currency_exchange_rounded, size: 21),
+          activeIcon: _buildActiveIcon(const Icon(Icons.currency_exchange_rounded, size: 24, color: AppColors.gold)),
+          label: 'currencies'.tr(),
+        ),
+      ),
+      _NavTabItem(
+        id: 'bullions',
+        showcaseKey: _portfolioKey,
+        page: const BullionsCoinsPage(),
+        barItem: BottomNavigationBarItem(
+          icon: Showcase(
+            key: _portfolioKey,
+            title: 'bullions_and_coins'.tr(),
+            description: 'showcase_bullions_desc'.tr(),
+            child: const Icon(Icons.diamond_outlined, size: 21),
           ),
+          activeIcon: _buildActiveIcon(const Icon(Icons.diamond_rounded, size: 24, color: AppColors.gold)),
+          label: 'bullions'.tr(),
         ),
-      if (priceService.shouldShow('navShowBullions', defaultValue: true))
-        _NavTabItem(
-          id: 'bullions',
-          showcaseKey: _portfolioKey,
-          page: const BullionsCoinsPage(),
-          barItem: BottomNavigationBarItem(
-            icon: Showcase(
-              key: _portfolioKey,
-              title: 'bullions_and_coins'.tr(),
-              description: 'showcase_bullions_desc'.tr(),
-              child: const Icon(Icons.diamond_outlined, size: 21),
-            ),
-            activeIcon: _buildActiveIcon(const Icon(Icons.diamond_rounded, size: 24, color: AppColors.gold)),
-            label: 'bullions'.tr(),
+      ),
+      _NavTabItem(
+        id: 'calculator',
+        showcaseKey: _calcKey,
+        page: const SmartCalculatorsPage(),
+        barItem: BottomNavigationBarItem(
+          icon: Showcase(
+            key: _calcKey,
+            title: 'calculator'.tr(),
+            description: 'showcase_calc_desc'.tr(),
+            child: const Icon(Icons.calculate_outlined, size: 21),
           ),
+          activeIcon: _buildActiveIcon(const Icon(Icons.calculate_rounded, size: 24, color: AppColors.gold)),
+          label: 'calculator'.tr(),
         ),
-      if (priceService.shouldShow('navShowCalculator', defaultValue: true))
-        _NavTabItem(
-          id: 'calculator',
-          showcaseKey: _calcKey,
-          page: const SmartCalculatorsPage(),
-          barItem: BottomNavigationBarItem(
-            icon: Showcase(
-              key: _calcKey,
-              title: 'calculator'.tr(),
-              description: 'showcase_calc_desc'.tr(),
-              child: const Icon(Icons.calculate_outlined, size: 21),
-            ),
-            activeIcon: _buildActiveIcon(const Icon(Icons.calculate_rounded, size: 24, color: AppColors.gold)),
-            label: 'calculator'.tr(),
-          ),
+      ),
+      _NavTabItem(
+        id: 'more',
+        page: const FollowUsPage(),
+        barItem: BottomNavigationBarItem(
+          icon: const Icon(Icons.more_horiz_rounded, size: 21),
+          activeIcon: _buildActiveIcon(const Icon(Icons.more_horiz_rounded, size: 26, color: AppColors.gold)),
+          label: 'more'.tr(),
         ),
-      if (priceService.shouldShow('navShowMore', defaultValue: true))
-        _NavTabItem(
-          id: 'more',
-          page: const FollowUsPage(),
-          barItem: BottomNavigationBarItem(
-            icon: const Icon(Icons.more_horiz_rounded, size: 21),
-            activeIcon: _buildActiveIcon(const Icon(Icons.more_horiz_rounded, size: 26, color: AppColors.gold)),
-            label: 'more'.tr(),
-          ),
-        ),
+      ),
     ];
 
     _activeTabs = allTabs;

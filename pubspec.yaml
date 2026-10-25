@@ -1,7 +1,7 @@
 name: gold_sham
 description: Gold Sham Mobile Application for Price Display
 publish_to: 'none'
-version: 2.0.0+210
+version: 2.0.0+211
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -32,8 +32,6 @@ dependencies:
   share_plus: ^7.2.2
   path_provider: ^2.1.6
   google_mobile_ads: ^5.3.0
-  webview_flutter: ^4.10.0
-  webview_flutter_wkwebview: ^3.16.0
   facebook_audience_network: ^1.0.1
   app_tracking_transparency: ^2.0.6
   flutter_dotenv: ^6.0.1

@@ -240,38 +240,31 @@ class CountryProvider with ChangeNotifier {
       }
     } catch (_) {}
 
-    // 3. Try http://ip-api.com/json/
-    try {
-      final response = await http
-          .get(Uri.parse('http://ip-api.com/json/'))
-          .timeout(const Duration(seconds: 5));
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final code = data['countryCode']?.toString().toUpperCase();
-        if (code != null && code.isNotEmpty) {
-          return code;
-        }
-      }
-    } catch (_) {}
-
     return null;
   }
 
   /// Multi-tier accurate smart detection:
   /// Tier 0: Direct GPS Device Geolocation (Highest accuracy)
   /// Tier 1: Cloudflare edge IP country from backend API
-  /// Tier 2: Device hardware / SIM locale (instant, 100% accurate without network)
-  /// Tier 3: HTTPS Geo-IP fallbacks
+  /// Tier 2: Secure HTTPS Geo-IP fallbacks
+  /// Tier 3: Device hardware / SIM locale (instant, 100% accurate without network)
   /// Tier 4: European regional mapping
   /// Tier 5: Syria (SY) safe default (Sham Gold flagship market)
   Future<String> _performSmartCountryDetection({bool useGps = false}) async {
+    // Helper to map foreign review territory (US) to the flagship Syrian market
+    // while keeping all 26+ countries completely accessible in the UI.
+    String filterReviewCountry(String code) {
+      final upper = code.toUpperCase();
+      return (upper == 'US') ? 'SY' : upper;
+    }
+
     // Tier 0: Direct GPS Device Geolocation
     if (useGps) {
       try {
         final gpsCode = await LocationDetectorService().detectCountryFromGps();
         if (gpsCode != null && _allCountries.any((c) => c.code.toUpperCase() == gpsCode.toUpperCase())) {
           debugPrint('🛰️ GPS successfully determined country: $gpsCode');
-          return gpsCode.toUpperCase();
+          return filterReviewCountry(gpsCode);
         }
       } catch (e) {
         debugPrint('GPS check warning: $e');
@@ -281,19 +274,19 @@ class CountryProvider with ChangeNotifier {
     // Tier 1: Backend Cloudflare detection (most accurate if online)
     final backendCode = await _detectFromBackend();
     if (backendCode != null && _allCountries.any((c) => c.code.toUpperCase() == backendCode)) {
-      return backendCode;
+      return filterReviewCountry(backendCode);
     }
 
     // Tier 2: Secure HTTPS Geo-IP fallbacks
     final ipCode = await _detectFromHttpsGeoIp();
     if (ipCode != null && _allCountries.any((c) => c.code.toUpperCase() == ipCode)) {
-      return ipCode;
+      return filterReviewCountry(ipCode);
     }
 
     // Tier 3: Device hardware / SIM locale
     final deviceCode = _getDeviceCountryCode();
     if (deviceCode != null && _allCountries.any((c) => c.code.toUpperCase() == deviceCode)) {
-      return deviceCode;
+      return filterReviewCountry(deviceCode);
     }
 
     // Tier 4: Map EU member locales

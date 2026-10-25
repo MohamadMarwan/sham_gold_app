@@ -45,11 +45,6 @@
 		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>https</string>
@@ -73,7 +68,7 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>نحتاج إلى إذن تحديد الموقع لاكتشاف دولتك تلقائياً وعرض أسعار الذهب والعملات والعيارات المحلية الخاصة ببلدك بدقة فورية.</string>
 	<key>NSUserTrackingUsageDescription</key>
-	<string>يساعد هذا الإذن في تقديم إعلانات مخصصة تناسب اهتماماتك وتدعم استمرار تقديم خدمات التطبيق مجاناً.</string>
+	<string>يُستخدم هذا المعرّف لتقديم إعلانات ملائمة ومخصصة تناسب اهتماماتك.</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>ar</string>

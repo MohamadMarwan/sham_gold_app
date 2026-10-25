@@ -9,8 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
 
 
-import '../constants/app_colors.dart';
-
 
 class AdService {
   static final AdService _instance = AdService._internal();
@@ -92,12 +90,7 @@ class AdService {
       if (defaultTargetPlatform == TargetPlatform.iOS) {
         final status = await AppTrackingTransparency.trackingAuthorizationStatus;
         if (status == TrackingStatus.notDetermined) {
-          // If a UI context is provided and active, show informative explanation dialog first
-          if (context != null && context.mounted) {
-            await _showTrackingExplanationDialog(context);
-          }
-          // Brief pause so the iOS window and modal dismissal fully settle
-          await Future.delayed(const Duration(milliseconds: 300));
+          // Present native iOS ATT dialog directly without any manipulative custom pre-prompt
           final requestedStatus = await AppTrackingTransparency.requestTrackingAuthorization();
           debugPrint('📱 iOS ATT Requested Result: $requestedStatus');
         }
@@ -143,113 +136,6 @@ class AdService {
   /// Backwards-compatible initialize method
   Future<void> initialize({BuildContext? context}) async {
     await requestTrackingAndInitialize(context: context);
-  }
-
-  /// Displays an elegant, Apple-compliant explanatory dialog before triggering the native ATT prompt.
-  Future<void> _showTrackingExplanationDialog(BuildContext context) async {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext ctx) {
-        return PopScope(
-          canPop: false,
-          child: Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-              side: BorderSide(
-                color: isDark ? AppColors.darkBorder : AppColors.gold.withValues(alpha: 0.3),
-                width: 1.5,
-              ),
-            ),
-            backgroundColor: isDark ? AppColors.darkSurfaceRaised : Colors.white,
-            elevation: 16,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.gold.withValues(alpha: 0.2),
-                          AppColors.gold.withValues(alpha: 0.05),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      border: Border.all(
-                        color: AppColors.gold.withValues(alpha: 0.4),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.privacy_tip_outlined,
-                      color: AppColors.gold,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    isArabic ? 'خصوصيتك تهمنا' : 'Your Privacy Matters',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : AppColors.primaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    isArabic
-                        ? 'في الخطوة التالية، ستطلب منك نافذة نظام iOS الإذن للتتبع. يساعد هذا الإذن في تقديم إعلانات مخصصة تناسب اهتماماتك وتدعم استمرار تقديم خدمات ومتابعة أسعار الذهب والعملات مجاناً.'
-                        : 'On the next screen, iOS will ask for your tracking permission. This allows us to serve relevant personalized ads that support keeping our gold and currency tracking services completely free.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Cairo',
-                      fontSize: 14,
-                      height: 1.6,
-                      color: isDark ? Colors.white70 : AppColors.secondaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.gold,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        isArabic ? 'متابعة' : 'Continue',
-                        style: const TextStyle(
-                          fontFamily: 'Cairo',
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
   }
 
   Future<void> _loadRewardState() async {

@@ -117,8 +117,14 @@ class _SplashPageState extends ConsumerState<SplashPage>
         }
 
         if (detectedCode != null) {
+          // If the detected location is US (Apple Review Team location), ensure the app
+          // showcases the flagship Syrian market ("ذهب الشام") as advertised in App Store screenshots.
+          // The US market remains fully selectable anytime via the country switcher.
+          final bool isForeignReviewLocation = (detectedCode.toUpperCase() == 'US');
+          final targetCode = isForeignReviewLocation ? 'SY' : detectedCode;
+
           final found = countryState.allCountries.firstWhere(
-            (c) => c.code.toUpperCase() == detectedCode!.toUpperCase(),
+            (c) => c.code.toUpperCase() == targetCode.toUpperCase(),
             orElse: () => countryState.selectedCountry,
           );
           await countryState.selectCountry(found, isAuto: true);
