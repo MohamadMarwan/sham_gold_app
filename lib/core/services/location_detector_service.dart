@@ -90,19 +90,22 @@ class LocationDetectorService {
     return null;
   }
 
-  /// Immediately requests GPS permission and fetches device location
+  /// Immediately requests GPS permission and fetches device location with strict timeouts
   Future<String?> detectCountryFromGps() async {
     try {
       // Check if location services are enabled on device
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled()
+          .timeout(const Duration(seconds: 2), onTimeout: () => false);
       if (!serviceEnabled) {
         debugPrint('⚠️ Location services are disabled on device');
-        // Still try to prompt if possible or fall through
+        return null;
       }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+      LocationPermission permission = await Geolocator.checkPermission()
+          .timeout(const Duration(seconds: 2), onTimeout: () => LocationPermission.denied);
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+        permission = await Geolocator.requestPermission()
+            .timeout(const Duration(seconds: 3), onTimeout: () => LocationPermission.denied);
         if (permission == LocationPermission.denied) {
           debugPrint('⚠️ Location permissions denied by user');
           return null;
@@ -114,18 +117,19 @@ class LocationDetectorService {
         return null;
       }
 
-      // Fast GPS position with 5-second timeout
+      // Fast GPS position with 3-second timeout
       Position? position;
       try {
         position = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.medium,
-            timeLimit: Duration(seconds: 5),
+            timeLimit: Duration(seconds: 3),
           ),
         );
       } catch (timeoutErr) {
         debugPrint('⏳ GPS getCurrentPosition timed out, attempting last known position...');
-        position = await Geolocator.getLastKnownPosition();
+        position = await Geolocator.getLastKnownPosition()
+            .timeout(const Duration(seconds: 2), onTimeout: () => null);
       }
 
       if (position != null) {

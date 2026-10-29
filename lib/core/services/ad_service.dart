@@ -88,28 +88,33 @@ class AdService {
     try {
       // 1. Handle App Tracking Transparency for iOS before loading any ads
       if (defaultTargetPlatform == TargetPlatform.iOS) {
-        final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+        final status = await AppTrackingTransparency.trackingAuthorizationStatus
+            .timeout(const Duration(milliseconds: 1000), onTimeout: () => TrackingStatus.notDetermined);
         if (status == TrackingStatus.notDetermined) {
           // Present native iOS ATT dialog directly without any manipulative custom pre-prompt
-          final requestedStatus = await AppTrackingTransparency.requestTrackingAuthorization();
+          final requestedStatus = await AppTrackingTransparency.requestTrackingAuthorization()
+              .timeout(const Duration(seconds: 2), onTimeout: () => TrackingStatus.notDetermined);
           debugPrint('📱 iOS ATT Requested Result: $requestedStatus');
         }
 
-        final finalStatus = await AppTrackingTransparency.trackingAuthorizationStatus;
+        final finalStatus = await AppTrackingTransparency.trackingAuthorizationStatus
+            .timeout(const Duration(milliseconds: 800), onTimeout: () => TrackingStatus.notDetermined);
         final bool isTrackingEnabled = (finalStatus == TrackingStatus.authorized);
 
         // Notify Facebook SDK about tracking status
         await FacebookAudienceNetwork.init(
           iOSAdvertiserTrackingEnabled: isTrackingEnabled,
-        );
+        ).timeout(const Duration(seconds: 2), onTimeout: () => false);
         debugPrint('📱 iOS ATT Status sent to Meta: $isTrackingEnabled (ATT: $finalStatus)');
       } else {
         // Android Initialization
-        await FacebookAudienceNetwork.init();
+        await FacebookAudienceNetwork.init()
+            .timeout(const Duration(seconds: 2), onTimeout: () => false);
       }
 
       // 2. Initialize Google Mobile Ads
-      await MobileAds.instance.initialize();
+      await MobileAds.instance.initialize()
+          .timeout(const Duration(seconds: 3), onTimeout: () => InitializationStatus({}));
       _isInitialized = true;
       debugPrint('✅ All Ad SDKs Initialized');
 
@@ -535,48 +540,9 @@ class AdService {
   }
 
   /// Shows the App Open Ad on cold start.
-  /// Unlike [showAppOpenAd], this does NOT require the backend [isEnabled] flag,
-  /// so it works reliably before backend settings are fetched.
+  /// Cold-start ads are bypassed to prevent Apple App Review Guideline 2.1(a) blocks.
   void showStartupAppOpenAd({Function? onAdDismissed}) {
-    if (!_isEnabled || !_showAppOpenOnStartup || isRewardActive || kIsWeb) {
-      debugPrint('⚠️ Startup App Open Ad disabled or reward active — skipping');
-      onAdDismissed?.call();
-      return;
-    }
-
-    if (_isShowingAd) {
-      onAdDismissed?.call();
-      return;
-    }
-
-    if (!_isAppOpenAdLoaded || _appOpenAd == null) {
-      debugPrint('⚠️ Startup App Open Ad not loaded — skipping');
-      onAdDismissed?.call();
-      return;
-    }
-
-    _appOpenAd!.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (ad) {
-        _isShowingAd = true;
-        debugPrint('✅ Startup App Open Ad showing');
-      },
-      onAdDismissedFullScreenContent: (ad) {
-        _isShowingAd = false;
-        ad.dispose();
-        _isAppOpenAdLoaded = false;
-        _appOpenAd = null;
-        onAdDismissed?.call();
-      },
-      onAdFailedToShowFullScreenContent: (ad, error) {
-        _isShowingAd = false;
-        ad.dispose();
-        _isAppOpenAdLoaded = false;
-        _appOpenAd = null;
-        debugPrint('❌ Startup App Open Ad failed to show: $error');
-        onAdDismissed?.call();
-      },
-    );
-
-    _appOpenAd!.show();
+    debugPrint('⚡ Startup App Open Ad bypassed for instant app completeness');
+    onAdDismissed?.call();
   }
 }
