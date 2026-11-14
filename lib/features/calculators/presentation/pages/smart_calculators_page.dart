@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +14,16 @@ import '../../../../shared/widgets/premium_logo.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/widgets/banner_placement_widget.dart';
+
+/// Notifier relay to propagate setState calls from _SmartCalculatorsPageState to pushed sub-routes
+class _SubPageRelay extends ChangeNotifier {
+  void trigger() {
+    if (hasListeners) {
+      notifyListeners();
+    }
+  }
+}
+
 /// Provider for the currently active sub-calculator index (null means the hub/list is showing)
 final calculatorActiveSubPageProvider = StateProvider<int?>((ref) => null);
 
@@ -27,10 +38,46 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
   @override
   bool get wantKeepAlive => true;
 
-  int? get _selectedCalculatorIndex => ref.watch(calculatorActiveSubPageProvider);
+  final _SubPageRelay _subPageRelay = _SubPageRelay();
 
-  void _selectCalculator(int? index) {
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    if (mounted) {
+      _subPageRelay.trigger();
+    }
+  }
+
+  void _openCalculator(int index) {
     ref.read(calculatorActiveSubPageProvider.notifier).state = index;
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (routeContext) {
+          return ListenableBuilder(
+            listenable: _subPageRelay,
+            builder: (context, _) {
+              final isDark = Theme.of(context).brightness == Brightness.dark;
+              final countryState = ref.watch(countryProvider);
+              final country = countryState.selectedCountry;
+
+              return Scaffold(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                body: _buildSelectedCalculator(
+                  isDark,
+                  country,
+                  index,
+                  onBack: () => Navigator.of(routeContext).maybePop(),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    ).then((_) {
+      if (mounted) {
+        ref.read(calculatorActiveSubPageProvider.notifier).state = null;
+      }
+    });
   }
 
   // Controllers - Zakat
@@ -164,6 +211,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
     _goalTitleController.dispose();
     _goalTargetAmountController.dispose();
     _goalInitialSavedController.dispose();
+    _subPageRelay.dispose();
     super.dispose();
   }
 
@@ -171,41 +219,10 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
   Widget build(BuildContext context) {
     super.build(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final countryState = ref.watch(countryProvider);
-    final country = countryState.selectedCountry;
 
-    // Use PopScope to intercept back button when inside a specific calculator.
-    // When _selectedCalculatorIndex != null, we handle the pop ourselves by
-    // returning to the calculator hub. When null, we let the pop bubble up
-    // to the HomePage which handles tab switching.
-    return PopScope(
-      canPop: _selectedCalculatorIndex == null,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _selectedCalculatorIndex != null) {
-          // Back button pressed while inside a calculator -> return to hub
-          _selectCalculator(null);
-        }
-      },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          child: _selectedCalculatorIndex == null
-              ? KeyedSubtree(
-                  key: const ValueKey('calculator_hub'),
-                  child: _buildHub(isDark),
-                )
-              : KeyedSubtree(
-                  key: ValueKey('calculator_$_selectedCalculatorIndex'),
-                  child: _buildSelectedCalculator(isDark, country),
-                ),
-        ),
-      ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: _buildHub(isDark),
     );
   }
 
@@ -254,7 +271,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'zakat_calculator_desc'.tr(),
                 icon: Icons.scale_rounded,
                 color: const Color(0xFF10B981),
-                onTap: () => _selectCalculator(0),
+                onTap: () => _openCalculator(0),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -263,7 +280,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'making_charge_desc'.tr(),
                 icon: Icons.diamond_rounded,
                 color: const Color(0xFFF59E0B),
-                onTap: () => _selectCalculator(1),
+                onTap: () => _openCalculator(1),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -272,7 +289,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'weight_converter_desc'.tr(),
                 icon: Icons.swap_horiz_rounded,
                 color: const Color(0xFF3B82F6),
-                onTap: () => _selectCalculator(2),
+                onTap: () => _openCalculator(2),
                 isDark: isDark,
               ),
 
@@ -288,7 +305,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'roi_calculator_desc'.tr(),
                 icon: Icons.trending_up_rounded,
                 color: const Color(0xFF8B5CF6),
-                onTap: () => _selectCalculator(3),
+                onTap: () => _openCalculator(3),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -297,7 +314,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'auto_str_040'.tr(),
                 icon: Icons.track_changes_rounded,
                 color: const Color(0xFFEC4899),
-                onTap: () => _selectCalculator(4),
+                onTap: () => _openCalculator(4),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -306,7 +323,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'silver_calc_subtitle'.tr(),
                 icon: Icons.diamond_outlined,
                 color: const Color(0xFF94A3B8), // Silver color
-                onTap: () => _selectCalculator(5),
+                onTap: () => _openCalculator(5),
                 isDark: isDark,
               ),
               const SizedBox(height: 16),
@@ -315,7 +332,7 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
                 subtitle: 'dca_calc_subtitle'.tr(),
                 icon: Icons.auto_graph_rounded,
                 color: const Color(0xFF0EA5E9),
-                onTap: () => _selectCalculator(6),
+                onTap: () => _openCalculator(6),
                 isDark: isDark,
               ),
 
@@ -389,11 +406,11 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
     );
   }
 
-  Widget _buildSelectedCalculator(bool isDark, dynamic country) {
+  Widget _buildSelectedCalculator(bool isDark, dynamic country, int calcIndex, {VoidCallback? onBack}) {
     Widget content;
     String title;
 
-    switch (_selectedCalculatorIndex) {
+    switch (calcIndex) {
       case 0:
         title = 'auto_str_225'.tr();
         content = _buildZakatTab(isDark, country);
@@ -429,38 +446,54 @@ class _SmartCalculatorsPageState extends ConsumerState<SmartCalculatorsPage> wit
 
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
-          decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _selectCalculator(null);
-                },
-              ),
-              Expanded(
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontFamily: 'Cairo',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
+        GestureDetector(
+          onHorizontalDragEnd: (details) {
+            if (details.primaryVelocity != null && details.primaryVelocity!.abs() > 150) {
+              HapticFeedback.lightImpact();
+              if (onBack != null) {
+                onBack();
+              } else {
+                Navigator.of(context).maybePop();
+              }
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 50, 16, 16),
+            decoration: BoxDecoration(gradient: AppColors.emeraldGradient),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    if (onBack != null) {
+                      onBack();
+                    } else {
+                      Navigator.of(context).maybePop();
+                    }
+                  },
+                ),
+                Expanded(
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: 'Cairo',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.history_rounded, color: Colors.white),
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _showHistoryDrawer();
-                },
-              ),
-            ],
+                IconButton(
+                  icon: const Icon(Icons.history_rounded, color: Colors.white),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _showHistoryDrawer();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
         const BannerPlacementWidget(

@@ -232,13 +232,13 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: 38,
-                height: 38,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.gold.withValues(alpha: 0.25),
+                      AppColors.gold.withValues(alpha: 0.22),
                       Colors.transparent,
                     ],
                     radius: 0.8,
@@ -283,75 +283,80 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
             key: _globalKey,
             title: 'home'.tr(),
             description: 'showcase_home_desc'.tr(),
-            child: const Icon(Icons.home_filled, size: 21),
+            child: const Icon(Icons.home_filled, size: 20),
           ),
-          activeIcon: _buildActiveIcon(const Icon(Icons.home_filled, size: 24, color: AppColors.gold)),
+          activeIcon: _buildActiveIcon(const Icon(Icons.home_filled, size: 22, color: AppColors.gold)),
           label: 'home'.tr(),
         ),
       ),
-      _NavTabItem(
-        id: 'country_market',
-        showcaseKey: _marketKey,
-        page: _buildCountrySpecificMarketPage(country),
-        barItem: BottomNavigationBarItem(
-          icon: Showcase(
-            key: _marketKey,
-            title: country.localizedName,
-            description: 'showcase_market_desc'.tr(),
-            child: CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
+      if (priceService.shouldShow('navShowCountryMarket', defaultValue: true))
+        _NavTabItem(
+          id: 'country_market',
+          showcaseKey: _marketKey,
+          page: _buildCountrySpecificMarketPage(country),
+          barItem: BottomNavigationBarItem(
+            icon: Showcase(
+              key: _marketKey,
+              title: country.localizedName,
+              description: 'showcase_market_desc'.tr(),
+              child: CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 18),
+            ),
+            activeIcon: _buildActiveIcon(CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 21)),
+            label: country.localizedName,
           ),
-          activeIcon: _buildActiveIcon(CountryFlagWidget(countryCode: country.code, flagEmoji: country.flag, size: 22)),
-          label: country.localizedName,
         ),
-      ),
-      _NavTabItem(
-        id: 'currencies',
-        page: const CurrenciesPage(),
-        barItem: BottomNavigationBarItem(
-          icon: const Icon(Icons.currency_exchange_rounded, size: 21),
-          activeIcon: _buildActiveIcon(const Icon(Icons.currency_exchange_rounded, size: 24, color: AppColors.gold)),
-          label: 'currencies'.tr(),
-        ),
-      ),
-      _NavTabItem(
-        id: 'bullions',
-        showcaseKey: _portfolioKey,
-        page: const BullionsCoinsPage(),
-        barItem: BottomNavigationBarItem(
-          icon: Showcase(
-            key: _portfolioKey,
-            title: 'bullions_and_coins'.tr(),
-            description: 'showcase_bullions_desc'.tr(),
-            child: const Icon(Icons.diamond_outlined, size: 21),
+      if (priceService.shouldShow('navShowCurrencies', defaultValue: true))
+        _NavTabItem(
+          id: 'currencies',
+          page: const CurrenciesPage(),
+          barItem: BottomNavigationBarItem(
+            icon: const Icon(Icons.currency_exchange_rounded, size: 20),
+            activeIcon: _buildActiveIcon(const Icon(Icons.currency_exchange_rounded, size: 22, color: AppColors.gold)),
+            label: 'currencies'.tr(),
           ),
-          activeIcon: _buildActiveIcon(const Icon(Icons.diamond_rounded, size: 24, color: AppColors.gold)),
-          label: 'bullions'.tr(),
         ),
-      ),
-      _NavTabItem(
-        id: 'calculator',
-        showcaseKey: _calcKey,
-        page: const SmartCalculatorsPage(),
-        barItem: BottomNavigationBarItem(
-          icon: Showcase(
-            key: _calcKey,
-            title: 'calculator'.tr(),
-            description: 'showcase_calc_desc'.tr(),
-            child: const Icon(Icons.calculate_outlined, size: 21),
+      if (priceService.shouldShow('navShowBullions', defaultValue: true))
+        _NavTabItem(
+          id: 'bullions',
+          showcaseKey: _portfolioKey,
+          page: const BullionsCoinsPage(),
+          barItem: BottomNavigationBarItem(
+            icon: Showcase(
+              key: _portfolioKey,
+              title: 'bullions_and_coins'.tr(),
+              description: 'showcase_bullions_desc'.tr(),
+              child: const Icon(Icons.diamond_outlined, size: 20),
+            ),
+            activeIcon: _buildActiveIcon(const Icon(Icons.diamond_rounded, size: 22, color: AppColors.gold)),
+            label: 'bullions'.tr(),
           ),
-          activeIcon: _buildActiveIcon(const Icon(Icons.calculate_rounded, size: 24, color: AppColors.gold)),
-          label: 'calculator'.tr(),
         ),
-      ),
-      _NavTabItem(
-        id: 'more',
-        page: const FollowUsPage(),
-        barItem: BottomNavigationBarItem(
-          icon: const Icon(Icons.more_horiz_rounded, size: 21),
-          activeIcon: _buildActiveIcon(const Icon(Icons.more_horiz_rounded, size: 26, color: AppColors.gold)),
-          label: 'more'.tr(),
+      if (priceService.shouldShow('navShowCalculator', defaultValue: true))
+        _NavTabItem(
+          id: 'calculator',
+          showcaseKey: _calcKey,
+          page: const SmartCalculatorsPage(),
+          barItem: BottomNavigationBarItem(
+            icon: Showcase(
+              key: _calcKey,
+              title: 'calculator'.tr(),
+              description: 'showcase_calc_desc'.tr(),
+              child: const Icon(Icons.calculate_outlined, size: 20),
+            ),
+            activeIcon: _buildActiveIcon(const Icon(Icons.calculate_rounded, size: 22, color: AppColors.gold)),
+            label: 'calculator'.tr(),
+          ),
         ),
-      ),
+      if (priceService.shouldShow('navShowMore', defaultValue: true))
+        _NavTabItem(
+          id: 'more',
+          page: const FollowUsPage(),
+          barItem: BottomNavigationBarItem(
+            icon: const Icon(Icons.more_horiz_rounded, size: 20),
+            activeIcon: _buildActiveIcon(const Icon(Icons.more_horiz_rounded, size: 23, color: AppColors.gold)),
+            label: 'more'.tr(),
+          ),
+        ),
     ];
 
     _activeTabs = allTabs;
@@ -380,6 +385,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
         if (currentTabId == 'calculator') {
           final activeCalc = ref.read(calculatorActiveSubPageProvider);
           if (activeCalc != null) {
+            Navigator.of(context).maybePop();
             ref.read(calculatorActiveSubPageProvider.notifier).state = null;
             return;
           }
@@ -401,6 +407,7 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
                 physics: const BouncingScrollPhysics(),
                 onPageChanged: (index) {
                   ref.read(navigationIndexProvider.notifier).state = index;
+                  AdService().showInterstitialOnNavigation();
                 },
                 children: pages,
               ),
@@ -408,42 +415,47 @@ class _HomePageState extends ConsumerState<HomePage> with WidgetsBindingObserver
           ],
         ),
         bottomNavigationBar: allTabs.length >= 2
-            ? Container(
-                height: 85,
-                margin: const EdgeInsets.fromLTRB(16, 0, 16, 25),
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurfaceRaised.withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(38),
-                  border: Border.all(
-                    color: isDark ? AppColors.gold.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.6),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.12),
-                      blurRadius: 30,
-                      offset: const Offset(0, 10),
-                      spreadRadius: 2,
+            ? SafeArea(
+                top: false,
+                bottom: true,
+                minimum: const EdgeInsets.only(bottom: 8),
+                child: Container(
+                  height: 64,
+                  margin: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: isDark ? AppColors.darkSurfaceRaised.withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.95),
+                    borderRadius: BorderRadius.circular(26),
+                    border: Border.all(
+                      color: isDark ? AppColors.gold.withValues(alpha: 0.22) : Colors.white.withValues(alpha: 0.7),
+                      width: 1.2,
                     ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(38),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                    child: BottomNavigationBar(
-                      currentIndex: safeIndex,
-                      onTap: _onTabTapped,
-                      selectedItemColor: AppColors.gold,
-                      unselectedItemColor: isDark ? Colors.white38 : AppColors.mutedText,
-                      backgroundColor: Colors.transparent,
-                      type: BottomNavigationBarType.fixed,
-                      elevation: 0,
-                      selectedFontSize: 10.5,
-                      unselectedFontSize: 10.5,
-                      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', height: 1.6),
-                      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Cairo', height: 1.6),
-                      items: allTabs.map((t) => t.barItem).toList(),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 5),
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(26),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
+                      child: BottomNavigationBar(
+                        currentIndex: safeIndex,
+                        onTap: _onTabTapped,
+                        selectedItemColor: AppColors.gold,
+                        unselectedItemColor: isDark ? Colors.white38 : AppColors.mutedText,
+                        backgroundColor: Colors.transparent,
+                        type: BottomNavigationBarType.fixed,
+                        elevation: 0,
+                        selectedFontSize: 9.5,
+                        unselectedFontSize: 9.5,
+                        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Cairo', height: 1.15),
+                        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w700, fontFamily: 'Cairo', height: 1.15),
+                        items: allTabs.map((t) => t.barItem).toList(),
+                      ),
                     ),
                   ),
                 ),

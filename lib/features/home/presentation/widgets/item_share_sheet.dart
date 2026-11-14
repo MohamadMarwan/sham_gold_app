@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/models/price_item.dart';
+import '../../../../shared/services/share_service.dart';
 import '../../../../shared/widgets/price_chart_widget.dart';
 import 'luxury_item_card.dart';
 import 'social_share_card.dart';
@@ -63,6 +64,9 @@ class _ItemShareSheetState extends ConsumerState<ItemShareSheet> {
         throw Exception('Failed to capture card image');
       }
 
+      if (!mounted) return;
+      final origin = ShareService.safeShareOrigin(context);
+
       if (kIsWeb) {
         await Share.shareXFiles(
           [
@@ -73,6 +77,7 @@ class _ItemShareSheetState extends ConsumerState<ItemShareSheet> {
             )
           ],
           text: '${widget.item.translatedTitle} - ${'app_name'.tr()}',
+          sharePositionOrigin: origin,
         );
       } else {
         final tempDir = await getTemporaryDirectory();
@@ -81,10 +86,12 @@ class _ItemShareSheetState extends ConsumerState<ItemShareSheet> {
         ).create();
         await file.writeAsBytes(imageBytes);
 
+        if (!mounted) return;
         await Share.shareXFiles(
           [XFile(file.path, mimeType: 'image/png')],
           text: 'share_item_latest_price'.tr(args: [widget.item.translatedTitle]),
           subject: widget.item.translatedTitle,
+          sharePositionOrigin: origin,
         );
       }
 
@@ -109,11 +116,12 @@ class _ItemShareSheetState extends ConsumerState<ItemShareSheet> {
         );
       }
     } catch (e) {
+      debugPrint('ItemShareSheet error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'share_error'.tr(args: [e.toString()]),
+              'share_error'.tr(),
               style: const TextStyle(fontFamily: 'Cairo'),
             ),
             backgroundColor: Colors.red.shade800,

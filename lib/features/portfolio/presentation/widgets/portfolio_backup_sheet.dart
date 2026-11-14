@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/portfolio_provider.dart';
+import '../../../../shared/services/share_service.dart';
 
 class PortfolioBackupSheet extends StatefulWidget {
   final PortfolioProvider portfolio;
@@ -50,21 +51,34 @@ class _PortfolioBackupSheetState extends State<PortfolioBackupSheet> with Single
 
   Future<void> _shareBackupFile() async {
     HapticFeedback.mediumImpact();
-    final jsonStr = widget.portfolio.exportBackupJson();
-    final bytes = utf8.encode(jsonStr);
-    final fileName = 'sham_gold_portfolio_backup_${DateTime.now().millisecondsSinceEpoch}.json';
+    try {
+      final jsonStr = widget.portfolio.exportBackupJson();
+      final bytes = utf8.encode(jsonStr);
+      final fileName = 'sham_gold_portfolio_backup_${DateTime.now().millisecondsSinceEpoch}.json';
 
-    await Share.shareXFiles(
-      [
-        XFile.fromData(
-          Uint8List.fromList(bytes),
-          mimeType: 'application/json',
-          name: fileName,
-        ),
-      ],
-      text: 'نسخة احتياطية لمحفظة الذهب - تطبيق شام جولد\n${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}',
-      subject: 'portfolio_backup_title'.tr(),
-    );
+      await Share.shareXFiles(
+        [
+          XFile.fromData(
+            Uint8List.fromList(bytes),
+            mimeType: 'application/json',
+            name: fileName,
+          ),
+        ],
+        text: 'نسخة احتياطية لمحفظة الذهب - تطبيق شام جولد\n${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}',
+        subject: 'portfolio_backup_title'.tr(),
+        sharePositionOrigin: ShareService.safeShareOrigin(context),
+      );
+    } catch (e) {
+      debugPrint('PortfolioBackupSheet share error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('share_error'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
   }
 
   void _copyBackupCode() {

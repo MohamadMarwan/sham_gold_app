@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
+import 'package:gold_sham/core/services/ad_service.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
 import 'package:gold_sham/shared/widgets/custom_icon.dart';
 import 'package:gold_sham/shared/widgets/live_price_widget.dart';
@@ -43,9 +45,10 @@ class KaratCard extends StatelessWidget {
     return PremiumCard(
       onTap: () {
           HapticFeedback.lightImpact();
+          AdService().showInterstitialOnNavigation();
           Navigator.push(
               context,
-              MaterialPageRoute(
+              CupertinoPageRoute(
                   builder: (_) => PriceDetailPage(priceItem: item)));
         },
         margin: const EdgeInsets.only(bottom: 12),

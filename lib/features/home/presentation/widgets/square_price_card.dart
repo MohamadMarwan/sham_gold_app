@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/favorite_toggle_button.dart';
 import 'smart_alerts_sheet.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
 import '../../../../shared/widgets/ambient_blink_widget.dart';
 import '../../../../shared/services/price_service.dart';
+import '../../../../core/providers/settings_provider.dart';
 import '../../../../core/utils/currency_utils.dart';
 
 class SquarePriceCard extends ConsumerStatefulWidget {
@@ -61,12 +63,15 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
     super.didUpdateWidget(oldWidget);
     final currentPrice = widget.localPrice ?? widget.priceItem.buyPrice;
     if (_prevPrice != currentPrice && _prevPrice != 0) {
-      setState(() => _priceChanged = true);
-      _animController.forward(from: 0.0).then((_) {
-        _animController.reverse().then((_) {
-          if (mounted) setState(() => _priceChanged = false);
+      final shouldPulse = ref.read(settingsProvider).enablePriceCardPulseAnimation;
+      if (shouldPulse) {
+        setState(() => _priceChanged = true);
+        _animController.forward(from: 0.0).then((_) {
+          _animController.reverse().then((_) {
+            if (mounted) setState(() => _priceChanged = false);
+          });
         });
-      });
+      }
       _prevPrice = currentPrice;
     }
   }
@@ -94,18 +99,12 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
         widget.priceItem.currency.toUpperCase() == 'USD';
 
     final historyAsync = ref.watch(priceHistoryProvider(widget.priceItem.id));
+    final shouldPulse = ref.watch(settingsProvider.select((s) => s.enablePriceCardPulseAnimation));
 
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _priceChanged ? _pulseAnimation.value : 1.0,
-          child: child,
-        );
-      },
-      child: Bounceable(
+    final cardContent = Bounceable(
         onTap: () {
           HapticFeedback.lightImpact();
+          AdService().showInterstitialOnNavigation();
           if (widget.onTap != null) {
             widget.onTap!();
           } else {
@@ -436,7 +435,21 @@ class _SquarePriceCardState extends ConsumerState<SquarePriceCard>
           ),
         ),
       ),
-    ),
+    );
+
+    if (!shouldPulse) {
+      return cardContent;
+    }
+
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _priceChanged ? _pulseAnimation.value : 1.0,
+          child: child,
+        );
+      },
+      child: cardContent,
     );
   }
 

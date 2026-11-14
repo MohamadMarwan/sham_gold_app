@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../core/providers/regional_markets_provider.dart';
 import '../../../../core/utils/currency_utils.dart';
@@ -252,13 +254,14 @@ class RegionalMarketsSection extends ConsumerWidget {
     return InkWell(
       onTap: () {
         HapticFeedback.lightImpact();
+        AdService().showInterstitialOnNavigation();
         ref.read(countryProvider).selectCountry(country);
         if (onNavigate != null) {
           onNavigate!(1);
         } else {
           Navigator.push(
             context,
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (_) => CountryMarketPage(forcedCountry: country),
             ),
           );

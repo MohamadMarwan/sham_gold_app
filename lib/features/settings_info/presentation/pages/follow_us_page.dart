@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../shared/services/price_service.dart';
+import '../../../../shared/services/share_service.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 import 'privacy_policy_page.dart';
 import 'terms_of_service_page.dart';
@@ -597,10 +598,15 @@ class _FollowUsPageState extends ConsumerState<FollowUsPage> with AutomaticKeepA
                 icon: Icons.share_rounded,
                 color: Colors.blue.shade600,
                 onTap: () {
-                  Share.share(
-                    '${'share_app_text'.tr()} \n$playStoreUrl',
-                    subject: 'share_app_subject'.tr(),
-                  );
+                  try {
+                    Share.share(
+                      '${'share_app_text'.tr()} \n$playStoreUrl',
+                      subject: 'share_app_subject'.tr(),
+                      sharePositionOrigin: ShareService.safeShareOrigin(context),
+                    );
+                  } catch (e) {
+                    debugPrint('Error sharing app link: $e');
+                  }
                 },
               ),
             ),

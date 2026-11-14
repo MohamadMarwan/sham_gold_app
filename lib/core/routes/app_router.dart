@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/presentation/pages/home_page.dart';
@@ -65,35 +65,17 @@ class AppRouter {
           final item = args?['item'] as PriceItem?;
           
           if (item == null) {
-            return CustomTransitionPage(
+            return CupertinoPage(
               key: state.pageKey,
               child: const HomePage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
             );
           }
           
-          return CustomTransitionPage(
+          return CupertinoPage(
             key: state.pageKey,
-            transitionDuration: const Duration(milliseconds: 180),
-            reverseTransitionDuration: const Duration(milliseconds: 150),
             child: PriceDetailPage(
               priceItem: item,
             ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              const begin = Offset(0.0, 0.08);
-              const end = Offset.zero;
-              const curve = Curves.easeOutCubic;
-
-              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-              
-              return SlideTransition(
-                position: animation.drive(tween),
-                child: FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-              );
-            },
           );
         },
       ),
@@ -106,36 +88,18 @@ class AppRouter {
           final ounce = args?['item'] as PriceItem?;
 
           if (ounce == null) {
-            return CustomTransitionPage(
+            return CupertinoPage(
               key: state.pageKey,
               child: const HomePage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
             );
           }
 
-          return CustomTransitionPage(
+          return CupertinoPage(
             key: state.pageKey,
-            transitionDuration: const Duration(milliseconds: 180),
-            reverseTransitionDuration: const Duration(milliseconds: 150),
             child: MetalDetailPage(
               type: type,
               ounce: ounce,
             ),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              const begin = Offset(0.0, 0.08);
-              const end = Offset.zero;
-              const curve = Curves.easeOutCubic;
-
-              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-
-              return SlideTransition(
-                position: animation.drive(tween),
-                child: FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
-              );
-            },
           );
         },
       ),

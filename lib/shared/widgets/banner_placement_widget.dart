@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/banner_item.dart';
@@ -29,38 +28,7 @@ class BannerPlacementWidget extends ConsumerStatefulWidget {
 }
 
 class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
-  late PageController _pageController;
-  int _currentIndex = 0;
-  Timer? _rotationTimer;
   bool _adLoaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _rotationTimer?.cancel();
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _startRotationTimer(int count) {
-    _rotationTimer?.cancel();
-    if (count <= 1) return;
-
-    _rotationTimer = Timer.periodic(const Duration(seconds: 6), (_) {
-      if (!mounted || !_pageController.hasClients) return;
-      final next = (_currentIndex + 1) % count;
-      _pageController.animateToPage(
-        next,
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOutCubic,
-      );
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +45,6 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
     }).toList();
 
     if (matchingBanners.isEmpty) {
-      _rotationTimer?.cancel();
       return const SizedBox.shrink();
     }
 
@@ -89,7 +56,6 @@ class _BannerPlacementWidgetState extends ConsumerState<BannerPlacementWidget> {
 
         // إذا كان هناك إعلان واحد فقط
         if (matchingBanners.length == 1) {
-          _rotationTimer?.cancel();
           final banner = matchingBanners.first;
 
           // معالجة خاصة لإعلانات AdMob: عدم حجز مساحة أو إظهار هوامش قبل اكتمال التحميل

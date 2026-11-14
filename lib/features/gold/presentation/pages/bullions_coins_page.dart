@@ -431,17 +431,19 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       double usd = double.parse((k24UsdPrice * grams).toStringAsFixed(2));
       
       // Override for Kilo using backend specific values (e.g. AltinAPI for TR)
+      String itemCurrency = currencySymbol;
       if (b['id'] == '1kg') {
         if (country.code.toUpperCase() == 'TR' && marketData != null && marketData['items'] != null) {
           final items = marketData['items'] as List<dynamic>;
           final trKilo = items.firstWhere(
-            (i) => i['id'] == 'tr_gold_kilo',
+            (i) => i['id'] == 'tr_gold_kilo' || i['id'] == 'tr_gold_usd_kg',
             orElse: () => null,
           );
           if (trKilo != null) {
             buy = (trKilo['buyPrice'] as num).toDouble();
             sell = (trKilo['sellPrice'] as num).toDouble();
             usd = (trKilo['usdPrice'] as num).toDouble();
+            itemCurrency = (trKilo['currency'] ?? '\$').toString();
           }
         } else if (country.code.toUpperCase() == 'GLOBAL') {
            final xauKg = allPrices.where((p) => p.id == 'xau_kg_usd').firstOrNull;
@@ -449,6 +451,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
              buy = xauKg.buyPrice;
              sell = xauKg.sellPrice;
              usd = xauKg.usdPrice > 0 ? xauKg.usdPrice : xauKg.buyPrice;
+             itemCurrency = '\$';
            }
         }
       }
@@ -458,7 +461,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         title: (b['key'] as String?)?.tr() ?? b['title'] as String,
         buyPrice: buy,
         sellPrice: sell,
-        currency: currencySymbol,
+        currency: itemCurrency,
         metalType: 'bullion',
         usdPrice: usd,
         subtitle: '${b['grams']} غرام',

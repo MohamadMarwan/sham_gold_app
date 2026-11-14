@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gold_sham/core/services/ad_service.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
@@ -271,21 +273,24 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                         _buildPillDivider(),
                         _buildPillAction(Icons.account_balance_wallet_outlined, () {
                           HapticFeedback.selectionClick();
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const PortfolioPage()));
+                          AdService().showInterstitialOnNavigation();
+                          Navigator.push(context, CupertinoPageRoute(builder: (_) => const PortfolioPage()));
                         }),
                       ],
                       if (priceService.shouldShow('headerShowAlerts', defaultValue: true)) ...[
                         _buildPillDivider(),
                         _buildPillAction(Icons.notifications_active_outlined, () {
                           HapticFeedback.selectionClick();
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const AlertsManagementPage()));
+                          AdService().showInterstitialOnNavigation();
+                          Navigator.push(context, CupertinoPageRoute(builder: (_) => const AlertsManagementPage()));
                         }),
                       ],
                       if (priceService.shouldShow('headerShowFavorites', defaultValue: true)) ...[
                         _buildPillDivider(),
                         _buildPillAction(Icons.star_rounded, () {
                           HapticFeedback.selectionClick();
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesPage()));
+                          AdService().showInterstitialOnNavigation();
+                          Navigator.push(context, CupertinoPageRoute(builder: (_) => const FavoritesPage()));
                         }, isGold: true),
                       ],
                     ],

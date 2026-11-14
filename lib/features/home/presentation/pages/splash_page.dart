@@ -146,11 +146,13 @@ class _SplashPageState extends ConsumerState<SplashPage>
 
       // 3. AdService non-blocking initialization (Never blocks or prompts ATT over splash)
       try {
-        final adService = AdService();
-        await adService.requestTrackingAndInitialize(context: context).timeout(
-          const Duration(milliseconds: 1000),
-          onTimeout: () => debugPrint('AdService init timed out on splash (continues safely)'),
-        );
+        if (mounted) {
+          final adService = AdService();
+          await adService.requestTrackingAndInitialize(context: context).timeout(
+            const Duration(milliseconds: 1000),
+            onTimeout: () => debugPrint('AdService init timed out on splash (continues safely)'),
+          );
+        }
       } catch (e) {
         debugPrint('AdService error on splash: $e');
       }
@@ -173,6 +175,17 @@ class _SplashPageState extends ConsumerState<SplashPage>
     _hasNavigated = true;
     _failSafeTimer?.cancel();
 
+    final adService = AdService();
+    if (adService.isEnabled && adService.showAppOpenOnStartup) {
+      await adService.showStartupAppOpenAd(onAdDismissed: () {
+        if (mounted) _doActualNavigation();
+      });
+    } else {
+      _doActualNavigation();
+    }
+  }
+
+  void _doActualNavigation() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;

@@ -125,19 +125,31 @@ class LocalMarketCalculator {
     if (prices.isEmpty) return;
 
     for (final p in prices) {
-      final id = (p.id ?? '').toString().toLowerCase();
+      final id = (p.id ?? (p is Map ? p['id'] : '')).toString().toLowerCase();
       if (id.isEmpty) continue;
 
-      final buyPrice = (p.buyPrice as num?)?.toDouble() ?? 0.0;
-      final sellPrice = (p.sellPrice as num?)?.toDouble() ?? buyPrice;
+      final buyPrice = (p.buyPrice as num?)?.toDouble() ?? (p is Map ? (p['buyPrice'] as num?)?.toDouble() : null) ?? 0.0;
+      final sellPrice = (p.sellPrice as num?)?.toDouble() ?? (p is Map ? (p['sellPrice'] as num?)?.toDouble() : null) ?? buyPrice;
+
+      double changePercent = 0.0;
+      int trendIdx = 2;
+      if (p is PriceItem) {
+        changePercent = p.changePercentage;
+        trendIdx = p.trend.index;
+      } else if (p is Map) {
+        changePercent = (p['changePercentage'] as num?)?.toDouble() ?? 0.0;
+        if (p['trend'] is num) trendIdx = (p['trend'] as num).toInt();
+      }
 
       _scrapedPrices[id] = {
-        'id': p.id,
-        'title': p.title,
+        'id': p.id ?? (p is Map ? p['id'] : null),
+        'title': p.title ?? (p is Map ? p['title'] : null),
         'buyPrice': buyPrice,
         'sellPrice': sellPrice,
-        'currency': p.currency,
-        'metalType': p.metalType,
+        'currency': p.currency ?? (p is Map ? p['currency'] : null),
+        'metalType': p.metalType ?? (p is Map ? p['metalType'] : null),
+        'changePercentage': changePercent,
+        'trend': trendIdx,
       };
 
       if (id == 'xau_usd' && buyPrice > 0) {
@@ -344,6 +356,12 @@ class LocalMarketCalculator {
 
     final List<Map<String, dynamic>> items = [];
 
+    // Extract live market dynamics for gold and silver
+    final double goldChange = (_scrapedPrices['xau_usd']?['changePercentage'] as num?)?.toDouble() ?? 0.0;
+    final double silverChange = (_scrapedPrices['xag_usd']?['changePercentage'] as num?)?.toDouble() ?? 0.0;
+    final int goldTrend = (_scrapedPrices['xau_usd']?['trend'] as num?)?.toInt() ?? (goldChange > 0 ? 0 : (goldChange < 0 ? 1 : 2));
+    final int silverTrend = (_scrapedPrices['xag_usd']?['trend'] as num?)?.toInt() ?? (silverChange > 0 ? 0 : (silverChange < 0 ? 1 : 2));
+
     // ════════════════════════════════════════════
     // 1. GOLD KARAT ITEMS
     // ════════════════════════════════════════════
@@ -358,6 +376,8 @@ class LocalMarketCalculator {
       'metalType': 'gold',
       'countryCode': code,
       'isPopular': ['SA', 'AE', 'KW', 'QA'].contains(code),
+      'changePercentage': goldChange,
+      'trend': goldTrend,
     });
 
     items.add({
@@ -370,6 +390,8 @@ class LocalMarketCalculator {
       'currencyCode': currencyCode,
       'metalType': 'gold',
       'countryCode': code,
+      'changePercentage': goldChange,
+      'trend': goldTrend,
     });
 
     items.add({
@@ -383,6 +405,8 @@ class LocalMarketCalculator {
       'metalType': 'gold',
       'countryCode': code,
       'isPopular': ['EG', 'IQ', 'JO', 'SY', 'DZ', 'LY', 'LB'].contains(code),
+      'changePercentage': goldChange,
+      'trend': goldTrend,
     });
 
     items.add({
@@ -396,6 +420,8 @@ class LocalMarketCalculator {
       'metalType': 'gold',
       'countryCode': code,
       'isPopular': ['EG', 'LB', 'DZ'].contains(code),
+      'changePercentage': goldChange,
+      'trend': goldTrend,
     });
 
     items.add({
@@ -408,6 +434,8 @@ class LocalMarketCalculator {
       'currencyCode': currencyCode,
       'metalType': 'gold',
       'countryCode': code,
+      'changePercentage': goldChange,
+      'trend': goldTrend,
     });
 
     // ════════════════════════════════════════════
@@ -440,6 +468,8 @@ class LocalMarketCalculator {
       'currencyCode': currencyCode,
       'metalType': 'gold_ounce',
       'countryCode': code,
+      'changePercentage': goldChange,
+      'trend': goldTrend,
     });
 
     final double kiloLocalBuy = double.parse((_goldOunceUSD * 32.1507 * rate).toStringAsFixed(2));
@@ -460,10 +490,12 @@ class LocalMarketCalculator {
       'currencyCode': currencyCode,
       'metalType': 'gold_kilo',
       'countryCode': code,
+      'changePercentage': goldChange,
+      'trend': goldTrend,
     });
 
     // Country-specific special items
-    _addCountrySpecificItems(items, code, k24, k21, k18, currencySymbol, currencyCode);
+    _addCountrySpecificItems(items, code, k24, k21, k18, currencySymbol, currencyCode, goldChange: goldChange, goldTrend: goldTrend);
 
     // ════════════════════════════════════════════
     // 3. SILVER
@@ -488,6 +520,8 @@ class LocalMarketCalculator {
       'currencyCode': currencyCode,
       'metalType': 'silver',
       'countryCode': code,
+      'changePercentage': silverChange,
+      'trend': silverTrend,
     });
 
     final double silverOunceLocalBuy = double.parse((silverOunceUSD * rate).toStringAsFixed(2));
@@ -507,6 +541,8 @@ class LocalMarketCalculator {
       'currencyCode': currencyCode,
       'metalType': 'silver',
       'countryCode': code,
+      'changePercentage': silverChange,
+      'trend': silverTrend,
     });
 
     final silverKiloUSD = silverGramUSD * 1000;
@@ -526,6 +562,8 @@ class LocalMarketCalculator {
       'currencyCode': currencyCode,
       'metalType': 'silver',
       'countryCode': code,
+      'changePercentage': silverChange,
+      'trend': silverTrend,
     });
 
     // ════════════════════════════════════════════
@@ -560,8 +598,10 @@ class LocalMarketCalculator {
     Map<String, dynamic> k21,
     Map<String, dynamic> k18,
     String currencySymbol,
-    String currencyCode,
-  ) {
+    String currencyCode, {
+    double goldChange = 0.0,
+    int goldTrend = 2,
+  }) {
     if (code == 'EG') {
       final poundBuy = double.parse((k21['buyPrice'] * 8).toStringAsFixed(2));
       final poundSell = double.parse((k21['sellPrice'] * 8).toStringAsFixed(2));
@@ -572,6 +612,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse((k21['usdPrice'] * 8).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_coin', 'countryCode': code, 'isPopular': true,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
       items.add({
         'id': 'eg_half_pound', 'title': 'نصف جنيه ذهب'.tr(),
@@ -581,6 +622,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse(((k21['usdPrice'] * 8) / 2).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_coin', 'countryCode': code,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
     } else if (code == 'IQ') {
       final mBuy = double.parse((k21['buyPrice'] * 5).toStringAsFixed(0));
@@ -592,6 +634,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse((k21['usdPrice'] * 5).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_unit', 'countryCode': code, 'isPopular': true,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
       items.add({
         'id': 'iq_mithqal_local', 'title': 'مثقال الذهب العراقي (21)'.tr(),
@@ -601,6 +644,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse((k21['usdPrice'] * 5 * 0.98).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_unit', 'countryCode': code,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
     } else if (code == 'AE' || code == 'KW') {
       final tolaBuy = double.parse((k24['buyPrice'] * 11.6638).toStringAsFixed(2));
@@ -612,6 +656,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse((k24['usdPrice'] * 11.6638).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_unit', 'countryCode': code, 'isPopular': true,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
     } else if (code == 'JO') {
       items.add({
@@ -622,6 +667,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse((k21['usdPrice'] * 7).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_coin', 'countryCode': code, 'isPopular': true,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
       items.add({
         'id': 'jo_english_lira', 'title': 'الليرة الإنجليزية'.tr(),
@@ -631,6 +677,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse((k21['usdPrice'] * 8).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_coin', 'countryCode': code, 'isPopular': true,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
     } else if (code == 'LY' || code == 'DZ') {
       items.add({
@@ -641,6 +688,7 @@ class LocalMarketCalculator {
         'usdPrice': double.parse((k18['usdPrice'] * 0.985).toStringAsFixed(2)),
         'currency': currencySymbol, 'currencyCode': currencyCode,
         'metalType': 'gold_scrap', 'countryCode': code, 'isPopular': true,
+        'changePercentage': goldChange, 'trend': goldTrend,
       });
     }
   }

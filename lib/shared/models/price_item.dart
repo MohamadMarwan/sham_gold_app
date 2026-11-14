@@ -218,6 +218,15 @@ class PriceItem {
       return isSilver ? 'silver_ounce'.tr() : 'gold_ounce'.tr();
     }
     if (lowerId.contains('kilo') || lowerId.contains('kg') || title.contains('كيلو') || lowerTitle.contains('kilo')) {
+      if (lowerId.contains('usd') || title.contains('USD') || title.contains(r'$')) {
+        return '${'gold_kilo'.tr()} ' r'($)';
+      }
+      if (lowerId.contains('eur') || title.contains('EUR') || title.contains('€')) {
+        return '${'gold_kilo'.tr()} (€)';
+      }
+      if (lowerId.contains('_tl') || title.contains('TL') || title.contains('₺')) {
+        return '${'gold_kilo'.tr()} (TL)';
+      }
       return isSilver ? 'silver_1kg_bar'.tr() : 'gold_kilo'.tr();
     }
     if (lowerId.contains('silver_pure') || title.contains('الفضة النقية') || title.contains('فضة نقية') || lowerTitle.contains('pure silver') || lowerTitle.contains('saf gümüş')) {

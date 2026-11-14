@@ -120,10 +120,16 @@ class SettingsProvider with ChangeNotifier {
   }
 
   bool shouldShow(String key, {bool defaultValue = true}) {
-    if (currentSettings == null || currentSettings!['displaySettings'] == null) {
+    if (currentSettings == null) {
       return defaultValue;
     }
-    return currentSettings!['displaySettings'][key] ?? defaultValue;
+    if (currentSettings!['displaySettings'] != null && currentSettings!['displaySettings'][key] != null) {
+      return currentSettings!['displaySettings'][key] == true;
+    }
+    if (currentSettings![key] != null) {
+      return currentSettings![key] == true;
+    }
+    return defaultValue;
   }
 
   dynamic getDisplaySetting(String key, {dynamic defaultValue}) {
@@ -138,6 +144,13 @@ class SettingsProvider with ChangeNotifier {
       return 'on_update';
     }
     return currentSettings!['displaySettings']['priceBlinkMode']?.toString() ?? 'on_update';
+  }
+
+  bool get enablePriceCardPulseAnimation {
+    if (currentSettings == null || currentSettings!['displaySettings'] == null) {
+      return false; // Disabled by default as requested
+    }
+    return currentSettings!['displaySettings']['enablePriceCardPulseAnimation'] == true;
   }
 
   bool isWeekend() {
@@ -164,13 +177,13 @@ class SettingsProvider with ChangeNotifier {
     
     // 1. Check Section Level Visibility
     if (display != null) {
-      if (['tr_gold_usd_kg', 'tr_gold_kulce', 'tr_gold_gram', 'tr_gold_gram_altin', 'tr_gold_24', 'tr_gold_22', 'tr_gold_21', 'tr_gold_18', 'tr_gold_14'].contains(itemId)) {
+      if (['tr_gold_kulce', 'tr_gold_gram', 'tr_gold_gram_altin', 'tr_gold_24', 'tr_gold_22', 'tr_gold_21', 'tr_gold_18', 'tr_gold_14'].contains(itemId)) {
         if (display['turkishShowGoldJewelry'] == false) return false;
       } else if (itemId.contains('_ceyrek') || itemId.contains('_yarim') || itemId.contains('_tam') || itemId.contains('_ata') || itemId.contains('_resat') || itemId.contains('_hamit') || itemId.contains('_gremse') || itemId.contains('_cumhuriyet')) {
         if (display['turkishShowLiras'] == false) return false;
       } else if (itemId.startsWith('tr_curr_')) {
         if (display['turkishShowCurrencies'] == false) return false;
-      } else if (['tr_gold_ons', 'tr_gold_usd_kg', 'tr_gold_eur_kg', 'tr_silver_gram', 'tr_silver_ounce', 'tr_silver_kg', 'tr_silver_usd', 'tr_gold_silver_ratio', 'tr_platinum_ounce', 'tr_platinum_usd', 'tr_palladium_ounce', 'tr_palladium_usd'].contains(itemId)) {
+      } else if (['tr_gold_ons', 'tr_silver_gram', 'tr_silver_ounce', 'tr_silver_kg', 'tr_silver_usd', 'tr_gold_silver_ratio', 'tr_platinum_ounce', 'tr_platinum_usd', 'tr_palladium_ounce', 'tr_palladium_usd'].contains(itemId)) {
         if (display['turkishShowGlobalIndicators'] == false) return false;
       }
     }

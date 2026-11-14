@@ -59,7 +59,6 @@ Future<void> _initializeBackgroundServices() async {
       await Firebase.initializeApp();
       NotificationService.setupBackgroundHandler();
       await NotificationService.initialize();
-      NotificationService.requestPermission();
     }
   } catch (e) {
     debugPrint('Firebase/Notification init error: $e');

@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/country_provider.dart';
 import '../../../../shared/models/country_model.dart';
+import '../../../../shared/services/share_service.dart';
 import 'social_share_card.dart';
 
 class SocialShareSheet extends ConsumerStatefulWidget {
@@ -256,6 +257,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
   }
 
   Future<void> _shareCardAsImage(CountryModel country, List<dynamic> items) async {
+    final origin = ShareService.safeShareOrigin(context);
     setState(() => _isExporting = true);
     HapticFeedback.mediumImpact();
 
@@ -282,6 +284,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
           await Share.shareXFiles(
             [xFile],
             text: 'auto_str_020'.tr(),
+            sharePositionOrigin: origin,
           );
         }
       } else {
@@ -295,6 +298,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
           await Share.shareXFiles(
             [XFile(file.path, mimeType: 'image/png')],
             text: 'auto_str_020'.tr(),
+            sharePositionOrigin: origin,
           );
         }
       }
@@ -303,7 +307,7 @@ class _SocialShareSheetState extends ConsumerState<SocialShareSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('error_exporting_image'.tr(args: [e.toString()]), style: const TextStyle(fontFamily: 'Cairo')),
+            content: Text('error_exporting_image'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
             backgroundColor: Colors.redAccent,
           ),
         );

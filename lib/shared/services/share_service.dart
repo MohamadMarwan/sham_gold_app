@@ -13,6 +13,27 @@ class ShareService {
   static final ScreenshotController screenshotController =
       ScreenshotController();
 
+  /// حساب منطقة الانطلاق المخصصة لـ iOS / iPad لمنع PlatformException
+  /// عند انعدام أو فراغ إحداثيات نافذة المشاركة
+  static Rect safeShareOrigin(BuildContext? context) {
+    if (context != null && context.mounted) {
+      try {
+        final box = context.findRenderObject() as RenderBox?;
+        if (box != null && box.hasSize && box.size.width > 0 && box.size.height > 0) {
+          final origin = box.localToGlobal(Offset.zero) & box.size;
+          if (origin.width > 0 && origin.height > 0) {
+            return origin;
+          }
+        }
+        final media = MediaQuery.maybeOf(context);
+        if (media != null && media.size.width > 0 && media.size.height > 0) {
+          return Rect.fromLTWH(0, media.size.height / 2, media.size.width, media.size.height / 2);
+        }
+      } catch (_) {}
+    }
+    return const Rect.fromLTWH(0, 100, 300, 300);
+  }
+
   /// مشاركة screenshot مع إضافة نص مخصص
   static Future<void> shareScreenshot({
     required BuildContext context,
@@ -22,6 +43,7 @@ class ShareService {
       _showError(context, 'auto_str_041'.tr());
       return;
     }
+    final origin = safeShareOrigin(context);
     try {
       // التقاط الصورة
       final Uint8List? imageBytes = await screenshotController.capture(
@@ -39,7 +61,7 @@ class ShareService {
       final shareText = customText ??
           '${'auto_str_043'.tr()} ${'auto_str_036'.tr()}\n${DateTime.now().toString().split('.')[0]}';
 
-      // مشاركة الصورة مع النص
+      // مشاركة الصورة مع النص مع إحداثيات منبثقة آمنة لنظام iOS
       await Share.shareXFiles(
         [
           XFile.fromData(
@@ -50,14 +72,16 @@ class ShareService {
         ],
         text: shareText,
         subject: 'auto_str_073'.tr(),
+        sharePositionOrigin: origin,
       );
 
       if (context.mounted) {
         _showSuccess(context, 'auto_str_173'.tr());
       }
     } catch (e) {
+      debugPrint('ShareService.shareScreenshot error: $e');
       if (context.mounted) {
-        _showError(context, 'share_error'.tr(args: [e.toString()]));
+        _showError(context, 'share_error'.tr());
       }
     }
   }
@@ -72,6 +96,7 @@ class ShareService {
       _showError(context, 'auto_str_041'.tr());
       return;
     }
+    final origin = safeShareOrigin(context);
     try {
       final boundary = widgetKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
@@ -101,14 +126,16 @@ class ShareService {
         ],
         text: shareText,
         subject: 'auto_str_073'.tr(),
+        sharePositionOrigin: origin,
       );
 
       if (context.mounted) {
         _showSuccess(context, 'auto_str_173'.tr());
       }
     } catch (e) {
+      debugPrint('ShareService.shareWidgetAsImage error: $e');
       if (context.mounted) {
-        _showError(context, 'share_error'.tr(args: [e.toString()]));
+        _showError(context, 'share_error'.tr());
       }
     }
   }
@@ -117,11 +144,13 @@ class ShareService {
   static Future<void> shareText({
     required String text,
     String? subject,
+    BuildContext? context,
   }) async {
     try {
       await Share.share(
         text,
         subject: subject ?? 'auto_str_193'.tr(),
+        sharePositionOrigin: safeShareOrigin(context),
       );
     } catch (e) {
       debugPrint('خطأ في المشاركة: $e');
@@ -144,7 +173,7 @@ $itemName
 
 ${DateTime.now().toString().split('.')[0]}''';
 
-    await ShareService.shareText(text: content);
+    await ShareService.shareText(text: content, context: context);
 
     if (context.mounted) {
       _showSuccess(context, 'auto_str_137'.tr());

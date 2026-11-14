@@ -15,14 +15,17 @@ class AdService {
   factory AdService() => _instance;
   AdService._internal();
 
-  // Note: All ad unit IDs are dynamically loaded from the backend or cache.
-  // There are no hardcoded ad IDs to ensure complete dashboard control.
+  // Verified fallback ad unit IDs from production dashboard
+  static const String fallbackInterstitialId = 'ca-app-pub-4487814270090643/3678329046';
+  static const String fallbackBannerId = 'ca-app-pub-1767098791247433/2351852934';
+  static const String fallbackAppOpenId = 'ca-app-pub-4487814270090643/9724607423';
+
   String? _bannerId;
   String? _interstitialId;
   String? _rewardedId;
   String? _appOpenId;
   String? _nativeId;
-  bool _isEnabled = false;
+  bool _isEnabled = true;
   int _appOpenTimeoutSeconds = 3;
   int get appOpenTimeoutSeconds => _appOpenTimeoutSeconds;
   
@@ -35,7 +38,7 @@ class AdService {
 
   bool _showOnPageChange = true;
   bool _isInterstitialEnabled = true;
-  int _interstitialInterval = 1;
+  int _interstitialInterval = 2;
   int _pageChangeCount = 0;
   int _interstitialRetryAttempts = 0;
   int _rewardedRetryAttempts = 0;
@@ -43,6 +46,10 @@ class AdService {
 
   InterstitialAd? _interstitialAd;
   bool _isInterstitialAdLoaded = false;
+  bool _isLoadingInterstitial = false;
+  DateTime? _lastInterstitialShowTime;
+  static const Duration _minInterstitialCooldown = Duration(seconds: 20);
+
   RewardedAd? _rewardedAd;
   bool _isRewardedAdLoaded = false;
   AppOpenAd? _appOpenAd;
@@ -113,25 +120,47 @@ class AdService {
       }
 
       // 2. Initialize Google Mobile Ads
-      await MobileAds.instance.initialize()
-          .timeout(const Duration(seconds: 3), onTimeout: () => InitializationStatus({}));
+      try {
+        await MobileAds.instance.initialize().timeout(const Duration(seconds: 3));
+      } catch (e) {
+        debugPrint('⚠️ Google Mobile Ads initialization error or timed out: $e');
+      }
       _isInitialized = true;
       debugPrint('✅ All Ad SDKs Initialized');
 
-      // 3. Pre-load App Open Ad immediately from cache if enabled
+      // 3. Pre-load Ads immediately from cache or defaults if enabled
       final prefs = await SharedPreferences.getInstance();
-      final bool cachedEnabled = prefs.getBool('cached_ads_enabled') ?? false;
+      final bool cachedEnabled = prefs.getBool('cached_ads_enabled') ?? true;
       final bool cachedStartup = prefs.getBool('cached_app_open_on_startup') ?? true;
       final String? cachedAppOpenId = prefs.getString('cached_app_open_id');
+      final String? cachedInterstitialId = prefs.getString('cached_interstitial_id');
+      final bool cachedInterstitialEnabled = prefs.getBool('cached_interstitial_enabled') ?? true;
+      final int cachedInterval = prefs.getInt('cached_interstitial_interval') ?? 2;
+      final bool cachedShowOnPageChange = prefs.getBool('cached_show_on_page_change') ?? true;
 
       _isEnabled = cachedEnabled;
       _showAppOpenOnStartup = cachedStartup;
+      _isInterstitialEnabled = cachedInterstitialEnabled;
+      _interstitialInterval = cachedInterval > 0 ? cachedInterval : 2;
+      _showOnPageChange = cachedShowOnPageChange;
 
-      if (cachedEnabled && cachedStartup && cachedAppOpenId != null && cachedAppOpenId.isNotEmpty) {
-        _appOpenId = cachedAppOpenId;
+      _appOpenId = (cachedAppOpenId != null && cachedAppOpenId.isNotEmpty)
+          ? cachedAppOpenId
+          : fallbackAppOpenId;
+
+      _interstitialId = (cachedInterstitialId != null && cachedInterstitialId.isNotEmpty)
+          ? cachedInterstitialId
+          : fallbackInterstitialId;
+
+      if (_isEnabled && _showAppOpenOnStartup && _appOpenId != null && _appOpenId!.isNotEmpty) {
         _loadAppOpenAdBypass();
       } else {
         debugPrint('🚫 App Open Ad is disabled in cache or startup is disabled.');
+      }
+
+      if (_isEnabled && _isInterstitialEnabled) {
+        debugPrint('📢 Preloading Interstitial Ad on startup: $_interstitialId');
+        loadInterstitialAd();
       }
     } catch (e) {
       debugPrint('❌ Ads Init Error: $e');
@@ -193,16 +222,23 @@ class AdService {
       }
 
       // Detect if the ad unit IDs changed → force reload
-      final interstitialIdChanged = newInterstitialId != _interstitialId;
-      final rewardedIdChanged = newRewardedId != _rewardedId;
-      _interstitialId = newInterstitialId;
+      final interstitialIdChanged = newInterstitialId != null && newInterstitialId != _interstitialId;
+      final rewardedIdChanged = newRewardedId != null && newRewardedId != _rewardedId;
+      if (newInterstitialId != null && newInterstitialId.isNotEmpty) {
+        _interstitialId = newInterstitialId;
+      } else if (_interstitialId == null || _interstitialId!.isEmpty) {
+        _interstitialId = fallbackInterstitialId;
+      }
       _rewardedId = newRewardedId;
 
       final interSettings = adSettings['interstitialSettings'];
       if (interSettings != null) {
         _isInterstitialEnabled = interSettings['enabled'] ?? true;
         _showOnPageChange = interSettings['showOnPageChange'] ?? true;
-        _interstitialInterval = interSettings['interval'] ?? 1;
+        final rawInterval = interSettings['interval'];
+        if (rawInterval != null && rawInterval is num && rawInterval > 0) {
+          _interstitialInterval = rawInterval.toInt();
+        }
       }
 
       final appOpenSettings = adSettings['appOpenSettings'];
@@ -217,9 +253,9 @@ class AdService {
           'showOnPageChange=$_showOnPageChange, interval=$_interstitialInterval, '
           'wasEnabled=$wasEnabled, idChanged=$interstitialIdChanged');
 
-      if (_isEnabled) {
+      if (_isEnabled && _isInterstitialEnabled) {
         // Load interstitial if: not loaded yet, OR the ad unit ID changed
-        if (_interstitialId != null && (!_isInterstitialAdLoaded || interstitialIdChanged)) {
+        if (!_isInterstitialAdLoaded || interstitialIdChanged) {
           debugPrint('📢 Triggering loadInterstitialAd() from updateFromSettings');
           loadInterstitialAd();
         }
@@ -230,15 +266,21 @@ class AdService {
           loadAppOpenAd();
         }
       } else {
-        debugPrint('⚠️ AdService: _isEnabled=false → no ads will load or show');
+        debugPrint('⚠️ AdService: ads or interstitials disabled from settings');
       }
 
       // Cache settings so that next startup knows what to do before the API responds
       SharedPreferences.getInstance().then((prefs) {
         prefs.setBool('cached_ads_enabled', _isEnabled);
         prefs.setBool('cached_app_open_on_startup', _showAppOpenOnStartup);
+        prefs.setBool('cached_interstitial_enabled', _isInterstitialEnabled);
+        prefs.setBool('cached_show_on_page_change', _showOnPageChange);
+        prefs.setInt('cached_interstitial_interval', _interstitialInterval);
         if (_appOpenId != null && _appOpenId!.isNotEmpty) {
           prefs.setString('cached_app_open_id', _appOpenId!);
+        }
+        if (_interstitialId != null && _interstitialId!.isNotEmpty) {
+          prefs.setString('cached_interstitial_id', _interstitialId!);
         }
       });
     }
@@ -268,30 +310,43 @@ class AdService {
   }
 
   void loadInterstitialAd() {
-    if (_interstitialId == null || _interstitialId!.trim().isEmpty || !_isEnabled || kIsWeb) {
-      debugPrint('⚠️ loadInterstitialAd() skipped: id=$_interstitialId, enabled=$_isEnabled, web=$kIsWeb');
+    if (kIsWeb) return;
+    if (!_isEnabled || !_isInterstitialEnabled) {
+      debugPrint('⚠️ loadInterstitialAd() skipped: enabled=$_isEnabled, interEnabled=$_isInterstitialEnabled');
       return;
     }
-    debugPrint('📡 Loading Interstitial Ad: $_interstitialId');
+    if (_isInterstitialAdLoaded || _isLoadingInterstitial) {
+      debugPrint('📡 loadInterstitialAd() skipped: already loaded or loading');
+      return;
+    }
+
+    final effectiveId = (_interstitialId != null && _interstitialId!.trim().isNotEmpty)
+        ? _interstitialId!
+        : fallbackInterstitialId;
+
+    _isLoadingInterstitial = true;
+    debugPrint('📡 Loading Interstitial Ad: $effectiveId');
 
     InterstitialAd.load(
-      adUnitId: _interstitialId!,
+      adUnitId: effectiveId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           _interstitialAd = ad;
           _isInterstitialAdLoaded = true;
+          _isLoadingInterstitial = false;
           _interstitialRetryAttempts = 0;
           debugPrint('✅ Interstitial Ad Loaded successfully');
         },
         onAdFailedToLoad: (error) {
           debugPrint('❌ Interstitial Ad Failed to Load: ${error.message} (code: ${error.code})');
           _isInterstitialAdLoaded = false;
+          _isLoadingInterstitial = false;
           _interstitialAd = null;
 
           if (_interstitialRetryAttempts < _maxRetryAttempts) {
             _interstitialRetryAttempts++;
-            int delay = _interstitialRetryAttempts * 30;
+            int delay = _interstitialRetryAttempts * 10;
             Future.delayed(Duration(seconds: delay), () => loadInterstitialAd());
             debugPrint('🔄 Retrying Interstitial Ad in $delay seconds (attempt $_interstitialRetryAttempts)...');
           } else {
@@ -385,9 +440,12 @@ class AdService {
       _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (ad) {
           _isShowingAd = true;
+          _lastInterstitialShowTime = DateTime.now();
+          debugPrint('✅ Interstitial Ad showing full screen');
         },
         onAdDismissedFullScreenContent: (ad) {
           _isShowingAd = false;
+          _lastInterstitialShowTime = DateTime.now();
           ad.dispose();
           _isInterstitialAdLoaded = false;
           _interstitialAd = null;
@@ -398,6 +456,7 @@ class AdService {
           ad.dispose();
           _isInterstitialAdLoaded = false;
           _interstitialAd = null;
+          loadInterstitialAd();
         },
       );
       _interstitialAd!.show();
@@ -405,13 +464,17 @@ class AdService {
   }
 
   void showInterstitialOnNavigation({bool force = false}) {
-    debugPrint('🧭 showInterstitialOnNavigation → enabled=$_isEnabled | interstitialEnabled=$_isInterstitialEnabled | showOnPageChange=$_showOnPageChange | loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | rewardActive=$isRewardActive | force=$force');
+    debugPrint(
+        '🧭 showInterstitialOnNavigation → enabled=$_isEnabled | interstitialEnabled=$_isInterstitialEnabled | '
+        'showOnPageChange=$_showOnPageChange | loaded=$_isInterstitialAdLoaded | isShowing=$_isShowingAd | '
+        'rewardActive=$isRewardActive | pageCount=$_pageChangeCount / $_interstitialInterval | force=$force');
+
     if (kIsWeb) {
       debugPrint('⛔ Web platform — skip');
       return;
     }
     if (!_isEnabled || !_isInterstitialEnabled) {
-      debugPrint('⛔ Ads or Interstitials disabled from dashboard');
+      debugPrint('⛔ Ads or Interstitials globally disabled');
       return;
     }
     if (isRewardActive && !force) {
@@ -425,7 +488,7 @@ class AdService {
 
     if (!force) {
       if (!_showOnPageChange) {
-        debugPrint('⛔ showOnPageChange=false');
+        debugPrint('⛔ showOnPageChange is disabled');
         return;
       }
 
@@ -433,15 +496,29 @@ class AdService {
       debugPrint('📊 Navigation Count: $_pageChangeCount / $_interstitialInterval');
 
       if (_pageChangeCount < _interstitialInterval) {
+        if (!_isInterstitialAdLoaded && !_isLoadingInterstitial) {
+          loadInterstitialAd();
+        }
         return;
       }
-      _pageChangeCount = 0;
+
+      // Minimum cooldown (20 seconds) between full-screen interstitial ads
+      if (_lastInterstitialShowTime != null) {
+        final elapsed = DateTime.now().difference(_lastInterstitialShowTime!);
+        if (elapsed < _minInterstitialCooldown) {
+          debugPrint('⏳ Cooldown active (${elapsed.inSeconds}s < ${_minInterstitialCooldown.inSeconds}s) — skipping ad to protect UX');
+          return;
+        }
+      }
     }
 
     if (_isInterstitialAdLoaded && _interstitialAd != null) {
+      if (!force) {
+        _pageChangeCount = 0; // Only reset when we actually show the ad!
+      }
       showInterstitialAd(force: force);
     } else {
-      debugPrint('⚠️ Interstitial not ready — requesting load for next time');
+      debugPrint('⚠️ Interstitial not ready — preloading now (counter kept ready at $_pageChangeCount)');
       loadInterstitialAd();
     }
   }
@@ -540,9 +617,45 @@ class AdService {
   }
 
   /// Shows the App Open Ad on cold start.
-  /// Cold-start ads are bypassed to prevent Apple App Review Guideline 2.1(a) blocks.
-  void showStartupAppOpenAd({Function? onAdDismissed}) {
-    debugPrint('⚡ Startup App Open Ad bypassed for instant app completeness');
-    onAdDismissed?.call();
+  Future<void> showStartupAppOpenAd({Function? onAdDismissed}) async {
+    if (!_isEnabled || !_showAppOpenOnStartup || isRewardActive || kIsWeb) {
+      debugPrint('⚠️ Startup App Open Ad skipped (enabled: $_isEnabled, startup: $_showAppOpenOnStartup)');
+      onAdDismissed?.call();
+      return;
+    }
+
+    if (_isShowingAd) {
+      onAdDismissed?.call();
+      return;
+    }
+
+    // If ad is already loaded, show it immediately
+    if (_isAppOpenAdLoaded && _appOpenAd != null) {
+      debugPrint('✅ App Open Ad already loaded, showing on startup');
+      showAppOpenAd(onAdDismissed: onAdDismissed);
+      return;
+    }
+
+    // If timeout is 0 or ad unit ID is empty, proceed immediately
+    if (_appOpenTimeoutSeconds <= 0 || _appOpenId == null || _appOpenId!.isEmpty) {
+      onAdDismissed?.call();
+      return;
+    }
+
+    debugPrint('⏳ Waiting up to ${_appOpenTimeoutSeconds}s for App Open Ad to load on startup...');
+    loadAppOpenAd();
+
+    final startTime = DateTime.now();
+    while (!_isAppOpenAdLoaded && DateTime.now().difference(startTime).inSeconds < _appOpenTimeoutSeconds) {
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+
+    if (_isAppOpenAdLoaded && _appOpenAd != null) {
+      debugPrint('✅ App Open Ad loaded within timeout, showing now');
+      showAppOpenAd(onAdDismissed: onAdDismissed);
+    } else {
+      debugPrint('⚠️ App Open Ad did not load within ${_appOpenTimeoutSeconds}s timeout, continuing to app');
+      onAdDismissed?.call();
+    }
   }
 }

@@ -366,13 +366,15 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
       double usd = double.parse((k24Usd * grams).toStringAsFixed(2));
       
       // Override for Kilo using backend specific values (e.g. AltinAPI for TR)
+      String itemCurrency = currencySymbol;
       if (b['id'] == '1kg') {
         if (country.code.toUpperCase() == 'TR') {
-          final trKilo = allPrices.where((p) => p.id == 'tr_gold_kilo').firstOrNull;
+          final trKilo = allPrices.where((p) => p.id == 'tr_gold_kilo' || p.id == 'tr_gold_usd_kg').firstOrNull;
           if (trKilo != null && trKilo.buyPrice > 0) {
             buy = trKilo.buyPrice;
             sell = trKilo.sellPrice;
             usd = trKilo.usdPrice > 0 ? trKilo.usdPrice : trKilo.buyPrice;
+            itemCurrency = trKilo.currency.isNotEmpty ? trKilo.currency : '\$';
           }
         } else if (country.code.toUpperCase() == 'GLOBAL') {
            final xauKg = allPrices.where((p) => p.id == 'xau_kg_usd').firstOrNull;
@@ -380,6 +382,7 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
              buy = xauKg.buyPrice;
              sell = xauKg.sellPrice;
              usd = xauKg.usdPrice > 0 ? xauKg.usdPrice : xauKg.buyPrice;
+             itemCurrency = '\$';
            }
         }
       }
@@ -388,7 +391,7 @@ final masterAppPricesProvider = Provider<List<PriceItem>>((ref) {
       masterMap[id] = PriceItem(
         id: id,
         title: (b['key'] as String?)?.tr() ?? (b['title'] as String),
-        buyPrice: buy, sellPrice: sell, currency: currencySymbol, metalType: 'bullion', usdPrice: usd,
+        buyPrice: buy, sellPrice: sell, currency: itemCurrency, metalType: 'bullion', usdPrice: usd,
       );
     }
 

@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/live_price_widget.dart';
@@ -406,6 +407,7 @@ class SilverPlatinumBanner extends ConsumerWidget {
   }
 
   void _showMetalDetails(BuildContext context, String type, PriceItem ounce) {
+    AdService().showInterstitialOnNavigation();
     context.push('/metal-detail', extra: {
       'type': type,
       'item': ounce,

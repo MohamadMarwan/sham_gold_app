@@ -1,8 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/currency_utils.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../shared/services/price_service.dart';
 import '../../../../shared/services/favorites_service.dart';
 import '../../../../shared/models/price_item.dart';
@@ -260,11 +262,14 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage> {
             color: Colors.white, size: 32),
       ),
       child: PremiumCard(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => PriceDetailPage(priceItem: item)),
-          ),
+          onTap: () {
+            AdService().showInterstitialOnNavigation();
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (context) => PriceDetailPage(priceItem: item)),
+            );
+          },
           padding: const EdgeInsets.all(20),
           margin: EdgeInsets.zero,
           child: Row(

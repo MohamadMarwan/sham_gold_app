@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:gold_sham/core/constants/app_colors.dart';
+import 'package:gold_sham/core/services/ad_service.dart';
 import 'package:gold_sham/core/providers/settings_provider.dart';
 import 'package:gold_sham/core/providers/country_provider.dart';
 import 'package:gold_sham/shared/models/price_item.dart';
@@ -105,7 +107,8 @@ class _PinnedFavoritesSectionState extends ConsumerState<PinnedFavoritesSection>
                   TextButton(
                     onPressed: () {
                       HapticFeedback.selectionClick();
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => const FavoritesPage())).then((_) {
+                      AdService().showInterstitialOnNavigation();
+                      Navigator.push(context, CupertinoPageRoute(builder: (_) => const FavoritesPage())).then((_) {
                         _loadFavorites();
                       });
                     },

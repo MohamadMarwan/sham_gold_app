@@ -9,6 +9,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/providers/portfolio_provider.dart';
 import '../../../../core/utils/currency_utils.dart';
 import '../../../../shared/models/price_item.dart';
+import '../../../../shared/services/share_service.dart';
 import '../../../../shared/widgets/premium_logo.dart';
 
 class PortfolioReportSheet extends StatefulWidget {
@@ -75,6 +76,8 @@ class _PortfolioReportSheetState extends State<PortfolioReportSheet> {
         throw Exception('Failed to generate image bytes');
       }
 
+      if (!mounted) return;
+      final origin = ShareService.safeShareOrigin(context);
       final fileName = 'sham_gold_portfolio_statement_${DateTime.now().millisecondsSinceEpoch}.png';
       await Share.shareXFiles(
         [
@@ -86,12 +89,14 @@ class _PortfolioReportSheetState extends State<PortfolioReportSheet> {
         ],
         text: '${'portfolio_report_title'.tr()} - ${'portfolio_report_subtitle'.tr()}\n${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}',
         subject: 'portfolio_report_title'.tr(),
+        sharePositionOrigin: origin,
       );
     } catch (e) {
+      debugPrint('PortfolioReportSheet image share error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('share_error'.tr(args: [e.toString()]), style: const TextStyle(fontFamily: 'Cairo')),
+            content: Text('share_error'.tr(), style: const TextStyle(fontFamily: 'Cairo')),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -148,7 +153,11 @@ class _PortfolioReportSheetState extends State<PortfolioReportSheet> {
     buffer.writeln('--------------------------------');
     buffer.writeln('✨ ${'portfolio_report_official_seal'.tr()}');
 
-    Share.share(buffer.toString(), subject: 'portfolio_report_title'.tr());
+    Share.share(
+      buffer.toString(),
+      subject: 'portfolio_report_title'.tr(),
+      sharePositionOrigin: ShareService.safeShareOrigin(context),
+    );
   }
 
   @override

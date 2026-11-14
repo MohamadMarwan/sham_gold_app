@@ -1,8 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/providers/settings_provider.dart';
+import '../../../../core/services/ad_service.dart';
 import '../../../../shared/models/price_item.dart';
 import '../../../../shared/widgets/favorite_toggle_button.dart';
 import '../pages/price_detail_page.dart';
@@ -11,7 +15,7 @@ import '../../../../shared/widgets/live_price_widget.dart';
 import '../../../../shared/widgets/ambient_blink_widget.dart';
 import '../../../../core/utils/currency_utils.dart';
 
-class CompactPriceCard extends StatefulWidget {
+class CompactPriceCard extends ConsumerStatefulWidget {
   final PriceItem priceItem;
   final double? localPrice; // Price in country currency
   final String? localCurrencySymbol;
@@ -30,10 +34,10 @@ class CompactPriceCard extends StatefulWidget {
   });
 
   @override
-  State<CompactPriceCard> createState() => _CompactPriceCardState();
+  ConsumerState<CompactPriceCard> createState() => _CompactPriceCardState();
 }
 
-class _CompactPriceCardState extends State<CompactPriceCard>
+class _CompactPriceCardState extends ConsumerState<CompactPriceCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _pulseAnimation;
@@ -58,12 +62,15 @@ class _CompactPriceCardState extends State<CompactPriceCard>
     super.didUpdateWidget(oldWidget);
     final currentPrice = widget.localPrice ?? widget.priceItem.buyPrice;
     if (_prevPrice != currentPrice && _prevPrice != 0) {
-      setState(() => _priceChanged = true);
-      _animController.forward(from: 0.0).then((_) {
-        _animController.reverse().then((_) {
-          if (mounted) setState(() => _priceChanged = false);
+      final shouldPulse = ref.read(settingsProvider).enablePriceCardPulseAnimation;
+      if (shouldPulse) {
+        setState(() => _priceChanged = true);
+        _animController.forward(from: 0.0).then((_) {
+          _animController.reverse().then((_) {
+            if (mounted) setState(() => _priceChanged = false);
+          });
         });
-      });
+      }
       _prevPrice = currentPrice;
     }
   }
@@ -89,23 +96,18 @@ class _CompactPriceCardState extends State<CompactPriceCard>
         currencySymbol.toUpperCase() == 'USD' || 
         widget.priceItem.currency.toUpperCase() == 'USD';
 
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _priceChanged ? _pulseAnimation.value : 1.0,
-          child: child,
-        );
-      },
-      child: Bounceable(
+    final shouldPulse = ref.watch(settingsProvider.select((s) => s.enablePriceCardPulseAnimation));
+
+    final cardContent = Bounceable(
         onTap: () {
           HapticFeedback.lightImpact();
+          AdService().showInterstitialOnNavigation();
           if (widget.onTap != null) {
             widget.onTap!();
           } else {
             Navigator.push(
               context,
-              MaterialPageRoute(
+              CupertinoPageRoute(
                 builder: (_) => PriceDetailPage(priceItem: widget.priceItem),
               ),
             );
@@ -385,9 +387,23 @@ class _CompactPriceCardState extends State<CompactPriceCard>
               ],
             ),
           ),
-          ),
         ),
       );
+
+    if (!shouldPulse) {
+      return cardContent;
+    }
+
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _priceChanged ? _pulseAnimation.value : 1.0,
+          child: child,
+        );
+      },
+      child: cardContent,
+    );
   }
 
   Widget _buildKaratBadge(PriceItem item) {

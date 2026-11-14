@@ -35,8 +35,56 @@ class NotificationService {
         provisional: false,
       );
       debugPrint('🔔 حالة إذن الإشعارات: ${settings.authorizationStatus}');
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        await syncDeviceToken();
+      }
     } catch (e) {
       debugPrint('⚠️ خطأ في طلب الإذن: $e');
+    }
+  }
+
+  /// مزامنة الـ APNs والـ FCM Token مع الخادم والاشتراك في الموضوع العام
+  static Future<void> syncDeviceToken() async {
+    try {
+      if (kIsWeb) return;
+
+      // لنظام iOS: انتظار توكن APNs الخاص بشركة آبل أولاً لتفادي خطأ apns-token-not-set
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        String? apnsToken = await _firebaseMessaging.getAPNSToken();
+        int retries = 0;
+        while (apnsToken == null && retries < 10) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          apnsToken = await _firebaseMessaging.getAPNSToken();
+          retries++;
+        }
+
+        if (apnsToken == null) {
+          debugPrint('⚠️ [FCM iOS] APNs token is not set yet. Will retry when token refreshes.');
+          return;
+        }
+        debugPrint('🍏 [FCM iOS] APNs token retrieved successfully');
+      }
+
+      // التسجيل في موضوع عام (Topic) لإشعارات لوحة التحكم
+      try {
+        await _firebaseMessaging.subscribeToTopic('all');
+        debugPrint('📢 [FCM] Subscribed to topic: all');
+      } catch (topicError) {
+        debugPrint('⚠️ [FCM] Topic subscription warning: $topicError');
+      }
+
+      // الحصول على الـ FCM Token وإرساله للخادم
+      String? token = await _firebaseMessaging.getToken();
+      if (token != null) {
+        if (kDebugMode) {
+          debugPrint('🔑 FCM Token: $token');
+        }
+        await _sendTokenToBackend(token);
+      }
+    } catch (e) {
+      debugPrint('⚠️ [FCM] Error syncing device token: $e');
     }
   }
 
@@ -45,7 +93,11 @@ class NotificationService {
     const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/launcher_icon');
     const DarwinInitializationSettings iosSettings =
-        DarwinInitializationSettings();
+        DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    );
 
     await _localNotifications.initialize(
       const InitializationSettings(android: androidSettings, iOS: iosSettings),
@@ -88,21 +140,13 @@ class NotificationService {
       }
     });
 
-    // 5. التسجيل في موضوع عام (Topic) لتتمكن من إرسال إشعارات للكل من لوحة التحكم
-    await _firebaseMessaging.subscribeToTopic('all');
-
-    // 6. الحصول على الـ Token وإرساله للخادم
-    String? token = await _firebaseMessaging.getToken();
-    if (token != null) {
-      if (kDebugMode) {
-        debugPrint('🔑 FCM Token: $token');
-      }
-      _sendTokenToBackend(token);
-    }
-    
+    // 5. الاستماع لتحديث الـ Token التلقائي
     _firebaseMessaging.onTokenRefresh.listen((newToken) {
       _sendTokenToBackend(newToken);
     });
+
+    // 6. طلب إذن الإشعارات ومزامنة التوكن
+    await requestPermission();
   }
 
   static Future<void> _sendTokenToBackend(String token) async {

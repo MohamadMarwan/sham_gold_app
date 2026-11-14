@@ -38,7 +38,6 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   String selectedRange = 'day';
   ChartType _chartType = ChartType.area;
   double? _dynamicChange;
-  Trend? _dynamicTrend;
   bool _showMA = false;
   final GlobalKey _repaintBoundaryKey = GlobalKey();
   StreamSubscription<List<PriceItem>>? _pricesSub;
@@ -51,11 +50,9 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
     _fetchHistory();
     _setupRealtimeListener();
 
-    // Trigger Ad — بعد اكتمال بناء الصفحة وانتهاء الانيميشن
+    // Preload next interstitial ad in the background while user browses details
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 400), () {
-        if (mounted) AdService().showInterstitialOnNavigation();
-      });
+      if (mounted) AdService().loadInterstitialAd();
     });
   }
 
@@ -81,8 +78,19 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
       // Update trend badge without triggering chart rebuild
       if (mounted) {
         setState(() {
-          _dynamicChange = currentItem.changePercentage;
-          _dynamicTrend = currentItem.trend;
+          if (selectedRange == 'day') {
+            if (currentItem.changePercentage != 0.0) {
+              _dynamicChange = currentItem.changePercentage;
+            } else if (historyPoints.isNotEmpty && historyPoints.first.price > 0) {
+              _dynamicChange = ((newBuy - historyPoints.first.price) / historyPoints.first.price) * 100;
+            }
+          } else if (historyPoints.isNotEmpty) {
+            // Recalculate range change against the updated price
+            final first = historyPoints.first.price;
+            if (first > 0) {
+              _dynamicChange = ((newBuy - first) / first) * 100;
+            }
+          }
         });
       }
 
@@ -125,18 +133,16 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
           }).toList();
 
           // Calculate dynamic change across the selected timeframe
-          if (historyPoints.length >= 2) {
+          if (historyPoints.length >= 2 && historyPoints.first.price > 0) {
             final first = historyPoints.first.price;
             final last = historyPoints.last.price;
-            if (first > 0) {
+            if (selectedRange == 'day' && widget.priceItem.changePercentage != 0.0) {
+              _dynamicChange = widget.priceItem.changePercentage;
+            } else {
               _dynamicChange = ((last - first) / first) * 100;
-              _dynamicTrend = _dynamicChange! > 0
-                  ? Trend.up
-                  : (_dynamicChange! < 0 ? Trend.down : Trend.stable);
             }
           } else {
             _dynamicChange = widget.priceItem.changePercentage;
-            _dynamicTrend = widget.priceItem.trend;
           }
 
           isLoading = false;
@@ -155,7 +161,11 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   void _onRangeChanged(String range) {
     if (selectedRange == range) return;
     HapticFeedback.mediumImpact();
-    setState(() => selectedRange = range);
+    setState(() {
+      selectedRange = range;
+      _dynamicChange = null;
+      historyPoints = [];
+    });
     _fetchHistory();
   }
 
@@ -175,8 +185,10 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
     final format = NumberFormat('#,##0.##', 'en_US');
     final isGold = widget.priceItem.metalType == 'gold';
 
+    final bool canPopNormally = Navigator.of(context).canPop() || context.canPop();
+
     return PopScope(
-      canPop: false,
+      canPop: canPopNormally,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         _safeNavigateBack();
@@ -346,33 +358,51 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
   }
 
   Widget _buildTrendBadge() {
-    final trend = _dynamicTrend ?? widget.priceItem.trend;
+    final percentage = _dynamicChange ?? widget.priceItem.changePercentage;
+    final isBull = percentage > 0.0001;
+    final isBear = percentage < -0.0001;
+
     Color color;
-    if (trend == Trend.up) {
-      color = Colors.greenAccent;
-    } else if (trend == Trend.down) {
-      color = Colors.redAccent;
+    IconData icon;
+    if (isBull) {
+      color = AppColors.priceUp;
+      icon = Icons.trending_up_rounded;
+    } else if (isBear) {
+      color = AppColors.priceDown;
+      icon = Icons.trending_down_rounded;
     } else {
       color = Colors.grey;
+      icon = Icons.trending_flat_rounded;
     }
 
-    final percentage = _dynamicChange ?? widget.priceItem.changePercentage;
-    final sign = percentage > 0 ? '+' : '';
+    final sign = isBull ? '+' : '';
+
+    String rangeLabel = '';
+    if (selectedRange == 'week') rangeLabel = ' • ${'range_1w'.tr()}';
+    if (selectedRange == 'month') rangeLabel = ' • ${'range_1m'.tr()}';
+    if (selectedRange == 'year') rangeLabel = ' • ${'range_1y'.tr()}';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
-      child: Text(
-        '$sign${percentage.toStringAsFixed(2)}%',
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 5),
+          Text(
+            '$sign${percentage.toStringAsFixed(2)}%$rangeLabel',
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1003,12 +1033,28 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
     // High represents peak selling price (أعلى سعر مبيع), Low represents floor buying price (أدنى سعر شراء)
     final effectiveSell = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : widget.priceItem.buyPrice;
     final effectiveBuy = widget.priceItem.buyPrice > 0 ? widget.priceItem.buyPrice : effectiveSell;
-    double open = historyPoints.first.sellPrice;
+    
+    // Determine Open Price
+    double open;
+    if (selectedRange == 'day' && widget.priceItem.changePercentage != 0.0) {
+      open = effectiveSell / (1.0 + (widget.priceItem.changePercentage / 100.0));
+    } else if (historyPoints.isNotEmpty) {
+      open = historyPoints.first.sellPrice > 0 ? historyPoints.first.sellPrice : historyPoints.first.price;
+    } else {
+      open = effectiveSell;
+    }
+    
     double close = effectiveSell;
-    double high = historyPoints.map((e) => e.sellPrice > 0 ? e.sellPrice : e.price).reduce(max);
-    high = max(high, effectiveSell);
-    double low = historyPoints.map((e) => e.buyPrice > 0 ? e.buyPrice : e.price).reduce(min);
-    low = min(low, effectiveBuy);
+    
+    double high = historyPoints.isNotEmpty
+        ? historyPoints.map((e) => e.sellPrice > 0 ? e.sellPrice : e.price).reduce(max)
+        : effectiveSell;
+    high = max(high, max(open, effectiveSell));
+    
+    double low = historyPoints.isNotEmpty
+        ? historyPoints.map((e) => e.buyPrice > 0 ? e.buyPrice : e.price).reduce(min)
+        : effectiveBuy;
+    low = min(low, min(open, effectiveBuy));
 
     // 2. Determine Purity String
     String purity = '';
