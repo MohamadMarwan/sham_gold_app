@@ -1,0 +1,6 @@
+/* Localized Info.plist Keys (Turkish) */
+"CFBundleDisplayName" = "Şam Altın";
+"NSUserTrackingUsageDescription" = "Bu tanımlayıcı, ilgi alanlarınıza göre kişiselleştirilmiş reklamlar sunmak için kullanılır.";
+"NSLocationWhenInUseUsageDescription" = "Bölgenize ait anlık altın ve döviz fiyatlarını doğru bir şekilde gösterebilmek için konum erişimine ihtiyaç duyuyoruz.";
+"NSPhotoLibraryUsageDescription" = "Fiyat görsellerini paylaşabilmeniz için fotoğraf galerinize erişim izni gerekiyor.";
+"NSPhotoLibraryAddUsageDescription" = "Fiyat ekran görüntülerini fotoğraf galerinize kaydedebilmek için izin gerekiyor.";
