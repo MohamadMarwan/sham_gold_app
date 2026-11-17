@@ -22,10 +22,10 @@ final priceServiceProvider = ChangeNotifierProvider<PriceService>((ref) {
 });
 
 final priceHistoryProvider = FutureProvider.family<List<double>, String>((ref, id) async {
-  final service = ref.watch(priceServiceProvider);
+  final service = ref.read(priceServiceProvider);
   final history = await service.fetchPriceHistory(id, range: 'day');
   if (history.isEmpty) return <double>[];
-  return history.map((e) => double.parse(e['buyPrice'].toString())).toList();
+  return history.map((e) => double.tryParse(e['buyPrice'].toString()) ?? 0.0).toList();
 });
 
 class PriceService with ChangeNotifier, WidgetsBindingObserver {
@@ -264,13 +264,22 @@ class PriceService with ChangeNotifier, WidgetsBindingObserver {
     return now.weekday == DateTime.saturday || now.weekday == DateTime.sunday;
   }
 
+  final Map<String, (DateTime, List<Map<String, dynamic>>)> _historyCache = {};
+
   Future<List<Map<String, dynamic>>> fetchPriceHistory(String id, {String range = 'day'}) async {
+    final cacheKey = '$id-$range';
+    final cached = _historyCache[cacheKey];
+    if (cached != null && DateTime.now().difference(cached.$1).inMinutes < 5) {
+      return cached.$2;
+    }
     try {
       final response = await _httpApiService.get('/api/prices/history/$id?range=$range');
       final List<dynamic> data = response;
-      return data.cast<Map<String, dynamic>>();
+      final result = data.cast<Map<String, dynamic>>();
+      _historyCache[cacheKey] = (DateTime.now(), result);
+      return result;
     } catch (e) {
-      return [];
+      return cached?.$2 ?? [];
     }
   }
 

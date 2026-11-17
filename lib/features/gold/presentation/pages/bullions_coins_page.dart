@@ -239,6 +239,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                       localPrice: item.buyPrice,
                       localCurrencySymbol: item.currency,
                       usdPrice: item.usdPrice,
+                      usdSellPrice: item.usdSellPrice,
                     ),
                   );
                 },
@@ -265,6 +266,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                     localPrice: item.buyPrice,
                     localCurrencySymbol: item.currency,
                     usdPrice: item.usdPrice,
+                    usdSellPrice: item.usdSellPrice,
                   );
                 },
                 childCount: firstItems.length,
@@ -295,6 +297,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                         localPrice: item.buyPrice,
                         localCurrencySymbol: item.currency,
                         usdPrice: item.usdPrice,
+                        usdSellPrice: item.usdSellPrice,
                       ),
                     );
                   },
@@ -321,6 +324,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
                       localPrice: item.buyPrice,
                       localCurrencySymbol: item.currency,
                       usdPrice: item.usdPrice,
+                      usdSellPrice: item.usdSellPrice,
                     );
                   },
                   childCount: secondItems.length,
@@ -432,6 +436,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
       
       // Override for Kilo using backend specific values (e.g. AltinAPI for TR)
       String itemCurrency = currencySymbol;
+      double? usdSell;
       if (b['id'] == '1kg') {
         if (country.code.toUpperCase() == 'TR' && marketData != null && marketData['items'] != null) {
           final items = marketData['items'] as List<dynamic>;
@@ -443,6 +448,9 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
             buy = (trKilo['buyPrice'] as num).toDouble();
             sell = (trKilo['sellPrice'] as num).toDouble();
             usd = (trKilo['usdPrice'] as num).toDouble();
+            if (trKilo['usdSellPrice'] != null) {
+              usdSell = (trKilo['usdSellPrice'] as num).toDouble();
+            }
             itemCurrency = (trKilo['currency'] ?? '\$').toString();
           }
         } else if (country.code.toUpperCase() == 'GLOBAL') {
@@ -451,6 +459,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
              buy = xauKg.buyPrice;
              sell = xauKg.sellPrice;
              usd = xauKg.usdPrice > 0 ? xauKg.usdPrice : xauKg.buyPrice;
+             usdSell = xauKg.sellPrice;
              itemCurrency = '\$';
            }
         }
@@ -464,6 +473,7 @@ class _BullionsCoinsPageState extends ConsumerState<BullionsCoinsPage> with Sing
         currency: itemCurrency,
         metalType: 'bullion',
         usdPrice: usd,
+        usdSellPrice: usdSell,
         subtitle: '${b['grams']} غرام',
       );
     }).toList();

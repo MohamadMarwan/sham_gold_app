@@ -606,6 +606,7 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                 currency: item['currency'] ?? country.currencyCode,
                 metalType: item['metalType'] ?? 'gold',
                 usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+                usdSellPrice: (item['usdSellPrice'] as num?)?.toDouble(),
               );
 
               final isFeatured = item['karat'] == country.defaultKarat || item['isPopular'] == true;
@@ -615,6 +616,7 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                 localPrice: (item['buyPrice'] as num?)?.toDouble(),
                 localCurrencySymbol: item['currency'] ?? country.currencyCode,
                 usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+                usdSellPrice: (item['usdSellPrice'] as num?)?.toDouble(),
                 isFeatured: isFeatured,
               );
             },
@@ -641,6 +643,7 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                 currency: item['currency'] ?? country.currencyCode,
                 metalType: item['metalType'] ?? 'gold',
                 usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+                usdSellPrice: (item['usdSellPrice'] as num?)?.toDouble(),
               );
 
               final isFeatured = item['karat'] == country.defaultKarat || item['isPopular'] == true;
@@ -650,6 +653,7 @@ class _GoldPageState extends ConsumerState<GoldPage> with AutomaticKeepAliveClie
                 localPrice: (item['buyPrice'] as num?)?.toDouble(),
                 localCurrencySymbol: item['currency'] ?? country.currencyCode,
                 usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+                usdSellPrice: (item['usdSellPrice'] as num?)?.toDouble(),
                 isFeatured: isFeatured,
               );
             },

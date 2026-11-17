@@ -20,6 +20,7 @@ class CompactPriceCard extends ConsumerStatefulWidget {
   final double? localPrice; // Price in country currency
   final String? localCurrencySymbol;
   final double? usdPrice;
+  final double? usdSellPrice;
   final bool isFeatured;
   final VoidCallback? onTap;
 
@@ -29,6 +30,7 @@ class CompactPriceCard extends ConsumerStatefulWidget {
     this.localPrice,
     this.localCurrencySymbol,
     this.usdPrice,
+    this.usdSellPrice,
     this.isFeatured = false,
     this.onTap,
   });
@@ -91,10 +93,18 @@ class _CompactPriceCardState extends ConsumerState<CompactPriceCard>
         id: widget.priceItem.id,
         context: context);
     final double displayUsdPrice = widget.usdPrice ?? 0.0;
+    final double? effectiveUsdSellPrice = widget.usdSellPrice ?? widget.priceItem.usdSellPrice;
     final double sellPrice = widget.priceItem.sellPrice > 0 ? widget.priceItem.sellPrice : displayLocalPrice;
+    final double displayUsdSellPrice = (effectiveUsdSellPrice != null && effectiveUsdSellPrice > 0)
+        ? effectiveUsdSellPrice
+        : ((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice);
     final bool isUsdCurrency = currencySymbol == r'$' || 
         currencySymbol.toUpperCase() == 'USD' || 
         widget.priceItem.currency.toUpperCase() == 'USD';
+    final bool isEurSecondary = widget.priceItem.id.toLowerCase().contains('eur') ||
+        widget.priceItem.title.contains('€') ||
+        widget.priceItem.title.contains('يورو');
+    final String secondarySymbol = isEurSecondary ? '€' : r'$';
 
     final shouldPulse = ref.watch(settingsProvider.select((s) => s.enablePriceCardPulseAnimation));
 
@@ -301,7 +311,7 @@ class _CompactPriceCardState extends ConsumerState<CompactPriceCard>
                       ),
                       if (!isUsdCurrency && displayUsdPrice > 0)
                         Text(
-                          '≈ \$${CurrencyUtils.formatLocalizedNumber(displayUsdPrice, context, decimals: 1)}',
+                          '≈ $secondarySymbol${CurrencyUtils.formatLocalizedNumber(displayUsdPrice, context, decimals: 1)}',
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -370,9 +380,9 @@ class _CompactPriceCardState extends ConsumerState<CompactPriceCard>
                           ],
                         ),
                       ),
-                      if (!isUsdCurrency && displayUsdPrice > 0)
+                      if (!isUsdCurrency && (displayUsdPrice > 0 || displayUsdSellPrice > 0))
                         Text(
-                          '≈ \$${CurrencyUtils.formatLocalizedNumber(((sellPrice / (displayLocalPrice > 0 ? displayLocalPrice : 1)) * displayUsdPrice), context, decimals: 1)}',
+                          '≈ $secondarySymbol${CurrencyUtils.formatLocalizedNumber(displayUsdSellPrice, context, decimals: 1)}',
                           style: const TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,

@@ -201,23 +201,23 @@ class AdService {
 
       if (!kIsWeb) {
         if (defaultTargetPlatform == TargetPlatform.android) {
-          _bannerId = adSettings['android']?['bannerUnitId'];
+          _bannerId = adSettings['android']?['bannerUnitId']?.toString().trim();
           
-          final dbInterstitial = adSettings['android']?['interstitialUnitId'];
-          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) ? dbInterstitial : null;
+          final dbInterstitial = adSettings['android']?['interstitialUnitId']?.toString().trim();
+          newInterstitialId = (dbInterstitial != null && dbInterstitial.isNotEmpty) ? dbInterstitial : null;
               
-          newRewardedId = adSettings['android']?['rewardedInterstitialUnitId'];
-          _appOpenId = adSettings['android']?['appOpenUnitId'];
-          _nativeId = adSettings['android']?['nativeUnitId'];
+          newRewardedId = adSettings['android']?['rewardedInterstitialUnitId']?.toString().trim();
+          _appOpenId = adSettings['android']?['appOpenUnitId']?.toString().trim();
+          _nativeId = adSettings['android']?['nativeUnitId']?.toString().trim();
         } else if (defaultTargetPlatform == TargetPlatform.iOS) {
-          _bannerId = adSettings['ios']?['bannerUnitId'];
+          _bannerId = adSettings['ios']?['bannerUnitId']?.toString().trim();
           
-          final dbInterstitial = adSettings['ios']?['interstitialUnitId'];
-          newInterstitialId = (dbInterstitial != null && dbInterstitial.toString().trim().isNotEmpty) ? dbInterstitial : null;
+          final dbInterstitial = adSettings['ios']?['interstitialUnitId']?.toString().trim();
+          newInterstitialId = (dbInterstitial != null && dbInterstitial.isNotEmpty) ? dbInterstitial : null;
               
-          newRewardedId = adSettings['ios']?['rewardedInterstitialUnitId'];
-          _appOpenId = adSettings['ios']?['appOpenUnitId'];
-          _nativeId = adSettings['ios']?['nativeUnitId'];
+          newRewardedId = adSettings['ios']?['rewardedInterstitialUnitId']?.toString().trim();
+          _appOpenId = adSettings['ios']?['appOpenUnitId']?.toString().trim();
+          _nativeId = adSettings['ios']?['nativeUnitId']?.toString().trim();
         }
       }
 
@@ -225,7 +225,7 @@ class AdService {
       final interstitialIdChanged = newInterstitialId != null && newInterstitialId != _interstitialId;
       final rewardedIdChanged = newRewardedId != null && newRewardedId != _rewardedId;
       if (newInterstitialId != null && newInterstitialId.isNotEmpty) {
-        _interstitialId = newInterstitialId;
+        _interstitialId = newInterstitialId.trim();
       } else if (_interstitialId == null || _interstitialId!.isEmpty) {
         _interstitialId = fallbackInterstitialId;
       }
@@ -321,11 +321,11 @@ class AdService {
     }
 
     final effectiveId = (_interstitialId != null && _interstitialId!.trim().isNotEmpty)
-        ? _interstitialId!
+        ? _interstitialId!.trim()
         : fallbackInterstitialId;
 
     _isLoadingInterstitial = true;
-    debugPrint('📡 Loading Interstitial Ad: $effectiveId');
+    debugPrint('📡 Loading Interstitial Ad: $effectiveId (Platform: $defaultTargetPlatform)');
 
     InterstitialAd.load(
       adUnitId: effectiveId,
@@ -340,6 +340,11 @@ class AdService {
         },
         onAdFailedToLoad: (error) {
           debugPrint('❌ Interstitial Ad Failed to Load: ${error.message} (code: ${error.code})');
+          if (error.code == 3) {
+            debugPrint('💡 [AdMob Hint] Code 3 (ERROR_CODE_NO_FILL): AdMob has no ads to serve. Possible causes: unverified AdMob account, app not yet published/approved on Google Play, or testing with real ad units instead of Google Test IDs.');
+          } else if (error.code == 0) {
+            debugPrint('💡 [AdMob Hint] Code 0 (INTERNAL_ERROR): Likely mismatched App ID in AndroidManifest.xml / Info.plist with this Ad Unit account.');
+          }
           _isInterstitialAdLoaded = false;
           _isLoadingInterstitial = false;
           _interstitialAd = null;

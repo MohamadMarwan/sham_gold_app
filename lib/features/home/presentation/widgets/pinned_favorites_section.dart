@@ -198,6 +198,7 @@ class _PinnedFavoritesSectionState extends ConsumerState<PinnedFavoritesSection>
                                 localPrice: item.currency.toLowerCase() == 'usd' ? item.buyPrice * fxRate : item.buyPrice,
                                 localCurrencySymbol: item.currency.toLowerCase() == 'usd' ? country.currencyCode : item.currency,
                                 usdPrice: item.currency.toLowerCase() == 'usd' ? item.buyPrice : item.usdPrice,
+                                usdSellPrice: item.usdSellPrice,
                               ),
                               Positioned(
                                 left: 8,

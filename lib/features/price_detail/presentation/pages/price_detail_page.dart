@@ -409,11 +409,18 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
 
   Widget _buildPriceStatsCard(NumberFormat format) {
     final double buyUsd = widget.priceItem.usdPrice;
-    final double sellUsd = (widget.priceItem.buyPrice > 0 && buyUsd > 0)
-        ? (widget.priceItem.sellPrice / widget.priceItem.buyPrice) * buyUsd
-        : 0.0;
+    final double sellUsd = (widget.priceItem.usdSellPrice != null && widget.priceItem.usdSellPrice! > 0)
+        ? widget.priceItem.usdSellPrice!
+        : ((widget.priceItem.buyPrice > 0 && buyUsd > 0)
+            ? (widget.priceItem.sellPrice / widget.priceItem.buyPrice) * buyUsd
+            : 0.0);
     final bool isUsdItem = widget.priceItem.currency == r'$' || 
         widget.priceItem.currency.toUpperCase() == 'USD';
+    final bool isEurItem = widget.priceItem.id.toLowerCase().contains('eur') ||
+        widget.priceItem.title.contains('€') ||
+        widget.priceItem.title.contains('يورو');
+    final String secondarySymbol = isEurItem ? '€' : r'$';
+    final String secondaryUnit = isEurItem ? 'EUR' : 'USD';
 
     return PremiumCard(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
@@ -432,7 +439,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                   ),
                   '',
                   Colors.blue,
-                  usdSubtext: (!isUsdItem && buyUsd > 0) ? '≈ \$${buyUsd.toStringAsFixed(1)} USD' : null)),
+                  usdSubtext: (!isUsdItem && buyUsd > 0) ? '≈ $secondarySymbol${buyUsd.toStringAsFixed(1)} $secondaryUnit' : null)),
           Container(
               width: 1.5,
               height: 60,
@@ -459,7 +466,7 @@ class _PriceDetailPageState extends ConsumerState<PriceDetailPage> {
                   ),
                   '',
                   AppColors.gold,
-                  usdSubtext: (!isUsdItem && sellUsd > 0) ? '≈ \$${sellUsd.toStringAsFixed(1)} USD' : null)),
+                  usdSubtext: (!isUsdItem && sellUsd > 0) ? '≈ $secondarySymbol${sellUsd.toStringAsFixed(1)} $secondaryUnit' : null)),
         ],
       ),
     );

@@ -14,6 +14,7 @@ class PriceItem {
   final String metalType;
   final double changePercentage;
   final double usdPrice;
+  final double? usdSellPrice;
   final String? externalId;
   final DateTime? lastUpdate;
   final bool isManual;
@@ -29,6 +30,7 @@ class PriceItem {
     required this.metalType,
     this.changePercentage = 0.0,
     this.usdPrice = 0.0,
+    this.usdSellPrice,
     this.externalId,
     this.lastUpdate,
     this.isManual = false,
@@ -63,6 +65,7 @@ class PriceItem {
       metalType: json['metalType']?.toString() ?? 'gold',
       changePercentage: (json['changePercentage'] as num?)?.toDouble() ?? 0.0,
       usdPrice: (json['usdPrice'] as num?)?.toDouble() ?? 0.0,
+      usdSellPrice: (json['usdSellPrice'] as num?)?.toDouble(),
       externalId: json['externalId']?.toString(),
       lastUpdate: parsedUpdate,
       isManual: json['isManual'] ?? false,
@@ -81,6 +84,7 @@ class PriceItem {
       'metalType': metalType,
       'changePercentage': changePercentage,
       'usdPrice': usdPrice,
+      'usdSellPrice': usdSellPrice,
       'externalId': externalId,
       'lastUpdate': lastUpdate?.toIso8601String(),
       'isManual': isManual,

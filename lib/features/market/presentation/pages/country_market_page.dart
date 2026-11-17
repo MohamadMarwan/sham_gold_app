@@ -406,6 +406,7 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                                   currency: item['currency'] ?? country.localizedCurrencySymbol,
                                   metalType: item['metalType'] ?? (isCurrencyItem(item) ? 'currency' : 'gold'),
                                   usdPrice: (item['usdPrice'] as num?)?.toDouble() ?? 0.0,
+                                  usdSellPrice: (item['usdSellPrice'] as num?)?.toDouble(),
                                 );
 
                                 return CompactPriceCard(
@@ -413,6 +414,7 @@ class _CountryMarketPageState extends ConsumerState<CountryMarketPage> with Auto
                                   localPrice: bPrice,
                                   localCurrencySymbol: item['currency'] ?? country.localizedCurrencySymbol,
                                   usdPrice: (item['usdPrice'] as num?)?.toDouble(),
+                                  usdSellPrice: (item['usdSellPrice'] as num?)?.toDouble(),
                                   isFeatured: item['isPopular'] == true || item['karat'] == country.defaultKarat,
                                 );
                               },
